@@ -6,7 +6,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Release</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{E4DC5B9D-6096-43DD-9AE2-2BC997D4148E}</ProjectGuid>
+    <ProjectGuid>{5FB088ED-0A70-493E-A084-599018BFA16A}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>URP</RootNamespace>
