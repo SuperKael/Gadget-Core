@@ -1,0 +1,12 @@
+Gadget Core is a mod that is meant to serve as a unified core for other mods that wish to add new content to use.
+The goal is to simplify the process of adding new items, creatures, and more to the game, and simultaneously minimize the chances of mod conflicts.
+
+It currently unifies:
+ - Items
+ - Chips
+ - Tiles
+ - Creatures
+
+And it also provides the following additional features:
+ - An in-game mod configuration menu.
+ - A helper class for patching Coroutines.
