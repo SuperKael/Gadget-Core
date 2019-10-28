@@ -7,6 +7,7 @@ It currently unifies:
  - Chips
  - Tiles
  - Entities (Enemies)
+
 To do:
  - Projectiles
  - Hazards
