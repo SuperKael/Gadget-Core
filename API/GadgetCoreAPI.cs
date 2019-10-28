@@ -8,7 +8,7 @@ namespace GadgetCore.API
 {
     public static class GadgetCoreAPI
     {
-        public const string VERSION = "1.0.0.0";
+        public const string VERSION = "1.0.1.0";
 
         internal static Dictionary<string, UnityEngine.Object> resources = new Dictionary<string, UnityEngine.Object>();
         internal static List<SpriteSheetEntry> spriteSheetSprites = new List<SpriteSheetEntry>();

@@ -32,6 +32,9 @@
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net35|AnyCPU'">
+    <DocumentationFile>Release\GadgetCore.xml</DocumentationFile>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="0Harmony, Version=2.0.0.0">
       <HintPath>D:\Program Files (x86)\Steam\steamapps\common\Roguelands\uModFramework\Lib\net35\0Harmony.dll</HintPath>

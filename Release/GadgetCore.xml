@@ -1,0 +1,140 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>GadgetCore</name>
+    </assembly>
+    <members>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.SpawnItem(UnityEngine.Vector3,Item,System.Boolean)">
+            <summary>
+            Use to spawn an item into the game world.
+            You may notice that the vanilla game's source-code uses Resources.Load to spawn items. Do not use that.
+            </summary>
+            <param name="pos">The position to spawn the item at. Note that despite being a 2D game, Roguelands uses 3D space. That being said, the z-coordinate should nearly always be 0.</param>
+            <param name="item">The item to spawn.</param>
+            <param name="isChip">True to drop a chip instead of a normal item.</param>
+        </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.SpawnItemLocal(UnityEngine.Vector3,Item,System.Boolean)">
+            <summary>
+            Use to spawn an item into the local player's world.
+            You may notice that the vanilla game's source-code uses Resources.Load to spawn items. Do not use that.
+            </summary>
+            <param name="pos">The position to spawn the item at. Note that despite being a 2D game, Roguelands uses 3D space. That being said, the z-coordinate should nearly always be 0.</param>
+            <param name="item">The item to spawn.</param>
+            <param name="isChip">True to drop a chip instead of a normal item.</param>
+        </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.SpawnExp(UnityEngine.Vector3,System.Int32)">
+            <summary>
+            Use to spawn exp into the world.
+            You may notice that the vanilla game's source-code uses Resources.Load to spawn exp. Do not use that.
+            </summary>
+            <param name="pos">The position to spawn the item at. Note that despite being a 2D game, Roguelands uses 3D space. That being said, the z-coordinate should nearly always be 0.</param>
+            <param name="exp">The amount of exp points to spawn.</param>
+        </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.DropItem(UnityEngine.Vector3,Item,System.Boolean)">
+            <summary>
+            Use to spawn an item into the game world as if dropped by a player.
+            You may notice that the vanilla game's source-code uses Resources.Load to spawn items. Do not use that.
+            </summary>
+            <param name="pos">The position to spawn the item at. Note that despite being a 2D game, Roguelands uses 3D space. That being said, the z-coordinate should nearly always be 0.</param>
+            <param name="item">The item to spawn.</param>
+            <param name="isChip">True to drop a chip instead of a normal item.</param>
+        </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.AddCustomResource(System.String,UnityEngine.Object)">
+            <summary>
+            Use to manually add new resources to the game, or overwrite existing ones. May only be called from the Initialize method of a GadgetMod.
+            </summary>
+            <param name="path">The pseudo-file-path to place the resource on.</param>
+            <param name="resource">The resource to register.</param>
+        </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.AddTextureToSheet(UnityEngine.Texture)">
+            <summary>
+            Use to register a texture for the tile spritesheet. You probably shouldn't use this yourself - it is automatically called by TileInfo after registration. May only be called from the Initialize method of a GadgetMod.
+            </summary>
+            <param name="sprite">The Texture2D to register to the spritesheet</param>
+        </member>
+        <member name="T:GadgetCore.API.GadgetMod">
+            <summary>
+            Extend this class to have your mod be identified by Gadget Core. Must also have the <see cref="T:GadgetCore.API.GadgetModAttribute">GadgetMod</see> Attribute.
+            May have multiple GadgetMods in one uMod Framework mod - They will be able to be individually toggled in the ingame mod manager.
+            </summary>
+        </member>
+        <member name="T:GadgetCore.API.GadgetModAttribute">
+            <summary>
+            Required by classes that extend GadgetMod. Provides information about your mod.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetModAttribute.#ctor(System.String,System.Boolean,System.Int32,GadgetCore.API.VersionSpecificity,System.String)">
+            <summary>
+            Required by classes that extend GadgetMod. Provides information about your mod.
+            </summary>
+            <param name="Name">The friendly name of your mod</param>
+            <param name="EnableByDefault">Whether the mod should default to being enabled or not when first installed.</param>
+            <param name="LoadPriority">The priority for loading your mod. Higher number means higher priority. Leave at 0 if you don't care.</param>
+            <param name="VersionSpecificity">The point at which a change to GadgetCore so flag this mod as incompatible</param>
+            <param name="TargetGCVersion">The version of GadgetCore your mod is made for. Always leave this at default.</param>
+        </member>
+        <member name="M:GadgetCore.API.MathUtils.IsPerfectSquare(System.Int32)">
+            <summary>
+            Returns true if value is a perfect square. Otherwise returns false.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.MathUtils.NextPerfectSquare(System.Int32)">
+            <summary>
+            Returns the next perfect square after value. Value does not have to be a perfect square itself.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.MathUtils.SmallestPerfectSquare(System.Int32)">
+            <summary>
+            Returns the smallest perfect square that is at least value. If value is already a perfect square, returns value.
+            </summary>
+        </member>
+        <member name="T:API.GadgetCore.CoroutineOverride`1">
+            <summary>
+            Extend this class and override Next(int PC, T instance, ref object[] objs, ref object[] parameters) to patch Coroutine methods.
+            (Coroutines are methods that can delay their own execution using yield instructions, although if you didn't already know that you probably shouldn't try to override one.)
+            To override a Coroutine method with this, patch the Prefix of the method, and make sure to ref the __result param. Set __result to an instance of your override class, and return false from the Prefix.
+            For implementation details of the Next method, check the documentation there.
+            </summary>
+        </member>
+        <member name="M:API.GadgetCore.CoroutineOverride`1.#ctor(`0,System.Object[],System.Reflection.FieldInfo[])">
+            <summary>
+            <para><paramref name="instance"/>: an instance of the calling class, as provided by the __instance parameter in a harmony patch method.</para>
+            <para><paramref name="objs"/>: an array of objects you want to provide to your Coroutine override, perhaps the parameters of the Coroutine being overidden.</para>
+            <para><paramref name="parameters"/>: an array of FieldInfo representing private fields you want to give your Coroutine access to. A FieldInfo is obtained using: <code>typeof(ClassType).GetField("FieldName", CoroutineOverride.InstanceFlags OR CoroutineOverride.StaticFlags)</code></para>
+            </summary>
+        </member>
+        <member name="M:API.GadgetCore.CoroutineOverride`1.#ctor(`0,System.Reflection.FieldInfo[])">
+            <summary>
+            <para><paramref name="instance"/>: an instance of the calling class, as provided by the __instance parameter in a harmony patch method.</para>
+            <para><paramref name="parameters"/>: an array of FieldInfo representing private fields you want to give your Coroutine access to. Obtained using: <code>typeof(ClassType).GetField("FieldName", CoroutineOverride.InstanceFlags OR CoroutineOverride.StaticFlags)</code></para>
+            </summary>
+        </member>
+        <member name="M:API.GadgetCore.CoroutineOverride`1.Next(System.Int32,`0,System.Object[]@,System.Object[]@)">
+            <summary>
+            Override to provide the code to use for overriding the Coroutine.
+            Unfortunately, due to various limitations, the code here has to be written a bit differently than you would a traditional coroutine.
+            This method will get called repeatedly. The first time it is called, PC will be 0. Each additional time that it is called, PC will have been incremented by 1.
+            You should switch on the value of PC to provide different code to run depending on the state. Return a YieldInstruction, (I.E. WaitForSeconds), when you are done with the current state.
+            Return null to specify that your Coroutine is done executing. (Equivalent to 'yield break' in an actual Coroutine). You do not need to ever return null to stop, however if the Coroutine you are overriding does, you probably should too.
+            Bear in mind that at any time the caller of the Coroutine may decide to stop it, in which case Next will stop getting called with no warning. To create a loop, simply using the modulus operator (%) on PC in your switch.
+            <para><paramref name="objs"/>: an array of objects matching the objects your Coroutine was given in its constructor. Will be null if no objs were given in the Coroutine's constructor. Changes to these values will persist to later invocations of Next.</para>
+            <para><paramref name="parameters"/>: an array of objects matching the private fields your Coroutine was given access to in its constructor. Can have their values set to change the fields they reference.</para>
+            </summary>
+        </member>
+        <member name="M:API.GadgetCore.CoroutineOverride`1.MoveNext">
+            <summary>
+            Part of IEnumerator implementation. You should never invoke this yourself, as this is meant to only be used by the UnityEngine.
+            </summary>
+        </member>
+        <member name="M:API.GadgetCore.CoroutineOverride`1.Reset">
+            <summary>
+            Part of IEnumerator implementation. You should never invoke this, as it will always throw a NotSupportedException.
+            </summary>
+        </member>
+        <member name="M:API.GadgetCore.CoroutineOverride`1.Dispose">
+            <summary>
+            Part of IDisposable implementation. You should never invoke this yourself, as this is meant to only be used by the UnityEngine.
+            </summary>
+        </member>
+    </members>
+</doc>
