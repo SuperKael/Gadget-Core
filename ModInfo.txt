@@ -5,7 +5,15 @@ It currently unifies:
  - Items
  - Chips
  - Tiles
- - Creatures
+ - Entities (Enemies)
+To do:
+ - Projectiles
+ - Hazards
+ - Races
+ - Augments	
+ - Outfits
+ - World Objects
+ - Worlds
 
 And it also provides the following additional features:
  - An in-game mod configuration menu.

@@ -13,7 +13,6 @@ namespace GadgetCore.API
         public readonly Assembly Assembly;
         public readonly GadgetModAttribute Attribute;
         public readonly string UMFName;
-        public bool Enabled { get; internal set; }
         internal bool isMultiple = false;
 
         internal GadgetModInfo(GadgetMod mod, Assembly assembly, GadgetModAttribute attribute, string name)
@@ -22,7 +21,7 @@ namespace GadgetCore.API
             Assembly = assembly;
             Attribute = attribute;
             UMFName = name;
-            Enabled = GadgetCoreConfig.enabledMods.ContainsKey(attribute.Name) ? GadgetCoreConfig.enabledMods[attribute.Name] : GadgetCoreConfig.enabledMods[attribute.Name] = attribute.EnableByDefault;
+            Mod.Enabled = GadgetCoreConfig.enabledMods.ContainsKey(attribute.Name) ? GadgetCoreConfig.enabledMods[attribute.Name] : GadgetCoreConfig.enabledMods[attribute.Name] = attribute.EnableByDefault;
         }
     }
 }

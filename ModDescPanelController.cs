@@ -16,12 +16,14 @@ namespace GadgetCore
     {
         private static Dictionary<int, string> originalConfig = new Dictionary<int, string>();
         private static Dictionary<int, bool> wasEnabled = new Dictionary<int, bool>();
+        private static Dictionary<int, bool> wasUMFEnabled = new Dictionary<int, bool>();
 
         internal static List<Process> configHandles { get; private set; } = new List<Process>();
 
         private Toggle toggle;
         private int modIndex;
         internal Text descText;
+        internal GameObject restartRequiredText;
         internal Button configButton;
         internal Button enableUMFButton;
         internal Button enableButton;
@@ -30,18 +32,22 @@ namespace GadgetCore
 
         internal void Start()
         {
-            string[] disabledMods = File.ReadAllLines(UMFData.DisabledModsFile).Where(x => !string.IsNullOrEmpty(x)).ToArray();
             for (int i = 0;i < GadgetMods.CountMods();i++)
             {
-                wasEnabled[i] = GadgetMods.GetModInfo(i).Enabled;
+                wasEnabled[i] = GadgetMods.GetModInfo(i).Mod.Enabled;
+                wasUMFEnabled[i] = true;
             }
             for (int i = 0; i < GadgetCore.nonGadgetMods.Count; i++)
             {
-                wasEnabled[GadgetMods.CountMods() + i] = !disabledMods.Contains(GadgetCore.nonGadgetMods[i]);
+                wasUMFEnabled[GadgetMods.CountMods() + i] = true;
             }
             for (int i = 0; i < GadgetCore.disabledMods.Count; i++)
             {
-                wasEnabled[GadgetMods.CountMods() + GadgetCore.nonGadgetMods.Count + i] = !disabledMods.Contains(GadgetCore.nonGadgetMods[i]);
+                wasUMFEnabled[GadgetMods.CountMods() + GadgetCore.nonGadgetMods.Count + i] = false;
+            }
+            for (int i = 0; i < GadgetCore.incompatibleMods.Count; i++)
+            {
+                wasUMFEnabled[GadgetMods.CountMods() + GadgetCore.nonGadgetMods.Count + GadgetCore.disabledMods.Count + i] = false;
             }
             StartCoroutine(WatchForRestartNeeded());
         }
@@ -51,12 +57,13 @@ namespace GadgetCore
             if (!File.Exists(UMFData.DisabledModsFile)) File.Create(UMFData.DisabledModsFile).Dispose();
             this.toggle = toggle;
             this.modIndex = modIndex;
+            string[] disabledMods = File.ReadAllLines(UMFData.DisabledModsFile).Where(x => !string.IsNullOrEmpty(x)).ToArray();
             if (modIndex < GadgetMods.CountMods())
             {
-                enableUMFButton.interactable = true;
-                enableButton.interactable = true;
                 GadgetModInfo mod = GadgetMods.ListAllModInfos()[modIndex];
-                enableButton.GetComponentInChildren<Text>().text = mod.Enabled ? "Disable" : "Enable";
+                enableUMFButton.interactable = !GadgetCore.dependencies.Any(x => !disabledMods.Contains(x.Key) && x.Value.Any(d => { string[] split = d.Split(' '); return split[split.Length - 2].Equals(mod.UMFName); }));
+                enableButton.interactable = true;
+                enableButton.GetComponentInChildren<Text>().text = mod.Mod.Enabled ? "Disable Gadget" : "Enable Gadget";
                 enableUMFButton.GetComponentInChildren<Text>().text = File.ReadAllLines(UMFData.DisabledModsFile).Any(x => x.Equals(mod.UMFName)) ? "Enable Mod" : "Disable Mod";
                 string desc = mod.Mod.GetModDescription();
                 bool isDescNull = desc == null;
@@ -81,25 +88,26 @@ namespace GadgetCore
                     }
                 }
                 descText.text =
-                    mod.Attribute.Name + " v" + UMFMod.GetModVersion(mod.UMFName).ToString() + (mod.Enabled ? " (Enabled)" : " (Disabled)") + Environment.NewLine +
+                    mod.Attribute.Name + " v" + UMFMod.GetModVersion(mod.UMFName).ToString() + (mod.Mod.Enabled ? " (Enabled)" : " (Disabled)") + Environment.NewLine +
                     "UMF Mod: " + mod.UMFName + Environment.NewLine +
+                    (GadgetCore.dependencies.ContainsKey(mod.UMFName) ? ("Dependencies: " + GadgetCore.dependencies[mod.UMFName].Aggregate((x, y) => x + ", " + y) + Environment.NewLine) : "") +
                     (isModInfo ? "UMF Mod Info: " : "Description: ") + UMFMod.GetModDescription(mod.UMFName) + Environment.NewLine + Environment.NewLine + desc;
             }
             else
             {
+                bool enabled = !File.ReadAllLines(UMFData.DisabledModsFile).Any(x => x.Equals(modIndex - GadgetMods.CountMods() < GadgetCore.nonGadgetMods.Count ? GadgetCore.nonGadgetMods[modIndex - GadgetMods.CountMods()] : modIndex - GadgetMods.CountMods() - GadgetCore.nonGadgetMods.Count < GadgetCore.disabledMods.Count ? GadgetCore.disabledMods[modIndex - GadgetMods.CountMods() - GadgetCore.nonGadgetMods.Count] : GadgetCore.incompatibleMods[modIndex - GadgetMods.CountMods() - GadgetCore.nonGadgetMods.Count - GadgetCore.disabledMods.Count]));
+                enableButton.GetComponentInChildren<Text>().text = enabled ? "Disable Gadget" : "Enable Gadget";
+                enableUMFButton.GetComponentInChildren<Text>().text = enabled ? "Disable Mod" : "Enable Mod";
+                string mod = modIndex - GadgetMods.CountMods() < GadgetCore.nonGadgetMods.Count ? GadgetCore.nonGadgetMods[modIndex - GadgetMods.CountMods()] : modIndex - GadgetMods.CountMods() - GadgetCore.nonGadgetMods.Count < GadgetCore.disabledMods.Count ? GadgetCore.disabledMods[modIndex - GadgetMods.CountMods() - GadgetCore.nonGadgetMods.Count] : GadgetCore.incompatibleMods[modIndex - GadgetMods.CountMods() - GadgetCore.nonGadgetMods.Count - GadgetCore.disabledMods.Count];
                 if (modIndex - GadgetMods.CountMods() < GadgetCore.nonGadgetMods.Count && GadgetCore.nonGadgetMods[modIndex - GadgetMods.CountMods()].Equals("GadgetCore"))
                 {
                     enableUMFButton.interactable = false;
                 }
                 else
                 {
-                    enableUMFButton.interactable = true;
+                    enableUMFButton.interactable = !GadgetCore.dependencies.Any(x => !disabledMods.Contains(x.Key) && x.Value.Any(d => { string[] split = d.Split(' '); return split[split.Length - 2].Equals(mod); }));
                 }
                 enableButton.interactable = false;
-                bool enabled = !File.ReadAllLines(UMFData.DisabledModsFile).Any(x => x.Equals(modIndex - GadgetMods.CountMods() < GadgetCore.nonGadgetMods.Count ? GadgetCore.nonGadgetMods[modIndex - GadgetMods.CountMods()] : GadgetCore.disabledMods[modIndex - GadgetMods.CountMods() - GadgetCore.nonGadgetMods.Count]));
-                enableButton.GetComponentInChildren<Text>().text = enabled ? "Disable" : "Enable";
-                enableUMFButton.GetComponentInChildren<Text>().text = enabled ? "Disable Mod" : "Enable Mod";
-                string mod = modIndex - GadgetMods.CountMods() < GadgetCore.nonGadgetMods.Count ? GadgetCore.nonGadgetMods[modIndex - GadgetMods.CountMods()] : GadgetCore.disabledMods[modIndex - GadgetMods.CountMods() - GadgetCore.nonGadgetMods.Count];
                 string desc = null;
                 try
                 {
@@ -111,6 +119,7 @@ namespace GadgetCore
                     if (string.IsNullOrEmpty(desc) || desc == "A UMF Mod(umodframework.com) for Roguelands") desc = "This mod does not have a ModInfo file.";
                     descText.text =
                         mod + " v" + UMFMod.GetModVersion(mod).ToString() + (enabled ? " (Enabled)" : " (Disabled)") + Environment.NewLine +
+                        (GadgetCore.dependencies.ContainsKey(mod) ? ("Dependencies: " + GadgetCore.dependencies[mod].Aggregate((x, y) => x + ", " + y) + Environment.NewLine) : "") +
                         "UMF Mod Info: " + UMFMod.GetModDescription(mod) + Environment.NewLine + Environment.NewLine + desc;
                 }
             }
@@ -127,9 +136,13 @@ namespace GadgetCore
             {
                 filePath = UMFData.ConfigsPath + "/" + GadgetCore.nonGadgetMods[modIndex - GadgetMods.CountMods()] + ".ini";
             }
-            else
+            else if (modIndex - GadgetMods.CountMods() - GadgetCore.nonGadgetMods.Count < GadgetCore.disabledMods.Count)
             {
                 filePath = UMFData.ConfigsPath + "/" + GadgetCore.disabledMods[modIndex - GadgetMods.CountMods() - GadgetCore.nonGadgetMods.Count] + ".ini";
+            }
+            else
+            {
+                filePath = UMFData.ConfigsPath + "/" + GadgetCore.disabledMods[modIndex - GadgetMods.CountMods() - GadgetCore.nonGadgetMods.Count - GadgetCore.disabledMods.Count] + ".ini";
             }
             try
             {
@@ -149,17 +162,18 @@ namespace GadgetCore
             string[] fileLines = File.ReadAllLines(UMFData.DisabledModsFile);
             if (modIndex < GadgetMods.CountMods())
             {
-                if (fileLines.Any(x => x.Equals(GadgetCore.nonGadgetMods[modIndex - GadgetMods.CountMods()])))
+                if (fileLines.Any(x => x.Equals(GadgetMods.GetModInfo(modIndex).UMFName)))
                 {
                     File.WriteAllLines(UMFData.DisabledModsFile, fileLines.Where(x => !x.Equals(GadgetMods.GetModInfo(modIndex).UMFName)).ToArray());
-                    enableButton.GetComponentInChildren<Text>().text = "Disable";
+                    enableButton.GetComponentInChildren<Text>().text = GadgetMods.GetModInfo(modIndex).Mod.Enabled ? "Disable Gadget" : "Enable Gadget";
                     enableUMFButton.GetComponentInChildren<Text>().text = "Disable Mod";
-                    toggle.GetComponentInChildren<Text>().color = new Color(1f, 1f, 1f, 1f);
+                    toggle.GetComponentInChildren<Text>().color = GadgetMods.GetModInfo(modIndex).Mod.Enabled ? new Color(1f, 1f, 1f, 1f) : new Color(1f, 1f, 1f, 0.5f);
                 }
                 else
                 {
                     File.WriteAllText(UMFData.DisabledModsFile, fileText + Environment.NewLine + GadgetMods.GetModInfo(modIndex).UMFName);
-                    enableButton.GetComponentInChildren<Text>().text = "Enable";
+                    GadgetMods.SetEnabled(modIndex, false);
+                    enableButton.GetComponentInChildren<Text>().text = "Enable Gadget";
                     enableUMFButton.GetComponentInChildren<Text>().text = "Enable Mod";
                     toggle.GetComponentInChildren<Text>().color = new Color(1f, 1f, 1f, 0.5f);
                 }
@@ -179,7 +193,7 @@ namespace GadgetCore
                     toggle.GetComponentInChildren<Text>().color = new Color(1f, 1f, 1f, 0.5f);
                 }
             }
-            else
+            else if (modIndex - GadgetMods.CountMods() - GadgetCore.nonGadgetMods.Count < GadgetCore.disabledMods.Count)
             {
                 if (fileLines.Any(x => x.Equals(GadgetCore.disabledMods[modIndex - GadgetMods.CountMods() - GadgetCore.nonGadgetMods.Count])))
                 {
@@ -194,6 +208,21 @@ namespace GadgetCore
                     toggle.GetComponentInChildren<Text>().color = new Color(1f, 1f, 1f, 0.5f);
                 }
             }
+            else
+            {
+                if (fileLines.Any(x => x.Equals(GadgetCore.incompatibleMods[modIndex - GadgetMods.CountMods() - GadgetCore.nonGadgetMods.Count - GadgetCore.disabledMods.Count])))
+                {
+                    File.WriteAllLines(UMFData.DisabledModsFile, fileLines.Where(x => !x.Equals(GadgetCore.incompatibleMods[modIndex - GadgetMods.CountMods() - GadgetCore.nonGadgetMods.Count - GadgetCore.disabledMods.Count])).ToArray());
+                    enableUMFButton.GetComponentInChildren<Text>().text = "Disable Mod";
+                    toggle.GetComponentInChildren<Text>().color = new Color(1f, 1f, 1f, 1f);
+                }
+                else
+                {
+                    File.WriteAllText(UMFData.DisabledModsFile, fileText + Environment.NewLine + GadgetCore.incompatibleMods[modIndex - GadgetMods.CountMods() - GadgetCore.nonGadgetMods.Count - GadgetCore.disabledMods.Count]);
+                    enableUMFButton.GetComponentInChildren<Text>().text = "Enable Mod";
+                    toggle.GetComponentInChildren<Text>().color = new Color(1f, 1f, 1f, 0.5f);
+                }
+            }
             UpdateRestartNeeded();
         }
 
@@ -201,14 +230,14 @@ namespace GadgetCore
         {
             if (modIndex < GadgetMods.CountMods())
             {
-                bool enabled = !GadgetMods.GetModInfo(modIndex).Enabled;
+                bool enabled = !GadgetMods.GetModInfo(modIndex).Mod.Enabled;
                 GadgetMods.SetEnabled(modIndex, enabled);
-                enableButton.GetComponentInChildren<Text>().text = enabled ? "Disable" : "Enable";
+                enableButton.GetComponentInChildren<Text>().text = enabled ? "Disable Gadget" : "Enable Gadget";
                 toggle.GetComponentInChildren<Text>().color = enabled ? new Color(1f, 1f, 1f, 1f) : new Color(1f, 1f, 1f, 0.5f);
                 if (enabled)
                 {
                     if (!File.Exists(UMFData.DisabledModsFile)) File.Create(UMFData.DisabledModsFile).Dispose();
-                    File.WriteAllText(UMFData.DisabledModsFile, File.ReadAllText(UMFData.DisabledModsFile).Split(new char[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries).Where(x => x != GadgetCore.nonGadgetMods[modIndex - GadgetMods.CountMods() - GadgetCore.nonGadgetMods.Count]).Aggregate((x, y) => x + Environment.NewLine + y));
+                    File.WriteAllLines(UMFData.DisabledModsFile, File.ReadAllLines(UMFData.DisabledModsFile).Where(x => x != GadgetMods.GetModInfo(modIndex).UMFName).ToArray());
                     enableUMFButton.GetComponentInChildren<Text>().text = "Disable Mod";
                 }
             }
@@ -231,6 +260,7 @@ namespace GadgetCore
             if (RestartNeeded != restartNeededOld)
             {
                 Array.ForEach(SceneInjector.modMenuBackButtonHolder.GetComponentsInChildren<TextMesh>(), x => x.text = RestartNeeded ? "QUIT" : "BACK");
+                restartRequiredText.SetActive(RestartNeeded);
                 UpdateInfo(toggle, modIndex);
             }
         }
@@ -238,11 +268,16 @@ namespace GadgetCore
         private bool IsRestartNeeded()
         {
             if (!File.Exists(UMFData.DisabledModsFile)) File.Create(UMFData.DisabledModsFile).Dispose();
+            string[] disabledMods = File.ReadAllLines(UMFData.DisabledModsFile).Where(x => !string.IsNullOrEmpty(x)).ToArray();
             for (int i = 0; i < GadgetMods.CountMods(); i++)
             {
                 if (wasEnabled.ContainsKey(i))
                 {
-                    if (wasEnabled[i] != GadgetMods.GetModInfo(i).Enabled) return true;
+                    if (wasEnabled[i] != GadgetMods.GetModInfo(i).Mod.Enabled) return true;
+                }
+                if (wasUMFEnabled.ContainsKey(i))
+                {
+                    if (wasUMFEnabled[i] != !disabledMods.Contains(GadgetMods.GetModInfo(i).UMFName)) return true;
                 }
                 if (originalConfig.ContainsKey(i))
                 {
@@ -251,9 +286,9 @@ namespace GadgetCore
             }
             for (int i = 0; i < GadgetCore.nonGadgetMods.Count; i++)
             {
-                if (wasEnabled.ContainsKey(GadgetMods.CountMods() + i))
+                if (wasUMFEnabled.ContainsKey(GadgetMods.CountMods() + i))
                 {
-                    if (wasEnabled[GadgetMods.CountMods() + i] ? File.ReadAllLines(UMFData.DisabledModsFile).Any(x => x.Equals(GadgetCore.nonGadgetMods[i])) : !File.ReadAllLines(UMFData.DisabledModsFile).Any(x => x.Equals(GadgetCore.nonGadgetMods[i]))) return true;
+                    if (wasUMFEnabled[GadgetMods.CountMods() + i] != !disabledMods.Contains(GadgetCore.nonGadgetMods[i])) return true;
                 }
                 if (originalConfig.ContainsKey(GadgetMods.CountMods() + i))
                 {
@@ -262,13 +297,24 @@ namespace GadgetCore
             }
             for (int i = 0; i < GadgetCore.disabledMods.Count; i++)
             {
-                if (wasEnabled.ContainsKey(GadgetMods.CountMods() + GadgetCore.nonGadgetMods.Count + i))
+                if (wasUMFEnabled.ContainsKey(GadgetMods.CountMods() + GadgetCore.nonGadgetMods.Count + i))
                 {
-                    if (wasEnabled[GadgetMods.CountMods() + GadgetCore.nonGadgetMods.Count + i] ? File.ReadAllLines(UMFData.DisabledModsFile).Any(x => x.Equals(GadgetCore.disabledMods[i])) : !File.ReadAllLines(UMFData.DisabledModsFile).Any(x => x.Equals(GadgetCore.disabledMods[i]))) return true;
+                    if (wasUMFEnabled[GadgetMods.CountMods() + GadgetCore.nonGadgetMods.Count + i] != !disabledMods.Contains(GadgetCore.disabledMods[i])) return true;
                 }
                 if (originalConfig.ContainsKey(GadgetMods.CountMods() + GadgetCore.nonGadgetMods.Count + i))
                 {
                     if (!originalConfig[GadgetMods.CountMods() + GadgetCore.nonGadgetMods.Count + i].Equals(File.ReadAllText(UMFData.ConfigsPath + "/" + GadgetCore.disabledMods[i] + ".ini"))) return true;
+                }
+            }
+            for (int i = 0; i < GadgetCore.incompatibleMods.Count; i++)
+            {
+                if (wasUMFEnabled.ContainsKey(GadgetMods.CountMods() + GadgetCore.nonGadgetMods.Count + GadgetCore.disabledMods.Count + i))
+                {
+                    if (wasUMFEnabled[GadgetMods.CountMods() + GadgetCore.nonGadgetMods.Count + GadgetCore.disabledMods.Count + i] != !disabledMods.Contains(GadgetCore.incompatibleMods[i])) return true;
+                }
+                if (originalConfig.ContainsKey(GadgetMods.CountMods() + GadgetCore.nonGadgetMods.Count + GadgetCore.disabledMods.Count + i))
+                {
+                    if (!originalConfig[GadgetMods.CountMods() + GadgetCore.nonGadgetMods.Count + GadgetCore.disabledMods.Count + i].Equals(File.ReadAllText(UMFData.ConfigsPath + "/" + GadgetCore.incompatibleMods[i] + ".ini"))) return true;
                 }
             }
             return false;

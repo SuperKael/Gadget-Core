@@ -7,7 +7,7 @@ using GadgetCore.API;
 [assembly: AssemblyDescription("A core framework for other mods to add new content to the game, without interfering with each other.")]
 [assembly: AssemblyCompany("")] //Set this to your name/nickname and/or website
 [assembly: AssemblyCopyright("© 2019 HaneyDev. All rights reserved.")] //Set this to your copyright name.
-[assembly: AssemblyVersion("1.0.0.0")] //Set this to the version of your mod.
+[assembly: AssemblyVersion("1.0")] //Set this to the version of your mod.
 [assembly: AssemblyFileVersion(GadgetCoreAPI.VERSION)] //Set this to the version of your mod.
 
 [assembly: ComVisible(false)]

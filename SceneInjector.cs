@@ -84,6 +84,12 @@ namespace GadgetCore
             modConfigMenuText.name = "txt0";
             modConfigMenuText.transform.localPosition = new Vector3(0, 14, -1);
             Array.ForEach(modConfigMenuText.GetComponentsInChildren<TextMesh>(), x => { x.text = "MOD CONFIG MENU"; x.anchor = TextAnchor.UpperCenter; });
+            GameObject restartRequiredText = UnityEngine.Object.Instantiate(modConfigMenuText, modMenu.transform);
+            restartRequiredText.SetActive(false);
+            restartRequiredText.name = "Restart Required Text";
+            restartRequiredText.transform.localPosition = new Vector3(0, -10.5f, -1);
+            restartRequiredText.transform.localScale *= 0.75f;
+            Array.ForEach(restartRequiredText.GetComponentsInChildren<TextMesh>(), x => { x.text = "Restart Required!"; x.anchor = TextAnchor.UpperCenter; });
             RectTransform panel = new GameObject("Panel", typeof(RectTransform)).GetComponent<RectTransform>();
             panel.SetParent(canvas.transform);
             panel.anchorMin = new Vector2(0.15f, 0.15f);
@@ -141,6 +147,7 @@ namespace GadgetCore
             modMenuDescPanel.GetComponent<ScrollRect>().scrollSensitivity = 5;
             modMenuDescPanel.GetComponent<ScrollRect>().viewport = modMenuDescViewport;
             modMenuDescPanel.descText = modMenuDescText;
+            modMenuDescPanel.restartRequiredText = restartRequiredText;
             Image modMenuButtonPanel = new GameObject("Button Panel", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image)).GetComponent<Image>();
             modMenuButtonPanel.GetComponent<RectTransform>().SetParent(panel);
             modMenuButtonPanel.GetComponent<RectTransform>().anchorMin = new Vector2(0.4f, 0f);
@@ -213,13 +220,14 @@ namespace GadgetCore
             enableButtonText.alignment = TextAnchor.MiddleCenter;
             enableButtonText.font = modMenuDescText.font;
             enableButtonText.fontSize = 12;
-            enableButtonText.text = "Enable";
+            enableButtonText.text = "Enable Gadget";
 
             GadgetModInfo[] gadgetMods = GadgetMods.ListAllModInfos();
-            string[] allMods = gadgetMods.Select(x => x.Attribute.Name).Concat(GadgetCore.nonGadgetMods).Concat(GadgetCore.disabledMods).ToArray();
+            string[] allMods = gadgetMods.Select(x => x.Attribute.Name).Concat(GadgetCore.nonGadgetMods).Concat(GadgetCore.disabledMods).Concat(GadgetCore.incompatibleMods).ToArray();
             int gadgetModCount = GadgetMods.CountMods();
             int normalModCount = GadgetCore.nonGadgetMods.Count;
             int disabledModCount = GadgetCore.disabledMods.Count;
+            int incompatibleModCount = GadgetCore.incompatibleMods.Count;
             ScrollRect modListScrollView = new GameObject("Scroll View", typeof(RectTransform), typeof(ScrollRect), typeof(CanvasRenderer), typeof(Image)).GetComponent<ScrollRect>();
             modListScrollView.GetComponent<RectTransform>().SetParent(panel);
             modListScrollView.GetComponent<RectTransform>().anchorMin = new Vector2(0f, 0f);
@@ -291,6 +299,7 @@ namespace GadgetCore
                 modSelected.rectTransform.offsetMax = Vector2.zero;
                 modSelected.sprite = boxSprite;
                 modSelected.type = Image.Type.Sliced;
+                modSelected.color = i < gadgetModCount ? new Color(1f, 1f, 0.25f, 1f) : i >= gadgetModCount + normalModCount + disabledModCount ? new Color(1f, 0f, 0f, 1f) : i >= gadgetModCount + normalModCount ? new Color(0.25f, 0.25f, 0.25f, 1f) : new Color(1f, 1f, 1f, 1f);
                 Text modLabel = new GameObject("Label", typeof(RectTransform), typeof(CanvasRenderer), typeof(Text)).GetComponent<Text>();
                 modLabel.rectTransform.SetParent(modEntry);
                 modLabel.rectTransform.anchorMin = new Vector2(0f, 0f);
@@ -300,11 +309,11 @@ namespace GadgetCore
                 modLabel.font = modConfigMenuText.GetComponent<TextMesh>().font;
                 modLabel.fontSize = 12;
                 modLabel.horizontalOverflow = HorizontalWrapMode.Overflow;
-                modLabel.text = allMods[i] + Environment.NewLine + (i < gadgetModCount ? ("Gadget Mod (" + GadgetMods.GetModInfo(allMods[i]).UMFName + ")") : (i < gadgetModCount + GadgetCore.nonGadgetMods.Count ? "Non-Gadget Mod" : "Disabled"));
-                if ((i < gadgetModCount && !gadgetMods[i].Enabled) || i >= gadgetModCount + GadgetCore.nonGadgetMods.Count) modLabel.color = new Color(1f, 1f, 1f, 0.5f);
+                modLabel.text = allMods[i] + Environment.NewLine + (i < gadgetModCount ? ("Gadget Mod (" + GadgetMods.GetModInfo(allMods[i]).UMFName + ")") : (i < gadgetModCount + normalModCount ? "Non-Gadget Mod" : i < gadgetModCount + normalModCount + disabledModCount ? "Disabled" : "Incompatible"));
+                if ((i < gadgetModCount && !gadgetMods[i].Mod.Enabled) || i >= gadgetModCount + GadgetCore.nonGadgetMods.Count) modLabel.color = new Color(1f, 1f, 1f, 0.5f);
                 modToggle.GetComponent<Image>().sprite = boxSprite;
                 modToggle.GetComponent<Image>().type = Image.Type.Sliced;
-                modToggle.GetComponent<Image>().color = new Color(1f, 1f, 1f, 0.25f);
+                modToggle.GetComponent<Image>().color = i < gadgetModCount ? new Color(1f, 1f, 0.25f, 0.25f) : i >= gadgetModCount + normalModCount + disabledModCount ? new Color(1f, 0f, 0f, 0.25f) : i >= gadgetModCount + normalModCount ? new Color(0.25f, 0.25f, 0.25f, 0.25f) : new Color(1f, 1f, 1f, 0.25f);
                 modToggle.transition = Selectable.Transition.None;
                 modToggle.isOn = i == 0;
                 modToggle.toggleTransition = Toggle.ToggleTransition.None;

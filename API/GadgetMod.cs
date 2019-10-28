@@ -11,15 +11,14 @@ namespace GadgetCore.API
     /// </summary>
     public abstract class GadgetMod
     {
+        public bool Enabled { get; internal set; } = false;
+        public int ModID { get; internal set; } = -1;
         public virtual Registry[] CreateRegistries()
         {
             return new Registry[0];
         }
 
-        public virtual void Initialize() { }
-        public virtual void OnModEnable() { }
-        public virtual void OnModDisable() { }
-        public virtual void ScriptAwake() { }
+        public abstract void Initialize();
         public virtual void ScriptStart() { }
         public virtual void ScriptUpdate() { }
         public virtual void ScriptFixedUpdate() { }

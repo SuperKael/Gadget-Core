@@ -10,21 +10,22 @@ namespace GadgetCore
     public class GadgetModHookScript : MonoBehaviour
     {
         public GadgetModInfo Mod { get; internal set; }
-        public void Awake()
-        {
-            if (Mod.Enabled) Mod.Mod.ScriptAwake();
-        }
         public void Start()
         {
-            if (Mod.Enabled) Mod.Mod.ScriptStart();
+            if (Mod == null || Mod.Mod == null)
+            {
+                DestroyImmediate(this);
+                return;
+            }
+            if (Mod.Mod.Enabled) Mod.Mod.ScriptStart();
         }
         public void Update()
         {
-            if (Mod.Enabled) Mod.Mod.ScriptUpdate();
+            if (Mod.Mod.Enabled) Mod.Mod.ScriptUpdate();
         }
         public void FixedUpdate()
         {
-            if (Mod.Enabled) Mod.Mod.ScriptFixedUpdate();
+            if (Mod.Mod.Enabled) Mod.Mod.ScriptFixedUpdate();
         }
     }
 }

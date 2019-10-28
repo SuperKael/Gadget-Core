@@ -7,15 +7,33 @@ namespace GadgetCore.API
 {
     public abstract class RegistryEntry<E, T> where E : RegistryEntry<E, T> where T : Enum
     {
-        internal int id = -1;
+        internal int ModID;
+        internal int ID = -1;
+
+        public GadgetMod GetMod()
+        {
+            return GadgetMods.GetMod(ModID);
+        }
+
+        public int GetModID()
+        {
+            return ModID;
+        }
 
         public int GetID()
         {
-            return id;
+            return ID;
         }
 
+        protected RegistryEntry<E, T> RegisterInternal(int preferredID = -1, bool overrideExisting = true)
+        {
+            GetRegistry().Register(this as E, preferredID, overrideExisting);
+            return this;
+        }
+
+        public virtual void PostRegister() { }
         public abstract T GetEntryTypeEnum();
-        public abstract Registry GetRegistry();
+        public abstract Registry<E, T> GetRegistry();
 
         public abstract bool IsValidIDForType(int id);
         public abstract int GetNextIDForType(int lastValidID);

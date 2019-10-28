@@ -15,7 +15,7 @@ namespace GadgetCore.API
 
     public enum ChipType
     {
-        ACTIVE,
-        PASSIVE
+        PASSIVE,
+        ACTIVE
     }
 }

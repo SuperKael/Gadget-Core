@@ -1,0 +1,113 @@
+using HarmonyLib;
+using GadgetCore.API;
+using GadgetCore;
+using UnityEngine;
+using System.Collections;
+using System.Reflection;
+
+namespace GadgetCore.Patches
+{
+    [HarmonyPatch(typeof(GameScript))]
+    [HarmonyPatch("UseItem")]
+    static class Patch_GameScript_UseItem
+    {
+        public static readonly FieldInfo usingItem = typeof(GameScript).GetField("usingItem", BindingFlags.NonPublic | BindingFlags.Instance);
+        public static readonly FieldInfo curBlockSlot = typeof(GameScript).GetField("curBlockSlot", BindingFlags.NonPublic | BindingFlags.Instance);
+        public static readonly MethodInfo RefreshSlot = typeof(GameScript).GetMethod("RefreshSlot", BindingFlags.NonPublic | BindingFlags.Instance);
+        public static readonly MethodInfo EnterBuildMode = typeof(GameScript).GetMethod("EnterBuildMode", BindingFlags.NonPublic | BindingFlags.Instance);
+
+        [HarmonyPrefix]
+        public static bool Prefix(GameScript __instance, int slot, ref Item[] ___inventory, bool ___exitingcombatmode, ref bool ___usingItem)
+        {
+            ItemInfo item = ItemRegistry.GetSingleton().GetEntry(___inventory[slot].id);
+            if (item != null && !GameScript.dead && !___exitingcombatmode && !___usingItem)
+            {
+                if ((item.Type & ItemType.USABLE) == ItemType.USABLE)
+                {
+                    bool shouldUse = item.InvokeOnUse(slot);
+                    if (shouldUse)
+                    {
+                        ___usingItem = true;
+                        __instance.StartCoroutine(UseItemFinal(__instance, slot, item, ___inventory, ___usingItem));
+                    }
+                    else if (item.Tile != null)
+                    {
+                        __instance.StartCoroutine(UseItemFinal(__instance, slot, item, ___inventory, ___usingItem));
+                    }
+                }
+                else if ((item.Type & ItemType.EQUIPMENT_F) != ItemType.EQUIPMENT_F)
+                {
+                    ___usingItem = item.Tile == null;
+                    __instance.StartCoroutine(UseItemFinal(__instance, slot, item, ___inventory, ___usingItem));
+                }
+                return false;
+            }
+            return true;
+        }
+
+        private static IEnumerator UseItemFinal(GameScript instance, int slot, ItemInfo item, Item[] inventory, bool usingItem)
+        {
+            int tempID = GameScript.equippedIDs[0];
+            GameScript.equippedIDs[0] = inventory[slot].id;
+            if (usingItem)
+            {
+                MenuScript.playerAppearance.GetComponent<NetworkView>().RPC("UA", RPCMode.AllBuffered, new object[]
+                {
+            GameScript.equippedIDs,
+            2,  
+            GameScript.dead
+                });
+                MenuScript.player.SendMessage("Use");
+                yield return new WaitForSeconds(0.5f);
+                instance.StartCoroutine(UsingItem(instance));
+                instance.inventoryBarObj[slot].GetComponent<Animation>().Play();
+                if ((item.Type & ItemType.CONSUMABLE) == ItemType.CONSUMABLE)
+                {
+                    inventory[slot].q--;
+                    RefreshSlot.Invoke(instance, new object[] { slot });
+                }
+            }
+            else if (item.Tile != null)
+            {
+                instance.inventoryBarObj[slot].GetComponent<Animation>().Play();
+                GameScript.curBlockID = item.Tile.ID;
+                curBlockSlot.SetValue(instance, slot);
+                Renderer component = instance.hoverSprite.GetComponent<Renderer>();
+                component.material = (Material)Resources.Load("construct/c" + GameScript.curBlockID);
+                component.material.mainTextureScale = new Vector2(1f, 1f);
+                if (item.Tile.Type == TileType.WALL)
+                {
+                    instance.hoverSprite.transform.localPosition = new Vector3(0f, 0f, 2f);
+                }
+                else
+                {
+                    instance.hoverSprite.transform.localPosition = new Vector3(0f, 0f, 0f);
+                }
+                if (!GameScript.buildMode)
+                {
+                    EnterBuildMode.Invoke(instance, new object[] { });
+                }
+                else
+                {
+                    instance.GetComponent<AudioSource>().PlayOneShot((AudioClip)Resources.Load("Au/buildmode"));
+                }
+            }
+            yield return new WaitForSeconds(0.1f);
+            GameScript.equippedIDs[0] = tempID;
+            MenuScript.playerAppearance.GetComponent<NetworkView>().RPC("UA", RPCMode.AllBuffered, new object[]
+            {
+        GameScript.equippedIDs,
+        0,
+        GameScript.dead
+            });
+            yield break;
+        }
+
+        private static IEnumerator UsingItem(GameScript instance)
+        {
+            yield return new WaitForSeconds(0.2f);
+            usingItem.SetValue(instance, false);
+            yield break;
+        }
+    }
+}

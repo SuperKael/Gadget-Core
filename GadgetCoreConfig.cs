@@ -30,7 +30,7 @@ namespace GadgetCore
                     //cfg.Write("SupportsHotLoading", new UMFConfigBool(false)); //Uncomment if your mod can't be loaded once the game has started.
                     //cfg.Write("ModDependencies", new UMFConfigStringArray(new string[] { "" })); //A comma separated list of mod names that this mod requires to function.
                     //cfg.Write("ModDependenciesVersions", new UMFConfigStringArray(new string[] { "" })); //A comma separated list of mod versions matching the ModDependencies setting.
-                    cfg.Read("LoadPriority", new UMFConfigString("Normal"));
+                    cfg.Read("LoadPriority", new UMFConfigString("AboveNormal"));
                     cfg.Write("MinVersion", new UMFConfigString("0.52.1"));
                     //cfg.Write("MaxVersion", new UMFConfigString("0.54.99999.99999")); //Uncomment if you think your mod may break with the next major UMF release.
                     cfg.Write("UpdateURL", new UMFConfigString(""));
@@ -44,7 +44,7 @@ namespace GadgetCore
                     }
                     catch (Exception)
                     {
-                        GadgetCore.Log("EnabledMods is improperly formatted!");
+                        GadgetCore.Log("EnabledMods is empty or improperly formatted!");
                     }
 
                     GadgetCore.Log("Finished loading settings.");

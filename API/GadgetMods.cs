@@ -9,16 +9,18 @@ namespace GadgetCore.API
     public static class GadgetMods
     {
         private static Dictionary<string, GadgetModInfo> mods = new Dictionary<string, GadgetModInfo>();
-        private static List<GadgetModInfo> sortedModList = new List<GadgetModInfo>();
+        private static List<GadgetModInfo> sortedModList;
 
         internal static void RegisterMod(GadgetModInfo mod)
         {
             mods.Add(mod.Attribute.Name, mod);
+            if (sortedModList != null) SortMods();
         }
 
         internal static void SortMods()
         {
             sortedModList = mods.Values.OrderByDescending(x => x.Attribute.LoadPriority).ToList();
+            for (int i = 0; i < sortedModList.Count; i++) sortedModList[i].Mod.ModID = i;
         }
 
         public static int CountMods()
@@ -51,14 +53,14 @@ namespace GadgetCore.API
             return mods.ContainsKey(name) ? mods[name] : null;
         }
 
-        public static GadgetModInfo GetModInfo(int index)
+        public static GadgetModInfo GetModInfo(int modID)
         {
-            return sortedModList[index];
+            return sortedModList[modID];
         }
 
         public static void SetEnabled(string name, bool enabled)
         {
-            GetModInfo(name).Enabled = enabled;
+            GetModInfo(name).Mod.Enabled = enabled;
             GadgetCoreConfig.enabledMods[name] = enabled;
             GadgetCoreConfig.Update();
         }
@@ -66,7 +68,7 @@ namespace GadgetCore.API
         public static void SetEnabled(int index, bool enabled)
         {
             GadgetModInfo modInfo = GetModInfo(index);
-            modInfo.Enabled = enabled;
+            modInfo.Mod.Enabled = enabled;
             GadgetCoreConfig.enabledMods[modInfo.Attribute.Name] = enabled;
             GadgetCoreConfig.Update();
         }
