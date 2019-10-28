@@ -17,4 +17,3 @@ To do:
 
 And it also provides the following additional features:
  - An in-game mod configuration menu.
- - A helper class for patching Coroutines.
