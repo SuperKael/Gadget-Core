@@ -16,11 +16,13 @@ namespace GadgetCore.API
         /// <summary>
         /// The version of Gadget Core.
         /// </summary>
-        public const string VERSION = "1.1.0.0";
+        public const string VERSION = "1.1.0.1";
 
         private static readonly MethodInfo RefreshExpBar = typeof(GameScript).GetMethod("RefreshExpBar", BindingFlags.NonPublic | BindingFlags.Instance);
         private static readonly MethodInfo Crafting = typeof(GameScript).GetMethod("Crafting", BindingFlags.NonPublic | BindingFlags.Instance);
         private static readonly MethodInfo CraftCheck = typeof(GameScript).GetMethod("CraftCheck", BindingFlags.NonPublic | BindingFlags.Instance);
+        private static readonly MethodInfo GetItemNameMethod = typeof(GameScript).GetMethod("GetItemName", BindingFlags.NonPublic | BindingFlags.Instance);
+        private static readonly MethodInfo GetItemDescMethod = typeof(GameScript).GetMethod("GetItemDesc", BindingFlags.NonPublic | BindingFlags.Instance);
         private static readonly FieldInfo craftType = typeof(GameScript).GetField("craftType", BindingFlags.NonPublic | BindingFlags.Instance);
         private static readonly FieldInfo craftValue = typeof(GameScript).GetField("craftValue", BindingFlags.NonPublic | BindingFlags.Instance);
         private static readonly FieldInfo crafting = typeof(GameScript).GetField("crafting", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -389,6 +391,22 @@ namespace GadgetCore.API
             SpriteSheetEntry entry = new SpriteSheetEntry(sprite, spriteSheetSprites.Count);
             spriteSheetSprites.Add(entry);
             return entry;
+        }
+
+        /// <summary>
+        /// Gets the name of the item with the given ID. Easier than using reflection to call GetItemName on GameScript.
+        /// </summary>
+        public static string GetItemName(int ID)
+        {
+            return GetItemNameMethod.Invoke(InstanceTracker.GameScript, new object[] { ID }) as string;
+        }
+
+        /// <summary>
+        /// Gets the description of the item with the given ID. Easier than using reflection to call GetItemDesc on GameScript.
+        /// </summary>
+        public static string GetItemDesc(int ID)
+        {
+            return GetItemDescMethod.Invoke(InstanceTracker.GameScript, new object[] { ID }) as string;
         }
 
         /// <summary>

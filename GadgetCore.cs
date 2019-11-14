@@ -58,7 +58,7 @@ namespace GadgetCore
             }
         }
 
-		[UMFHarmony(109)]
+		[UMFHarmony(111)]
         public static void Start()
 		{
 			Log("GadgetCore v" + GadgetCoreAPI.VERSION, true);

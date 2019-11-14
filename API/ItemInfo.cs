@@ -421,9 +421,25 @@ namespace GadgetCore.API
         }
 
         /// <summary>
+        /// Gets the item's name.
+        /// </summary>
+        public virtual string GetName()
+        {
+            return Name;
+        }
+
+        /// <summary>
+        /// Gets the item's description.
+        /// </summary>
+        public virtual string GetDesc()
+        {
+            return Desc;
+        }
+
+        /// <summary>
         /// Gets the item's tier. Returns -1 if the item does not have a tier.
         /// </summary>
-        public virtual int GetTier()
+        public virtual int GetTier(Item item)
         {
             if ((Type & ItemType.LOOT) == ItemType.LOOT && (Type & ItemType.EQUIPABLE) == ItemType.GENERIC)
             {
@@ -435,7 +451,7 @@ namespace GadgetCore.API
         /// <summary>
         /// Returns the single digit representative of the item's tier. 1-9 represents tiers 1-9, 0 represents tier 10. Returns -1 if the item does not have a tier.
         /// </summary>
-        public virtual int GetTierDigit()
+        public virtual int GetTierDigit(Item item)
         {
             if ((Type & ItemType.LOOT) == ItemType.LOOT && (Type & ItemType.EQUIPABLE) == ItemType.GENERIC)
             {

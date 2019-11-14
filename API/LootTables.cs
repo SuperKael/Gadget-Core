@@ -19,27 +19,24 @@ namespace GadgetCore.API
         /// </summary>
         public static void DropLoot(string tableID, Vector3 pos, float dropFrequency = 0.0f)
         {
-            if (lootTables.ContainsKey(tableID))
+            if (dropFrequency <= 0.0f)
             {
-                if (dropFrequency <= 0.0f)
+                if (lootTables.ContainsKey(tableID)) foreach (LootTableEntry tableEntry in lootTables[tableID])
                 {
-                    if (lootTables.ContainsKey(tableID)) foreach (LootTableEntry tableEntry in lootTables[tableID])
-                    {
-                        tableEntry.TryDrop(pos);
-                    }
-                    if (lootTables.ContainsKey(tableID.Split(':')[0] + ":all")) foreach (LootTableEntry tableEntry in lootTables[tableID.Split(':')[0] + ":all"])
-                    {
-                        tableEntry.TryDrop(pos);
-                    }
-                    if (lootTables.ContainsKey("all")) foreach (LootTableEntry tableEntry in lootTables["all"])
-                    {
-                        tableEntry.TryDrop(pos);
-                    }
+                    tableEntry.TryDrop(pos);
                 }
-                else
+                if (lootTables.ContainsKey(tableID.Split(':')[0] + ":all")) foreach (LootTableEntry tableEntry in lootTables[tableID.Split(':')[0] + ":all"])
                 {
-                    InstanceTracker.PlayerScript.StartCoroutine(DelayDropLoot(tableID, pos, dropFrequency));
+                    tableEntry.TryDrop(pos);
                 }
+                if (lootTables.ContainsKey("all")) foreach (LootTableEntry tableEntry in lootTables["all"])
+                {
+                    tableEntry.TryDrop(pos);
+                }
+            }
+            else
+            {
+                InstanceTracker.PlayerScript.StartCoroutine(DelayDropLoot(tableID, pos, dropFrequency));
             }
         }
 

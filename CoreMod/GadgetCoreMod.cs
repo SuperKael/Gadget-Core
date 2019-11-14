@@ -33,7 +33,7 @@ namespace GadgetCore.CoreMod
             try
             {
                 Version version = new Version(GadgetCoreAPI.VERSION);
-                string desc = File.ReadAllText(UMFData.ModInfosPath + "/GadgetCore_v" + (version.Build != 0 ? version.ToString(4) : version.Revision != 0 ? version.ToString(3) : version.ToString(2)) + "_ModInfo.txt");
+                string desc = File.ReadAllText(UMFData.ModInfosPath + "/GadgetCore_v" + (version.Revision != 0 ? version.ToString(4) : version.Build != 0 ? version.ToString(3) : version.ToString(2)) + "_ModInfo.txt");
                 desc = desc + Environment.NewLine + Environment.NewLine + "Also, Gadget Core comes with a built-in Gadget mod that adds some miscellaneous features, such as a Universal Crafter. It can be safely disabled here in the config menu, although other mods may require its features.";
                 return desc;
             }

@@ -494,6 +494,16 @@
             </summary>
             <param name="sprite">The Texture2D to register to the spritesheet</param>
         </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.GetItemName(System.Int32)">
+            <summary>
+            Gets the name of the item with the given ID. Easier than using reflection to call GetItemName on GameScript.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.GetItemDesc(System.Int32)">
+            <summary>
+            Gets the description of the item with the given ID. Easier than using reflection to call GetItemDesc on GameScript.
+            </summary>
+        </member>
         <member name="M:GadgetCore.API.GadgetCoreAPI.IsResourceRegistered(System.String)">
             <summary>
             Use to check if there is a resource registered at the specified path. This includes resources registered by the base game.
@@ -1298,12 +1308,22 @@
             Gets the item's sell-value.
             </summary>
         </member>
-        <member name="M:GadgetCore.API.ItemInfo.GetTier">
+        <member name="M:GadgetCore.API.ItemInfo.GetName">
+            <summary>
+            Gets the item's name.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ItemInfo.GetDesc">
+            <summary>
+            Gets the item's description.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ItemInfo.GetTier(Item)">
             <summary>
             Gets the item's tier. Returns -1 if the item does not have a tier.
             </summary>
         </member>
-        <member name="M:GadgetCore.API.ItemInfo.GetTierDigit">
+        <member name="M:GadgetCore.API.ItemInfo.GetTierDigit(Item)">
             <summary>
             Returns the single digit representative of the item's tier. 1-9 represents tiers 1-9, 0 represents tier 10. Returns -1 if the item does not have a tier.
             </summary>

@@ -172,11 +172,13 @@
       <FilesToDelete Include="$(TargetDir)$(AssemblyName)_v*.zip" />
       <FilesToDelete Include="$(TargetDir)ModInfos\*$(AssemblyName)*.*" Exclude="$(TargetDir)ModInfos\$(AssemblyName)_v$(AssemblyFileVersion)_ModInfo.txt" />
       <FilesToDelete Include="$(GamePath)uModFramework\Mods\**\*$(AssemblyName)*.*" Exclude="$(GamePath)uModFramework\Mods\Configs\**\*.*" />
+    </ItemGroup>
+    <Delete Files="@(FilesToDelete)" />
+    <ItemGroup>
       <FilesToCopy Include="$(TargetDir)**\*.*" Exclude="$(TargetDir)*.zip;$(TargetDir)*.xml;$(TargetDir)CoreLibs\*.*;$(TargetDir)Tools\*.*" />
       <FilesToManaged Include="$(TargetDir)CoreLibs\*" />
       <FilesToTools Include="$(TargetDir)Tools\*" />
     </ItemGroup>
-    <Delete Files="@(FilesToDelete)" />
     <Copy SourceFiles="@(FilesToCopy)" DestinationFolder="$(GamePath)uModFramework\Mods\%(FilesToCopy.RecursiveDir)" SkipUnchangedFiles="true" />
     <Copy SourceFiles="@(FilesToManaged)" DestinationFolder="$(GamePath)Roguelands_Data\Managed\%(FilesToManaged.RecursiveDir)" SkipUnchangedFiles="true" />
     <Copy SourceFiles="@(FilesToTools)" DestinationFolder="$(GamePath)uModFramework\Tools\%(FilesToTools.RecursiveDir)" SkipUnchangedFiles="true" />

@@ -38,7 +38,7 @@ namespace GadgetCore.API
             if (preferredID < 0 || (!overrideExisting && Singleton.HasEntry(preferredID)) || !entry.IsValidIDForType(preferredID))
             {
                 if (!overrideExisting && preferredID >= 0) return -1;
-                do id = entry.GetNextIDForType(id); while (id >= 0 && Singleton.HasEntry(id));
+                do id = entry.GetNextIDForType(id); while (id >= 0 && Singleton.HasEntry(id) || Singleton.IsIDReserved(id) != null);
                 if (id < 0) return id;
             }
             else
@@ -155,7 +155,7 @@ namespace GadgetCore.API
         /// </summary>
         public string IsIDReserved(int id)
         {
-            return reservedIDs.FirstOrDefault(x => x.Value == id).Key.Split(':')[0];
+            return reservedIDs.FirstOrDefault(x => x.Value == id).Key?.Split(':')?[0];
         }
 
         /// <summary>
