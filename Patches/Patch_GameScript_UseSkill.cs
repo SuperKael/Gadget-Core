@@ -11,6 +11,7 @@ namespace GadgetCore.Patches
     [HarmonyPatch("UseSkill")]
     static class Patch_GameScript_UseSkill
     {
+        public static readonly MethodInfo Die = typeof(GameScript).GetMethod("Die", BindingFlags.NonPublic | BindingFlags.Instance);
         public static readonly FieldInfo skilling = typeof(GameScript).GetField("skilling", BindingFlags.NonPublic | BindingFlags.Instance);
 
         [HarmonyPrefix]
@@ -27,7 +28,7 @@ namespace GadgetCore.Patches
                     __instance.StartCoroutine(SkillUsin(slot, ___skillUsin));
                     __instance.GetComponent<AudioSource>().PlayOneShot((AudioClip)Resources.Load("Au/error"), Menuu.soundLevel / 10f);
                     __instance.combatChipObj[slot].GetComponent<Animation>().Play();
-                    if (chip.IsChipActive())
+                    if (chip.IsChipActive(slot))
                     {
                         return false;
                     }
@@ -41,8 +42,8 @@ namespace GadgetCore.Patches
                     {
                         if ((chip.CostType == ChipInfo.ChipCostType.MANA && GameScript.mana >= cost) ||
                             (chip.CostType == ChipInfo.ChipCostType.ENERGY && GameScript.energy >= cost) ||
-                            (chip.CostType == ChipInfo.ChipCostType.HEALTH && GameScript.hp > cost) ||
-                            (chip.CostType == ChipInfo.ChipCostType.HEALTH_LETHAL && GameScript.hp >= cost))
+                            (chip.CostType == ChipInfo.ChipCostType.HEALTH_SAFE && GameScript.hp > cost) ||
+                            chip.CostType == ChipInfo.ChipCostType.HEALTH_LETHAL || chip.CostType == ChipInfo.ChipCostType.HEALTH_LETHAL_POSTMORTEM)
                         {
                             GameObject gameObject = (GameObject)UnityEngine.Object.Instantiate(Resources.Load("txtSkill"), new Vector3(0f, 0f, 0f), Quaternion.identity);
                             gameObject.transform.parent = Camera.main.transform;
@@ -52,20 +53,41 @@ namespace GadgetCore.Patches
                             {
                                 GameScript.mana -= cost;
                                 __instance.BARMANA.GetComponent<Animation>().Play();
+                                chip.InvokeOnUse(slot);
+                                __instance.StartCoroutine(WaitChip(__instance));
                                 __instance.UpdateMana();
                             }
                             else if (chip.CostType == ChipInfo.ChipCostType.ENERGY)
                             {
                                 GameScript.energy -= cost;
+                                chip.InvokeOnUse(slot);
+                                __instance.StartCoroutine(WaitChip(__instance));
                                 __instance.UpdateEnergy();
                             }
                             else
                             {
                                 GameScript.hp -= cost;
+                                if (GameScript.hp <= 0)
+                                {
+                                    GameScript.dead = true;
+                                }
+                                if (GameScript.hp > 0 || chip.CostType == ChipInfo.ChipCostType.HEALTH_LETHAL_POSTMORTEM)
+                                {
+                                    chip.InvokeOnUse(slot);
+                                    __instance.StartCoroutine(WaitChip(__instance));
+                                }
+                                if (GameScript.hp <= 0)
+                                {
+                                    GameScript.dead = true;
+                                    GameScript.hp = 0;
+                                    Die.Invoke(__instance, new object[] { });
+                                }
+                                else
+                                {
+                                    GameScript.dead = false;
+                                }
                                 __instance.UpdateHP();
                             }
-                            chip.InvokeOnUse(slot);
-                            __instance.StartCoroutine(WaitChip(__instance));
                         }
                     }
                 }

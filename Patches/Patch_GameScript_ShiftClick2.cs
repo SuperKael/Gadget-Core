@@ -16,7 +16,7 @@ namespace GadgetCore.Patches
         public static bool Prefix(GameScript __instance, ref bool ___shiftclicking, Item[] ___inventory, ref Item[] ___craft, ref int ___craftType, int slot, ref IEnumerator __result)
         {
             itemInSlot = ___inventory[slot];
-            if (!___shiftclicking && ItemRegistry.GetSingleton().HasEntry(itemInSlot.id))
+            if (!___shiftclicking)
             {
                 ItemInfo slotInfo = ItemRegistry.GetSingleton().GetEntry(itemInSlot.id);
                 ItemType slotItemType = slotInfo != null ? (slotInfo.Type & (ItemType.BASIC_MASK | ItemType.TYPE_MASK)) : ItemRegistry.GetDefaultTypeByID(itemInSlot.id);

@@ -3,45 +3,62 @@ using UModFramework.API;
 using UnityEngine.SceneManagement;
 using System.Reflection;
 using System.Collections.Generic;
-using GadgetCore.API;
 using System;
 using System.Linq;
+using GadgetCore.API;
+using System.IO;
 
 namespace GadgetCore
 {
     class GadgetCore
     {
+        public static bool IsUnpacked { get; private set; }
+        public static IGadgetCoreLib CoreLib { get; private set; }
+
         public static List<string> nonGadgetMods;
         public static List<string> disabledMods;
         public static List<string> incompatibleMods;
-        public static Dictionary<string, string[]> dependencies;
+        public static List<string> packedMods;
+        public static Dictionary<string, List<string>> dependencies;
 
         private static bool firstLoad = true;
+        private static UMFLog Logger = new UMFLog();
 
         internal static void Log(string text, bool clean = false)
         {
-            using (UMFLog log = new UMFLog()) log.Log(text, clean);
+            Logger.Log(text, clean);
         }
 
         [UMFConfig]
         public static void LoadConfig()
         {
-            GadgetCoreConfig.Load();
             if (firstLoad)
             {
                 firstLoad = false;
-                LoadModAssemblies();
-                InitializeRegistries();
+                IsUnpacked = File.Exists(UMFData.ModsPath + "\\GadgetCore.dll") && File.Exists(UMFData.LibrariesPath + "\\GadgetCoreLib.dll") && !(Directory.GetFiles(UMFData.ModsPath, "GadgetCore_v*.zip").Length > 0);
                 LoadMainMenu();
+                if (IsUnpacked)
+                {
+                    CoreLib = Activator.CreateInstance(Assembly.LoadFile(UMFData.LibrariesPath + "\\GadgetCoreLib.dll").GetTypes().First(x => typeof(IGadgetCoreLib).IsAssignableFrom(x))) as IGadgetCoreLib;
+                    CoreLib.ProvideLogger(Logger);
+                    LoadModAssemblies();
+                    GadgetCoreConfig.Load();
+                    InitializeRegistries();
+                    GadgetCoreConfig.LoadRegistries();
+                    VanillaRegistration();
+                    InitializeMods();
+                    GenerateSpriteSheet();
+                }
                 SceneInjector.InjectMainMenu();
                 SceneManager.sceneLoaded += OnSceneLoaded;
-                VanillaRegistration();
-                InitializeMods();
-                GenerateSpriteSheet();
+            }
+            else if (IsUnpacked)
+            {
+                GadgetCoreConfig.Load();
             }
         }
 
-		[UMFHarmony(62)]
+		[UMFHarmony(109)]
         public static void Start()
 		{
 			Log("GadgetCore v" + GadgetCoreAPI.VERSION, true);
@@ -51,25 +68,32 @@ namespace GadgetCore
         {
             if (scene.buildIndex == 0)
             {
+                GadgetNetwork.ResetIDMatrix();
                 LoadMainMenu();
                 SceneInjector.InjectMainMenu();
             }
             else
             {
+                LoadIngame();
                 SceneInjector.InjectIngame();
             }
         }
 
         internal static void LoadMainMenu()
         {
-            InstanceTracker.mainCamera = GameObject.Find("Main Camera");
-            InstanceTracker.menuu = InstanceTracker.mainCamera.GetComponent<Menuu>();
+            InstanceTracker.MainCamera = GameObject.Find("Main Camera").GetComponent<Camera>();
+            InstanceTracker.Menuu = InstanceTracker.MainCamera.GetComponent<Menuu>();
+        }
+
+        internal static void LoadIngame()
+        {
+            InstanceTracker.MainCamera = GameObject.Find("Main Camera").GetComponent<Camera>();
         }
 
         private static void VanillaRegistration()
         {
             Registry.registeringVanilla = true;
-
+            
             Registry.registeringVanilla = false;
         }
 
@@ -79,21 +103,55 @@ namespace GadgetCore
             foreach (GadgetModInfo mod in GadgetMods.ListAllModInfos())
             {
                 if (!mod.Mod.Enabled) continue;
-                Log("Initializing Gadget Mod '" + mod.Attribute.Name + "'");
-                try
+                if (mod.Attribute.Dependencies.All(x => GadgetMods.ListAllModInfos().Where(y => y.Mod.Enabled).Select(y => y.Attribute.Name).Contains(x) || GadgetMods.ListAllModInfos().Where(y => y.Mod.Enabled).Select(y => y.Mod.GetPreviousModNames()).Any(y => y.Contains(x))))
                 {
-                    Registry.modRegistering = mod.Mod.ModID;
-                    mod.Mod.Initialize();
+                    bool compatible = true;
+                    string[][] splitDependencies = mod.Attribute.Dependencies.Select(x => x.Split(' ')).Where(x => x.Length == 2).ToArray();
+                    GadgetModInfo[] dependencies = splitDependencies.Select(x => GadgetMods.ListAllModInfos().Where(y => y.Mod.Enabled).FirstOrDefault(y => y.Attribute.Name.Equals(x[0]  )) ?? GadgetMods.ListAllModInfos().Where(y => y.Mod.Enabled).First(y => y.Mod.GetPreviousModNames().Contains(x[0]))).ToArray();
+                    for (int i = 0; i < dependencies.Length; i++)
+                    {
+                        int[] currentVersionNums = dependencies[i].Mod.GetModVersionString().Split('.').Select(x => int.Parse(x)).ToArray();
+                        int[] targetVersionNums = splitDependencies[i][1].TrimStart('v').Split('.').Select(x => int.Parse(x)).ToArray();
+                        VersionSpecificity versionSpecificity = (VersionSpecificity)targetVersionNums.Length;
+                        if (!((versionSpecificity == VersionSpecificity.MAJOR && currentVersionNums[0] == targetVersionNums[0] && (currentVersionNums[1] > targetVersionNums[1] || (currentVersionNums[1] == targetVersionNums[1] && (currentVersionNums[2] > targetVersionNums[2] || (currentVersionNums[2] == targetVersionNums[2] && currentVersionNums[3] >= targetVersionNums[3]))))) ||
+                            (versionSpecificity == VersionSpecificity.MINOR && currentVersionNums[0] == targetVersionNums[0] && currentVersionNums[1] == targetVersionNums[1] && (currentVersionNums[2] > targetVersionNums[2] || (currentVersionNums[2] == targetVersionNums[2] && currentVersionNums[3] >= targetVersionNums[3]))) ||
+                            (versionSpecificity == VersionSpecificity.NONBREAKING && currentVersionNums[0] == targetVersionNums[0] && currentVersionNums[1] == targetVersionNums[1] && currentVersionNums[2] == targetVersionNums[2] && currentVersionNums[3] >= targetVersionNums[3]) ||
+                            (versionSpecificity == VersionSpecificity.BUGFIX && currentVersionNums[0] == targetVersionNums[0] && currentVersionNums[1] == targetVersionNums[1] && currentVersionNums[2] == targetVersionNums[2] && currentVersionNums[3] == targetVersionNums[3])))
+                        {
+                            compatible = false;
+                            break;
+                        }
+                    }
+                    if (compatible)
+                    {
+                        Log("Initializing Gadget Mod '" + mod.Attribute.Name + "'");
+                        try
+                        {
+                            Registry.modRegistering = mod.Mod.ModID;
+                            mod.Mod.Initialize();
+                        }
+                        catch (Exception e)
+                        {
+                            Log("Exception Loading Gadget Mod '" + mod.Attribute.Name + "':" + Environment.NewLine + e.ToString());
+                        }
+                        finally
+                        {
+                            Registry.modRegistering = -1;
+                        }
+                    }
+                    else
+                    {
+                        GadgetMods.SetEnabled(mod, false);
+                        Log("Aborted loading Gadget Mod '" + mod.Attribute.Name + "' because although all required dependencies are available, they are of incompatible versions. " + mod.Attribute.Name + "'s dependencies are as follows: {" + mod.Attribute.Dependencies.Aggregate(string.Empty, (x, y) => x + ", " + y) + "}");
+                    }
                 }
-                catch (Exception e)
+                else
                 {
-                    Log("Exception Loading Gadget Mod '" + mod.Attribute.Name + "':" + Environment.NewLine + e.ToString());
-                }
-                finally
-                {
-                    Registry.modRegistering = -1;
+                    GadgetMods.SetEnabled(mod, false);
+                    Log("Aborted loading Gadget Mod '" + mod.Attribute.Name + "' because it is missing required dependencies. " + mod.Attribute.Name + "'s dependencies are as follows: {" + mod.Attribute.Dependencies.Aggregate(string.Empty, (x, y) => x + ", " + y) + "}");
                 }
             }
+            GadgetCoreConfig.Update();
             Log("Gadget Mod Initialization Complete");
         }
 
@@ -104,6 +162,7 @@ namespace GadgetCore
             disabledMods = new List<string>();
             incompatibleMods = new List<string>();
             List<string> modNames = UMFData.ModNames;
+            int[] currentVersionNums = GadgetCoreAPI.VERSION.Split('.').Select(x => int.Parse(x)).ToArray();
             for (int i = 0;i < modNames.Count;i++)
             {
                 Assembly assembly = UMFMod.GetMod(modNames[i]);
@@ -116,10 +175,11 @@ namespace GadgetCore
                         if (attribute != null && type.IsSubclassOf(typeof(GadgetMod)))
                         {
                             foundGadgetMod = true;
-                            int rD = (int)attribute.VersionSpecificity;
-                            string targetVersion = new string(attribute.TargetGCVersion.TakeWhile(x => (x == '.' ? --rD : rD) > 0).ToArray());
-                            rD = (int)attribute.VersionSpecificity;
-                            if (targetVersion.Equals(new string(GadgetCoreAPI.VERSION.TakeWhile(x => (x == '.' ? --rD : rD) > 0).ToArray())))
+                            int[] targetVersionNums = attribute.TargetGCVersion.Split('.').Select(x => int.Parse(x)).ToArray();
+                            if ((attribute.GadgetVersionSpecificity == VersionSpecificity.MAJOR       && currentVersionNums[0] == targetVersionNums[0] && (currentVersionNums[1] > targetVersionNums[1] || (currentVersionNums[1] == targetVersionNums[1] && (currentVersionNums[2] > targetVersionNums[2] || (currentVersionNums[2] == targetVersionNums[2] && currentVersionNums[3] >= targetVersionNums[3]))))) ||
+                                (attribute.GadgetVersionSpecificity == VersionSpecificity.MINOR       && currentVersionNums[0] == targetVersionNums[0] && currentVersionNums[1] == targetVersionNums[1] && (currentVersionNums[2] > targetVersionNums[2] || (currentVersionNums[2] == targetVersionNums[2] && currentVersionNums[3] >= targetVersionNums[3]))) ||
+                                (attribute.GadgetVersionSpecificity == VersionSpecificity.NONBREAKING && currentVersionNums[0] == targetVersionNums[0] && currentVersionNums[1] == targetVersionNums[1] && currentVersionNums[2] == targetVersionNums[2] && currentVersionNums[3] >= targetVersionNums[3]) ||
+                                (attribute.GadgetVersionSpecificity == VersionSpecificity.BUGFIX      && currentVersionNums[0] == targetVersionNums[0] && currentVersionNums[1] == targetVersionNums[1] && currentVersionNums[2] == targetVersionNums[2] && currentVersionNums[3] == targetVersionNums[3]))
                             {
                                 GadgetMod mod = null;
                                 try
@@ -143,7 +203,8 @@ namespace GadgetCore
                             else
                             {
                                 incompatibleMods.Add(assembly.GetName().Name);
-                                Log("Found Gadget Mod with an incompatible version: " + attribute.Name + ", in assembly: {" + assembly.FullName + "}. Requires version: " + targetVersion);
+                                int rD = (int)attribute.GadgetVersionSpecificity;
+                                Log("Found Gadget Mod with an incompatible version: " + attribute.Name + ", in assembly: {" + assembly.FullName + "}. Requires version: " + new string(attribute.TargetGCVersion.TakeWhile(x => (x == '.' ? --rD : rD) > 0).ToArray()));
                             }
                         }
                     }
@@ -158,8 +219,10 @@ namespace GadgetCore
                 }
             }
             GadgetMods.SortMods();
+            if (!Directory.Exists(Path.Combine(UMFData.ModsPath, "PackedMods"))) Directory.CreateDirectory(Path.Combine(UMFData.ModsPath, "PackedMods"));
+            packedMods = Directory.GetFiles(UMFData.ModsPath, "*.zip").Where(x => !UMFData.Mods.Select(y => y.GetName().Name).Any(y => y == Path.GetFileNameWithoutExtension(x).Split('_')[0])).Union(Directory.GetFiles(Path.Combine(UMFData.ModsPath, "PackedMods"), "*.zip").Where(x => !UMFData.Mods.Select(y => y.GetName().Name).Any(y => y == Path.GetFileNameWithoutExtension(x).Split('_')[0]))).ToList();
 
-            dependencies = new Dictionary<string, string[]>();
+            dependencies = new Dictionary<string, List<string>>();
             Assembly[] allMods = GadgetMods.ListAllModInfos().Select(x => x.Assembly).Concat(nonGadgetMods.Select(x => UMFMod.GetMod(x))).Concat(incompatibleMods.Select(x => UMFMod.GetMod(x))).ToArray();
             for (int i = 0;i < allMods.Length;i++)
             {
@@ -168,13 +231,21 @@ namespace GadgetCore
                 if (i < GadgetMods.CountMods())
                 {
                     GadgetModInfo gadgetMod = GadgetMods.GetModInfo(i);
-                    int rD = (int)gadgetMod.Attribute.VersionSpecificity;
+                    int rD = (int)gadgetMod.Attribute.GadgetVersionSpecificity;
                     dependencies.Add("GadgetCore v" + new string(gadgetMod.Attribute.TargetGCVersion.TakeWhile(x => (x == '.' ? --rD : rD) > 0).ToArray()));
                 }
                 dependencies.AddRange(mod.GetReferencedAssemblies().Where(x => !x.Name.Equals("GadgetCore") && allMods.Select(a => a.GetName().Name).Contains(x.Name)).Select(x => x.Name + " v" + x.Version));
                 if (dependencies.Count > 0)
                 {
-                    GadgetCore.dependencies.Add(mod.GetName().Name, dependencies.ToArray());
+                    GadgetCore.dependencies.Add(mod.GetName().Name, dependencies.ToList());
+                }
+            }
+            foreach (GadgetModInfo mod in GadgetMods.ListAllModInfos())
+            {
+                foreach (string dependency in mod.Attribute.Dependencies)
+                {
+                    string[] splitDependency = dependency.Split(' ');
+                    if (!dependencies[mod.UMFName].Select(x => { string[] split = x.Split(' '); return string.Join("", split.Take(split.Length - 1).ToArray()); }).Contains(string.Join("", splitDependency.Take(splitDependency.Length - 1).ToArray()))) dependencies[mod.UMFName].Add(dependency);
                 }
             }
 
@@ -208,8 +279,10 @@ namespace GadgetCore
             int spritesOnAxis = (int)Mathf.Sqrt(GadgetCoreAPI.spriteSheetSize);
             int spritesOnFirstFourRows = spritesOnAxis - 4;
             int spriteSheetDimensions = spritesOnAxis * 32;
-            GadgetCoreAPI.spriteSheet = new Texture2D(spriteSheetDimensions, spriteSheetDimensions, TextureFormat.ARGB32, false, false);
-            GadgetCoreAPI.spriteSheet.filterMode = FilterMode.Point;
+            GadgetCoreAPI.spriteSheet = new Texture2D(spriteSheetDimensions, spriteSheetDimensions, TextureFormat.ARGB32, false, false)
+            {
+                filterMode = FilterMode.Point
+            };
             for (int i = 0;i < GadgetCoreAPI.spriteSheetSprites.Count;i++)
             {
                 Vector2 coords;

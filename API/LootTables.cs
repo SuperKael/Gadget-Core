@@ -7,10 +7,16 @@ using UnityEngine;
 
 namespace GadgetCore.API
 {
+    /// <summary>
+    /// Used for management of loot tables.
+    /// </summary>
     public static class LootTables
     {
         private static Dictionary<string, List<LootTableEntry>> lootTables = new Dictionary<string, List<LootTableEntry>>();
 
+        /// <summary>
+        /// Call to cause a loot table's contents to drop at the given location. dropFrequency specifies how much to delay between each dropped item.
+        /// </summary>
         public static void DropLoot(string tableID, Vector3 pos, float dropFrequency = 0.0f)
         {
             if (lootTables.ContainsKey(tableID))
@@ -32,7 +38,7 @@ namespace GadgetCore.API
                 }
                 else
                 {
-                    InstanceTracker.playerScript.StartCoroutine(DelayDropLoot(tableID, pos, dropFrequency));
+                    InstanceTracker.PlayerScript.StartCoroutine(DelayDropLoot(tableID, pos, dropFrequency));
                 }
             }
         }
@@ -54,6 +60,16 @@ namespace GadgetCore.API
             yield break;
         }
 
+        /// <summary>
+        /// Adds the item to a drop table. Note that maxDropQuantity is optional, and if left unspecified minDropQuantity will always be dropped. Also returns the ItemInfo this was called on, for convenience in chaining calls.
+        /// </summary>
+        /// <param name="item">The item to add to the drop table. Note that the quantity specified is entirely ignored. This may be null, if you wish to entirely rely upon CustomDropBehavior</param>
+        /// <param name="tableID">The loot table to add this item to.</param>
+        /// <param name="dropChance">The chance for this item to drop from 0.0 to 1.0. If dropChance is higher than 1.0, then it will still just always drop. Similarly, if it is less than 0.0, then it will simply never drop.</param>
+        /// <param name="minDropQuantity">The minimum quantity to be dropped. If maxDropQuantity is not specified, then this will always be the quantity that is dropped.</param>
+        /// <param name="maxDropQuantity">The maximum quantity to be dropped. If this is set, then a random quantity from minDropQuantity to maxDropQuantity will be dropped.</param>
+        /// <param name="CheckValidToDrop">Use to add custom behavior to check whether to drop an item in a given circumstance. This is always called when the loot table is dropped, even if the drop chance fails. Receives the position to be dropped at as a parameter.</param>
+        /// <param name="CustomDropBehavior">Use to add custom behavior for how to drop the item(s). This is only called after it has been confirmed that an item will drop based on the drop chance and CheckValidToDrop. This will be called once for each item dropped in the case of non-stackable items. Receives the position to be dropped at, as well as the Item with the quantity set, as parameters.</param>
         public static ItemInfo AddToLootTable(this ItemInfo item, string tableID, float dropChance, int minDropQuantity, int maxDropQuantity = -1, Func<Vector3, bool> CheckValidToDrop = null, Func<Item, Vector3, bool> CustomDropBehavior = null)
         {
             if (!lootTables.ContainsKey(tableID)) lootTables.Add(tableID, new List<LootTableEntry>());
@@ -61,23 +77,53 @@ namespace GadgetCore.API
             return item;
         }
 
+        /// <summary>
+        /// Adds the item to a drop table. Note that maxDropQuantity is optional, and if left unspecified minDropQuantity will always be dropped.
+        /// </summary>
+        /// <param name="item">The item to add to the drop table. Note that the quantity specified is entirely ignored. This may be null, if you wish to entirely rely upon CustomDropBehavior</param>
+        /// <param name="tableID">The loot table to add this item to.</param>
+        /// <param name="dropChance">The chance for this item to drop from 0.0 to 1.0. If dropChance is higher than 1.0, then it will still just always drop. Similarly, if it is less than 0.0, then it will simply never drop.</param>
+        /// <param name="minDropQuantity">The minimum quantity to be dropped. If maxDropQuantity is not specified, then this will always be the quantity that is dropped.</param>
+        /// <param name="maxDropQuantity">The maximum quantity to be dropped. If this is set, then a random quantity from minDropQuantity to maxDropQuantity will be dropped.</param>
+        /// <param name="CheckValidToDrop">Use to add custom behavior to check whether to drop an item in a given circumstance. This is always called when the loot table is dropped, even if the drop chance fails. Receives the position to be dropped at as a parameter.</param>
+        /// <param name="CustomDropBehavior">Use to add custom behavior for how to drop the item(s). This is only called after it has been confirmed that an item will drop based on the drop chance and CheckValidToDrop. This will be called once for each item dropped in the case of non-stackable items.  Receives the position to be dropped at, as well as the Item with the quantity set, as parameters.</param>
         public static void AddItemToLootTable(Item item, string tableID, float dropChance, int minDropQuantity, int maxDropQuantity = -1, Func<Vector3, bool> CheckValidToDrop = null, Func<Item, Vector3, bool> CustomDropBehavior = null)
         {
             if (!lootTables.ContainsKey(tableID)) lootTables.Add(tableID, new List<LootTableEntry>());
             lootTables[tableID].Add(new LootTableEntry(item, dropChance, minDropQuantity, maxDropQuantity > minDropQuantity ? maxDropQuantity : minDropQuantity, CheckValidToDrop, CustomDropBehavior, false));
         }
 
-        public static ChipInfo AddToLootTable(this ChipInfo item, string tableID, float dropChance, int minDropQuantity, int maxDropQuantity = -1, Func<Vector3, bool> CheckValidToDrop = null, Func<Item, Vector3, bool> CustomDropBehavior = null)
+        /// <summary>
+        /// Adds the chip to a drop table. Note that maxDropQuantity is optional, and if left unspecified minDropQuantity will always be dropped. Also returns the ChipInfo this was called on, for convenience in chaining calls.
+        /// </summary>
+        /// <param name="chip">The chip to add to the drop table.</param>
+        /// <param name="tableID">The loot table to add this item to.</param>
+        /// <param name="dropChance">The chance for this item to drop from 0.0 to 1.0. If dropChance is higher than 1.0, then it will still just always drop. Similarly, if it is less than 0.0, then it will simply never drop.</param>
+        /// <param name="minDropQuantity">The minimum quantity to be dropped. If maxDropQuantity is not specified, then this will always be the quantity that is dropped.</param>
+        /// <param name="maxDropQuantity">The maximum quantity to be dropped. If this is set, then a random quantity from minDropQuantity to maxDropQuantity will be dropped.</param>
+        /// <param name="CheckValidToDrop">Use to add custom behavior to check whether to drop a chip in a given circumstance. This is always called when the loot table is dropped, even if the drop chance fails. Receives the position to be dropped at as a parameter.</param>
+        /// <param name="CustomDropBehavior">Use to add custom behavior for how to drop the chip(s). This is only called after it has been confirmed that an item will drop based on the drop chance and CheckValidToDrop. This will be called once for each chip dropped. Receives the position to be dropped at, as well as the Item with the quantity set, as parameters.</param>
+        public static ChipInfo AddToLootTable(this ChipInfo chip, string tableID, float dropChance, int minDropQuantity, int maxDropQuantity = -1, Func<Vector3, bool> CheckValidToDrop = null, Func<Item, Vector3, bool> CustomDropBehavior = null)
         {
             if (!lootTables.ContainsKey(tableID)) lootTables.Add(tableID, new List<LootTableEntry>());
-            lootTables[tableID].Add(new LootTableEntry(new Item(item.ID, 1, 0, 0, 0, new int[3], new int[3]), dropChance, minDropQuantity, maxDropQuantity > minDropQuantity ? maxDropQuantity : minDropQuantity, CheckValidToDrop, CustomDropBehavior, true));
-            return item;
+            lootTables[tableID].Add(new LootTableEntry(new Item(chip.ID, 1, 0, 0, 0, new int[3], new int[3]), dropChance, minDropQuantity, maxDropQuantity > minDropQuantity ? maxDropQuantity : minDropQuantity, CheckValidToDrop, CustomDropBehavior, true));
+            return chip;
         }
 
-        public static void AddChipToLootTable(Item item, string tableID, float dropChance, int minDropQuantity, int maxDropQuantity = -1, Func<Vector3, bool> CheckValidToDrop = null, Func<Item, Vector3, bool> CustomDropBehavior = null)
+        /// <summary>
+        /// Adds the chip to a drop table. Note that maxDropQuantity is optional, and if left unspecified minDropQuantity will always be dropped.
+        /// </summary>
+        /// <param name="chip">The chip to add to the drop table.</param>
+        /// <param name="tableID">The loot table to add this item to.</param>
+        /// <param name="dropChance">The chance for this item to drop from 0.0 to 1.0. If dropChance is higher than 1.0, then it will still just always drop. Similarly, if it is less than 0.0, then it will simply never drop.</param>
+        /// <param name="minDropQuantity">The minimum quantity to be dropped. If maxDropQuantity is not specified, then this will always be the quantity that is dropped.</param>
+        /// <param name="maxDropQuantity">The maximum quantity to be dropped. If this is set, then a random quantity from minDropQuantity to maxDropQuantity will be dropped.</param>
+        /// <param name="CheckValidToDrop">Use to add custom behavior to check whether to drop a chip in a given circumstance. This is always called when the loot table is dropped, even if the drop chance fails. Receives the position to be dropped at as a parameter.</param>
+        /// <param name="CustomDropBehavior">Use to add custom behavior for how to drop the chip(s). This is only called after it has been confirmed that an item will drop based on the drop chance and CheckValidToDrop. This will be called once for each chip dropped. Receives the position to be dropped at, as well as the Item with the quantity set, as parameters.</param>
+        public static void AddChipToLootTable(int chip, string tableID, float dropChance, int minDropQuantity, int maxDropQuantity = -1, Func<Vector3, bool> CheckValidToDrop = null, Func<Item, Vector3, bool> CustomDropBehavior = null)
         {
             if (!lootTables.ContainsKey(tableID)) lootTables.Add(tableID, new List<LootTableEntry>());
-            lootTables[tableID].Add(new LootTableEntry(item, dropChance, minDropQuantity, maxDropQuantity > minDropQuantity ? maxDropQuantity : minDropQuantity, CheckValidToDrop, CustomDropBehavior, true));
+            lootTables[tableID].Add(new LootTableEntry(new Item(chip, 1, 0, 0, 0, new int[3], new int[3]), dropChance, minDropQuantity, maxDropQuantity > minDropQuantity ? maxDropQuantity : minDropQuantity, CheckValidToDrop, CustomDropBehavior, true));
         }
 
         private struct LootTableEntry
@@ -107,10 +153,24 @@ namespace GadgetCore.API
                     if (dropChance <= 0) return false;
                     if (UnityEngine.Random.value <= dropChance)
                     {
-                        itemToDrop.q = Mathf.RoundToInt(UnityEngine.Random.value * (maxDropQuantity - minDropQuantity)) + minDropQuantity;
-                        if (CustomDropBehavior == null || CustomDropBehavior(itemToDrop, pos))
+                        if (isChip || (ItemRegistry.GetTypeByID(itemToDrop.id) & ItemType.NONSTACKING) == ItemType.NONSTACKING)
                         {
-                            GadgetCoreAPI.SpawnItemLocal(pos, itemToDrop, isChip);
+                            if (itemToDrop != null) itemToDrop.q = 1;
+                            for (int i = 0; i < Mathf.RoundToInt(UnityEngine.Random.value * (maxDropQuantity - minDropQuantity)) + minDropQuantity; i++)
+                            {
+                                if ((CustomDropBehavior == null || CustomDropBehavior(itemToDrop, pos)) && itemToDrop != null)
+                                {
+                                    GadgetCoreAPI.SpawnItemLocal(pos, itemToDrop, isChip);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            if (itemToDrop != null) itemToDrop.q = Mathf.RoundToInt(UnityEngine.Random.value * (maxDropQuantity - minDropQuantity)) + minDropQuantity;
+                            if ((CustomDropBehavior == null || CustomDropBehavior(itemToDrop, pos)) && itemToDrop != null)
+                            {
+                                GadgetCoreAPI.SpawnItemLocal(pos, itemToDrop, isChip);
+                            }
                         }
                         return true;
                     }

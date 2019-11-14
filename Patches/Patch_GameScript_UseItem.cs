@@ -35,7 +35,7 @@ namespace GadgetCore.Patches
                         __instance.StartCoroutine(UseItemFinal(__instance, slot, item, ___inventory, ___usingItem));
                     }
                 }
-                else if ((item.Type & ItemType.EQUIPMENT_F) != ItemType.EQUIPMENT_F)
+                else if ((item.Type & ItemType.EQUIPABLE) != ItemType.EQUIPABLE)
                 {
                     ___usingItem = item.Tile == null;
                     __instance.StartCoroutine(UseItemFinal(__instance, slot, item, ___inventory, ___usingItem));

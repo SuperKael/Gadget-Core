@@ -16,7 +16,7 @@ namespace GadgetCore.Patches
         [HarmonyPrefix]
         public static bool Prefix(string path, ref UnityEngine.Object __result)
         {
-            if (GadgetCoreAPI.resources.ContainsKey(path))
+            if (GadgetCoreAPI.IsCustomResourceRegistered(path))
             {
                 __result = GadgetCoreAPI.resources[path];
                 return false;

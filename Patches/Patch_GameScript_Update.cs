@@ -15,7 +15,7 @@ namespace GadgetCore.Patches
     {
         public static readonly MethodInfo RefreshSlot = typeof(GameScript).GetMethod("RefreshSlot", BindingFlags.NonPublic | BindingFlags.Instance);
 
-        [HarmonyPrefix]
+        [HarmonyPostfix]
         public static void Postfix(GameScript __instance, ref Item[] ___inventory, ref int ___curBlockSlot, ref ChunkWorld ___chunkWorld, ref ChunkWorld ___chunkWorldWall)
         {
             if (!GameScript.pausing && !GameScript.inventoryOpen && GameScript.buildMode && Input.GetMouseButtonDown(0) && ___inventory[___curBlockSlot].q > 0 && ItemRegistry.GetSingleton().HasEntry(___inventory[___curBlockSlot].id))

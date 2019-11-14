@@ -4,7 +4,7 @@ using System.Reflection;
 using System.Collections;
 using GadgetCore.API;
 
-namespace URP.Patches
+namespace GadgetCore.Patches
 {
     [HarmonyPatch(typeof(GameScript))]
     [HarmonyPatch("ShiftClickCraft")]
@@ -16,7 +16,7 @@ namespace URP.Patches
         public static bool Prefix(GameScript __instance, ref bool ___shiftclicking, Item[] ___inventory, ref Item[] ___craft, int slot, int ___curStoragePage, ref IEnumerator __result)
         {
             itemInSlot = ___craft[slot];
-            if (!___shiftclicking && ItemRegistry.GetSingleton().HasEntry(itemInSlot.id))
+            if (!___shiftclicking)
             {
                 ItemInfo slotInfo = ItemRegistry.GetSingleton().GetEntry(itemInSlot.id);
                 ItemType slotItemType = slotInfo != null ? (slotInfo.Type & (ItemType.BASIC_MASK | ItemType.TYPE_MASK)) : ItemRegistry.GetDefaultTypeByID(itemInSlot.id);

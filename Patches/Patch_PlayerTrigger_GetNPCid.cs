@@ -14,7 +14,7 @@ namespace GadgetCore.Patches
         [HarmonyPrefix]
         public static bool Prefix(PlayerTrigger __instance, string name, ref int __result)
         {
-            int id = TileRegistry.GetIDByName(name.Replace("(Clone)", ""));
+            int id = TileRegistry.GetIDByPropName(name.Replace("(Clone)", ""));
             if (id >= 0)
             {
                 __result = id;

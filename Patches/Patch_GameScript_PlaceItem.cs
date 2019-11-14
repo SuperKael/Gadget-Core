@@ -27,7 +27,7 @@ namespace GadgetCore.Patches
             {
                 ItemInfo itemInfo = ItemRegistry.GetSingleton().GetEntry(___holdingItem.id);
                 ItemType holdingItemType = itemInfo != null ? (itemInfo.Type & (ItemType.BASIC_MASK | ItemType.TYPE_MASK)) : ItemRegistry.GetDefaultTypeByID(___holdingItem.id);
-                if ((slot == 36 && holdingItemType != ItemType.WEAPON) || (slot == 37 && (holdingItemType != ItemType.OFFHAND)) || (slot == 38 && (holdingItemType != ItemType.HELMET)) || (slot == 39 && (holdingItemType != ItemType.ARMOR)) || ((slot == 40 || slot == 41) && (holdingItemType != ItemType.RING)) || (slot > 41 && (holdingItemType != ItemType.DROID)))
+                if ((slot == 36 && (holdingItemType & ItemType.BASIC_MASK) != ItemType.WEAPON) || (slot == 37 && ((holdingItemType & ItemType.BASIC_MASK) != ItemType.OFFHAND)) || (slot == 38 && ((holdingItemType & ItemType.BASIC_MASK) != ItemType.HELMET)) || (slot == 39 && ((holdingItemType & ItemType.BASIC_MASK) != ItemType.ARMOR)) || ((slot == 40 || slot == 41) && ((holdingItemType & ItemType.BASIC_MASK) != ItemType.RING)) || (slot > 41 && ((holdingItemType & ItemType.BASIC_MASK) != ItemType.DROID)))
                 {
                     __instance.Error(2);
                 }

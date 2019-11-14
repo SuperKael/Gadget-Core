@@ -2,3 +2,6 @@
 
 # CS0618: Type or member is obsolete
 dotnet_diagnostic.CS0618.severity = none
+
+# IDE0044: Add readonly modifier
+dotnet_style_readonly_field = true:none

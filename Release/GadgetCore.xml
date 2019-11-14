@@ -4,10 +4,447 @@
         <name>GadgetCore</name>
     </assembly>
     <members>
+        <member name="T:GadgetCore.API.ChipInfo">
+            <summary>
+            Defines a custom Chip. Make sure to call Register on it to register your Chip.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ChipInfo.Type">
+            <summary>
+            The ChipType of this Chip
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ChipInfo.Name">
+            <summary>
+            The name of this Chip
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ChipInfo.Desc">
+            <summary>
+            The description of this Chip
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ChipInfo.Cost">
+            <summary>
+            The cost to use this active Chip
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ChipInfo.Stats">
+            <summary>
+            The stats of this passive Chip
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ChipInfo.CostType">
+            <summary>
+            The type of cost of this active Chip, either MANA, ENERGY, HEALTH, or HEALTH_LETHAL
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.ChipInfo.Tex">
+            <summary>
+            The Texture associated with this Chip. May be null.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.ChipInfo.Mat">
+            <summary>
+            The Material associated with this Chip. May be null.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ChipInfo.#ctor(GadgetCore.API.ChipType,System.String,System.String,System.Int32,UnityEngine.Texture,GadgetCore.API.EquipStats,GadgetCore.API.ChipInfo.ChipCostType)">
+            <summary>
+            Use to create a new ChipInfo. Make sure to call Register on it to register your Chip.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ChipInfo.#ctor(GadgetCore.API.ChipType,System.String,System.String,System.Int32,UnityEngine.Material,GadgetCore.API.EquipStats,GadgetCore.API.ChipInfo.ChipCostType)">
+            <summary>
+            Use to create a new ChipInfo. Make sure to call Register on it to register your Chip.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ChipInfo.Register(System.String,System.Int32,System.Boolean)">
+            <summary>
+            Registers this ChipInfo to the ChipRegistry.
+            </summary>
+            <param name="name">The registry name to use.</param>
+            <param name="preferredID">If specified, will use this registry ID.</param>
+            <param name="overrideExisting">If false, will not register if the preferred ID is already used. Ignored if no preferred ID is specified.</param>
+        </member>
+        <member name="M:GadgetCore.API.ChipInfo.PostRegister">
+            <summary>
+            Called after this Registry Entry has been registered to its Registry. You should never call this yourself.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ChipInfo.GetEntryType">
+            <summary>
+            Returns the Registry Entry's Type enum. Used in the registration process, although it is safe to check this yourself by directly accessing the <see cref="F:GadgetCore.API.ChipInfo.Type"/> property.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ChipInfo.GetRegistry">
+            <summary>
+            Returns the singleton of the registry used for storing this type of Registry Entry.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ChipInfo.IsValidIDForType(System.Int32)">
+            <summary>
+            Returns whether the specified ID is valid for this Registry Entry's Type.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ChipInfo.GetNextIDForType(System.Int32)">
+            <summary>
+            Returns the next valid ID for this Registry Entry's Type, after the provided lastValidID. Should skip the vanilla ID range.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ChipInfo.IsChipActive(System.Int32)">
+            <summary>
+            Checks if the chip should be considered to currently be in use, and should not be allowed to be activated again. Override to add custom behavior - by default, always returns false.
+            </summary>
+        </member>
+        <member name="E:GadgetCore.API.ChipInfo.OnUse">
+            <summary>
+            Invoked whenever this chip is activated. Will never be invoked if the ChipType is not ACTIVE. The int parameter is the slot the chip is in.
+            </summary>
+        </member>
+        <member name="E:GadgetCore.API.ChipInfo.OnEquip">
+            <summary>
+            Invoked whenever this chip is equipped. The int parameter is the slot the chip is being equipped to. This is invoked immediately after the chip is placed into the slot.
+            </summary>
+        </member>
+        <member name="E:GadgetCore.API.ChipInfo.OnDequip">
+            <summary>
+            Invoked whenever this chip is dequipped. The int parameter is the slot the chip is being dequipped from. This is invoked immediately before the chip is removed from the slot.
+            </summary>
+        </member>
+        <member name="T:GadgetCore.API.ChipInfo.ChipCostType">
+            <summary>
+            This indicates what should the active chip's cost represent.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ChipInfo.ChipCostType.MANA">
+            <summary>
+            The cost represents a number of points of mana, as normal chips do.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ChipInfo.ChipCostType.ENERGY">
+            <summary>
+            The cost represents a number of points of stamina.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ChipInfo.ChipCostType.HEALTH_SAFE">
+            <summary>
+            The cost represents a number of points of health, although activating the chip will be unable to kill the player, and if it would the activation fails.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ChipInfo.ChipCostType.HEALTH_LETHAL">
+            <summary>
+            The cost represents a number of points of health, and activating the chip is able to kill the player if they have less than or equal to the number of points of health that the cost requires. If the player dies from attempting to activate this chip, then the effect does not get activated.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ChipInfo.ChipCostType.HEALTH_LETHAL_POSTMORTEM">
+            <summary>
+            The cost represents a number of points of health, and activating the chip is able to kill the player if they have less than or equal to the number of points of health that the cost requires. If the player dies from attempting to activate this chip, then the effect still activates. Note that at the moment of invocation, the player well have 0 or less health, and will be flagged as dead (GameScript.dead == true) but the death screen will not have opened yet, and the death will be canceled if the chip restores the player's health.
+            </summary>
+        </member>
+        <member name="T:GadgetCore.API.ChipRegistry">
+            <summary>
+            This registry is filled with ChipInfos, and is used for registering custom chips to the game.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ChipRegistry.GetRegistryName">
+            <summary>
+            Gets the name of this registry. Must be constant.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ChipRegistry.GetIDStart">
+            <summary>
+            Gets the ID that modded IDs should start at for this registry. May be 0 if the vanilla game does not use IDs for this type of thing.
+            </summary>
+        </member>
+        <member name="T:GadgetCore.API.ChipType">
+            <summary>
+            Specifies what type of chip this is. If you wish for your chip to grant both passive and active effects, use ACTIVE.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ChipType.PASSIVE">
+            <summary>
+            This chip is passive, and cannot be activated.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ChipType.ACTIVE">
+            <summary>
+            This chip is active, and can be activated. Note that active chips can still grant passive effects, if you desire.
+            </summary>
+        </member>
+        <member name="T:GadgetCore.API.EntityInfo">
+            <summary>
+            Defines a custom Entity. Make sure to call Register on it to register your Entity.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.EntityInfo.Type">
+            <summary>
+            The EntityType of this Entity
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.EntityInfo.Entity">
+            <summary>
+            The GameObject representing this Entity. This will be registered as a prefab, and as such should be a freshly constructed GameObject.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.EntityInfo.WorldIDs">
+            <summary>
+            The World IDs that this entity will spawn in. Note that the current version of Gadget Core does not actually use these values, although in the future these may be used for natural creature spawning depending on the Entity's Type.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.EntityInfo.#ctor(GadgetCore.API.EntityType,UnityEngine.GameObject,System.Int32[])">
+            <summary>
+            Use to create a new EntityInfo. Make sure to call Register on it to register your Entity. Note that the Entity object's name must not contain spaces.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.EntityInfo.Register(System.String,System.Int32,System.Boolean)">
+            <summary>
+            Registers this EntityInfo to the EntityRegistry.
+            </summary>
+            <param name="name">The registry name to use.</param>
+            <param name="preferredID">If specified, will use this registry ID.</param>
+            <param name="overrideExisting">If false, will not register if the preferred ID is already used. Ignored if no preferred ID is specified.</param>
+        </member>
+        <member name="M:GadgetCore.API.EntityInfo.Spawn(UnityEngine.Vector3)">
+            <summary>
+            Spawns an instance of this Entity at the specified position. Override to add custom spawning behavior. Default implementation fails silently if the Entity has not been registered, or if the Entity GameObject is null.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.EntityInfo.PostRegister">
+            <summary>
+            Called after this Registry Entry has been registered to its Registry. You should never call this yourself.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.EntityInfo.GetEntryType">
+            <summary>
+            Returns the Registry Entry's Type enum. Used in the registration process, although it is safe to check this yourself by directly accessing the <see cref="F:GadgetCore.API.EntityInfo.Type"/> property.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.EntityInfo.GetRegistry">
+            <summary>
+            Returns the singleton of the registry used for storing this type of Registry Entry.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.EntityInfo.IsValidIDForType(System.Int32)">
+            <summary>
+            Returns whether the specified ID is valid for this Registry Entry's Type.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.EntityInfo.GetNextIDForType(System.Int32)">
+            <summary>
+            Returns the next valid ID for this Registry Entry's Type, after the provided lastValidID. Should skip the vanilla ID range.
+            </summary>
+        </member>
+        <member name="T:GadgetCore.API.EntityRegistry">
+            <summary>
+            This registry is filled with EntityInfos, and is used for registering custom entities to the game.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.EntityRegistry.GetRegistryName">
+            <summary>
+            Gets the name of this registry. Must be constant.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.EntityRegistry.GetIDStart">
+            <summary>
+            Gets the ID that modded IDs should start at for this registry. May be 0 if the vanilla game does not use IDs for this type of thing.
+            </summary>
+        </member>
+        <member name="T:GadgetCore.API.EntityType">
+            <summary>
+            Specifies what type of entity this is. Note that despite these options, the current version of Gadget Core will never spawn the entity automatically.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.EntityType.COMMON">
+            <summary>
+            This is a standard common enemy, or a passive creature.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.EntityType.RARE">
+            <summary>
+            This is a rare enemy, such as a miniboss, that has a fair chance of not spawning at all on a given level.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.EntityType.BOSS">
+            <summary>
+            This is a boss, that will never spawn naturally, and must be manually spawned.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.EntityType.SPECIAL">
+            <summary>
+            This is not a boss, but will also never spawn naturally, and must be manually spawned.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.EntityType.OTHER">
+            <summary>
+            This is some sort of entity that does not fall into any of the other catagories. It will never spawn naturally, and must be manually spawned.
+            </summary>
+        </member>
+        <member name="T:GadgetCore.API.EquipStats">
+            <summary>
+            Represents a set of all six of the player stats, intended to be used for custom equipment.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.EquipStats.NONE">
+            <summary>
+            EquipStats where all stats are 0.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.EquipStats.VIT">
+            <summary>
+            The VIT stat.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.EquipStats.STR">
+            <summary>
+            The STR stat.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.EquipStats.DEX">
+            <summary>
+            The DEX stat.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.EquipStats.TEC">
+            <summary>
+            The TEC stat.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.EquipStats.MAG">
+            <summary>
+            The MAG stat.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.EquipStats.FTH">
+            <summary>
+            The FTH stat.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.EquipStats.#ctor(GadgetCore.API.EquipStats)">
+            <summary>
+            Creates a new instance of EquipStats that has the same stats as the given EquipStats.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.EquipStats.#ctor(System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Creates a new instance of EquipStats that has the specified stats.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.EquipStats.#ctor(System.Int32[])">
+            <summary>
+            Creates a new instance of EquipStats from an array of stat values. The array must be of length 6.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.EquipStats.GetStatArray">
+            <summary>
+            Returns the stats as an array of values. Will be of length 6.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.EquipStats.GetByIndex(System.Int32)">
+            <summary>
+            Gets the stat with the specified index. 0 is VIT, 1 is STR, 2 is DEX, 3 is TEC, 4 is MAG, 5 is FTH.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.EquipStats.AddTo(System.Int32[])">
+            <summary>
+            Adds this EquipStat's values to the given stat value array. The array must be of length 6.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.EquipStats.SubtractFrom(System.Int32[])">
+            <summary>
+            Subtracts this EquipStat's values from the given stat value array. The array must be of length 6.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.EquipStats.op_Addition(GadgetCore.API.EquipStats,GadgetCore.API.EquipStats)">
+            <summary>
+            Creates a new EquipStats by adding together the values of two other EquipStats.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.EquipStats.op_Subtraction(GadgetCore.API.EquipStats,GadgetCore.API.EquipStats)">
+            <summary>
+            Creates a new EquipStats by subtracting the values of one EquipStats from another.
+            </summary>
+        </member>
+        <member name="T:GadgetCore.API.GadgetCoreAPI">
+            <summary>
+            General-purpose utility class for accessing various parts of the Gadget Core API
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.GadgetCoreAPI.VERSION">
+            <summary>
+            The version of Gadget Core.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.RegisterCustomCraftMenu(System.String,System.String,UnityEngine.Material,UnityEngine.Material,System.Func{Item,System.Int32,System.Boolean},System.Func{Item[],System.Boolean},System.Action{Item[]},GadgetCore.API.TileInfo)">
+            <summary>
+            Use to register a custom crafting menu. Using RegisterMenu is unnecessary for crafting menus. Note that all crafting menus must have, at most, 3 ingredient slots. Use OpenCraftMenu to open the menu.
+            </summary>
+            <param name="Title">The text to display as the title of the crafting window.</param>
+            <param name="Desc">The text to display as the description of the crafting window.</param>
+            <param name="MenuMat">The material to use for the crafting window.</param>
+            <param name="ProgressBarMat">The material to use for the crafting progress bar.</param>
+            <param name="SlotValidator">A Func that is used to check if an item is valid for a slot.</param>
+            <param name="CraftValidator">A Func that is used to check if the items currently in the slots are valid for a recipe. The Item array is of length 4, where the first three Items are the inputs, and the fourth Item is the output.</param>
+            <param name="CraftPerformer">An Action that is used to perform a crafting operation by modifying the contents of the Item array. The Item array is of length 4, where the first three Items are the inputs, and the fourth Item is the output. Should decrement the inputs, and set the output, possibly respecting whatever is already in the output.</param>
+            <param name="Tile">An optional parameter that specifies what Interactive tile should open the menu when interacted with. Shortcut for adding OpenCraftMenuRoutine to the tile's OnInteract event.</param>
+            <returns></returns>
+        </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.RegisterMenu(UnityEngine.GameObject,GadgetCore.API.TileInfo)">
+            <summary>
+            Registers a non-crafting menu to the game. Use OpenMenu to open the menu. Components on the Menu may have methods named OnMenuOpened and/or OnMenuClosed that will get automatically invoked when the menu is opened or closed, respectively.
+            </summary>
+            <param name="Menu">The menu prefab.</param>
+            <param name="Tile">An optional parameter that specifies what Interactive tile should open the menu when interacted with. Shortcut for adding OpenMenuRoutine to the tile's OnInteract event.</param>
+        </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.OpenCraftMenuRoutine(System.Int32)">
+            <summary>
+            Opens the custom crafting menu with the specified ID. Functions as a Coroutine, to facilitate use in TileInfo's OnInteract.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.OpenMenuRoutine(System.Int32)">
+            <summary>
+            Opens the custom menu with the specified ID. Not for use with crafting menus. Functions as a Coroutine, to facilitate use in TileInfo's OnInteract.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.OpenCraftMenu(System.Int32)">
+            <summary>
+            Opens the custom crafting menu with the specified ID.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.OpenMenu(System.Int32)">
+            <summary>
+            Opens the custom menu with the specified ID. Not for use with crafting menus.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.EmptyItem">
+            <summary>
+            Creates an empty Item, used to represent the content of an empty slot.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.CopyItem(Item)">
+            <summary>
+            Creates a copy of an Item.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.ConstructItemFromIntArray(System.Int32[])">
+            <summary>
+            The base game transmits Items across the network using int arrays. This method converts an int array into an Item, and restores the Item's extra data in the process. Indexes 0-10 of the array are used for vanilla data, while indexes 11 and up are used for any and all extra data, and are encoded in a format that is not meant to be manually read.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.ConstructIntArrayFromItem(Item)">
+            <summary>
+            The base game transmits Items across the network using int arrays. This method converts an Item into an int array, and preserves the Item's extra data in the process. Indexes 0-10 of the array are used for vanilla data, while indexes 11 and up are used for any and all extra data, and are encoded in a format that is not meant to be manually read.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.EmptyEnumerator">
+            <summary>
+            Returns an IEnumerator that does nothing. Use when you need to return an IEnumerator, but you don't want it to do anything and you can't use null.
+            </summary>
+        </member>
         <member name="M:GadgetCore.API.GadgetCoreAPI.SpawnItem(UnityEngine.Vector3,Item,System.Boolean)">
             <summary>
             Use to spawn an item into the game world.
-            You may notice that the vanilla game's source-code uses Resources.Load to spawn items. Do not use that.
+            You may notice that the vanilla game's source-code uses Resources.Load to spawn items. You should not use that.
             </summary>
             <param name="pos">The position to spawn the item at. Note that despite being a 2D game, Roguelands uses 3D space. That being said, the z-coordinate should nearly always be 0.</param>
             <param name="item">The item to spawn.</param>
@@ -16,7 +453,7 @@
         <member name="M:GadgetCore.API.GadgetCoreAPI.SpawnItemLocal(UnityEngine.Vector3,Item,System.Boolean)">
             <summary>
             Use to spawn an item into the local player's world.
-            You may notice that the vanilla game's source-code uses Resources.Load to spawn items. Do not use that.
+            You may notice that the vanilla game's source-code uses Resources.Load to spawn items. You should not use that.
             </summary>
             <param name="pos">The position to spawn the item at. Note that despite being a 2D game, Roguelands uses 3D space. That being said, the z-coordinate should nearly always be 0.</param>
             <param name="item">The item to spawn.</param>
@@ -25,19 +462,24 @@
         <member name="M:GadgetCore.API.GadgetCoreAPI.SpawnExp(UnityEngine.Vector3,System.Int32)">
             <summary>
             Use to spawn exp into the world.
-            You may notice that the vanilla game's source-code uses Resources.Load to spawn exp. Do not use that.
+            You may notice that the vanilla game's source-code uses Resources.Load to spawn exp. You should not use that.
             </summary>
             <param name="pos">The position to spawn the item at. Note that despite being a 2D game, Roguelands uses 3D space. That being said, the z-coordinate should nearly always be 0.</param>
             <param name="exp">The amount of exp points to spawn.</param>
         </member>
         <member name="M:GadgetCore.API.GadgetCoreAPI.DropItem(UnityEngine.Vector3,Item,System.Boolean)">
             <summary>
-            Use to spawn an item into the game world as if dropped by a player.
-            You may notice that the vanilla game's source-code uses Resources.Load to spawn items. Do not use that.
+            Use to spawn an item into the game world as if dropped by this player.
+            You may notice that the vanilla game's source-code uses Resources.Load to spawn items. You should not use that.
             </summary>
             <param name="pos">The position to spawn the item at. Note that despite being a 2D game, Roguelands uses 3D space. That being said, the z-coordinate should nearly always be 0.</param>
             <param name="item">The item to spawn.</param>
             <param name="isChip">True to drop a chip instead of a normal item.</param>
+        </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.GetCursorPos">
+            <summary>
+            Returns the position of the mouse cursor.
+            </summary>
         </member>
         <member name="M:GadgetCore.API.GadgetCoreAPI.AddCustomResource(System.String,UnityEngine.Object)">
             <summary>
@@ -48,9 +490,213 @@
         </member>
         <member name="M:GadgetCore.API.GadgetCoreAPI.AddTextureToSheet(UnityEngine.Texture)">
             <summary>
-            Use to register a texture for the tile spritesheet. You probably shouldn't use this yourself - it is automatically called by TileInfo after registration. May only be called from the Initialize method of a GadgetMod.
+            Use to register a texture for the tile spritesheet. The texture must be 32x32 in size. You probably shouldn't use this yourself - it is automatically called by <see cref="T:GadgetCore.API.TileInfo"/> after registration. May only be called from <see cref="M:GadgetCore.API.GadgetMod.Initialize"/>.
             </summary>
             <param name="sprite">The Texture2D to register to the spritesheet</param>
+        </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.IsResourceRegistered(System.String)">
+            <summary>
+            Use to check if there is a resource registered at the specified path. This includes resources registered by the base game.
+            </summary>
+            <param name="path"></param>
+            <returns></returns>
+        </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.IsCustomResourceRegistered(System.String)">
+            <summary>
+            Use to check if there is a custom resource registered at the specified path. This does not include resources registered by the base game.
+            </summary>
+            <param name="path"></param>
+            <returns></returns>
+        </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.GetCustomResource(System.String)">
+            <summary>
+            Gets the custom resource at the specified path.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.GetResource(System.String)">
+            <summary>
+            Gets the resource at the specified path. This can retrieve vanilla or custom resources.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.GetItemMaterial(System.Int32)">
+            <summary>
+            Gets the item material with the specified ID.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.GetTileMaterial(System.Int32)">
+            <summary>
+            Gets the tile material with the specified ID.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.GetChipMaterial(System.Int32)">
+            <summary>
+            Gets the chip material with the specified ID.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.GetWeaponMaterial(System.Int32)">
+            <summary>
+            Gets the weapon material with the specified ID. Used for when the weapon is equipped.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.GetOffhandMaterial(System.Int32)">
+            <summary>
+            Gets the offhand material with the specified ID. Used for when the offhand item is equipped.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.GetHeadMaterial(System.Int32)">
+            <summary>
+            Gets the head material with the specified ID. Used for when a helmet is equipped.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.GetBodyMaterial(System.Int32)">
+            <summary>
+            Gets the body material with the specified ID. Used for when an armor is equipped, or for the worn outfit if no armor is equipped.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.GetArmMaterial(System.Int32)">
+            <summary>
+            Gets the arm material with the specified ID. Used for when an armor is equipped, or for the worn outfit if no armor is equipped.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.GetDroidHeadMaterial(System.Int32)">
+            <summary>
+            Gets the droid head material with the specified ID. Used for the head of a droid, which is animated seperately from the body.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.GetDroidBodyMaterial(System.Int32)">
+            <summary>
+            Gets the droid body material with the specified ID. Used for the body of a droid, which is animated seperately from the head.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.GetRaceMaterial(System.Int32,System.Int32)">
+            <summary>
+            Gets the race head material with the specified ID and variant. Used for when no helmet is worn.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.GetSignMaterial(System.Int32)">
+            <summary>
+            Gets the world sign material with the specified world ID. This is the colored bar that is shown inside of portals.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.GetTerrainSideMaterial(System.Int32,System.Boolean)">
+            <summary>
+            Gets the terrain side material with the specified world ID. This is used to fill in each side of a chunk that doesn't lead anywhere.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.GetTerrainZoneMaterial(System.Int32)">
+            <summary>
+            Gets the terrain zone material with the specified world ID. This represents the four L-shaped corners of a terrain chunk. Does not include the sides, or the mid-chunk.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.GetTerrainEntranceMaterial(System.Int32)">
+            <summary>
+            Gets the terrain entrance material with the specified world ID. This is the entrance room of a world. It is flipped and re-used for the exit as well.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.GetTerrainMidChunkMaterial(System.Int32,System.Boolean)">
+            <summary>
+            Gets the terrain mid-chunk material with the specified world ID. This is the chunk of terrain in the middle of a room. Has a variant with an opening in the middle, and one without.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.GetWorldBackgroundMaterial(System.Int32,System.Int32)">
+            <summary>
+            Gets the world background material with the specified world ID and depth index. There are four of these for each world, and they are used to draw the world's background. The depth index goes from 0 to 3 - a higher index indicates farther back into the background, and generally means a darker-colored material.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.GetWorldParallaxMaterial(System.Int32)">
+            <summary>
+            Gets the world parallax material with the specified world ID. This is a vertical color gradient used to create the background parallax effect.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.GetFactionFlagMaterial(System.Int32)">
+            <summary>
+            Gets the faction flag material with the specified ID. This refers to the allegiance icon shown in the character creation screen. In vanilla, it is either The Galactic Fleet, the Starlight Rebellion, the Church of Faust, or the Gray Enigma. There are two additional unused flags with the IDs of 4 and 5: 4 is for the Junkbelt Mercenaries, and 5 is for the Droidtech Enterprise.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.GetDifficultyFlagMaterial(System.Int32)">
+            <summary>
+            Gets the difficulty flag material with the specified ID. This refers to the difficulty icon shown in the character creation screen. In vanilla, it is either Standard or Ironman. For some reason, IDs 2 through 5 are also used by the vanilla game, and are copies of the 'Standard' flag. (ID 0)
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.GetChatPortraitMaterial(System.Int32)">
+            <summary>
+            Gets the chat portrait material with the specified ID. This is the character portrait shown when in dialog with an NPC, and the ID is not necessarily related to the NPC being spoken to in any way, although NPCs added with Gadget Core will have the same portrait ID.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.GetMiscellaneousMaterial(System.String)">
+            <summary>
+            Gets the miscellaneous material with the specified name. This is used for any material that does not fit into another catagory. In vanilla, this includes menus and UI elements, opened chests, and the planet icons as shown in the planet selector, among other things.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.GetPropResource(System.Int32)">
+            <summary>
+            Gets the prop with the specified ID. A Prop is the in-world object representing any ship tile that has custom behavior. In the vanilla game, this is the engine blocks, the lamp blocks, and the spawner block, as well as all of the cards and badges. Keep in mind that interactable objects have their props saved as NPCs, for whatever reason.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.GetEntityResource(System.String)">
+            <summary>
+            Gets the entity with the specified name.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.GetProjectileResource(System.String)">
+            <summary>
+            Gets the projectile with the specified name. Note that this does not include weapon projectiles.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.GetSpecialProjectileResource(System.String)">
+            <summary>
+            Gets the special projectile with the specified name.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.GetWeaponProjectileResource(System.Int32)">
+            <summary>
+            Gets the weapon projectile with the specified ID. These refer specifically to projectiles fired by the player's weapon, and the ID is that weapon's ID.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.GetHazardResource(System.String)">
+            <summary>
+            Gets the hazard with the specified name. Note that some enemy projectiles are actually hazards, such as the blade-like projectiles summoned by a few different enemies.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.GetObjectResource(System.String)">
+            <summary>
+            Gets the object with the specified name. These are the objects found within worlds and towns, meaning anything other than entities and objectives. Objectives are unique, and can be loaded with Resources.Load("objective/objective1")
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.GetNPCResource(System.String)">
+            <summary>
+            Gets the npc with the specified name. Note that this also includes interactable structures, but not the ones that can be picked up and placed in your ship.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.GetPlaceableNPCResource(System.Int32)">
+            <summary>
+            Gets the placeable npc with the specified ID. Note that this refers to interactable structures that can be picked up and placed in your ship.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.GetSound(System.String)">
+            <summary>
+            Gets the audio clip with the specified name. Note that the sounds made by weapons should be accessed using GetItemAudioClip
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.GetAttackSound(System.Int32)">
+            <summary>
+            Gets the item audio clip with the specified ID. This is the sound played when a weapon is used.
+            </summary>
+        </member>
+        <member name="T:GadgetCore.API.GadgetCoreAPI.SpriteSheetEntry">
+            <summary>
+            This represents an entry in the tile spritesheet. Returned by <see cref="M:GadgetCore.API.GadgetCoreAPI.AddTextureToSheet(UnityEngine.Texture)"/>
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.SpriteSheetEntry.GetTex">
+            <summary>
+            Returns the Texture that this SpriteSheetEntry was built from.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.SpriteSheetEntry.GetCoords">
+            <summary>
+            Returns the coordinates on the spritesheet that this texture resides at. This will throw an exception if the spritesheet has not been generated yet.
+            </summary>
         </member>
         <member name="T:GadgetCore.API.GadgetMod">
             <summary>
@@ -58,20 +704,1049 @@
             May have multiple GadgetMods in one uMod Framework mod - They will be able to be individually toggled in the ingame mod manager.
             </summary>
         </member>
+        <member name="P:GadgetCore.API.GadgetMod.Enabled">
+            <summary>
+            Represents whether this GadgetMod is enabled. Note that this value can be changed on the mod menu, although the game will be forced to restart shortly after.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.GadgetMod.ModID">
+            <summary>
+            The Mod ID assigned to this mod. It represents the index of the mod in GadgetMods's list.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetMod.CreateRegistries">
+            <summary>
+            Override 
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:GadgetCore.API.GadgetMod.Initialize">
+            <summary>
+            Called during mod initialization. All data registration should be done from this method.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetMod.ScriptStart">
+            <summary>
+            Called when the gadget mod hook script starts.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetMod.ScriptUpdate">
+            <summary>
+            Called when the gadget mod hook script has an update.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetMod.ScriptFixedUpdate">
+            <summary>
+            Called when the gadget mod hook script has a fixed update.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetMod.GetModDescription">
+            <summary>
+            Returns the description of this mod. By default, returns null, which will cause the mod's ModInfo to be used as its description.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetMod.GetPreviousModNames">
+            <summary>
+            Returns a list of all previous names this mod has had. If you must change the name of your mod, use this to prevent registry data corruption. Null is not a valid return value, return an empty array if your mod has had no previous names.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetMod.GetModVersionString">
+            <summary>
+            Returns the version string of this mod. By default, returns the value of the AssemblyFileVersion attribute.
+            </summary>
+        </member>
         <member name="T:GadgetCore.API.GadgetModAttribute">
             <summary>
             Required by classes that extend GadgetMod. Provides information about your mod.
             </summary>
         </member>
-        <member name="M:GadgetCore.API.GadgetModAttribute.#ctor(System.String,System.Boolean,System.Int32,GadgetCore.API.VersionSpecificity,System.String)">
+        <member name="F:GadgetCore.API.GadgetModAttribute.Name">
+            <summary>
+            The friendly name of this mod. If you change this after your initial release, make sure to override GetPreviousModNames to prevent registry data corruption!
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.GadgetModAttribute.RequiredOnClients">
+            <summary>
+            Whether multiplayer clients attempting to connect without this mod should be rejected.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.GadgetModAttribute.EnableByDefault">
+            <summary>
+            Whether the mod should default to being enabled or not when first installed.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.GadgetModAttribute.LoadPriority">
+            <summary>
+            The priority for loading your mod. Higher number means higher priority.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.GadgetModAttribute.Dependencies">
+            <summary>
+            The names of any and all other Gadget mods that your mod is dependent upon. If they are not present, your mod will not be loaded, and if your mod has the same load priority as them, your mod will be guaranteed to load after them. May or may not include version numbers.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.GadgetModAttribute.ModVersionSpecificity">
+            <summary>
+            The point at which a difference between the mod versions of the host and client should flag an incompatibility.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.GadgetModAttribute.GadgetVersionSpecificity">
+            <summary>
+            The point at which a change to GadgetCore should flag this mod as incompatible.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.GadgetModAttribute.TargetGCVersion">
+            <summary>
+            The version of GadgetCore your mod is made for.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetModAttribute.#ctor(System.String,System.Boolean,System.Boolean,System.Int32,System.String[],GadgetCore.API.VersionSpecificity,GadgetCore.API.VersionSpecificity,System.String)">
             <summary>
             Required by classes that extend GadgetMod. Provides information about your mod.
             </summary>
-            <param name="Name">The friendly name of your mod</param>
+            <param name="Name">The friendly name of this mod. Also used for registry names. Should not contain special characters.</param>
+            <param name="RequiredOnClients">Whether multiplayer clients attempting to connect without this mod should be rejected.</param>
             <param name="EnableByDefault">Whether the mod should default to being enabled or not when first installed.</param>
             <param name="LoadPriority">The priority for loading your mod. Higher number means higher priority. Leave at 0 if you don't care.</param>
-            <param name="VersionSpecificity">The point at which a change to GadgetCore so flag this mod as incompatible</param>
-            <param name="TargetGCVersion">The version of GadgetCore your mod is made for. Always leave this at default.</param>
+            <param name="Dependencies">The names of any and all other Gadget mods that your mod is dependent upon. If they are not present, your mod will not be loaded, and if your mod has the same load priority as them, your mod will be guaranteed to load after them. May include version numbers with the syntax of \"ModName v1.0\". The level of precision used in the specified version number indicates the version specificity of the dependency.</param>
+            <param name="ModVersionSpecificity">The point at which a difference between the mod versions of the host and client should flag an incompatibility.</param>
+            <param name="GadgetVersionSpecificity">The point at which a change to GadgetCore should flag this mod as incompatible.</param>
+            <param name="TargetGCVersion">The version of GadgetCore your mod is made for. This is automatically assigned to the version of GadgetCore you are building with, so you should always leave this at default.</param>
+        </member>
+        <member name="T:GadgetCore.API.VersionSpecificity">
+            <summary>
+            Used to specify how specific a version number comparison should be.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.VersionSpecificity.MAJOR">
+            <summary>
+            Only compare against the major version number.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.VersionSpecificity.MINOR">
+            <summary>
+            Compare against the major and minor version numbers.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.VersionSpecificity.NONBREAKING">
+            <summary>
+            Compare against the major, minor, and nonbreaking version numbers.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.VersionSpecificity.BUGFIX">
+            <summary>
+            Compare against the major, minor, nonbreaking, and bugfix version numbers.
+            </summary>
+        </member>
+        <member name="T:GadgetCore.API.GadgetModInfo">
+            <summary>
+            This is a container for a Gadget Mod used for tracking various pieces of information about it.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.GadgetModInfo.Mod">
+            <summary>
+            The <see cref="T:GadgetCore.API.GadgetMod"/> that this GadgetModInfo describes.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.GadgetModInfo.Assembly">
+            <summary>
+            The <see cref="T:System.Reflection.Assembly"/> that contains this Gadget mod.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.GadgetModInfo.Attribute">
+            <summary>
+            The <see cref="T:GadgetCore.API.GadgetModAttribute"/> for this Gadget mod.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.GadgetModInfo.UMFName">
+            <summary>
+            The name of the UMF mod that contains this Gadget mod.
+            </summary>
+        </member>
+        <member name="T:GadgetCore.API.GadgetMods">
+            <summary>
+            This class is responsible for managing Gadget Mods.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetMods.CountMods">
+            <summary>
+            Returns the count of Gadget Mods. Note that this includes Gadget Mods that are not enabled.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetMods.CountEnabledMods">
+            <summary>
+            Returns the count of Gadget Mods that are enabled.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetMods.ListAllMods">
+            <summary>
+            Returns an array of all Gadget Mods. Note that this includes Gadget Mods that are not enabled.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetMods.ListAllEnabledMods">
+            <summary>
+            Returns an array of all enabled Gadget Mods.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetMods.ListAllModInfos">
+            <summary>
+            Returns an array of all Gadget Mod Infos. Note that this includes Gadget Mods that are not enabled.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetMods.ListAllEnabledModInfos">
+            <summary>
+            Returns an array of all enabled Gadget Mod Infos.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetMods.GetMod(System.String)">
+            <summary>
+            Gets the Gadget Mod with the specified name. If it is not found, attempts to find a mod that has the given name listed as a previous name. If still no mod is found, returns null.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetMods.GetMod(System.Int32)">
+            <summary>
+            Gets the Gadget Mod with the specified index. The Gadget Mods are sorted by load order.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetMods.GetModInfo(System.String)">
+            <summary>
+            Gets the Gadget Mod Info with the specified name. If it is not found, attempts to find a mod that has the given name listed as a previous name. If still no mod is found, returns null.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetMods.GetModInfo(System.Int32)">
+            <summary>
+            Gets the Gadget Mod with the specified index. The Gadget Mods are sorted by load order.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetMods.SetEnabled(GadgetCore.API.GadgetModInfo,System.Boolean)">
+            <summary>
+            Sets the Enabled status of the given mod. Note that this can be queried using GadgetMod.Enabled, although it will not apply until the game is restarted.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetMods.SetEnabled(System.String,System.Boolean)">
+            <summary>
+            Sets the Enabled status of the mod with the given name using <see cref="M:GadgetCore.API.GadgetMods.GetModInfo(System.String)"/>. Will throw a NullReferenceException if there is no mod with the given name.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetMods.SetEnabled(System.Int32,System.Boolean)">
+            <summary>
+            Sets the Enabled status of the mod with the given index.
+            </summary>
+        </member>
+        <member name="T:GadgetCore.API.GadgetNetwork">
+            <summary>
+            Provides methods related to network communication
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.GadgetNetwork.MatrixTimeout">
+            <summary>
+            How long the Gadget Network will wait for the Network ID Conversion Matrix to be created. If it has not been created after this timeout, the Gadget Network will assume you are connected to a vanilla player.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.GadgetNetwork.MatrixReady">
+            <summary>
+            True if the Network ID Conversion Matrix is ready for use. False otherwise. ID conversion methods will fail if the matrix is not ready.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.GadgetNetwork.IsHostVanilla">
+            <summary>
+            True if you are currently connected as a client, and the host does not have Gadget Core installed. This can be a false positive, in the case of a slow connection.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetNetwork.GetTimeSinceConnect">
+            <summary>
+            Gets the amount of time, in seconds, that has passed since the Network connection was established. Returns -1 if there is no currently active Network connection.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetNetwork.HostHasReg(GadgetCore.API.Registry)">
+            <summary>
+            Checks if the network host has the specified registry.
+            </summary>
+            <exception cref="T:System.InvalidOperationException">Thrown when the network ID conversion matrix is not ready.</exception>
+        </member>
+        <member name="M:GadgetCore.API.GadgetNetwork.ConvertIDToHost(GadgetCore.API.Registry,System.Object@)">
+            <summary>
+            Gets the host ID that matches the specified local ID. The given ID MUST be an int. Returns -1 if the host does not have a matching ID for the specified local ID.
+            </summary>
+            <exception cref="T:System.InvalidOperationException">Thrown when the network ID conversion matrix is not ready.</exception>
+        </member>
+        <member name="M:GadgetCore.API.GadgetNetwork.ConvertIDToHost(GadgetCore.API.Registry,System.Int32@)">
+            <summary>
+            Gets the host ID that matches the specified local ID. Returns -1 if the host does not have a matching ID for the specified local ID.
+            </summary>
+            <exception cref="T:System.InvalidOperationException">Thrown when the network ID conversion matrix is not ready.</exception>
+        </member>
+        <member name="M:GadgetCore.API.GadgetNetwork.ConvertIDToHost(GadgetCore.API.Registry,System.Int32)">
+            <summary>
+            Gets the host ID that matches the specified local ID. Returns -1 if the host does not have a matching ID for the specified local ID.
+            </summary>
+            <exception cref="T:System.InvalidOperationException">Thrown when the network ID conversion matrix is not ready.</exception>
+        </member>
+        <member name="M:GadgetCore.API.GadgetNetwork.ConvertIDToLocal(GadgetCore.API.Registry,System.Object@)">
+            <summary>
+            Gets the local ID that matches the specified host ID. The given ID must be an int. Returns -1 if there is no matching local ID for the specified host ID.
+            </summary>
+            <exception cref="T:System.InvalidOperationException">Thrown when the network ID conversion matrix is not ready.</exception>
+        </member>
+        <member name="M:GadgetCore.API.GadgetNetwork.ConvertIDToLocal(GadgetCore.API.Registry,System.Int32@)">
+            <summary>
+            Gets the local ID that matches the specified host ID. Returns -1 if there is no matching local ID for the specified host ID.
+            </summary>
+            <exception cref="T:System.InvalidOperationException">Thrown when the network ID conversion matrix is not ready.</exception>
+        </member>
+        <member name="M:GadgetCore.API.GadgetNetwork.ConvertIDToLocal(GadgetCore.API.Registry,System.Int32)">
+            <summary>
+            Gets the local ID that matches the specified host ID. Returns -1 if there is no matching local ID for the specified host ID.
+            </summary>
+            <exception cref="T:System.InvalidOperationException">Thrown when the network ID conversion matrix is not ready.</exception>
+        </member>
+        <member name="T:GadgetCore.API.GadgetUtils">
+            <summary>
+            Some general-purpose utility methods.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetUtils.WaitAndInvoke(System.Reflection.MethodBase,System.Single,System.Func{System.Boolean},System.Object,System.Object[])">
+            <summary>
+            WaitAndInvoke is a coroutine that will wait for the specified timeout or condition, and then invoke the given method.
+            </summary>
+            <param name="method">The MethodBase to invoke.</param>
+            <param name="timeout">The maximum time, in seconds, to wait.</param>
+            <param name="condition">The condition on which to stop waiting early.</param>
+            <param name="invokeInstance">The object to invoke the method on. May be null if the given method is static.</param>
+            <param name="parameters">The parameters to pass to the invoked method.</param>
+        </member>
+        <member name="T:GadgetCore.API.GameRegistry">
+            <summary>
+            The master registry of all other registries.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GameRegistry.GetRegistry(System.Type)">
+            <summary>
+            Gets the registry with the specified entry type.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GameRegistry.GetRegistry(System.String)">
+            <summary>
+            Gets the registry with the specified name.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GameRegistry.IsRegistryRegistered(System.Type)">
+            <summary>
+            Checks if a registry with the specified entry type is registered.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GameRegistry.IsRegistryRegistered(System.String)">
+            <summary>
+            Checks if a registry with the specified name is registered.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GameRegistry.ListAllRegistries">
+            <summary>
+            Lists all registries.
+            </summary>
+        </member>
+        <member name="T:GadgetCore.API.InstanceTracker">
+            <summary>
+            Provides access to instances of some commonly used scripts. Be wary of using these during scene load, as it may take a moment for their values to get set.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.InstanceTracker.MainCamera">
+            <summary>
+            The Main Camera.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.InstanceTracker.GameScript">
+            <summary>
+            The GameScript. Only valid when in scene 1.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.InstanceTracker.PlayerScript">
+            <summary>
+            The PlayerScript. Note that there may be multiple PlayerScripts at one time in multiplayer, but this one is for your own player. Only valid when in scene 1.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.InstanceTracker.MenuScript">
+            <summary>
+            The MenuScript. Note that this is used for the in-game pause menu, and the singleplayer/multiplayer choice. Only valid when in scene 1.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.InstanceTracker.Menuu">
+            <summary>
+            The Menuu. Note that this is used for everything on the title screen. Only valid when in scene 0.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.InstanceTracker.MusicBox">
+            <summary>
+            The MusicBox. This is used to control what music is playing.
+            </summary>
+        </member>
+        <member name="T:GadgetCore.API.ItemExtension">
+            <summary>
+            Extends the Item class to add additional data to it.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ItemExtension.HasAnyExtraData(Item)">
+            <summary>
+            Returns true of the Item has any extra data at all.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ItemExtension.HasExtraData(Item,System.String)">
+            <summary>
+            Returns true of the Item has extra data with the specified key.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ItemExtension.PutExtraData``1(Item,System.String,``0)">
+            <summary>
+            Adds or replaces a piece of extra data to this Item. The data key should be of the format ModName:Key, and the data value must be a serializable type. If adding an ID as extra data, make sure to use GadgetNetwork.ConvertIDToHost on it first.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ItemExtension.GetExtraData``1(Item,System.String)">
+            <summary>
+            Gets a piece of extra data from this Item. If retrieving an ID as extra data, make sure to use GadgetNetwork.ConvertIDToLocal on it first.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ItemExtension.GetAllExtraData``1(Item)">
+            <summary>
+            Returns all extra data stored on this Item. Returns null if the item has no extra data.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ItemExtension.RemoveExtraData(Item,System.String)">
+            <summary>
+            Removes a piece of extra data from this Item.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ItemExtension.RemoveAllExtraData(Item)">
+            <summary>
+            Removes any and all extra data from this Item.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ItemExtension.SetAllExtraData(Item,System.Collections.Generic.Dictionary{System.String,System.Object})">
+            <summary>
+            Sets the extra data dictionary for this item.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ItemExtension.SerializeExtraData(Item)">
+            <summary>
+            Serializes all of the extra data on an Item, for transmission across the Network.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ItemExtension.DeserializeExtraData(Item,System.String)">
+            <summary>
+            Deserializes the given extra data, and associates it with the Item. Replaces any extra data the Item may already have.
+            </summary>
+        </member>
+        <member name="T:GadgetCore.API.ItemInfo">
+            <summary>
+            Defines a custom Item. Make sure to call Register on it to register your Item.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ItemInfo.Type">
+            <summary>
+            The ItemType of this Item
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ItemInfo.Name">
+            <summary>
+            The name of this Item
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ItemInfo.Desc">
+            <summary>
+            The description of this Item
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ItemInfo.Stats">
+            <summary>
+            This EquipStats of this Item
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.ItemInfo.Value">
+            <summary>
+            The sell-value of this Item. Represents the amount of credits given when taken to the item trasher.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.ItemInfo.Tile">
+            <summary>
+            The TileInfo that this item can place. Use this ItemInfo in the TileInfo's constructor to ensure it is registered correctly.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.ItemInfo.Tex">
+            <summary>
+            The Texture associated with this Item. May be null.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.ItemInfo.HeldTex">
+            <summary>
+            The Texture associated with this item when it is held in the main- or off-hand. May be null.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.ItemInfo.HeadTex">
+            <summary>
+            The Texture associated with this item when it is worn as a helmet, or the Texture used by this droid's head. May be null.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.ItemInfo.BodyTex">
+            <summary>
+            The Texture associated with this item when it is worn as an armor, or the Texture used by this droid's body. May be null.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.ItemInfo.ArmTex">
+            <summary>
+            The Texture associated with this item when it is worn as an armor; this texture is used for the player's arms. May be null.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.ItemInfo.Mat">
+            <summary>
+            The Material associated with this item. May be null.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.ItemInfo.HeldMat">
+            <summary>
+            The Material associated with this item when it is held in the main- or off-hand. May be null.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.ItemInfo.HeadMat">
+            <summary>
+            The Material associated with this item when it is worn as a helmet, or the Texture used by this droid's head. May be null.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.ItemInfo.BodyMat">
+            <summary>
+            The Material associated with this item when it is worn as an armor, or the Texture used by this droid's body. May be null.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.ItemInfo.ArmMat">
+            <summary>
+            The Material associated with this item when it is worn as an armor; this texture is used for the player's arms. May be null.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.ItemInfo.ProjectileID">
+            <summary>
+            The ID of the projectile fired by this weapon (if applicable).
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.ItemInfo.WeaponScaling">
+            <summary>
+            An array of multipliers used for weapon scaling. May be null if this item is not a weapon.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.ItemInfo.AttackSound">
+            <summary>
+            The sound that is played when the player attacks with this weapon.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.ItemInfo.CritChanceBonus">
+            <summary>
+            A bonus % to crit chance for this weapon.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.ItemInfo.CritPowerBonus">
+            <summary>
+            A bonus crit damage multiplier that is added to the base 1.5x crit power for this weapon.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ItemInfo.#ctor(GadgetCore.API.ItemType,System.String,System.String,UnityEngine.Texture,System.Int32,GadgetCore.API.EquipStats,UnityEngine.Texture,UnityEngine.Texture,UnityEngine.Texture,UnityEngine.Texture)">
+            <summary>
+            Use to create a new ItemInfo. Make sure to call Register on it to register your Item.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ItemInfo.#ctor(GadgetCore.API.ItemType,System.String,System.String,UnityEngine.Material,System.Int32,GadgetCore.API.EquipStats,UnityEngine.Material,UnityEngine.Material,UnityEngine.Material,UnityEngine.Material)">
+            <summary>
+            Use to create a new ItemInfo. Make sure to call Register on it to register your Item.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ItemInfo.SetWeaponInfo(System.Single[],UnityEngine.AudioClip,System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Sets the special info unique to weapons. This must be called before Register. If this is item is a weapon, you must call this.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ItemInfo.Register(System.String,System.Int32,System.Boolean)">
+            <summary>
+            Registers this ItemInfo to the ItemRegistry.
+            </summary>
+            <param name="name">The registry name to use.</param>
+            <param name="preferredID">If specified, will use this registry ID.</param>
+            <param name="overrideExisting">If false, will not register if the preferred ID is already used. Ignored if no preferred ID is specified.</param>
+        </member>
+        <member name="M:GadgetCore.API.ItemInfo.SetTile(GadgetCore.API.TileInfo)">
+            <summary>
+            Sets the tile placed by this item. You should probably not use this yourself, rather, you should put this ItemInfo into a TileInfo's constructor.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ItemInfo.PostRegister">
+            <summary>
+            Called after this Registry Entry has been registered to its Registry. You should never call this yourself.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ItemInfo.GetDamage(PlayerScript)">
+            <summary>
+            Gets the amount of damage that this item will do. Returns 0 if WeaponScaling is null. Does not account for a crit. Preserves the ID-specific behavior of the base game, so if the ItemInfo's ID matches the ID of a vanilla item, it will behave in the exact same way that the vanilla item of the same ID would.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ItemInfo.MultiplyCrit(PlayerScript,System.Int32)">
+            <summary>
+            Gets the amount of damage that this item will do on a crit. Returns 0 if WeaponScaling is null. Preserves the ID-specific behavior of the base game, so if the ItemInfo's ID matches the ID of a vanilla item, it will behave in the exact same way that the vanilla item of the same ID would.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ItemInfo.TryCrit(PlayerScript)">
+            <summary>
+            Mathematically attempts to trigger a critical attack. Returns true if a crit should occur.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ItemInfo.GetValue">
+            <summary>
+            Gets the item's sell-value.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ItemInfo.GetTier">
+            <summary>
+            Gets the item's tier. Returns -1 if the item does not have a tier.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ItemInfo.GetTierDigit">
+            <summary>
+            Returns the single digit representative of the item's tier. 1-9 represents tiers 1-9, 0 represents tier 10. Returns -1 if the item does not have a tier.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ItemInfo.GetEntryType">
+            <summary>
+            Returns the Registry Entry's Type enum. Used in the registration process, although it is safe to check this yourself by directly accessing the <see cref="F:GadgetCore.API.ItemInfo.Type"/> property.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ItemInfo.GetRegistry">
+            <summary>
+            Returns the singleton of the registry used for storing this type of Registry Entry.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ItemInfo.IsValidIDForType(System.Int32)">
+            <summary>
+            Returns whether the specified ID is valid for this Registry Entry's Type.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ItemInfo.GetNextIDForType(System.Int32)">
+            <summary>
+            Returns the next valid ID for this Registry Entry's Type, after the provided lastValidID. Should skip the vanilla ID range.
+            </summary>
+        </member>
+        <member name="E:GadgetCore.API.ItemInfo.OnUse">
+            <summary>
+            This event is invoked whenever the player uses the item while it is in the hotbar. Not to be confused with when a weapon is equipped and the player attacks with it. The inventory slot of the item is passed as the parameter.
+            </summary>
+        </member>
+        <member name="E:GadgetCore.API.ItemInfo.OnEquip">
+            <summary>
+            This event is invoked whenever the player equips this item. (Weapon, Offhand, Helmet, Armor, Ring, or Droid). The inventory slot of this item is passed as the parameter.
+            </summary>
+        </member>
+        <member name="E:GadgetCore.API.ItemInfo.OnDequip">
+            <summary>
+            This event is invoked whenever the player dequips this item. (Weapon, Offhand, Helmet, Armor, Ring, or Droid). The inventory slot of this item is passed as the parameter.
+            </summary>
+        </member>
+        <member name="E:GadgetCore.API.ItemInfo.OnAttack">
+            <summary>
+            This event is invoked whenever the player attacks with this item. It must be a <see cref="F:GadgetCore.API.ItemType.WEAPON"/>, and it must be equipped to the weapon slot. It must return an IEnumerator, so you can add Coroutines for this event. It is valid to return null if it is not a coroutine.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ItemInfo.SwingSword(PlayerScript)">
+            <summary>
+            Attack routine for swinging a sword. Register this to OnAttack to make your weapon behave this way. Preserves the ID-specific behavior of the base game, so if the ItemInfo's ID matches the ID of a vanilla item, it will behave in the exact same way that the vanilla item of the same ID would.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ItemInfo.SwingGiantSword(PlayerScript)">
+            <summary>
+            Attack routine for swinging a giant sword, which is 50% larger than a regular sword. Giant swords in the base game are the Colossus, Heaven's Cloud, Caius' Demonblade, Zweihander, Claymore, and Azazel's Blade. Register this to OnAttack to make your weapon behave this way. Preserves the ID-specific behavior of the base game, so if the ItemInfo's ID matches the ID of a vanilla item, it will behave in the exact same way that the vanilla item of the same ID would.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ItemInfo.ThrustLance(PlayerScript)">
+            <summary>
+            Attack routine for thrusting a lance. Register this to OnAttack to make your weapon behave this way. Preserves the ID-specific behavior of the base game, so if the ItemInfo's ID matches the ID of a vanilla item, it will behave in the exact same way that the vanilla item of the same ID would.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ItemInfo.ShootGun(PlayerScript)">
+            <summary>
+            Attack routine for shooting a gun. Register this to OnAttack to make your weapon behave this way. Preserves the ID-specific behavior of the base game, so if the ItemInfo's ID matches the ID of a vanilla item, it will behave in the exact same way that the vanilla item of the same ID would.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ItemInfo.ShootCannon(PlayerScript)">
+            <summary>
+            Attack routine for shooting a cannon. Register this to OnAttack to make your weapon behave this way. Preserves the ID-specific behavior of the base game, so if the ItemInfo's ID matches the ID of a vanilla item, it will behave in the exact same way that the vanilla item of the same ID would.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ItemInfo.CastGauntlet(PlayerScript)">
+            <summary>
+            Attack routine for casting a gauntlet. Register this to OnAttack to make your weapon behave this way. Preserves the ID-specific behavior of the base game, so if the ItemInfo's ID matches the ID of a vanilla item, it will behave in the exact same way that the vanilla item of the same ID would.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ItemInfo.CastStaff(PlayerScript)">
+            <summary>
+            Attack routine for casting a staff. Register this to OnAttack to make your weapon behave this way. Preserves the ID-specific behavior of the base game, so if the ItemInfo's ID matches the ID of a vanilla item, it will behave in the exact same way that the vanilla item of the same ID would.
+            </summary>
+        </member>
+        <member name="T:GadgetCore.API.ItemRegistry">
+            <summary>
+            This registry is filled with ItemInfos, and is used for registering custom items to the game.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ItemRegistry.GetRegistryName">
+            <summary>
+            Gets the name of this registry. Must be constant.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ItemRegistry.GetDefaultTypeByID(System.Int32)">
+            <summary>
+            Gets the default type of the given ID, assuming that it is a vanilla ID.
+            </summary>
+            <param name="id"></param>
+            <returns></returns>
+        </member>
+        <member name="M:GadgetCore.API.ItemRegistry.GetTypeByID(System.Int32)">
+            <summary>
+            Gets the type of the specified ID. Applies to vanilla items as well as Gadget items.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ItemRegistry.GetIDStart">
+            <summary>
+            Gets the ID that modded IDs should start at for this registry. May be 0 if the vanilla game does not use IDs for this type of thing.
+            </summary>
+        </member>
+        <member name="T:GadgetCore.API.ItemType">
+            <summary>
+            Specifies what type of item this is. These represent a set of flags, so they can be combined and masked using the | and &amp; operators respectively. I.E: 'ItemType.LOOT | ItemType.TIER1 | ItemType.ROCK'. Please note that EQUIPABLE is incompatible with LOOT, EMBLEM, USABLE, and CONSUMABLE, and attempts to combine them will result in unexpected results. Also note that the top 16 bits are flags for general use, and will be ignored by Gadget Core. They can be set using FLAG1-FLAG16
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ItemType.GENERIC">
+            <summary>
+            There is absolutely nothing special about this item. It can't be used or equipped, and it isn't any sort of loot or other tiered item.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ItemType.LOOT">
+            <summary>
+            This item is loot, as is used in the emblem forge and the alchemy table. Note that a tier and loot type should also be set. Incompatible with EQUIPABLE.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ItemType.EMBLEM">
+            <summary>
+            This item is an emblem, as is used in the gear forge and creation machine. Note that a tier and loot type should also be set. Incompatible with EQUIPABLE.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ItemType.USABLE">
+            <summary>
+            This item can be used from the hotbar, and doing so will invoke OnUse. Incompatible with EQUIPABLE.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ItemType.CONSUMABLE">
+            <summary>
+            When this item is used, one of it should be consumed. Implies USABLE.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ItemType.EQUIPABLE">
+            <summary>
+            This item can be equipped. Note that this alone does not actually make it equipable, since no equip slot will take it. Incompatible with LOOT, EMBLEM, USABLE, and CONSUMABLE.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ItemType.WEAPON">
+            <summary>
+            This item is a weapon, and can as such can be equipped to the weapon slot. Implies EQUIPABLE, NONSTACKING, LEVELING, and MODABLE. Use BASIC_MASK to strip all but the EQUIPABLE implication.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ItemType.OFFHAND">
+            <summary>
+            This item is an offhand, and can as such can be equipped to the offhand slot. Implies EQUIPABLE, NONSTACKING, LEVELING, and MODABLE. Use BASIC_MASK to strip all but the EQUIPABLE implication.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ItemType.HELMET">
+            <summary>
+            This item is a helmet, and can as such can be equipped to the helmet slot. Implies EQUIPABLE, NONSTACKING, LEVELING, and MODABLE. Use BASIC_MASK to strip all but the EQUIPABLE implication.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ItemType.ARMOR">
+            <summary>
+            This item is an armor, and can as such can be equipped to the armor slot. Implies EQUIPABLE, NONSTACKING, LEVELING, and MODABLE. Use BASIC_MASK to strip all but the EQUIPABLE implication.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ItemType.RING">
+            <summary>
+            This item is a ring, and can as such can be equipped to a ring slot. Implies EQUIPABLE, NONSTACKING, LEVELING, and MODABLE. Use BASIC_MASK to strip all but the EQUIPABLE implication.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ItemType.DROID">
+            <summary>
+            This item is a droid, and can as such can be equipped to a droid slot. Implies EQUIPABLE, NONSTACKING, and LEVELING. Use BASIC_MASK to strip all but the EQUIPABLE implication.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ItemType.MOD">
+            <summary>
+            This item is a gear mod, and as such can be installed into weapons, offhands, helmets, armors, and rings. Note that this is non-functional in this version of Gadget Core.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ItemType.STACKING">
+            <summary>
+            This item can stack. Note that this flag is meaningless to set, and is only intended to be used for querying as such: ({Item Type} &amp; ItemType.NONSTACKING) == ItemType.STACKING
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ItemType.NONSTACKING">
+            <summary>
+            This item cannot stack. If an equipable item does not have this flag set, unexpected behavior may occur.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ItemType.LEVELING">
+            <summary>
+            This item is able to level up. Also causes the item to show the background that displays the item's rarity tier. If a leveling item is able to stack, unexpected behavior may occur.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ItemType.MODABLE">
+            <summary>
+            This item is able to have mods installed into it. If a modable item is able to stack, unexpected behavoir may occur. Note that this is non-functional in this version of Gadget Core.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ItemType.TIER1">
+            <summary>
+            This item is tier 1. This is meaningless if the item is not either a LOOT or an EMBLEM.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ItemType.TIER2">
+            <summary>
+            This item is tier 2. This is meaningless if the item is not either a LOOT or an EMBLEM.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ItemType.TIER3">
+            <summary>
+            This item is tier 3. This is meaningless if the item is not either a LOOT or an EMBLEM.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ItemType.TIER4">
+            <summary>
+            This item is tier 4. This is meaningless if the item is not either a LOOT or an EMBLEM.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ItemType.TIER5">
+            <summary>
+            This item is tier 5. This is meaningless if the item is not either a LOOT or an EMBLEM.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ItemType.TIER6">
+            <summary>
+            This item is tier 6. This is meaningless if the item is not either a LOOT or an EMBLEM.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ItemType.TIER7">
+            <summary>
+            This item is tier 7. This is meaningless if the item is not either a LOOT or an EMBLEM.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ItemType.TIER8">
+            <summary>
+            This item is tier 8. This is meaningless if the item is not either a LOOT or an EMBLEM.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ItemType.TIER9">
+            <summary>
+            This item is tier 9. This is meaningless if the item is not either a LOOT or an EMBLEM.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ItemType.TIER10">
+            <summary>
+            This item is tier 10. This is meaningless if the item is not either a LOOT or an EMBLEM.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ItemType.ROCK">
+            <summary>
+            This item is a rock material. This is meaningless if the item is not either a LOOT or an EMBLEM.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ItemType.PLANT">
+            <summary>
+            This item is a plant material. This is meaningless if the item is not either a LOOT or an EMBLEM. Implies ORGANIC.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ItemType.MONSTER">
+            <summary>
+            This item is a monster material. This is meaningless if the item is not either a LOOT or an EMBLEM. Implies ORGANIC.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ItemType.BUG">
+            <summary>
+            This item is a bug material. This is meaningless if the item is not either a LOOT or an EMBLEM. Implies ORGANIC.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ItemType.OTHER">
+            <summary>
+            This item is some other form of material besides the standard four. This is meaningless if the item is not either a LOOT or an EMBLEM.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ItemType.ORGANIC">
+            <summary>
+            This item is considered to be an organic material, and as such can be placed into the alchemy station if it is also a LOOT.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ItemType.FLAG1">
+            <summary>
+            Generic flag 1. Gadget Core ignores this, so it can be used for whatever you wish.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ItemType.FLAG2">
+            <summary>
+            Generic flag 2. Gadget Core ignores this, so it can be used for whatever you wish.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ItemType.FLAG3">
+            <summary>
+            Generic flag 3. Gadget Core ignores this, so it can be used for whatever you wish.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ItemType.FLAG4">
+            <summary>
+            Generic flag 4. Gadget Core ignores this, so it can be used for whatever you wish.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ItemType.FLAG5">
+            <summary>
+            Generic flag 5. Gadget Core ignores this, so it can be used for whatever you wish.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ItemType.FLAG6">
+            <summary>
+            Generic flag 6. Gadget Core ignores this, so it can be used for whatever you wish.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ItemType.FLAG7">
+            <summary>
+            Generic flag 7. Gadget Core ignores this, so it can be used for whatever you wish.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ItemType.FLAG8">
+            <summary>
+            Generic flag 8. Gadget Core ignores this, so it can be used for whatever you wish.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ItemType.FLAG9">
+            <summary>
+            Generic flag 9. Gadget Core ignores this, so it can be used for whatever you wish.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ItemType.FLAG10">
+            <summary>
+            Generic flag 10. Gadget Core ignores this, so it can be used for whatever you wish.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ItemType.FLAG11">
+            <summary>
+            Generic flag 11. Gadget Core ignores this, so it can be used for whatever you wish.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ItemType.FLAG12">
+            <summary>
+            Generic flag 12. Gadget Core ignores this, so it can be used for whatever you wish.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ItemType.FLAG13">
+            <summary>
+            Generic flag 13. Gadget Core ignores this, so it can be used for whatever you wish.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ItemType.FLAG14">
+            <summary>
+            Generic flag 14. Gadget Core ignores this, so it can be used for whatever you wish.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ItemType.FLAG15">
+            <summary>
+            Generic flag 15. Gadget Core ignores this, so it can be used for whatever you wish.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ItemType.FLAG16">
+            <summary>
+            Generic flag 16. Gadget Core ignores this, so it can be used for whatever you wish.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ItemType.BASIC_MASK">
+            <summary>
+            A bitmask that filters out the LOOT, EMBLEM, USABLE, CONSUMABLE, and EQUIPABLE flags.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ItemType.TYPE_MASK">
+            <summary>
+            A bitmask that filters out the NONSTACKING, LEVELING, MODABLE, and MOD flags.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ItemType.TIER_MASK">
+            <summary>
+            A bitmask that filters out the TIER1* flags.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ItemType.LOOT_MASK">
+            <summary>
+            A bitmask that filters out the ROCK, PLANT, MONSTER, BUG, OTHER, and ORGANIC flags.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ItemType.FLAGS_MASK">
+            <summary>
+            A bitmask that filters out the FLAG* generic flags.
+            </summary>
+        </member>
+        <member name="T:GadgetCore.API.LootTables">
+            <summary>
+            Used for management of loot tables.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.LootTables.DropLoot(System.String,UnityEngine.Vector3,System.Single)">
+            <summary>
+            Call to cause a loot table's contents to drop at the given location. dropFrequency specifies how much to delay between each dropped item.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.LootTables.AddToLootTable(GadgetCore.API.ItemInfo,System.String,System.Single,System.Int32,System.Int32,System.Func{UnityEngine.Vector3,System.Boolean},System.Func{Item,UnityEngine.Vector3,System.Boolean})">
+            <summary>
+            Adds the item to a drop table. Note that maxDropQuantity is optional, and if left unspecified minDropQuantity will always be dropped. Also returns the ItemInfo this was called on, for convenience in chaining calls.
+            </summary>
+            <param name="item">The item to add to the drop table. Note that the quantity specified is entirely ignored. This may be null, if you wish to entirely rely upon CustomDropBehavior</param>
+            <param name="tableID">The loot table to add this item to.</param>
+            <param name="dropChance">The chance for this item to drop from 0.0 to 1.0. If dropChance is higher than 1.0, then it will still just always drop. Similarly, if it is less than 0.0, then it will simply never drop.</param>
+            <param name="minDropQuantity">The minimum quantity to be dropped. If maxDropQuantity is not specified, then this will always be the quantity that is dropped.</param>
+            <param name="maxDropQuantity">The maximum quantity to be dropped. If this is set, then a random quantity from minDropQuantity to maxDropQuantity will be dropped.</param>
+            <param name="CheckValidToDrop">Use to add custom behavior to check whether to drop an item in a given circumstance. This is always called when the loot table is dropped, even if the drop chance fails. Receives the position to be dropped at as a parameter.</param>
+            <param name="CustomDropBehavior">Use to add custom behavior for how to drop the item(s). This is only called after it has been confirmed that an item will drop based on the drop chance and CheckValidToDrop. This will be called once for each item dropped in the case of non-stackable items. Receives the position to be dropped at, as well as the Item with the quantity set, as parameters.</param>
+        </member>
+        <member name="M:GadgetCore.API.LootTables.AddItemToLootTable(Item,System.String,System.Single,System.Int32,System.Int32,System.Func{UnityEngine.Vector3,System.Boolean},System.Func{Item,UnityEngine.Vector3,System.Boolean})">
+            <summary>
+            Adds the item to a drop table. Note that maxDropQuantity is optional, and if left unspecified minDropQuantity will always be dropped.
+            </summary>
+            <param name="item">The item to add to the drop table. Note that the quantity specified is entirely ignored. This may be null, if you wish to entirely rely upon CustomDropBehavior</param>
+            <param name="tableID">The loot table to add this item to.</param>
+            <param name="dropChance">The chance for this item to drop from 0.0 to 1.0. If dropChance is higher than 1.0, then it will still just always drop. Similarly, if it is less than 0.0, then it will simply never drop.</param>
+            <param name="minDropQuantity">The minimum quantity to be dropped. If maxDropQuantity is not specified, then this will always be the quantity that is dropped.</param>
+            <param name="maxDropQuantity">The maximum quantity to be dropped. If this is set, then a random quantity from minDropQuantity to maxDropQuantity will be dropped.</param>
+            <param name="CheckValidToDrop">Use to add custom behavior to check whether to drop an item in a given circumstance. This is always called when the loot table is dropped, even if the drop chance fails. Receives the position to be dropped at as a parameter.</param>
+            <param name="CustomDropBehavior">Use to add custom behavior for how to drop the item(s). This is only called after it has been confirmed that an item will drop based on the drop chance and CheckValidToDrop. This will be called once for each item dropped in the case of non-stackable items.  Receives the position to be dropped at, as well as the Item with the quantity set, as parameters.</param>
+        </member>
+        <member name="M:GadgetCore.API.LootTables.AddToLootTable(GadgetCore.API.ChipInfo,System.String,System.Single,System.Int32,System.Int32,System.Func{UnityEngine.Vector3,System.Boolean},System.Func{Item,UnityEngine.Vector3,System.Boolean})">
+            <summary>
+            Adds the chip to a drop table. Note that maxDropQuantity is optional, and if left unspecified minDropQuantity will always be dropped. Also returns the ChipInfo this was called on, for convenience in chaining calls.
+            </summary>
+            <param name="chip">The chip to add to the drop table.</param>
+            <param name="tableID">The loot table to add this item to.</param>
+            <param name="dropChance">The chance for this item to drop from 0.0 to 1.0. If dropChance is higher than 1.0, then it will still just always drop. Similarly, if it is less than 0.0, then it will simply never drop.</param>
+            <param name="minDropQuantity">The minimum quantity to be dropped. If maxDropQuantity is not specified, then this will always be the quantity that is dropped.</param>
+            <param name="maxDropQuantity">The maximum quantity to be dropped. If this is set, then a random quantity from minDropQuantity to maxDropQuantity will be dropped.</param>
+            <param name="CheckValidToDrop">Use to add custom behavior to check whether to drop a chip in a given circumstance. This is always called when the loot table is dropped, even if the drop chance fails. Receives the position to be dropped at as a parameter.</param>
+            <param name="CustomDropBehavior">Use to add custom behavior for how to drop the chip(s). This is only called after it has been confirmed that an item will drop based on the drop chance and CheckValidToDrop. This will be called once for each chip dropped. Receives the position to be dropped at, as well as the Item with the quantity set, as parameters.</param>
+        </member>
+        <member name="M:GadgetCore.API.LootTables.AddChipToLootTable(System.Int32,System.String,System.Single,System.Int32,System.Int32,System.Func{UnityEngine.Vector3,System.Boolean},System.Func{Item,UnityEngine.Vector3,System.Boolean})">
+            <summary>
+            Adds the chip to a drop table. Note that maxDropQuantity is optional, and if left unspecified minDropQuantity will always be dropped.
+            </summary>
+            <param name="chip">The chip to add to the drop table.</param>
+            <param name="tableID">The loot table to add this item to.</param>
+            <param name="dropChance">The chance for this item to drop from 0.0 to 1.0. If dropChance is higher than 1.0, then it will still just always drop. Similarly, if it is less than 0.0, then it will simply never drop.</param>
+            <param name="minDropQuantity">The minimum quantity to be dropped. If maxDropQuantity is not specified, then this will always be the quantity that is dropped.</param>
+            <param name="maxDropQuantity">The maximum quantity to be dropped. If this is set, then a random quantity from minDropQuantity to maxDropQuantity will be dropped.</param>
+            <param name="CheckValidToDrop">Use to add custom behavior to check whether to drop a chip in a given circumstance. This is always called when the loot table is dropped, even if the drop chance fails. Receives the position to be dropped at as a parameter.</param>
+            <param name="CustomDropBehavior">Use to add custom behavior for how to drop the chip(s). This is only called after it has been confirmed that an item will drop based on the drop chance and CheckValidToDrop. This will be called once for each chip dropped. Receives the position to be dropped at, as well as the Item with the quantity set, as parameters.</param>
+        </member>
+        <member name="T:GadgetCore.API.MathUtils">
+            <summary>
+            Provides a few simple convenience methods related to math.
+            </summary>
         </member>
         <member name="M:GadgetCore.API.MathUtils.IsPerfectSquare(System.Int32)">
             <summary>
@@ -88,53 +1763,446 @@
             Returns the smallest perfect square that is at least value. If value is already a perfect square, returns value.
             </summary>
         </member>
-        <member name="T:API.GadgetCore.CoroutineOverride`1">
+        <member name="T:GadgetCore.API.PlayerGearModsTracker">
             <summary>
-            Extend this class and override Next(int PC, T instance, ref object[] objs, ref object[] parameters) to patch Coroutine methods.
-            (Coroutines are methods that can delay their own execution using yield instructions, although if you didn't already know that you probably shouldn't try to override one.)
-            To override a Coroutine method with this, patch the Prefix of the method, and make sure to ref the __result param. Set __result to an instance of your override class, and return false from the Prefix.
-            For implementation details of the Next method, check the documentation there.
+            Tracks what gear mods each player has, since for some reason the base game does not do this.
             </summary>
         </member>
-        <member name="M:API.GadgetCore.CoroutineOverride`1.#ctor(`0,System.Object[],System.Reflection.FieldInfo[])">
+        <member name="M:GadgetCore.API.PlayerGearModsTracker.GetGearMods(PlayerScript)">
             <summary>
-            <para><paramref name="instance"/>: an instance of the calling class, as provided by the __instance parameter in a harmony patch method.</para>
-            <para><paramref name="objs"/>: an array of objects you want to provide to your Coroutine override, perhaps the parameters of the Coroutine being overidden.</para>
-            <para><paramref name="parameters"/>: an array of FieldInfo representing private fields you want to give your Coroutine access to. A FieldInfo is obtained using: <code>typeof(ClassType).GetField("FieldName", CoroutineOverride.InstanceFlags OR CoroutineOverride.StaticFlags)</code></para>
+            In theory, returns the gear mods that the given player has, in the same format as GameScript.MODS. In practice, it currently just returns GameScript.MODS. This exists so that Gadget Core can later add this functionality without it being a breaking change. As such, whenever you need to query what gear mods the player has, you should use this.
             </summary>
         </member>
-        <member name="M:API.GadgetCore.CoroutineOverride`1.#ctor(`0,System.Reflection.FieldInfo[])">
+        <member name="T:GadgetCore.API.Registry`3">
             <summary>
-            <para><paramref name="instance"/>: an instance of the calling class, as provided by the __instance parameter in a harmony patch method.</para>
-            <para><paramref name="parameters"/>: an array of FieldInfo representing private fields you want to give your Coroutine access to. Obtained using: <code>typeof(ClassType).GetField("FieldName", CoroutineOverride.InstanceFlags OR CoroutineOverride.StaticFlags)</code></para>
+            Represents a registry filled with <see cref="T:GadgetCore.API.RegistryEntry`2"/>s. You can extend this to create your own registries, and then you should return their singletons in <see cref="M:GadgetCore.API.GadgetMod.CreateRegistries"/>
+            </summary>
+            <typeparam name="R">Registry Type</typeparam>
+            <typeparam name="E">Entry Type</typeparam>
+            <typeparam name="T">Entry Type Enum</typeparam>
+        </member>
+        <member name="M:GadgetCore.API.Registry`3.Register(`1,System.String,System.Int32,System.Boolean)">
+            <summary>
+            Used to register a registry entry to this registry. You should probably use the Register method on that registry entry instead.
+            </summary>
+            <param name="entry">The RegistryEntry to register.</param>
+            <param name="name">The registry name to use.</param>
+            <param name="preferredID">If specified, will use this registry ID.</param>
+            <param name="overrideExisting">If false, will not register if the preferred ID is already used. Ignored if no preferred ID is specified.</param>
+        </member>
+        <member name="M:GadgetCore.API.Registry`3.PostRegistration(`1)">
+            <summary>
+            Called after the specified Registry Entry has been registered. You should never call this yourself. Note that this is called before <see cref="M:GadgetCore.API.RegistryEntry`2.PostRegister"/>
             </summary>
         </member>
-        <member name="M:API.GadgetCore.CoroutineOverride`1.Next(System.Int32,`0,System.Object[]@,System.Object[]@)">
+        <member name="M:GadgetCore.API.Registry`3.GetSingleton">
             <summary>
-            Override to provide the code to use for overriding the Coroutine.
-            Unfortunately, due to various limitations, the code here has to be written a bit differently than you would a traditional coroutine.
-            This method will get called repeatedly. The first time it is called, PC will be 0. Each additional time that it is called, PC will have been incremented by 1.
-            You should switch on the value of PC to provide different code to run depending on the state. Return a YieldInstruction, (I.E. WaitForSeconds), when you are done with the current state.
-            Return null to specify that your Coroutine is done executing. (Equivalent to 'yield break' in an actual Coroutine). You do not need to ever return null to stop, however if the Coroutine you are overriding does, you probably should too.
-            Bear in mind that at any time the caller of the Coroutine may decide to stop it, in which case Next will stop getting called with no warning. To create a loop, simply using the modulus operator (%) on PC in your switch.
-            <para><paramref name="objs"/>: an array of objects matching the objects your Coroutine was given in its constructor. Will be null if no objs were given in the Coroutine's constructor. Changes to these values will persist to later invocations of Next.</para>
-            <para><paramref name="parameters"/>: an array of objects matching the private fields your Coroutine was given access to in its constructor. Can have their values set to change the fields they reference.</para>
+            Gets the singleton for this registry.
             </summary>
         </member>
-        <member name="M:API.GadgetCore.CoroutineOverride`1.MoveNext">
+        <member name="M:GadgetCore.API.Registry`3.HasEntry(System.Int32)">
             <summary>
-            Part of IEnumerator implementation. You should never invoke this yourself, as this is meant to only be used by the UnityEngine.
+            Checks if the given ID is used in this registry.
             </summary>
         </member>
-        <member name="M:API.GadgetCore.CoroutineOverride`1.Reset">
+        <member name="M:GadgetCore.API.Registry`3.GetEntry(System.Int32)">
             <summary>
-            Part of IEnumerator implementation. You should never invoke this, as it will always throw a NotSupportedException.
+            Gets the registry entry with the given ID
             </summary>
         </member>
-        <member name="M:API.GadgetCore.CoroutineOverride`1.Dispose">
+        <member name="M:GadgetCore.API.Registry`3.GetEntryType">
             <summary>
-            Part of IDisposable implementation. You should never invoke this yourself, as this is meant to only be used by the UnityEngine.
+            Returns the Registry Entry's Type. Not to be confused with <see cref="M:GadgetCore.API.RegistryEntry`2.GetEntryType"/>, which returns an enum value.
             </summary>
+        </member>
+        <member name="T:GadgetCore.API.Registry`2">
+            <summary>
+            Registry superclass without the self-referencing supertype. Do not extend this!
+            </summary>
+            <typeparam name="E">Entry Type</typeparam>
+            <typeparam name="T">Entry Type Enum</typeparam>
+        </member>
+        <member name="M:GadgetCore.API.Registry`2.Register(`0,System.String,System.Int32,System.Boolean)">
+            <summary>
+            Used to register a registry entry to this registry. You should probably use the Register method on that registry entry instead.
+            </summary>
+            <param name="entry">The RegistryEntry to register.</param>
+            <param name="name">The registry name to use.</param>
+            <param name="preferredID">If specified, will use this registry ID.</param>
+            <param name="overrideExisting">If false, will not register if the preferred ID is already used. Ignored if no preferred ID is specified.</param>
+        </member>
+        <member name="T:GadgetCore.API.Registry">
+            <summary>
+            Registry superclass without any generics. Do not extend this!
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.Registry.GetReservedID(System.String)">
+            <summary>
+            Gets the reserved ID for the registry entry with the specified registry name. Returns -1 if there is no ID reserved for that registry name.
+            </summary>
+            <param name="name">The registry name, in the format ModName:RegistryEntry</param>
+        </member>
+        <member name="M:GadgetCore.API.Registry.IsIDReserved(System.Int32)">
+            <summary>
+            Returns the name of the mod that reserved the given ID, or returns null if the ID is not reserved
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.Registry.GetEntryType">
+            <summary>
+            Returns the Registry Entry's Type. Not to be confused with <see cref="M:GadgetCore.API.RegistryEntry`2.GetEntryType"/>, which returns an enum value.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.Registry.GetRegistryName">
+            <summary>
+            Gets the name of this registry. Must be constant.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.Registry.GetIDStart">
+            <summary>
+            Gets the ID that modded IDs should start at for this registry. May be 0 if the base game does not use IDs for this type of data.
+            </summary>
+        </member>
+        <member name="T:GadgetCore.API.RegistryEntry`2">
+            <summary>
+            Abstract classed used for Registry Entries. Extend to create Registry Entries for your own custom Registry.
+            </summary>
+            <typeparam name="E"></typeparam>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="M:GadgetCore.API.RegistryEntry`2.GetMod">
+            <summary>
+            Gets the mod that registered this Registry Entry. This will return null until the Registry Entry has been registered.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.RegistryEntry`2.GetModID">
+            <summary>
+            Gets the Mod ID that registered this Registry Entry. This ID is the index of the mod as used in <see cref="M:GadgetCore.API.GadgetMods.GetMod(System.Int32)"/>. This will be -1 until the Registry Entry has been registered.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.RegistryEntry`2.GetID">
+            <summary>
+            Gets the ID of this registry entry. This will be -1 until the Registry Entry has been registered.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.RegistryEntry`2.GetRegistryName">
+            <summary>
+            Gets the Registry Name of this item, in the format of ModName:ItemName
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.RegistryEntry`2.RegisterInternal(System.String,System.Int32,System.Boolean)">
+            <summary>
+            Use to register this RegistryEntry to its registry singleton.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.RegistryEntry`2.PostRegister">
+            <summary>
+            Called after this Registry Entry has been registered to its Registry. You should never call this yourself.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.RegistryEntry`2.GetEntryType">
+            <summary>
+            Returns the Registry Entry's Type. Used in the registration process.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.RegistryEntry`2.GetRegistry">
+            <summary>
+            Returns the singleton of the registry used for storing this type of Registry Entry.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.RegistryEntry`2.IsValidIDForType(System.Int32)">
+            <summary>
+            Returns whether the specified ID is valid for this Registry Entry's Type.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.RegistryEntry`2.GetNextIDForType(System.Int32)">
+            <summary>
+            Returns the next valid ID for this Registry Entry's Type, after the provided lastValidID.
+            </summary>
+        </member>
+        <member name="T:GadgetCore.API.TileInfo">
+            <summary>
+            Defines a custom Tile. Make sure to call Register on it to register your Tile.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.TileInfo.Type">
+            <summary>
+            The TileType of this Tile
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.TileInfo.Item">
+            <summary>
+            The ItemInfo of the item that places this tile. May be null.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.TileInfo.Prop">
+            <summary>
+            The Prop or NPC associated with this tile. Will by an NPC if this tile's Type is Interactive, otherwise will be a Prop. May be null.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.TileInfo.Tex">
+            <summary>
+            The Texture associated with this tile. May be null.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.TileInfo.Mat">
+            <summary>
+            The Material associated with this tile. May be null.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.TileInfo.Sprite">
+            <summary>
+            The <see cref="T:GadgetCore.API.GadgetCoreAPI.SpriteSheetEntry"/> associated with this tile. Will be null unless the tile's Type is SOLID or WALL.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.TileInfo.#ctor(GadgetCore.API.TileType,UnityEngine.Texture,GadgetCore.API.ItemInfo)">
+            <summary>
+            Use to create a new TileInfo. This constructor should be used if the Type is SOLID or WALL. Make sure to call Register on it to register your Tile.
+            </summary>
+            <param name="Type">The <see cref="T:GadgetCore.API.TileType"/> of this Tile</param>
+            <param name="Tex">The Texture of this Tile</param>
+            <param name="Item">The Item that places this tile. Automatically calls <see cref="M:GadgetCore.API.ItemInfo.SetTile(GadgetCore.API.TileInfo)"/>, so there is no need to do that yourself.</param>
+        </member>
+        <member name="M:GadgetCore.API.TileInfo.#ctor(GadgetCore.API.TileType,UnityEngine.Material,GadgetCore.API.ItemInfo)">
+            <summary>
+            Use to create a new TileInfo. This constructor should be used if the Type is SOLID or WALL. Make sure to call Register on it to register your Tile.
+            </summary>
+            <param name="Type">The <see cref="T:GadgetCore.API.TileType"/> of this Tile</param>
+            <param name="Mat">The Material of this Tile</param>
+            <param name="Item">The Item that places this tile. Automatically calls <see cref="M:GadgetCore.API.ItemInfo.SetTile(GadgetCore.API.TileInfo)"/>, so there is no need to do that yourself.</param>
+        </member>
+        <member name="M:GadgetCore.API.TileInfo.#ctor(GadgetCore.API.TileType,UnityEngine.Texture,UnityEngine.GameObject,GadgetCore.API.ItemInfo)">
+            <summary>
+            Use to create a new TileInfo. This constructor should be used if the Type is NONSOLID or INTERACTIVE. Make sure to call Register on it to register your Tile.
+            </summary>
+            <param name="Type">The <see cref="T:GadgetCore.API.TileType"/> of this Tile</param>
+            <param name="Tex">The Texture of this Tile</param>
+            <param name="Prop">The Prop of this Tile. Will be registered as an NPC of the Type is INTERACTIVE</param>
+            <param name="Item">The Item that places this tile. Automatically calls <see cref="M:GadgetCore.API.ItemInfo.SetTile(GadgetCore.API.TileInfo)"/>, so there is no need to do that yourself.</param>
+        </member>
+        <member name="M:GadgetCore.API.TileInfo.#ctor(GadgetCore.API.TileType,UnityEngine.Material,UnityEngine.GameObject,GadgetCore.API.ItemInfo)">
+            <summary>
+            Use to create a new TileInfo. This constructor should be used if the Type is NONSOLID or INTERACTIVE. Make sure to call Register on it to register your Tile.
+            </summary>
+            <param name="Type">The <see cref="T:GadgetCore.API.TileType"/> of this Tile</param>
+            <param name="Mat">The Material of this Tile</param>
+            <param name="Prop">The Prop of this Tile. Will be registered as an NPC of the Type is INTERACTIVE</param>
+            <param name="Item">The Item that places this tile. Automatically calls <see cref="M:GadgetCore.API.ItemInfo.SetTile(GadgetCore.API.TileInfo)"/>, so there is no need to do that yourself.</param>
+        </member>
+        <member name="M:GadgetCore.API.TileInfo.Register(System.String,System.Int32,System.Boolean)">
+            <summary>
+            Registers this TileInfo to the TileRegistry.
+            </summary>
+            <param name="name">The registry name to use.</param>
+            <param name="preferredID">If specified, will use this registry ID.</param>
+            <param name="overrideExisting">If false, will not register if the preferred ID is already used. Ignored if no preferred ID is specified.</param>
+        </member>
+        <member name="M:GadgetCore.API.TileInfo.PostRegister">
+            <summary>
+            Called after this Registry Entry has been registered to its Registry. You should never call this yourself.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.TileInfo.GetEntryType">
+            <summary>
+            Returns the Registry Entry's Type enum. Used in the registration process, although it is safe to check this yourself by directly accessing the <see cref="F:GadgetCore.API.TileInfo.Type"/> property.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.TileInfo.GetRegistry">
+            <summary>
+            Returns the singleton of the registry used for storing this type of Registry Entry.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.TileInfo.IsValidIDForType(System.Int32)">
+            <summary>
+            Returns whether the specified ID is valid for this Registry Entry's Type.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.TileInfo.GetNextIDForType(System.Int32)">
+            <summary>
+            Returns the next valid ID for this Registry Entry's Type, after the provided lastValidID. Should skip the vanilla ID range.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.TileInfo.TryPlaceTile">
+            <summary>
+            Called when this tile's item is about to be placed using Build Mode. Return false to prevent it from being placed.
+            </summary>
+        </member>
+        <member name="E:GadgetCore.API.TileInfo.OnInteract">
+            <summary>
+            Called when this tile is interacted with. Will only ever be called if the Prop's layer is 12, which it will automatically be set to if the Tyspe is specified as INTERACTIVE
+            </summary>
+        </member>
+        <member name="T:GadgetCore.API.TileRegistry">
+            <summary>
+            This registry is filled with TileInfos, and is used for registering custom tiles to the game.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.TileRegistry.GetRegistryName">
+            <summary>
+            Gets the name of this registry. Must be constant.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.TileRegistry.Register(GadgetCore.API.TileInfo,System.String,System.Int32,System.Boolean)">
+            <summary>
+            Used to register a registry entry to this registry. You should probably use the Register method on that registry entry instead.
+            </summary>
+            <param name="entry">The RegistryEntry to register.</param>
+            <param name="name">The registry name to use.</param>
+            <param name="preferredID">If specified, will use this registry ID.</param>
+            <param name="overrideExisting">If false, will not register if the preferred ID is already used. Ignored if no preferred ID is specified.</param>
+        </member>
+        <member name="M:GadgetCore.API.TileRegistry.GetIDByPropName(System.String)">
+            <summary>
+            Gets the ID of the TileInfo whose prop has the given name.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.TileRegistry.GetIDStart">
+            <summary>
+            Gets the ID that modded IDs should start at for this registry. May be 0 if the vanilla game does not use IDs for this type of thing.
+            </summary>
+        </member>
+        <member name="T:GadgetCore.API.TileType">
+            <summary>
+            Specifies what type of tile this is.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.TileType.SOLID">
+            <summary>
+            This tile is completely solid.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.TileType.NONSOLID">
+            <summary>
+            This tile is not completely solid, and instead uses a prop, which may or may not have any collision.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.TileType.INTERACTIVE">
+            <summary>
+            This tile is interactive, such as a crafting station. It uses a prop, although it should not have any collision.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.TileType.WALL">
+            <summary>
+            This tile is a background wall.
+            </summary>
+        </member>
+        <member name="T:GadgetCore.API.WeakReference`1">
+            <summary>
+            Represents a weak reference, which references an object while still allowing that object to be reclaimed by garbage collection.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.WeakReference`1.#ctor(`0)">
+            <summary>
+            Initializes a new instance of the WeakReference class, referencing the specified object.
+            </summary>
+            <param name="target">The object to track or null.</param>
+        </member>
+        <member name="M:GadgetCore.API.WeakReference`1.#ctor(`0,System.Boolean)">
+            <summary>
+            Initializes a new instance of the WeakReference class, referencing the specified object and using the specified resurrection tracking.
+            </summary>
+            <param name="target">An object to track.</param>
+            <param name="trackResurrection">Indicates when to stop tracking the object. If true, the object is tracked after finalization; if false, the object is only tracked until finalization.</param>
+        </member>
+        <member name="M:GadgetCore.API.WeakReference`1.GetTarget">
+            <summary>
+            Gets the object (the target) referenced by the current WeakReference object.
+            </summary>
+            <returns>null if the object referenced by the current System.WeakReference object has been garbage collected; otherwise, a reference to the object referenced by the current System.WeakReference object.</returns>
+            <exception cref="T:System.InvalidOperationException">The reference to the target object is invalid. This exception can be thrown while setting this property if the value is a null reference.</exception>
+        </member>
+        <member name="T:GadgetCore.API.ZipUtils">
+            <summary>
+            Utilities for handling packaged mod zip files.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ZipUtils.UnpackMod(System.String)">
+            <summary>
+            Unpacks the .zip mod with the specified name.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ZipUtils.UnpackModFile(System.String)">
+            <summary>
+            Unpacks the mod with the specified file path.
+            </summary>
+        </member>
+        <member name="T:GadgetCore.GadgetCoreConfig">
+            <summary>
+            Class used for management of Gadget Core's config.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.GadgetCoreConfig.configVersion">
+            <summary>
+            The current version of Gadget Core's config.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.GadgetCoreConfig.MaxConnections">
+            <summary>
+            The maximum connections allowed when hosting a game. This value is irrelevant if we are the client, not the host.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.GadgetCoreConfig.UseUPnP">
+            <summary>
+            Whether to use UPnP to bypass the need for port-forwarding to play over the internet. Not all routers support this. This value is irrelevant if we are the client, not the host.
+            </summary>
+        </member>
+        <member name="T:GadgetCore.IGadgetCoreLib">
+            <summary>
+            Interface used by Gadget Core Lib.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.IGadgetCoreLib.ProvideLogger(UModFramework.API.UMFLog)">
+            <summary>
+            Used to give a UMFLog instance to GadgetCoreLib. Used by Gadget Core to provide access to its logger.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.IGadgetCoreLib.ForwardPort(System.Int32)">
+            <summary>
+            Attempts to forward the given port using UPnP. Is a coroutine, so should be treated as such.
+            </summary>
+        </member>
+        <member name="T:GadgetCore.GadgetModHookScript">
+            <summary>
+            This component is used to hook a Gadget mod into Unity's update cycle.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.GadgetModHookScript.Mod">
+            <summary>
+            The GadgetModInfo that is updated by this hook script.
+            </summary>
+        </member>
+        <member name="T:GadgetCore.Util.DelegateTraceListener">
+            <summary>
+            A trace listener that routes messages to a given Action&lt;string&gt;.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.DelegateTraceListener.#ctor(System.Action{System.String})">
+            <summary>
+            Constructs a new DelegateTraceListener.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.DelegateTraceListener.Write(System.String)">
+            <summary>
+            Sends a string to this DelegateTraceListener's action delegate.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.DelegateTraceListener.WriteLine(System.String)">
+            <summary>
+            Sends a line to this DelegateTraceListener's action delegate.
+            </summary>
+        </member>
+        <member name="T:GadgetCore.Util.ReflectionUtils">
+            <summary>
+            Provides the extension method 'InvokeMethod' for easily invoking methods with Reflection.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.ReflectionUtils.InvokeMethod(System.Object,System.String,System.Object[])">
+            <summary>
+            Invokes the method with the specified name and parameters.
+            </summary>
+            <param name="type">The object instance to invoke upon.</param>
+            <param name="methodName">The name of the method to invoke.</param>
+            <param name="parameters">The parameters to run the method with.</param>
+            <returns>The value returned by the invoked method.</returns>
         </member>
     </members>
 </doc>

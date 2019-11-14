@@ -6,6 +6,9 @@ using UnityEngine;
 
 namespace GadgetCore.API
 {
+    /// <summary>
+    /// Provides a few simple convenience methods related to math.
+    /// </summary>
     public static class MathUtils
     {
         /// <summary>

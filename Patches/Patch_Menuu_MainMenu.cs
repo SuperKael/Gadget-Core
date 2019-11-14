@@ -16,24 +16,27 @@ namespace GadgetCore.Patches
         {
             if (ModDescPanelController.RestartNeeded)
             {
-                foreach (System.Diagnostics.Process process in ModDescPanelController.configHandles)
+                foreach (System.Diagnostics.Process process in ModDescPanelController.ConfigHandles)
                 {
                     if (process != null && !process.HasExited) process.Kill();
                 }
                 Application.Quit();
                 return false;
             }
-            SceneInjector.modMenuBeam.transform.localScale = new Vector3(30f, 0f, 1f);
-            SceneInjector.modMenuButtonHolder.transform.position = new Vector3(-40f, 0f, 0f);
-            SceneInjector.modMenu.SetActive(false);
-            __instance.StartCoroutine(AnimateModMenuButton(__instance));
+            if (GadgetCore.IsUnpacked)
+            {
+                SceneInjector.ModMenuBeam.transform.localScale = new Vector3(30f, 0f, 1f);
+                SceneInjector.ModMenuButtonHolder.transform.position = new Vector3(-40f, 0f, 0f);
+                SceneInjector.ModMenu.SetActive(false);
+                __instance.StartCoroutine(AnimateModMenuButton(__instance));
+            }
             return true;
         }
         private static IEnumerator AnimateModMenuButton(Menuu instance)
         {
-            SceneInjector.modMenuBeam.GetComponent<Animation>().Play();
+            SceneInjector.ModMenuBeam.GetComponent<Animation>().Play();
             yield return new WaitForSeconds(0.3f);
-            SceneInjector.modMenuButtonHolder.GetComponent<Animation>().Play();
+            SceneInjector.ModMenuButtonHolder.GetComponent<Animation>().Play();
             yield break;
         }
     }

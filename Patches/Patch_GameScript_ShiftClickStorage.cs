@@ -4,7 +4,7 @@ using System.Reflection;
 using System.Collections;
 using GadgetCore.API;
 
-namespace URP.Patches
+namespace GadgetCore.Patches
 {
     [HarmonyPatch(typeof(GameScript))]
     [HarmonyPatch("ShiftClickStorage")]
@@ -17,7 +17,7 @@ namespace URP.Patches
         {
             int num = slot + ___curStoragePage * 30;
             itemInSlot = ___storage[num];
-            if (!___shiftclicking && ItemRegistry.GetSingleton().HasEntry(itemInSlot.id))
+            if (!___shiftclicking)
             {
                 ItemInfo slotInfo = ItemRegistry.GetSingleton().GetEntry(itemInSlot.id);
                 ItemType slotItemType = slotInfo != null ? (slotInfo.Type & (ItemType.BASIC_MASK | ItemType.TYPE_MASK)) : ItemRegistry.GetDefaultTypeByID(itemInSlot.id);

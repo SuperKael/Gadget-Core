@@ -31,7 +31,7 @@ namespace GadgetCore.Patches
                 SwapItem.Invoke(__instance, new object[] { slot });
                 return false;
             }
-            if ((slot == 36 && holdingItemType != ItemType.WEAPON) || (slot == 37 && (holdingItemType != ItemType.OFFHAND)) || (slot == 38 && (holdingItemType != ItemType.HELMET)) || (slot == 39 && (holdingItemType != ItemType.ARMOR)) || ((slot == 40 || slot == 41) && (holdingItemType != ItemType.RING)) || (slot > 41 && (holdingItemType != ItemType.DROID)))
+            if ((slot == 36 && (holdingItemType & ItemType.BASIC_MASK) != ItemType.WEAPON) || (slot == 37 && ((holdingItemType & ItemType.BASIC_MASK) != ItemType.OFFHAND)) || (slot == 38 && ((holdingItemType & ItemType.BASIC_MASK) != ItemType.HELMET)) || (slot == 39 && ((holdingItemType & ItemType.BASIC_MASK) != ItemType.ARMOR)) || ((slot == 40 || slot == 41) && ((holdingItemType & ItemType.BASIC_MASK) != ItemType.RING)) || (slot > 41 && ((holdingItemType & ItemType.BASIC_MASK) != ItemType.DROID)))
             {
                 MonoBehaviour.print("CANNOT PUT THAT THERE!");
             }
@@ -50,7 +50,8 @@ namespace GadgetCore.Patches
                 else
                 {
                     newItem = true;
-                    ___inventory[slot] = new Item(___holdingItem.id, 1, ___holdingItem.exp, ___holdingItem.tier, ___holdingItem.corrupted, ___holdingItem.aspect, ___holdingItem.aspectLvl);
+                    ___inventory[slot] = GadgetCoreAPI.CopyItem(___holdingItem);
+                    ___inventory[slot].q = 1;
                 }
                 ___holdingItem.q--;
                 MonoBehaviour.print(string.Concat(new object[]

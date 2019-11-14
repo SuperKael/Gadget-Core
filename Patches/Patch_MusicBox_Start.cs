@@ -1,6 +1,5 @@
 using HarmonyLib;
 using GadgetCore.API;
-using GadgetCore;
 
 namespace GadgetCore.Patches
 {
@@ -11,7 +10,7 @@ namespace GadgetCore.Patches
         [HarmonyPrefix]
         public static void Prefix(MusicBox __instance)
         {
-            InstanceTracker.musicBox = __instance;
+            InstanceTracker.MusicBox = __instance;
         }
     }
 }

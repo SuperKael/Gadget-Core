@@ -34,41 +34,46 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net35|AnyCPU'">
     <DocumentationFile>Release\GadgetCore.xml</DocumentationFile>
+    <NoWarn>1701;1702;IDE0060</NoWarn>
   </PropertyGroup>
+  <ItemGroup>
+    <None Remove="ModInfo.txt" />
+  </ItemGroup>
   <ItemGroup>
     <Reference Include="0Harmony, Version=2.0.0.0">
       <HintPath>D:\Program Files (x86)\Steam\steamapps\common\Roguelands\uModFramework\Lib\net35\0Harmony.dll</HintPath>
       <Private>false</Private>
-      <SpecificVersion>true</SpecificVersion>
     </Reference>
     <Reference Include="Assembly-CSharp, Version=0.0.0.0">
       <HintPath>D:\Program Files (x86)\Steam\steamapps\common\Roguelands\Roguelands_Data\Managed\Assembly-CSharp.dll</HintPath>
+      <Private>false</Private>
       <SpecificVersion>true</SpecificVersion>
+    </Reference>
+    <Reference Include="Ionic.Zip.Unity">
+      <HintPath>D:\Program Files (x86)\Steam\steamapps\common\Roguelands\uModFramework\Lib\net35\Ionic.Zip.Unity.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="System">
       <HintPath>D:\Program Files (x86)\Steam\steamapps\common\Roguelands\Roguelands_Data\Managed\System.dll</HintPath>
-      <SpecificVersion>true</SpecificVersion>
       <Private>false</Private>
     </Reference>
     <Reference Include="System.Core">
-      <SpecificVersion>true</SpecificVersion>
       <Private>false</Private>
     </Reference>
     <Reference Include="uModFramework, Version=0.52.1.0">
       <HintPath>D:\Program Files (x86)\Steam\steamapps\common\Roguelands\uModFramework\Lib\net35\uModFramework.OldEngine.dll</HintPath>
-	  <SpecificVersion>true</SpecificVersion>
       <Private>false</Private>
+      <SpecificVersion>true</SpecificVersion>
     </Reference>
     <Reference Include="UnityEngine, Version=0.0.0.0">
       <HintPath>D:\Program Files (x86)\Steam\steamapps\common\Roguelands\Roguelands_Data\Managed\UnityEngine.dll</HintPath>
-      <SpecificVersion>true</SpecificVersion>
       <Private>false</Private>
+      <SpecificVersion>true</SpecificVersion>
     </Reference>
     <Reference Include="UnityEngine.UI, Version=1.0.0.0">
       <HintPath>D:\Program Files (x86)\Steam\steamapps\common\Roguelands\Roguelands_Data\Managed\UnityEngine.UI.dll</HintPath>
-      <SpecificVersion>true</SpecificVersion>
       <Private>false</Private>
+      <SpecificVersion>true</SpecificVersion>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -86,8 +91,95 @@
     <None Update="Assets\Shared\gadgetcore.assets">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="CoreLibs\System.Configuration.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="CoreLibs\System.Core.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="CoreLibs\System.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="CoreLibs\System.Drawing.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="CoreLibs\System.Threading.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="CoreLibs\System.Xml.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Libraries\GadgetCoreLib.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Libraries\Open.Nat.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Libraries\System.Configuration.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Libraries\System.Core.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Libraries\System.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Libraries\System.Drawing.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Libraries\System.Threading.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Libraries\System.Xml.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Tools\CoreLibInstaller.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Tools\GadgetCore.CoreLibInstaller.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Tools\GadgetCore.FileDeleter.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Libraries\" />
+  </ItemGroup>
+  <UsingTask TaskName="GetFileVersion" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v4.0.dll">
+    <ParameterGroup>
+      <AssemblyPath ParameterType="System.String" Required="true" />
+      <Version ParameterType="System.String" Output="true" />
+      <TrimmedVersion ParameterType="System.String" Output="true" />
+    </ParameterGroup>
+    <Task>
+      <Using Namespace="System.Diagnostics" />
+      <Code Type="Fragment" Language="cs">
+        <![CDATA[
+      this.Version = FileVersionInfo.GetVersionInfo(this.AssemblyPath).FileVersion;  
+      this.TrimmedVersion = this.Version.TrimEnd('.', '0');
+    ]]>
+      </Code>
+    </Task>
+  </UsingTask>
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="&quot;$(GamePath)uModFramework\Tools\UMF.ModPacker.exe&quot; -packmod $(AssemblyName) &quot;$(TargetDir)&quot;" />
+    <GetFileVersion AssemblyPath="$(TargetPath)">
+      <Output TaskParameter="Version" PropertyName="ModFullVersion" />
+      <Output TaskParameter="TrimmedVersion" PropertyName="AssemblyFileVersion" />
+    </GetFileVersion>
+    <Move SourceFiles="$(TargetDir)ModInfo.txt" DestinationFiles="$(TargetDir)ModInfos\$(AssemblyName)_v$(AssemblyFileVersion)_ModInfo.txt" />
+    <ItemGroup>
+      <FilesToDelete Include="$(TargetDir)$(AssemblyName)_v*.zip" />
+      <FilesToDelete Include="$(TargetDir)ModInfos\*$(AssemblyName)*.*" Exclude="$(TargetDir)ModInfos\$(AssemblyName)_v$(AssemblyFileVersion)_ModInfo.txt" />
+      <FilesToDelete Include="$(GamePath)uModFramework\Mods\**\*$(AssemblyName)*.*" Exclude="$(GamePath)uModFramework\Mods\Configs\**\*.*" />
+      <FilesToCopy Include="$(TargetDir)**\*.*" Exclude="$(TargetDir)*.zip;$(TargetDir)*.xml;$(TargetDir)CoreLibs\*.*;$(TargetDir)Tools\*.*" />
+      <FilesToManaged Include="$(TargetDir)CoreLibs\*" />
+      <FilesToTools Include="$(TargetDir)Tools\*" />
+    </ItemGroup>
+    <Delete Files="@(FilesToDelete)" />
+    <Copy SourceFiles="@(FilesToCopy)" DestinationFolder="$(GamePath)uModFramework\Mods\%(FilesToCopy.RecursiveDir)" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(FilesToManaged)" DestinationFolder="$(GamePath)Roguelands_Data\Managed\%(FilesToManaged.RecursiveDir)" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(FilesToTools)" DestinationFolder="$(GamePath)uModFramework\Tools\%(FilesToTools.RecursiveDir)" SkipUnchangedFiles="true" />
+    <Exec Command="&quot;C:\Program Files\7-Zip\7z&quot; a -y -tzip &quot;$(TargetDir)$(AssemblyName)_v$(AssemblyFileVersion).zip&quot; &quot;$(TargetDir)*&quot; -mx5 -x!*.xml" />
   </Target>
 </Project>
