@@ -21,6 +21,17 @@ namespace GadgetCore.API
         }
 
         /// <summary>
+        /// Gets the default type of the given ID, assuming that it is a vanilla ID.
+        /// </summary>
+        public static TileType GetDefaultTypeByID(int ID)
+        {
+            if (ID >= 2400) return TileType.NONSOLID;
+            else if (ID >= 2200 && ID < 2300) return TileType.WALL;
+            else if (ID >= 2100) return TileType.INTERACTIVE;
+            else return TileType.SOLID;
+        }
+
+        /// <summary>
         /// Used to register a registry entry to this registry. You should probably use the Register method on that registry entry instead.
         /// </summary>
         /// <param name="entry">The RegistryEntry to register.</param>

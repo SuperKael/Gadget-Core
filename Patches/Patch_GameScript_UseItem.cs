@@ -24,20 +24,12 @@ namespace GadgetCore.Patches
             {
                 if ((item.Type & ItemType.USABLE) == ItemType.USABLE)
                 {
-                    bool shouldUse = item.InvokeOnUse(slot);
-                    if (shouldUse)
-                    {
-                        ___usingItem = true;
-                        __instance.StartCoroutine(UseItemFinal(__instance, slot, item, ___inventory, ___usingItem));
-                    }
-                    else if (item.Tile != null)
-                    {
-                        __instance.StartCoroutine(UseItemFinal(__instance, slot, item, ___inventory, ___usingItem));
-                    }
+                    ___usingItem = item.InvokeOnUse(slot);
+                    if (!VanillaItemInfo.Using) __instance.StartCoroutine(UseItemFinal(__instance, slot, item, ___inventory, ___usingItem));
+                    VanillaItemInfo.Using = false;
                 }
                 else if ((item.Type & ItemType.EQUIPABLE) != ItemType.EQUIPABLE)
                 {
-                    ___usingItem = item.Tile == null;
                     __instance.StartCoroutine(UseItemFinal(__instance, slot, item, ___inventory, ___usingItem));
                 }
                 return false;
@@ -61,6 +53,7 @@ namespace GadgetCore.Patches
                 yield return new WaitForSeconds(0.5f);
                 instance.StartCoroutine(UsingItem(instance));
                 instance.inventoryBarObj[slot].GetComponent<Animation>().Play();
+                item.InvokeOnUseFinal(slot);
                 if ((item.Type & ItemType.CONSUMABLE) == ItemType.CONSUMABLE)
                 {
                     inventory[slot].q--;
@@ -91,6 +84,19 @@ namespace GadgetCore.Patches
                 {
                     instance.GetComponent<AudioSource>().PlayOneShot((AudioClip)Resources.Load("Au/buildmode"));
                 }
+            }
+            else
+            {
+                MenuScript.playerAppearance.GetComponent<NetworkView>().RPC("UA", RPCMode.AllBuffered, new object[]
+               {
+            GameScript.equippedIDs,
+            2,
+            GameScript.dead
+               });
+                MenuScript.player.SendMessage("Use");
+                yield return new WaitForSeconds(0.5f);
+                instance.StartCoroutine(UsingItem(instance));
+                instance.inventoryBarObj[slot].GetComponent<Animation>().Play();
             }
             yield return new WaitForSeconds(0.1f);
             GameScript.equippedIDs[0] = tempID;

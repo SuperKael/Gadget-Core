@@ -154,10 +154,12 @@
     </ParameterGroup>
     <Task>
       <Using Namespace="System.Diagnostics" />
+      <Using Namespace="System.Text" />
+      <Using Namespace="System.Linq" />
       <Code Type="Fragment" Language="cs">
         <![CDATA[
       this.Version = FileVersionInfo.GetVersionInfo(this.AssemblyPath).FileVersion;  
-      this.TrimmedVersion = this.Version.TrimEnd('.', '0');
+      this.TrimmedVersion = this.Version.Split('.').TakeWhile(x => !x.Equals("0")).Aggregate(new StringBuilder(), (a, b) => { if (a.Length > 0) a.Append("."); a.Append(b); return a; }).ToString();
     ]]>
       </Code>
     </Task>

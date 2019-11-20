@@ -65,7 +65,7 @@ namespace GadgetCore
                 if (modIndex < GadgetMods.CountMods())
                 {
                     GadgetModInfo mod = GadgetMods.GetModInfo(modIndex);
-                    unpackButton.gameObject.SetActive(Directory.GetFiles(UMFData.ModsPath, mod.UMFName + "_*.zip").Length > 0);
+                    unpackButton.gameObject.SetActive(Directory.GetFiles(UMFData.ModsPath, mod.UMFName + "*.zip").Length > 0);
                     enableUMFButton.interactable = !GadgetCore.dependencies.Any(x => !disabledMods.Contains(x.Key) && x.Value.Any(d => { string[] split = d.Split(' '); return split[split.Length - 2].Equals(mod.UMFName); }));
                     if (mod.Attribute.Dependencies.All(x => GadgetMods.ListAllModInfos().Where(y => y.Mod.Enabled).Select(y => y.Attribute.Name).Contains(x) || GadgetMods.ListAllModInfos().Where(y => y.Mod.Enabled).Select(y => y.Mod.GetPreviousModNames()).Any(y => y.Contains(x))))
                     {
@@ -129,7 +129,7 @@ namespace GadgetCore
                     enableButton.GetComponentInChildren<Text>().text = modIndex - GadgetMods.CountMods() - GadgetCore.nonGadgetMods.Count >= 0 && modIndex - GadgetMods.CountMods() - GadgetCore.nonGadgetMods.Count < GadgetCore.disabledMods.Count ? "Disabled" : "Not Gadget";
                     enableUMFButton.GetComponentInChildren<Text>().text = enabled ? "Disable Mod" : "Enable Mod";
                     string mod = modIndex - GadgetMods.CountMods() < GadgetCore.nonGadgetMods.Count ? GadgetCore.nonGadgetMods[modIndex - GadgetMods.CountMods()] : modIndex - GadgetMods.CountMods() - GadgetCore.nonGadgetMods.Count < GadgetCore.disabledMods.Count ? GadgetCore.disabledMods[modIndex - GadgetMods.CountMods() - GadgetCore.nonGadgetMods.Count] : GadgetCore.incompatibleMods[modIndex - GadgetMods.CountMods() - GadgetCore.nonGadgetMods.Count - GadgetCore.disabledMods.Count];
-                    unpackButton.gameObject.SetActive(Directory.GetFiles(UMFData.ModsPath, mod + "_*.zip").Length > 0);
+                    unpackButton.gameObject.SetActive(Directory.GetFiles(UMFData.ModsPath, mod + "*.zip").Length > 0);
                     if (modIndex - GadgetMods.CountMods() < GadgetCore.nonGadgetMods.Count && GadgetCore.nonGadgetMods[modIndex - GadgetMods.CountMods()].Equals("GadgetCore"))
                     {
                         enableUMFButton.interactable = false;
@@ -297,11 +297,11 @@ namespace GadgetCore
             string mod;
             if (modIndex < GadgetMods.CountMods())
             {
-                mod = Directory.GetFiles(UMFData.ModsPath, GadgetMods.GetModInfo(modIndex).UMFName + "_*.zip").FirstOrDefault();
+                mod = Directory.GetFiles(UMFData.ModsPath, GadgetMods.GetModInfo(modIndex).UMFName + "*.zip").FirstOrDefault();
             }
             else if (modIndex < GadgetMods.CountMods() + GadgetCore.nonGadgetMods.Count + GadgetCore.disabledMods.Count + GadgetCore.incompatibleMods.Count)
             {
-                mod = Directory.GetFiles(UMFData.ModsPath, (modIndex - GadgetMods.CountMods() < GadgetCore.nonGadgetMods.Count ? GadgetCore.nonGadgetMods[modIndex - GadgetMods.CountMods()] : modIndex - GadgetMods.CountMods() - GadgetCore.nonGadgetMods.Count < GadgetCore.disabledMods.Count ? GadgetCore.disabledMods[modIndex - GadgetMods.CountMods() - GadgetCore.nonGadgetMods.Count] : GadgetCore.incompatibleMods[modIndex - GadgetMods.CountMods() - GadgetCore.nonGadgetMods.Count - GadgetCore.disabledMods.Count]) + "_*.zip").FirstOrDefault();
+                mod = Directory.GetFiles(UMFData.ModsPath, (modIndex - GadgetMods.CountMods() < GadgetCore.nonGadgetMods.Count ? GadgetCore.nonGadgetMods[modIndex - GadgetMods.CountMods()] : modIndex - GadgetMods.CountMods() - GadgetCore.nonGadgetMods.Count < GadgetCore.disabledMods.Count ? GadgetCore.disabledMods[modIndex - GadgetMods.CountMods() - GadgetCore.nonGadgetMods.Count] : GadgetCore.incompatibleMods[modIndex - GadgetMods.CountMods() - GadgetCore.nonGadgetMods.Count - GadgetCore.disabledMods.Count]) + "*.zip").FirstOrDefault();
             }
             else
             {

@@ -41,6 +41,13 @@ namespace GadgetCore.Patches
                             if (process != null && !process.HasExited) process.Kill();
                         }
                     }
+                    else if (___hit.transform.gameObject.name.Equals("bPlay") && !GadgetCore.IsUnpacked)
+                    {
+                        GadgetCore.Log(GadgetCoreAPI.GetCursorPos().ToString());
+                        GameObject gameObject = (GameObject)UnityEngine.Object.Instantiate(Resources.Load("txtError"), GadgetCoreAPI.GetCursorPos() + new Vector3(0, 0, 9), Quaternion.identity);
+                        gameObject.SendMessage("InitError", "You must unpack Gadget Core before playing!");
+                        return false;
+                    }
                 }
             }
             return true;

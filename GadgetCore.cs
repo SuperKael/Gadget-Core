@@ -35,7 +35,7 @@ namespace GadgetCore
             if (firstLoad)
             {
                 firstLoad = false;
-                IsUnpacked = File.Exists(UMFData.ModsPath + "\\GadgetCore.dll") && File.Exists(UMFData.LibrariesPath + "\\GadgetCoreLib.dll") && !(Directory.GetFiles(UMFData.ModsPath, "GadgetCore_v*.zip").Length > 0);
+                IsUnpacked = File.Exists(UMFData.ModsPath + "\\GadgetCore.dll") && File.Exists(UMFData.LibrariesPath + "\\GadgetCoreLib.dll") && !(Directory.GetFiles(UMFData.ModsPath, "GadgetCore*.zip").Length > 0);
                 LoadMainMenu();
                 if (IsUnpacked)
                 {
@@ -58,7 +58,7 @@ namespace GadgetCore
             }
         }
 
-		[UMFHarmony(111)]
+		[UMFHarmony(118)]
         public static void Start()
 		{
 			Log("GadgetCore v" + GadgetCoreAPI.VERSION, true);

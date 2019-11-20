@@ -135,7 +135,7 @@ namespace GadgetCore.Patches
                     if (codes.Length > i + 1 && codes[i + 1].opcode == OpCodes.Ldsfld)
                     {
                         newCodes.Add(new CodeInstruction(OpCodes.Ldsfld, codes[i + 1].operand));
-                        newCodes.Add(new CodeInstruction(OpCodes.Ldc_I4, 10000));
+                        newCodes.Add(new CodeInstruction(OpCodes.Ldc_I4, TileRegistry.GetSingleton().GetIDStart()));
                         newCodes.Add(new CodeInstruction(OpCodes.Bge, codes[i].operand));
                     }
                 }

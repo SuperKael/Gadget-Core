@@ -25,6 +25,10 @@ namespace GadgetCore.API
             {
                 throw new InvalidOperationException("Data registration may only be performed by the Initialize method of a GadgetMod!");
             }
+            if (!entry.ReadyToRegister())
+            {
+                throw new InvalidOperationException("This registry entry is not yet ready to be registered, or has already been registered!");
+            }
             if (name != null && !name.All(x => char.IsLetterOrDigit(x) || x == ' ')) throw new InvalidOperationException("Registry name must be alphanumeric!");
             if (name == null && preferredID >= 0) name = preferredID.ToString();
             string registryName = GadgetMods.GetModInfo(modRegistering).Attribute.Name + ":" + name;
@@ -48,9 +52,9 @@ namespace GadgetCore.API
             entry.ModID = modRegistering;
             entry.ID = id;
             if (name == preferredID.ToString()) name = id.ToString();
-            entry.RegistryName = GadgetMods.GetModInfo(modRegistering).Attribute.Name + ":" + name;
+            entry.RegistryName = (registeringVanilla ? "Vanilla" : GadgetMods.GetModInfo(modRegistering).Attribute.Name) + ":" + name;
             Singleton.registry[id] = entry;
-            Singleton.reservedIDs[entry.RegistryName] = id;
+            if (!registeringVanilla) Singleton.reservedIDs[entry.RegistryName] = id;
             lastUsedIDs[typeEnum] = id;
             Singleton.PostRegistration(entry);
             entry.PostRegister();

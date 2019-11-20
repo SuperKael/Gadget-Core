@@ -28,15 +28,15 @@ namespace GadgetCore.API
         /// <summary>
         /// The Texture associated with this tile. May be null.
         /// </summary>
-        public Texture Tex { get; protected set; }
+        public virtual Texture Tex { get; protected set; }
         /// <summary>
         /// The Material associated with this tile. May be null.
         /// </summary>
-        public Material Mat { get; protected set; }
+        public virtual Material Mat { get; protected set; }
         /// <summary>
         /// The <see cref="GadgetCoreAPI.SpriteSheetEntry"/> associated with this tile. Will be null unless the tile's Type is SOLID or WALL.
         /// </summary>
-        public GadgetCoreAPI.SpriteSheetEntry Sprite { get; protected set; }
+        public virtual GadgetCoreAPI.SpriteSheetEntry Sprite { get; protected set; }
 
         /// <summary>
         /// Use to create a new TileInfo. This constructor should be used if the Type is SOLID or WALL. Make sure to call Register on it to register your Tile.

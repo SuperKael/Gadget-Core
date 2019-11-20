@@ -504,6 +504,11 @@
             Gets the description of the item with the given ID. Easier than using reflection to call GetItemDesc on GameScript.
             </summary>
         </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.GetGearBaseStats(System.Int32)">
+            <summary>
+            Gets the EquipStats of the item with the given ID. Easier than using reflection to call GetGearBaseStats on GameScript.
+            </summary>
+        </member>
         <member name="M:GadgetCore.API.GadgetCoreAPI.IsResourceRegistered(System.String)">
             <summary>
             Use to check if there is a resource registered at the specified path. This includes resources registered by the base game.
@@ -690,7 +695,7 @@
         </member>
         <member name="M:GadgetCore.API.GadgetCoreAPI.GetAttackSound(System.Int32)">
             <summary>
-            Gets the item audio clip with the specified ID. This is the sound played when a weapon is used.
+            Gets the attack audio clip with the specified ID. This is the sound played when a weapon is used.
             </summary>
         </member>
         <member name="T:GadgetCore.API.GadgetCoreAPI.SpriteSheetEntry">
@@ -1115,7 +1120,7 @@
             Gets a piece of extra data from this Item. If retrieving an ID as extra data, make sure to use GadgetNetwork.ConvertIDToLocal on it first.
             </summary>
         </member>
-        <member name="M:GadgetCore.API.ItemExtension.GetAllExtraData``1(Item)">
+        <member name="M:GadgetCore.API.ItemExtension.GetAllExtraData(Item)">
             <summary>
             Returns all extra data stored on this Item. Returns null if the item has no extra data.
             </summary>
@@ -1267,7 +1272,12 @@
         </member>
         <member name="M:GadgetCore.API.ItemInfo.SetWeaponInfo(System.Single[],UnityEngine.AudioClip,System.Int32,System.Int32,System.Int32)">
             <summary>
-            Sets the special info unique to weapons. This must be called before Register. If this is item is a weapon, you must call this.
+            Sets the special info unique to weapons. This must be called before Register. If this is item is a weapon and you are using one of the provided OnAttack routines, you must call this.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ItemInfo.SetWeaponInfo(System.Single[],UnityEngine.AudioClip,System.Single,System.Single,System.Int32)">
+            <summary>
+            Sets the special info unique to weapons. This must be called before Register. If this is item is a weapon and you are using one of the provided OnAttack routines, you must call this. When setting the crit bonuses, explicitly pass the values as floats to avoid ambiguity with the obsolete version.
             </summary>
         </member>
         <member name="M:GadgetCore.API.ItemInfo.Register(System.String,System.Int32,System.Boolean)">
@@ -1348,9 +1358,20 @@
             Returns the next valid ID for this Registry Entry's Type, after the provided lastValidID. Should skip the vanilla ID range.
             </summary>
         </member>
+        <member name="M:GadgetCore.API.ItemInfo.ReadyToRegister">
+            <summary>
+            Returns true if this ItemInfo is ready to be registered. Returns false if it has already been registered, or if it is a weapon and SetWeaponInfo has not been called.
+            </summary>
+            <returns></returns>
+        </member>
         <member name="E:GadgetCore.API.ItemInfo.OnUse">
             <summary>
-            This event is invoked whenever the player uses the item while it is in the hotbar. Not to be confused with when a weapon is equipped and the player attacks with it. The inventory slot of the item is passed as the parameter.
+            This event is invoked whenever the player uses the item while it is in the hotbar. Not to be confused with when a weapon is equipped and the player attacks with it. The inventory slot of the item is passed as the parameter. Return false to prevent the item from being used.
+            </summary>
+        </member>
+        <member name="E:GadgetCore.API.ItemInfo.OnUseFinal">
+            <summary>
+            This event is invoked whenever the player uses the item while it is in the hotbar. Not to be confused with when a weapon is equipped and the player attacks with it. The inventory slot of the item is passed as the parameter. It must return an IEnumerator, so you can add Coroutines for this event. It is valid to return null if it is not a coroutine.
             </summary>
         </member>
         <member name="E:GadgetCore.API.ItemInfo.OnEquip">
@@ -1366,6 +1387,11 @@
         <member name="E:GadgetCore.API.ItemInfo.OnAttack">
             <summary>
             This event is invoked whenever the player attacks with this item. It must be a <see cref="F:GadgetCore.API.ItemType.WEAPON"/>, and it must be equipped to the weapon slot. It must return an IEnumerator, so you can add Coroutines for this event. It is valid to return null if it is not a coroutine.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ItemInfo.GetDefaultAttackType(System.Int32)">
+            <summary>
+            Gets the default attack routine for the given ItemInfo, assuming that it is has a vanilla ID. It is recommended to set OnAttack to this if you are overriding a vanilla weapon. This is only valid to use without specifying the ID parameter after registering the item.
             </summary>
         </member>
         <member name="M:GadgetCore.API.ItemInfo.SwingSword(PlayerScript)">
@@ -1417,8 +1443,21 @@
             <summary>
             Gets the default type of the given ID, assuming that it is a vanilla ID.
             </summary>
-            <param name="id"></param>
-            <returns></returns>
+        </member>
+        <member name="M:GadgetCore.API.ItemRegistry.GetDefaultWeaponScalingByID(System.Int32)">
+            <summary>
+            Gets the default weapon scaling of the given ID, assuming it is the ID of a vanilla weapon. Does not include any special-case scaling that varies depending on external factors such as the player's current health.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ItemRegistry.GetDefaultCritChanceBonus(System.Int32)">
+            <summary>
+            Gets the default weapon crit chance bonus of the given ID, assuming it is the ID of a vanilla weapon. The returned value is a percentage, I.E., 5 for a 5% bonus.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ItemRegistry.GetDefaultCritPowerBonus(System.Int32)">
+            <summary>
+            Gets the default weapon crit power bonus of the given ID, assuming it is the ID of a vanilla weapon. The returned value is an additive multiplier, I.E., 0.5 for a 50% bonus.
+            </summary>
         </member>
         <member name="M:GadgetCore.API.ItemRegistry.GetTypeByID(System.Int32)">
             <summary>
@@ -1919,6 +1958,11 @@
             Called after this Registry Entry has been registered to its Registry. You should never call this yourself.
             </summary>
         </member>
+        <member name="M:GadgetCore.API.RegistryEntry`2.ReadyToRegister">
+            <summary>
+            Returns true if this Registry Entry is ready to be registered. Returns false if the registry entry is not yet in the correct state to be registered, or has already been registered.
+            </summary>
+        </member>
         <member name="M:GadgetCore.API.RegistryEntry`2.GetEntryType">
             <summary>
             Returns the Registry Entry's Type. Used in the registration process.
@@ -2061,6 +2105,11 @@
             Gets the name of this registry. Must be constant.
             </summary>
         </member>
+        <member name="M:GadgetCore.API.TileRegistry.GetDefaultTypeByID(System.Int32)">
+            <summary>
+            Gets the default type of the given ID, assuming that it is a vanilla ID.
+            </summary>
+        </member>
         <member name="M:GadgetCore.API.TileRegistry.Register(GadgetCore.API.TileInfo,System.String,System.Int32,System.Boolean)">
             <summary>
             Used to register a registry entry to this registry. You should probably use the Register method on that registry entry instead.
@@ -2103,6 +2152,39 @@
         <member name="F:GadgetCore.API.TileType.WALL">
             <summary>
             This tile is a background wall.
+            </summary>
+        </member>
+        <member name="T:GadgetCore.API.VanillaItemInfo">
+            <summary>
+            This is a wrapper for vanilla Item IDs to a Gadget Core ItemInfo. Use to get in-depth info about a vanilla item, in Gadget Core's terms. Can also be used to register events to occur upon firing vanilla weapons.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.VanillaItemInfo.#ctor(System.Int32,System.Boolean)">
+            <summary>
+            Constructs a new VanillaItemInfo based upon the given ID. Do not try to call this yourself - use <see cref="M:GadgetCore.API.VanillaItemInfo.Wrap(System.Int32,System.Boolean)"/>
+            </summary>
+            <param name="ID">The vanilla ID to be wrapped.</param>
+            <param name="WrapForTile">If true, the Tile property should not be set by this constructor, as it will be set later as part of a TileInfo's constructor.</param>
+        </member>
+        <member name="M:GadgetCore.API.VanillaItemInfo.Wrap(System.Int32,System.Boolean)">
+            <summary>
+            Provides a wrapper for the given vanilla ID. If the given ID has already been wrapped before, it will return the same wrapper instance as was returned before. If register is true, then the wrapper will be registered to its ID in the appropriate registry.
+            </summary>
+        </member>
+        <member name="T:GadgetCore.API.VanillaTileInfo">
+            <summary>
+            This is a wrapper for vanilla Item IDs to a Gadget Core ItemInfo. Use to get in-depth info about a vanilla item, in Gadget Core's terms. Can also be used to register events to occur upon firing vanilla weapons.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.VanillaTileInfo.#ctor(System.Int32)">
+            <summary>
+            Constructs a new VanillaItemInfo based upon the given ID. Do not try to call this yourself - use <see cref="M:GadgetCore.API.VanillaTileInfo.Wrap(System.Int32,System.Boolean)"/>
+            </summary>
+            <param name="ID">The vanilla ID to be wrapped.</param>
+        </member>
+        <member name="M:GadgetCore.API.VanillaTileInfo.Wrap(System.Int32,System.Boolean)">
+            <summary>
+            Provides a wrapper for the given vanilla ID. If the given ID has already been wrapped before, it will return the same wrapper instance as was returned before. If register is true, then the wrapper will be registered to its ID in the appropriate registry.
             </summary>
         </member>
         <member name="T:GadgetCore.API.WeakReference`1">
@@ -2188,6 +2270,16 @@
         <member name="P:GadgetCore.GadgetModHookScript.Mod">
             <summary>
             The GadgetModInfo that is updated by this hook script.
+            </summary>
+        </member>
+        <member name="T:GadgetCore.PatchMethods">
+            <summary>
+            Provides utility methods used by GadgetCore's patches. You probably shouldn't use these yourself.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.PatchMethods.HoverItem(Item)">
+            <summary>
+            Displays the item-hover window on the cursor. For some reason, the base game has six different methods that all pretty much just do this.
             </summary>
         </member>
         <member name="T:GadgetCore.Util.DelegateTraceListener">

@@ -62,7 +62,7 @@ namespace GadgetCore.API
         /// <summary>
         /// Returns all extra data stored on this Item. Returns null if the item has no extra data.
         /// </summary>
-        public static Dictionary<string, object> GetAllExtraData<T>(this Item item)
+        public static Dictionary<string, object> GetAllExtraData(this Item item)
         {
             if (extraItemData.ContainsKey(new WeakReference<Item>(item)))
             {
@@ -126,7 +126,7 @@ namespace GadgetCore.API
         public static string SerializeExtraData(this Item item)
         {
             BinaryFormatter br = new BinaryFormatter();
-            return GetAllExtraData<object>(item)?.Select(x => {
+            return GetAllExtraData(item)?.Select(x => {
                 using (MemoryStream ms = new MemoryStream())
                 {
                     br.Serialize(ms, x.Value);

@@ -62,6 +62,10 @@ namespace GadgetCore.API
         /// </summary>
         public virtual void PostRegister() { }
         /// <summary>
+        /// Returns true if this Registry Entry is ready to be registered. Returns false if the registry entry is not yet in the correct state to be registered, or has already been registered.
+        /// </summary>
+        public virtual bool ReadyToRegister() { return RegistryName == null; }
+        /// <summary>
         /// Returns the Registry Entry's Type. Used in the registration process.
         /// </summary>
         public abstract T GetEntryType();

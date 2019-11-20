@@ -39,11 +39,11 @@ namespace GadgetCore.API
         /// <summary>
         /// The Texture associated with this Chip. May be null.
         /// </summary>
-        public Texture Tex { get; protected set; }
+        public virtual Texture Tex { get; protected set; }
         /// <summary>
         /// The Material associated with this Chip. May be null.
         /// </summary>
-        public Material Mat { get; protected set; }
+        public virtual Material Mat { get; protected set; }
 
         /// <summary>
         /// Use to create a new ChipInfo. Make sure to call Register on it to register your Chip.

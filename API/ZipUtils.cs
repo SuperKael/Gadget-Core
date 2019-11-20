@@ -21,14 +21,14 @@ namespace GadgetCore.API
         /// </summary>
         public static bool UnpackMod(string name)
         {
-            string[] mods = Directory.GetFiles(UMFData.ModsPath, name + "_*.zip");
+            string[] mods = Directory.GetFiles(UMFData.ModsPath, name + "*.zip");
             if (mods.Length >= 1)
             {
                 return UnpackModFile(mods[0]);
             }
             else
             {
-                mods = Directory.GetFiles(Path.Combine(UMFData.ModsPath, "PackedMods"), name + "_*.zip");
+                mods = Directory.GetFiles(Path.Combine(UMFData.ModsPath, "PackedMods"), name + "*.zip");
                 if (mods.Length >= 1)
                 {
                     return UnpackModFile(mods[0]);
@@ -51,6 +51,16 @@ namespace GadgetCore.API
                         File.Move(Path.Combine(UMFData.ModsPath, "ModInfo.txt"), Path.Combine(UMFData.CachePath, "ModInfoBackup.txt"));
                     }
                     modZip.ExtractAll(UMFData.ModsPath, ExtractExistingFileAction.OverwriteSilently);
+                    string dllFile = null;
+                    foreach (string file in Directory.GetFiles(UMFData.ModsPath, "*.dll"))
+                    {
+                        if (Path.GetFileNameWithoutExtension(filePath).StartsWith(Path.GetFileNameWithoutExtension(file)))
+                        {
+                            dllFile = file;
+                            break;
+                        }
+                    }
+                    if (dllFile == null) GadgetCore.Log("WARNING! Mod .zip " + Path.GetFileName(filePath) + " is being unpacked, but it does not contain a .dll whos name matches the .zip!");
                     if (Directory.Exists(Path.Combine(UMFData.ModsPath, "Tools")))
                     {
                         foreach (string file in Directory.GetFiles(Path.Combine(UMFData.ModsPath, "Tools")))
@@ -78,8 +88,18 @@ namespace GadgetCore.API
                     }
                     if (File.Exists(Path.Combine(UMFData.ModsPath, "ModInfo.txt")))
                     {
-                        if (File.Exists(Path.Combine(UMFData.ModInfosPath, Path.GetFileNameWithoutExtension(filePath) + "_ModInfo.txt"))) File.Delete(Path.Combine(UMFData.ModInfosPath, Path.GetFileNameWithoutExtension(filePath) + "_ModInfo.txt"));
-                        File.Move(Path.Combine(UMFData.ModsPath, "ModInfo.txt"), Path.Combine(UMFData.ModInfosPath, Path.GetFileNameWithoutExtension(filePath) + "_ModInfo.txt"));
+                        string modInfoName;
+                        if (dllFile != null)
+                        {
+                            string trimmedVersionNumber = FileVersionInfo.GetVersionInfo(dllFile).ToString().Split('.').TakeWhile(x => !x.Equals("0")).Aggregate(new StringBuilder(), (a, b) => { if (a.Length > 0) a.Append("."); a.Append(b); return a; }).ToString();
+                            modInfoName = Path.GetFileNameWithoutExtension(dllFile) + "_v" + FileVersionInfo.GetVersionInfo(dllFile);
+                        }
+                        else
+                        {
+                            modInfoName = Path.GetFileNameWithoutExtension(filePath);
+                        }
+                        if (File.Exists(Path.Combine(UMFData.ModInfosPath, modInfoName + "_ModInfo.txt"))) File.Delete(Path.Combine(UMFData.ModInfosPath, modInfoName + "_ModInfo.txt"));
+                        File.Move(Path.Combine(UMFData.ModsPath, "ModInfo.txt"), Path.Combine(UMFData.ModInfosPath, modInfoName + "_ModInfo.txt"));
                     }
                     if (File.Exists(Path.Combine(UMFData.CachePath, "ModInfoBackup.txt")))
                     {

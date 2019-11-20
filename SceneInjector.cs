@@ -317,7 +317,7 @@ namespace GadgetCore
             modListScrollView.movementType = ScrollRect.MovementType.Clamped;
             modListScrollView.viewport = modListViewport;
             modListScrollView.verticalScrollbar = modListScrollBar;
-            float entryHeight = allMods.Length <= 5 ? 0.2f : 1f / allMods.Length;
+            float entryHeight = (allMods.Length <= 5 ? 0.2f : 1f / allMods.Length) * 0.8f;
             Toggle firstToggle = null;
             for (int i = 0; i < allMods.Length; i++)
             {
@@ -346,6 +346,8 @@ namespace GadgetCore
                 modLabel.font = modConfigMenuText.GetComponent<TextMesh>().font;
                 modLabel.fontSize = 12;
                 modLabel.horizontalOverflow = HorizontalWrapMode.Overflow;
+                modLabel.verticalOverflow = VerticalWrapMode.Overflow;
+                modLabel.alignment = TextAnchor.MiddleLeft;
                 modLabel.text = (i < gadgetModCount + normalModCount + disabledModCount + incompatibleModCount ? allMods[i] : Path.GetFileNameWithoutExtension(allMods[i])) + Environment.NewLine + (i < gadgetModCount ? ("Gadget Mod (" + GadgetMods.GetModInfo(allMods[i]).UMFName + ")") : (i < gadgetModCount + normalModCount ? "Non-Gadget Mod" : i < gadgetModCount + normalModCount + disabledModCount ? "Disabled" : i < gadgetModCount + normalModCount + disabledModCount + incompatibleModCount ? "Incompatible" : "Packed Mod"));
                 if ((i < gadgetModCount && !gadgetMods[i].Mod.Enabled) || i >= gadgetModCount + GadgetCore.nonGadgetMods.Count) modLabel.color = new Color(1f, 1f, 1f, 0.5f);
                 modToggle.GetComponent<Image>().sprite = boxSprite;

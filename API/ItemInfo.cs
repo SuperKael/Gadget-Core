@@ -58,71 +58,71 @@ namespace GadgetCore.API
         /// <summary>
         /// The sell-value of this Item. Represents the amount of credits given when taken to the item trasher.
         /// </summary>
-        public int Value { get; protected set; }
+        public virtual int Value { get; protected set; }
         /// <summary>
         /// The TileInfo that this item can place. Use this ItemInfo in the TileInfo's constructor to ensure it is registered correctly.
         /// </summary>
-        public TileInfo Tile { get; protected set; }
+        public virtual TileInfo Tile { get; protected set; }
         /// <summary>
         /// The Texture associated with this Item. May be null.
         /// </summary>
-        public Texture Tex { get; protected set; }
+        public virtual Texture Tex { get; protected set; }
         /// <summary>
         /// The Texture associated with this item when it is held in the main- or off-hand. May be null.
         /// </summary>
-        public Texture HeldTex { get; protected set; }
+        public virtual Texture HeldTex { get; protected set; }
         /// <summary>
         /// The Texture associated with this item when it is worn as a helmet, or the Texture used by this droid's head. May be null.
         /// </summary>
-        public Texture HeadTex { get; protected set; }
+        public virtual Texture HeadTex { get; protected set; }
         /// <summary>
         /// The Texture associated with this item when it is worn as an armor, or the Texture used by this droid's body. May be null.
         /// </summary>
-        public Texture BodyTex { get; protected set; }
+        public virtual Texture BodyTex { get; protected set; }
         /// <summary>
         /// The Texture associated with this item when it is worn as an armor; this texture is used for the player's arms. May be null.
         /// </summary>
-        public Texture ArmTex { get; protected set; }
+        public virtual Texture ArmTex { get; protected set; }
         /// <summary>
         /// The Material associated with this item. May be null.
         /// </summary>
-        public Material Mat { get; protected set; }
+        public virtual Material Mat { get; protected set; }
         /// <summary>
         /// The Material associated with this item when it is held in the main- or off-hand. May be null.
         /// </summary>
-        public Material HeldMat { get; protected set; }
+        public virtual Material HeldMat { get; protected set; }
         /// <summary>
         /// The Material associated with this item when it is worn as a helmet, or the Texture used by this droid's head. May be null.
         /// </summary>
-        public Material HeadMat { get; protected set; }
+        public virtual Material HeadMat { get; protected set; }
         /// <summary>
         /// The Material associated with this item when it is worn as an armor, or the Texture used by this droid's body. May be null.
         /// </summary>
-        public Material BodyMat { get; protected set; }
+        public virtual Material BodyMat { get; protected set; }
         /// <summary>
         /// The Material associated with this item when it is worn as an armor; this texture is used for the player's arms. May be null.
         /// </summary>
-        public Material ArmMat { get; protected set; }
+        public virtual Material ArmMat { get; protected set; }
         /// <summary>
         /// The ID of the projectile fired by this weapon (if applicable).
         /// </summary>
-        public int ProjectileID { get; protected set; } = -1;
+        public virtual int ProjectileID { get; protected set; } = -1;
         /// <summary>
         /// An array of multipliers used for weapon scaling. May be null if this item is not a weapon.
         /// </summary>
-        public float[] WeaponScaling { get; protected set; }
+        public virtual float[] WeaponScaling { get; protected set; }
         /// <summary>
         /// The sound that is played when the player attacks with this weapon.
         /// </summary>
-        public AudioClip AttackSound { get; protected set; }
+        public virtual AudioClip AttackSound { get; protected set; }
         /// <summary>
         /// A bonus % to crit chance for this weapon.
         /// </summary>
-        public int CritChanceBonus { get; protected set; }
+        public virtual float CritChanceBonus { get; protected set; }
         /// <summary>
         /// A bonus crit damage multiplier that is added to the base 1.5x crit power for this weapon.
         /// </summary>
-        public float CritPowerBonus { get; protected set; }
+        public virtual float CritPowerBonus { get; protected set; }
 
         /// <summary>
         /// Use to create a new ItemInfo. Make sure to call Register on it to register your Item.
@@ -160,9 +160,23 @@ namespace GadgetCore.API
         }
 
         /// <summary>
-        /// Sets the special info unique to weapons. This must be called before Register. If this is item is a weapon, you must call this.
+        /// Sets the special info unique to weapons. This must be called before Register. If this is item is a weapon and you are using one of the provided OnAttack routines, you must call this.
         /// </summary>
+        [Obsolete("Use the version that takes float crit parameters!")]
         public ItemInfo SetWeaponInfo(float[] WeaponScaling, AudioClip AttackSound, int ProjectileID = -1, int CritChanceBonus = 0, int CritPowerBonus = 0)
+        {
+            this.WeaponScaling = WeaponScaling;
+            this.AttackSound = AttackSound;
+            this.ProjectileID = ProjectileID;
+            this.CritChanceBonus = CritChanceBonus;
+            this.CritPowerBonus = CritPowerBonus;
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the special info unique to weapons. This must be called before Register. If this is item is a weapon and you are using one of the provided OnAttack routines, you must call this. When setting the crit bonuses, explicitly pass the values as floats to avoid ambiguity with the obsolete version.
+        /// </summary>
+        public ItemInfo SetWeaponInfo(float[] WeaponScaling, AudioClip AttackSound, float CritChanceBonus = 0, float CritPowerBonus = 0, int ProjectileID = -1)
         {
             this.WeaponScaling = WeaponScaling;
             this.AttackSound = AttackSound;
@@ -372,6 +386,12 @@ namespace GadgetCore.API
                 case 429:
                     dmg += (GameScript.maxhp - GameScript.hp) * 4;
                     break;
+                case 464:
+                    dmg /= 2;
+                    break;
+                case 465:
+                    dmg /= 2;
+                    break;
                 case 479:
                     dmg = 1200;
                     break;
@@ -404,7 +424,7 @@ namespace GadgetCore.API
         /// </summary>
         public virtual bool TryCrit(PlayerScript script)
         {
-            int num = CritChanceBonus;
+            float num = CritChanceBonus;
             if (Menuu.curUniform == 1)
             {
                 num += 5;
@@ -516,9 +536,22 @@ namespace GadgetCore.API
         }
 
         /// <summary>
-        /// This event is invoked whenever the player uses the item while it is in the hotbar. Not to be confused with when a weapon is equipped and the player attacks with it. The inventory slot of the item is passed as the parameter.
+        /// Returns true if this ItemInfo is ready to be registered. Returns false if it has already been registered, or if it is a weapon and SetWeaponInfo has not been called.
+        /// </summary>
+        /// <returns></returns>
+        public override bool ReadyToRegister()
+        {
+            return base.ReadyToRegister() && !((Type & ItemType.BASIC_MASK) == (ItemType.WEAPON & ItemType.BASIC_MASK) && WeaponScaling == null);
+        }
+
+        /// <summary>
+        /// This event is invoked whenever the player uses the item while it is in the hotbar. Not to be confused with when a weapon is equipped and the player attacks with it. The inventory slot of the item is passed as the parameter. Return false to prevent the item from being used.
         /// </summary>
         public event Func<int, bool> OnUse;
+        /// <summary>
+        /// This event is invoked whenever the player uses the item while it is in the hotbar. Not to be confused with when a weapon is equipped and the player attacks with it. The inventory slot of the item is passed as the parameter. It must return an IEnumerator, so you can add Coroutines for this event. It is valid to return null if it is not a coroutine.
+        /// </summary>
+        public event Func<int, IEnumerator> OnUseFinal;
         /// <summary>
         /// This event is invoked whenever the player equips this item. (Weapon, Offhand, Helmet, Armor, Ring, or Droid). The inventory slot of this item is passed as the parameter.
         /// </summary>
@@ -533,9 +566,36 @@ namespace GadgetCore.API
         public event Func<PlayerScript, IEnumerator> OnAttack;
 
         internal bool InvokeOnUse(int slot) { return OnUse?.Invoke(slot) ?? false; }
+        internal void InvokeOnUseFinal(int slot) { OnUseFinal?.GetInvocationList().All(x => { InstanceTracker.GameScript.StartCoroutine((x as Func<int, IEnumerator>)?.Invoke(slot) ?? GadgetCoreAPI.EmptyEnumerator()); return true; }); }
         internal void InvokeOnEquip(int slot) { OnEquip?.Invoke(slot); }
         internal void InvokeOnDequip(int slot) { OnDequip?.Invoke(slot); }
-        internal IEnumerator InvokeOnAttack(PlayerScript script) { return OnAttack?.Invoke(script) ?? GadgetCoreAPI.EmptyEnumerator(); }
+        internal void InvokeOnAttack(PlayerScript script) { OnAttack?.GetInvocationList().All(x => { script.StartCoroutine((x as Func<PlayerScript, IEnumerator>)?.Invoke(script) ?? GadgetCoreAPI.EmptyEnumerator()); return true; }); }
+
+        /// <summary>
+        /// Gets the default attack routine for the given ItemInfo, assuming that it is has a vanilla ID. It is recommended to set OnAttack to this if you are overriding a vanilla weapon. This is only valid to use without specifying the ID parameter after registering the item.
+        /// </summary>
+        public Func<PlayerScript, IEnumerator> GetDefaultAttackType(int WepID = -1)
+        {
+            if (WepID == -1) WepID = ID;
+            if (WepID < 300) return null;
+            else if (WepID < 350)
+            {
+                if (WepID == 302 || WepID == 320 || WepID == 347 || WepID == 319 || WepID == 324 || WepID == 345)
+                {
+                    return SwingGiantSword;
+                }
+                else
+                {
+                    return SwingSword;
+                }
+            }
+            else if (WepID < 400) return ThrustLance;
+            else if (WepID < 450) return ShootGun;
+            else if (WepID < 500) return ShootCannon;
+            else if (WepID < 550) return CastGauntlet;
+            else if (WepID < 600) return CastStaff;
+            else return null;
+        }
 
         /// <summary>
         /// Attack routine for swinging a sword. Register this to OnAttack to make your weapon behave this way. Preserves the ID-specific behavior of the base game, so if the ItemInfo's ID matches the ID of a vanilla item, it will behave in the exact same way that the vanilla item of the same ID would.

@@ -16,13 +16,14 @@ namespace GadgetCore.API
         /// <summary>
         /// The version of Gadget Core.
         /// </summary>
-        public const string VERSION = "1.1.0.1";
+        public const string VERSION = "1.1.1.0";
 
         private static readonly MethodInfo RefreshExpBar = typeof(GameScript).GetMethod("RefreshExpBar", BindingFlags.NonPublic | BindingFlags.Instance);
         private static readonly MethodInfo Crafting = typeof(GameScript).GetMethod("Crafting", BindingFlags.NonPublic | BindingFlags.Instance);
         private static readonly MethodInfo CraftCheck = typeof(GameScript).GetMethod("CraftCheck", BindingFlags.NonPublic | BindingFlags.Instance);
         private static readonly MethodInfo GetItemNameMethod = typeof(GameScript).GetMethod("GetItemName", BindingFlags.NonPublic | BindingFlags.Instance);
         private static readonly MethodInfo GetItemDescMethod = typeof(GameScript).GetMethod("GetItemDesc", BindingFlags.NonPublic | BindingFlags.Instance);
+        private static readonly MethodInfo GetGearBaseStatsMethod = typeof(GameScript).GetMethod("GetGearBaseStats", BindingFlags.NonPublic | BindingFlags.Instance);
         private static readonly FieldInfo craftType = typeof(GameScript).GetField("craftType", BindingFlags.NonPublic | BindingFlags.Instance);
         private static readonly FieldInfo craftValue = typeof(GameScript).GetField("craftValue", BindingFlags.NonPublic | BindingFlags.Instance);
         private static readonly FieldInfo crafting = typeof(GameScript).GetField("crafting", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -139,7 +140,9 @@ namespace GadgetCore.API
         /// </summary>
         public static Item CopyItem(Item item)
         {
-            return new Item(item.id, item.q, item.exp, item.tier, item.corrupted, item.aspect, item.aspectLvl);
+            Item copy = new Item(item.id, item.q, item.exp, item.tier, item.corrupted, item.aspect, item.aspectLvl);
+            copy.SetAllExtraData(item.GetAllExtraData());
+            return copy;
         }
 
         /// <summary>
@@ -407,6 +410,14 @@ namespace GadgetCore.API
         public static string GetItemDesc(int ID)
         {
             return GetItemDescMethod.Invoke(InstanceTracker.GameScript, new object[] { ID }) as string;
+        }
+
+        /// <summary>
+        /// Gets the EquipStats of the item with the given ID. Easier than using reflection to call GetGearBaseStats on GameScript.
+        /// </summary>
+        public static EquipStats GetGearBaseStats(int ID)
+        {
+            return new EquipStats(GetGearBaseStatsMethod.Invoke(InstanceTracker.GameScript, new object[] { ID }) as int[]);
         }
 
         /// <summary>
@@ -702,7 +713,7 @@ namespace GadgetCore.API
         }
 
         /// <summary>
-        /// Gets the item audio clip with the specified ID. This is the sound played when a weapon is used.
+        /// Gets the attack audio clip with the specified ID. This is the sound played when a weapon is used.
         /// </summary>
         public static AudioClip GetAttackSound(int ID)
         {
