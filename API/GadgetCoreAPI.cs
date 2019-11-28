@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using UModFramework.API;
 using UnityEngine;
 
 namespace GadgetCore.API
@@ -16,7 +18,7 @@ namespace GadgetCore.API
         /// <summary>
         /// The version of Gadget Core.
         /// </summary>
-        public const string VERSION = "1.1.1.0";
+        public const string VERSION = "1.1.1.1";
 
         private static readonly MethodInfo RefreshExpBar = typeof(GameScript).GetMethod("RefreshExpBar", BindingFlags.NonPublic | BindingFlags.Instance);
         private static readonly MethodInfo Crafting = typeof(GameScript).GetMethod("Crafting", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -30,6 +32,7 @@ namespace GadgetCore.API
 
         internal static Dictionary<string, UnityEngine.Object> resources = new Dictionary<string, UnityEngine.Object>();
         internal static Dictionary<int, string> resourcePaths = new Dictionary<int, string>();
+        internal static Dictionary<string, Texture2D> cachedTexes = new Dictionary<string, Texture2D>();
         internal static List<SpriteSheetEntry> spriteSheetSprites = new List<SpriteSheetEntry>();
         internal static int spriteSheetSize = -1;
         internal static Texture2D spriteSheet;
@@ -718,6 +721,42 @@ namespace GadgetCore.API
         public static AudioClip GetAttackSound(int ID)
         {
             return (AudioClip)Resources.Load("au/i/i" + ID);
+        }
+
+        /// <summary>
+        /// Works like UMFAsset.LoadTexture2D, except it isn't dependent on System.Drawing. Returns null if the texture was not found.
+        /// </summary>
+        public static Texture2D LoadTexture2D(string file, bool shared = false)
+        {
+            string filePath = Path.Combine(Path.Combine(UMFData.AssetsPath, shared ? "Shared" : Assembly.GetCallingAssembly().GetName().Name), file);
+            if (cachedTexes.ContainsKey(filePath))
+            {
+                return cachedTexes[filePath];
+            }
+            if (cachedTexes.ContainsKey(Path.Combine(UMFData.TempPath, file)))
+            {
+                return cachedTexes[Path.Combine(UMFData.TempPath, file)];
+            }
+            if (File.Exists(filePath))
+            {
+
+                byte[] fileData;
+                fileData = File.ReadAllBytes(filePath);
+                Texture2D tex = new Texture2D(2, 2);
+                tex.LoadImage(fileData);
+                tex.filterMode = FilterMode.Point;
+                cachedTexes.Add(filePath, tex);
+                if (filePath.StartsWith(UMFData.TempPath))
+                {
+                    File.Delete(filePath);
+                    Directory.Delete(UMFData.TempPath, true);
+                }
+                return tex;
+            }
+            else
+            {
+                return null;
+            }
         }
 
         /// <summary>

@@ -1,0 +1,11 @@
+There are various circumstances were you may wish to manually unpack a mod, such as Gadget Core. An example of such a situation would be if you are not running Windows.
+This file is purely informational, and explains how to manually unpack .zip mods. These instructions are subject to change as Gadget Core updates.
+
+First, extract the contents of the .zip into the /Roguelands/uModFramework/Mods folder.
+Then, if you previously had the .zip in the Mods folder, delete the zip - if you had the zip somewhere else, it does not matter.
+
+If the Mods folder now contains folders named 'Tools' and/or 'CoreLibs', then there is an extra step for each.
+In the case of Tools: Copy (and replace as needed) its contents to /Roguelands/uModFramework/Tools, and then delete the Tools folder within Mods.
+In the case of CoreLibs: Copy (and replace as needed) its contents to /Roguelands/Roguelands_Data/Managed, and then delete the CoreLibs folder within Mods.
+
+And with that, you are done.

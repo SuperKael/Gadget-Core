@@ -698,6 +698,11 @@
             Gets the attack audio clip with the specified ID. This is the sound played when a weapon is used.
             </summary>
         </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.LoadTexture2D(System.String,System.Boolean)">
+            <summary>
+            Works like UMFAsset.LoadTexture2D, except it isn't dependent on System.Drawing. Returns null if the texture was not found.
+            </summary>
+        </member>
         <member name="T:GadgetCore.API.GadgetCoreAPI.SpriteSheetEntry">
             <summary>
             This represents an entry in the tile spritesheet. Returned by <see cref="M:GadgetCore.API.GadgetCoreAPI.AddTextureToSheet(UnityEngine.Texture)"/>

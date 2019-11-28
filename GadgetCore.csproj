@@ -37,6 +37,7 @@
     <NoWarn>1701;1702;IDE0060</NoWarn>
   </PropertyGroup>
   <ItemGroup>
+    <None Remove="Manual Unpacking Instructions.txt" />
     <None Remove="ModInfo.txt" />
   </ItemGroup>
   <ItemGroup>
@@ -77,6 +78,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Manual Unpacking Instructions.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="ModInfo.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -137,9 +141,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Tools\GadgetCore.CoreLibInstaller.exe">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Tools\GadgetCore.FileDeleter.exe">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

@@ -35,11 +35,11 @@ namespace GadgetCore
             if (firstLoad)
             {
                 firstLoad = false;
-                IsUnpacked = File.Exists(UMFData.ModsPath + "\\GadgetCore.dll") && File.Exists(UMFData.LibrariesPath + "\\GadgetCoreLib.dll") && !(Directory.GetFiles(UMFData.ModsPath, "GadgetCore*.zip").Length > 0);
+                IsUnpacked = File.Exists(Path.Combine(UMFData.ModsPath, "GadgetCore.dll")) && File.Exists(Path.Combine(UMFData.LibrariesPath, "GadgetCoreLib.dll")) && !(Directory.GetFiles(UMFData.ModsPath, "GadgetCore*.zip").Length > 0);
                 LoadMainMenu();
                 if (IsUnpacked)
                 {
-                    CoreLib = Activator.CreateInstance(Assembly.LoadFile(UMFData.LibrariesPath + "\\GadgetCoreLib.dll").GetTypes().First(x => typeof(IGadgetCoreLib).IsAssignableFrom(x))) as IGadgetCoreLib;
+                    CoreLib = Activator.CreateInstance(Assembly.LoadFile(Path.Combine(UMFData.LibrariesPath, "GadgetCoreLib.dll")).GetTypes().First(x => typeof(IGadgetCoreLib).IsAssignableFrom(x))) as IGadgetCoreLib;
                     CoreLib.ProvideLogger(Logger);
                     LoadModAssemblies();
                     GadgetCoreConfig.Load();
@@ -47,7 +47,6 @@ namespace GadgetCore
                     GadgetCoreConfig.LoadRegistries();
                     VanillaRegistration();
                     InitializeMods();
-                    GenerateSpriteSheet();
                 }
                 SceneInjector.InjectMainMenu();
                 SceneManager.sceneLoaded += OnSceneLoaded;
@@ -273,13 +272,13 @@ namespace GadgetCore
             Log("Finished Initializing Registries");
         }
 
-        private static void GenerateSpriteSheet()
+        internal static void GenerateSpriteSheet()
         {
             GadgetCoreAPI.spriteSheetSize = MathUtils.SmallestPerfectSquare(GadgetCoreAPI.spriteSheetSprites.Count + 16);
             int spritesOnAxis = (int)Mathf.Sqrt(GadgetCoreAPI.spriteSheetSize);
             int spritesOnFirstFourRows = spritesOnAxis - 4;
             int spriteSheetDimensions = spritesOnAxis * 32;
-            GadgetCoreAPI.spriteSheet = new Texture2D(spriteSheetDimensions, spriteSheetDimensions, TextureFormat.ARGB32, false, false)
+            GadgetCoreAPI.spriteSheet = new Texture2D(spriteSheetDimensions, spriteSheetDimensions, InstanceTracker.GameScript.TileManager.GetComponent<ChunkWorld>().Texture.format, false, false)
             {
                 filterMode = FilterMode.Point
             };

@@ -114,7 +114,7 @@ namespace GadgetCore
             background.rectTransform.offsetMax = Vector2.zero;
             background.type = Image.Type.Sliced;
             background.fillCenter = true;
-            Texture2D boxTex = UMFAsset.LoadTexture2D("modmenu.png");
+            Texture2D boxTex = GadgetCoreAPI.LoadTexture2D("modmenu.png");
             boxTex.filterMode = FilterMode.Point;
             Sprite boxSprite = Sprite.Create(boxTex, new Rect(0, 0, boxTex.width, boxTex.height), new Vector2(0.5f, 0.5f), 100, 1, SpriteMeshType.Tight, new Vector4(15, 15, 15, 15));
             background.sprite = boxSprite;

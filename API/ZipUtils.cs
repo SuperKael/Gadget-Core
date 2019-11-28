@@ -76,15 +76,33 @@ namespace GadgetCore.API
                     }
                     if (Directory.Exists(Path.Combine(UMFData.ModsPath, "CoreLibs")) && coreLibInstallerProcess == null)
                     {
-                        ProcessStartInfo coreLibInstallerPI = new ProcessStartInfo
+                        int p = (int)Environment.OSVersion.Platform;
+                        if ((p == 4) || (p == 6) || (p == 128))
                         {
-                            FileName = Path.Combine(Path.Combine(UMFData.UMFPath, "Tools"), "GadgetCore.CoreLibInstaller.exe"),
-                            WindowStyle = ProcessWindowStyle.Hidden,
-                            ErrorDialog = true,
-                            UseShellExecute = false,
-                        };
-                        coreLibInstallerPI.WorkingDirectory = Path.GetDirectoryName(coreLibInstallerPI.FileName);
-                        coreLibInstallerProcess = Process.Start(coreLibInstallerPI);
+                            ProcessStartInfo coreLibInstallerPI = new ProcessStartInfo
+                            {
+                                FileName = "mono",
+                                Arguments = Path.Combine(Path.Combine(UMFData.UMFPath, "Tools"), "GadgetCore.CoreLibInstaller.exe") + " " + Process.GetCurrentProcess().Id,
+                                WindowStyle = ProcessWindowStyle.Hidden,
+                                ErrorDialog = true,
+                                UseShellExecute = false,
+                            };
+                            coreLibInstallerPI.WorkingDirectory = Path.GetDirectoryName(coreLibInstallerPI.FileName);
+                            coreLibInstallerProcess = Process.Start(coreLibInstallerPI);
+                        }
+                        else
+                        {
+                            ProcessStartInfo coreLibInstallerPI = new ProcessStartInfo
+                            {
+                                FileName = Path.Combine(Path.Combine(UMFData.UMFPath, "Tools"), "GadgetCore.CoreLibInstaller.exe"),
+                                Arguments = Process.GetCurrentProcess().Id.ToString(),
+                                WindowStyle = ProcessWindowStyle.Hidden,
+                                ErrorDialog = true,
+                                UseShellExecute = false,
+                            };
+                            coreLibInstallerPI.WorkingDirectory = Path.GetDirectoryName(coreLibInstallerPI.FileName);
+                            coreLibInstallerProcess = Process.Start(coreLibInstallerPI);
+                        }
                     }
                     if (File.Exists(Path.Combine(UMFData.ModsPath, "ModInfo.txt")))
                     {
@@ -112,7 +130,7 @@ namespace GadgetCore.API
             }
             catch (Exception e)
             {
-                GadgetCore.Log("Error unpacking mod '" + filePath.Split('\\').Last() + "': " + e.ToString());
+                GadgetCore.Log("Error unpacking mod '" + filePath.Split('\\', '/').Last() + "': " + e.ToString());
                 return false;
             }
         }
