@@ -21,10 +21,10 @@ And it also provides the following additional features:
  - It installs the Mono Patch into your game automatically, so that you do not have to do it yourself.
  - It is able to unpack mod .zips with the click of a button, simplifying the process.
  - It is able to automatically use UPnP to port-forward your game, if your router supports it. (Currently bugged - disabled by default)
+ - It is able to load mod textures without the Mono patch, as well as load Asset Bundles.
 
 Bugs in the current version:
  - UPnP doesn't actually seem to work. Enable at your own risk in the config file. If you take this risk and it works correctly for you, please contact SuperKael and send him your GadgetCore log file.
- - The 'Disable Gadget' option in the mod menu doesn't persist after the restart, thereby making it impossible to disable Gadget mods without disabling the entire UMF mod.
 
 You can package multiple mods into one .zip file to create a simple sort of modpack.
 You can also place folders such as Configs into the zip to distribute those as well.

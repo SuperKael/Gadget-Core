@@ -1,6 +1,9 @@
 using HarmonyLib;
 using GadgetCore.API;
 using UnityEngine;
+using System.IO;
+using UModFramework.API;
+using System.Collections;
 
 namespace GadgetCore.Patches
 {
@@ -13,7 +16,7 @@ namespace GadgetCore.Patches
         {
             InstanceTracker.GameScript = __instance;
             GadgetCore.GenerateSpriteSheet();
-            Graphics.CopyTexture(__instance.TileManager.GetComponent<ChunkWorld>().Texture, 0, 0, 0, 0, 128, 128, GadgetCoreAPI.spriteSheet, 0, 0, 0, 0);
+            GadgetUtils.SafeCopyTexture(__instance.TileManager.GetComponent<ChunkWorld>().Texture, 0, 0, 0, 0, 128, 128, GadgetCoreAPI.spriteSheet, 0, 0, 0, 0);
             __instance.TileManager.GetComponent<ChunkWorld>().Texture = GadgetCoreAPI.spriteSheet;
             __instance.WallManager.GetComponent<ChunkWorld>().Texture = GadgetCoreAPI.spriteSheet;
             foreach (GadgetModInfo mod in GadgetMods.ListAllModInfos())

@@ -1,7 +1,9 @@
 using GadgetCore.API;
+using PreviewLabs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using UModFramework.API;
 
 namespace GadgetCore
@@ -14,7 +16,7 @@ namespace GadgetCore
         /// <summary>
         /// The current version of Gadget Core's config.
         /// </summary>
-        public static readonly string configVersion = "1.1";
+        public static readonly string configVersion = "1.2";
 
         internal static Dictionary<string, bool> enabledMods = new Dictionary<string, bool>();
 
@@ -57,16 +59,19 @@ namespace GadgetCore
                     UseUPnP = cfg.Read("UseUPnP", new UMFConfigBool(false), "If True, will attempt to use UPnP to bypass the need to port-forward to host-and-play over the internet. Not all routers support this.");
                     GadgetNetwork.MatrixTimeout = cfg.Read("NetworkTimeout", new UMFConfigFloat(2.5f), "How long to wait for the host's game to respond to Gadget Core's ID synchronization. If the host's game does not respond in time, it will be assumed that the host does not have Gadget Core installed.");
 
+                    string enabledModsString = PlayerPrefs.GetString("EnabledMods", "");
+                    GadgetCore.Log(enabledModsString);
                     try
                     {
-                        enabledMods = cfg.Read("EnabledMods", new UMFConfigStringArray(new string[0])).Select(x => x.Split(':')).ToDictionary(x => x[0], x => bool.Parse(x[1]));
+                        enabledMods = enabledModsString.Split(',').Select(x => x.Split(':')).ToDictionary(x => x[0], x => bool.Parse(x[1]));
                     }
-                    catch (Exception)
+                    catch (IndexOutOfRangeException)
                     {
-                        GadgetCore.Log("EnabledMods is empty or improperly formatted!");
+                        enabledMods = new Dictionary<string, bool>();
                     }
                     foreach (GadgetModInfo mod in GadgetMods.ListAllModInfos())
                     {
+                        GadgetCore.Log(mod.Attribute.Name + ": " + enabledMods.ContainsKey(mod.Attribute.Name));
                         mod.Mod.Enabled = enabledMods.ContainsKey(mod.Attribute.Name) ? enabledMods[mod.Attribute.Name] : (enabledMods[mod.Attribute.Name] = mod.Attribute.EnableByDefault);
                     }
                     GadgetCore.Log("Finished loading settings.");
@@ -82,18 +87,15 @@ namespace GadgetCore
         {
             try
             {
-                using (UMFConfig cfg = new UMFConfig())
+                foreach (Registry reg in GameRegistry.ListAllRegistries())
                 {
-                    foreach (Registry reg in GameRegistry.ListAllRegistries())
+                    try
                     {
-                        try
-                        {
-                            reg.reservedIDs = cfg.Read("Reserved" + reg.GetRegistryName() + "IDs", new UMFConfigStringArray(new string[0])).Select(x => x.Split('=')).ToDictionary(x => x[0], x => int.Parse(x[1]));
-                        }
-                        catch (Exception)
-                        {
-                            GadgetCore.Log("Reserved" + reg.GetRegistryName() + "IDs is empty or improperly formatted!");
-                        }
+                        reg.reservedIDs = PlayerPrefs.GetString("Reserved" + reg.GetRegistryName() + "IDs", "").Split(',').Select(x => x.Split('=')).ToDictionary(x => x[0], x => int.Parse(x[1]));
+                    }
+                    catch (IndexOutOfRangeException)
+                    {
+                        reg.reservedIDs = new Dictionary<string, int>();
                     }
                 }
             }
@@ -107,14 +109,12 @@ namespace GadgetCore
         {
             try
             {
-                using (UMFConfig cfg = new UMFConfig())
+                PlayerPrefs.SetString("EnabledMods", enabledMods.Select(x => x.Key + ":" + x.Value).Aggregate(new StringBuilder(), (a, b) => { if (a.Length > 0) a.Append(","); a.Append(b); return a; }).ToString());
+                foreach (Registry reg in GameRegistry.ListAllRegistries())
                 {
-                    cfg.Write("EnabledMods", new UMFConfigStringArray(enabledMods.Select(x => x.Key + ":" + x.Value).ToArray()));
-                    foreach (Registry reg in GameRegistry.ListAllRegistries())
-                    {
-                        cfg.Write("Reserved" + reg.GetRegistryName() + "IDs", new UMFConfigStringArray(reg.reservedIDs.Select(x => x.Key + "=" + x.Value).ToArray()));
-                    }
+                    PlayerPrefs.SetString("Reserved" + reg.GetRegistryName() + "IDs", reg.reservedIDs.Select(x => x.Key + "=" + x.Value).Aggregate(new StringBuilder(), (a, b) => { if (a.Length > 0) a.Append(","); a.Append(b); return a; }).ToString());
                 }
+                PlayerPrefs.Flush();
             }
             catch (Exception e)
             {

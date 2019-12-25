@@ -9,3 +9,5 @@ In the case of Tools: Copy (and replace as needed) its contents to /Roguelands/u
 In the case of CoreLibs: Copy (and replace as needed) its contents to /Roguelands/Roguelands_Data/Managed, and then delete the CoreLibs folder within Mods.
 
 And with that, you are done.
+
+On Mac: When copying CoreLibs, instead of copying to /Roguelands/Roguelands_Data/Managed, copy to /Roguelands/Roguelands.app/Contents/Resources/Data/Managed

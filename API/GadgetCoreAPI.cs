@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Ionic.Zip;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -18,7 +19,7 @@ namespace GadgetCore.API
         /// <summary>
         /// The version of Gadget Core.
         /// </summary>
-        public const string VERSION = "1.1.1.1";
+        public const string VERSION = "1.1.3.0";
 
         private static readonly MethodInfo RefreshExpBar = typeof(GameScript).GetMethod("RefreshExpBar", BindingFlags.NonPublic | BindingFlags.Instance);
         private static readonly MethodInfo Crafting = typeof(GameScript).GetMethod("Crafting", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -33,6 +34,7 @@ namespace GadgetCore.API
         internal static Dictionary<string, UnityEngine.Object> resources = new Dictionary<string, UnityEngine.Object>();
         internal static Dictionary<int, string> resourcePaths = new Dictionary<int, string>();
         internal static Dictionary<string, Texture2D> cachedTexes = new Dictionary<string, Texture2D>();
+        internal static Dictionary<string, AssetBundle> cachedBundles = new Dictionary<string, AssetBundle>();
         internal static List<SpriteSheetEntry> spriteSheetSprites = new List<SpriteSheetEntry>();
         internal static int spriteSheetSize = -1;
         internal static Texture2D spriteSheet;
@@ -391,7 +393,7 @@ namespace GadgetCore.API
         /// Use to register a texture for the tile spritesheet. The texture must be 32x32 in size. You probably shouldn't use this yourself - it is automatically called by <see cref="TileInfo"/> after registration. May only be called from <see cref="GadgetMod.Initialize"/>.
         /// </summary>
         /// <param name="sprite">The Texture2D to register to the spritesheet</param>
-        public static SpriteSheetEntry AddTextureToSheet(Texture sprite)
+        public static SpriteSheetEntry AddTextureToSheet(Texture2D sprite)
         {
             if (!Registry.registeringVanilla && Registry.modRegistering < 0) throw new InvalidOperationException("Data registration may only be performed by the Initialize method of a GadgetMod!");
             SpriteSheetEntry entry = new SpriteSheetEntry(sprite, spriteSheetSprites.Count);
@@ -728,18 +730,39 @@ namespace GadgetCore.API
         /// </summary>
         public static Texture2D LoadTexture2D(string file, bool shared = false)
         {
-            string filePath = Path.Combine(Path.Combine(UMFData.AssetsPath, shared ? "Shared" : Assembly.GetCallingAssembly().GetName().Name), file);
+            string modName = shared ? "Shared" : Assembly.GetCallingAssembly().GetName().Name;
+            string filePath = Path.Combine(Path.Combine(UMFData.AssetsPath, modName), file);
             if (cachedTexes.ContainsKey(filePath))
             {
                 return cachedTexes[filePath];
             }
-            if (cachedTexes.ContainsKey(Path.Combine(UMFData.TempPath, file)))
+            string assetPath = Path.Combine(Path.Combine("Assets", modName), file);
+            if (cachedTexes.ContainsKey(Path.Combine(UMFData.TempPath, assetPath)))
             {
-                return cachedTexes[Path.Combine(UMFData.TempPath, file)];
+                return cachedTexes[Path.Combine(UMFData.TempPath, assetPath)];
+            }
+            if (!File.Exists(filePath) && GadgetCore.CoreLib != null)
+            {
+                filePath = Path.Combine(UMFData.TempPath, assetPath);
+                string[] umfmods = Directory.GetFiles(UMFData.ModsPath, (shared ? "" : modName) + "*.umfmod");
+                string[] zipmods = Directory.GetFiles(UMFData.ModsPath, (shared ? "" : modName) + "*.zip");
+                string[] mods = new string[umfmods.Length + zipmods.Length];
+                Array.Copy(umfmods, mods, umfmods.Length);
+                Array.Copy(zipmods, 0, mods, umfmods.Length, zipmods.Length);
+                foreach (string mod in mods)
+                {
+                    using (ZipFile modZip = new ZipFile(mod))
+                    {
+                        if (mod.EndsWith(".umfmod")) GadgetCore.CoreLib.DecryptUMFModFile(modZip);
+                        if (modZip.ContainsEntry(assetPath))
+                        {
+                            modZip[assetPath].Extract(UMFData.TempPath, ExtractExistingFileAction.OverwriteSilently);
+                        }
+                    }
+                }
             }
             if (File.Exists(filePath))
             {
-
                 byte[] fileData;
                 fileData = File.ReadAllBytes(filePath);
                 Texture2D tex = new Texture2D(2, 2);
@@ -749,9 +772,62 @@ namespace GadgetCore.API
                 if (filePath.StartsWith(UMFData.TempPath))
                 {
                     File.Delete(filePath);
-                    Directory.Delete(UMFData.TempPath, true);
+                    GadgetUtils.RecursivelyDeleteDirectory(UMFData.TempPath);
                 }
                 return tex;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Loads an AssetBundle in a similar fashion to LoadTexture2D. Note that the file should not have an extension. AssetBundles would normally have the extension 'assets', but if it did then UMF would try to load it and crash because of a bug in UMF.
+        /// </summary>
+        public static AssetBundle LoadAssetBundle(string file, bool shared = false)
+        {
+            string modName = shared ? "Shared" : Assembly.GetCallingAssembly().GetName().Name;
+            string filePath = Path.Combine(Path.Combine(Path.Combine(Path.GetDirectoryName(UMFData.AssetsPath), "Assets"), modName), file);
+            if (cachedTexes.ContainsKey(filePath))
+            {
+                return cachedBundles[filePath];
+            }
+            string bundlePath = Path.Combine(Path.Combine("Assets", modName), file);
+            if (cachedTexes.ContainsKey(Path.Combine(UMFData.TempPath, bundlePath)))
+            {
+                return cachedBundles[Path.Combine(UMFData.TempPath, bundlePath)];
+            }
+            if (!File.Exists(filePath) && GadgetCore.CoreLib != null)
+            {
+                filePath = Path.Combine(UMFData.TempPath, bundlePath);
+                string[] umfmods = Directory.GetFiles(UMFData.ModsPath, (shared ? "" : modName) + "*.umfmod");
+                string[] zipmods = Directory.GetFiles(UMFData.ModsPath, (shared ? "" : modName) + "*.zip");
+                string[] mods = new string[umfmods.Length + zipmods.Length];
+                Array.Copy(umfmods, mods, umfmods.Length);
+                Array.Copy(zipmods, 0, mods, umfmods.Length, zipmods.Length);
+                foreach (string mod in mods)
+                {
+                    using (ZipFile modZip = new ZipFile(mod))
+                    {
+                        if (mod.EndsWith(".umfmod")) GadgetCore.CoreLib.DecryptUMFModFile(modZip);
+                        if (modZip.ContainsEntry(bundlePath))
+                        {
+                            modZip[bundlePath].Extract(UMFData.TempPath, ExtractExistingFileAction.OverwriteSilently);
+                        }
+                    }
+                }
+            }
+            if (File.Exists(filePath))
+            {
+                AssetBundle bundle = AssetBundle.LoadFromFile(filePath);
+                if (filePath.StartsWith(UMFData.TempPath))
+                {
+                    File.Delete(filePath);
+                    GadgetUtils.RecursivelyDeleteDirectory(UMFData.TempPath);
+                }
+                cachedBundles[filePath] = bundle;
+                return bundle;
             }
             else
             {
@@ -764,12 +840,12 @@ namespace GadgetCore.API
         /// </summary>
         public sealed class SpriteSheetEntry
         {
-            internal readonly Texture tex;
+            internal readonly Texture2D tex;
             internal readonly int index;
 
             internal Vector2 coords;
 
-            internal SpriteSheetEntry(Texture tex, int index)
+            internal SpriteSheetEntry(Texture2D tex, int index)
             {
                 if (tex.width != 32 || tex.height != 32) throw new InvalidOperationException("SpriteSheet textures must be 32x32!");
                 this.tex = tex;

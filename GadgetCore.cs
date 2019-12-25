@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UModFramework.API;
 using UnityEngine.SceneManagement;
 using System.Reflection;
@@ -7,10 +7,11 @@ using System;
 using System.Linq;
 using GadgetCore.API;
 using System.IO;
+using System.Text;
 
 namespace GadgetCore
 {
-    class GadgetCore
+    internal class GadgetCore
     {
         public static bool IsUnpacked { get; private set; }
         public static IGadgetCoreLib CoreLib { get; private set; }
@@ -41,6 +42,7 @@ namespace GadgetCore
                 {
                     CoreLib = Activator.CreateInstance(Assembly.LoadFile(Path.Combine(UMFData.LibrariesPath, "GadgetCoreLib.dll")).GetTypes().First(x => typeof(IGadgetCoreLib).IsAssignableFrom(x))) as IGadgetCoreLib;
                     CoreLib.ProvideLogger(Logger);
+                    //CoreLib.InitializeSteamAPI();
                     LoadModAssemblies();
                     GadgetCoreConfig.Load();
                     InitializeRegistries();
@@ -162,6 +164,7 @@ namespace GadgetCore
             incompatibleMods = new List<string>();
             List<string> modNames = UMFData.ModNames;
             int[] currentVersionNums = GadgetCoreAPI.VERSION.Split('.').Select(x => int.Parse(x)).ToArray();
+            if (currentVersionNums.Length != 4) Array.Resize(ref currentVersionNums, 4);
             for (int i = 0;i < modNames.Count;i++)
             {
                 Assembly assembly = UMFMod.GetMod(modNames[i]);
@@ -175,6 +178,7 @@ namespace GadgetCore
                         {
                             foundGadgetMod = true;
                             int[] targetVersionNums = attribute.TargetGCVersion.Split('.').Select(x => int.Parse(x)).ToArray();
+                            if (targetVersionNums.Length != 4) Array.Resize(ref targetVersionNums, 4);
                             if ((attribute.GadgetVersionSpecificity == VersionSpecificity.MAJOR       && currentVersionNums[0] == targetVersionNums[0] && (currentVersionNums[1] > targetVersionNums[1] || (currentVersionNums[1] == targetVersionNums[1] && (currentVersionNums[2] > targetVersionNums[2] || (currentVersionNums[2] == targetVersionNums[2] && currentVersionNums[3] >= targetVersionNums[3]))))) ||
                                 (attribute.GadgetVersionSpecificity == VersionSpecificity.MINOR       && currentVersionNums[0] == targetVersionNums[0] && currentVersionNums[1] == targetVersionNums[1] && (currentVersionNums[2] > targetVersionNums[2] || (currentVersionNums[2] == targetVersionNums[2] && currentVersionNums[3] >= targetVersionNums[3]))) ||
                                 (attribute.GadgetVersionSpecificity == VersionSpecificity.NONBREAKING && currentVersionNums[0] == targetVersionNums[0] && currentVersionNums[1] == targetVersionNums[1] && currentVersionNums[2] == targetVersionNums[2] && currentVersionNums[3] >= targetVersionNums[3]) ||
@@ -248,7 +252,6 @@ namespace GadgetCore
                 }
             }
 
-            GadgetCoreConfig.Update();
             Log("Finished Identifying Gadget Mods, to load: " + GadgetMods.CountMods());
         }
 
@@ -294,7 +297,7 @@ namespace GadgetCore
                     coords = new Vector2((i - (spritesOnFirstFourRows * 4)) % spritesOnAxis, 4 + ((i - (spritesOnFirstFourRows * 4)) / spritesOnAxis));
                 }
                 GadgetCoreAPI.spriteSheetSprites[i].coords = coords;
-                Graphics.CopyTexture(GadgetCoreAPI.spriteSheetSprites[i].tex, 0, 0, 0, 0, 32, 32, GadgetCoreAPI.spriteSheet, 0, 0, (int)coords.x * 32, (int)coords.y * 32);
+                GadgetUtils.SafeCopyTexture(GadgetCoreAPI.spriteSheetSprites[i].tex, 0, 0, 0, 0, 32, 32, GadgetCoreAPI.spriteSheet, 0, 0, (int)coords.x * 32, (int)coords.y * 32);
             }
         }
 	}

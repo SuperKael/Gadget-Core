@@ -28,7 +28,7 @@ namespace GadgetCore.API
         /// <summary>
         /// The Texture associated with this tile. May be null.
         /// </summary>
-        public virtual Texture Tex { get; protected set; }
+        public virtual Texture2D Tex { get; protected set; }
         /// <summary>
         /// The Material associated with this tile. May be null.
         /// </summary>
@@ -44,7 +44,7 @@ namespace GadgetCore.API
         /// <param name="Type">The <see cref="TileType"/> of this Tile</param>
         /// <param name="Tex">The Texture of this Tile</param>
         /// <param name="Item">The Item that places this tile. Automatically calls <see cref="ItemInfo.SetTile(TileInfo)"/>, so there is no need to do that yourself.</param>
-        public TileInfo(TileType Type, Texture Tex, ItemInfo Item = null)
+        public TileInfo(TileType Type, Texture2D Tex, ItemInfo Item = null)
         {
             this.Type = Type;
             this.Tex = Tex;
@@ -71,7 +71,7 @@ namespace GadgetCore.API
         /// <param name="Tex">The Texture of this Tile</param>
         /// <param name="Prop">The Prop of this Tile. Will be registered as an NPC of the Type is INTERACTIVE</param>
         /// <param name="Item">The Item that places this tile. Automatically calls <see cref="ItemInfo.SetTile(TileInfo)"/>, so there is no need to do that yourself.</param>
-        public TileInfo(TileType Type, Texture Tex, GameObject Prop, ItemInfo Item = null)
+        public TileInfo(TileType Type, Texture2D Tex, GameObject Prop, ItemInfo Item = null)
         {
             this.Type = Type;
             this.Tex = Tex;
@@ -119,7 +119,7 @@ namespace GadgetCore.API
             }
             else if (Mat != null)
             {
-                Tex = Mat.mainTexture;
+                Tex = Mat.mainTexture as Texture2D;
             }
             if (Type == TileType.SOLID || Type == TileType.WALL)
             {

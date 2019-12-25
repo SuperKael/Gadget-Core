@@ -76,8 +76,7 @@ namespace GadgetCore.API
                     }
                     if (Directory.Exists(Path.Combine(UMFData.ModsPath, "CoreLibs")) && coreLibInstallerProcess == null)
                     {
-                        int p = (int)Environment.OSVersion.Platform;
-                        if ((p == 4) || (p == 6) || (p == 128))
+                        if (Environment.OSVersion.Platform != PlatformID.Win32NT)
                         {
                             ProcessStartInfo coreLibInstallerPI = new ProcessStartInfo
                             {

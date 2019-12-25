@@ -38,7 +38,7 @@ namespace GadgetCore
             ModMenuButtonHolder.GetComponent<Animation>().clip = ModMenuButtonHolder.GetComponent<Animation>().GetClip("enterr1");
             GameObject bModMenu = ModMenuButtonHolder.transform.GetChild(0).gameObject;
             bModMenu.name = "bModMenu";
-            Array.ForEach(bModMenu.GetComponentsInChildren<TextMesh>(), x => x.text = GadgetCore.IsUnpacked ? "MOD MENU" : "UNPACK GADGET CORE");
+            Array.ForEach(bModMenu.GetComponentsInChildren<TextMesh>(), x => x.text = GadgetCore.IsUnpacked ? "MOD MENU" : File.Exists(Path.Combine(UMFData.ModsPath, "GadgetCore.dll")) ? "UPDATE GADGET CORE" : "UNPACK GADGET CORE");
             ModMenuBeam.GetComponent<Animation>().Play();
             ModMenuButtonHolder.GetComponent<Animation>().Play();
             if (GadgetCore.IsUnpacked) BuildModMenu();

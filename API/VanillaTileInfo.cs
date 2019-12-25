@@ -14,9 +14,6 @@ namespace GadgetCore.API
     {
         internal static Dictionary<int, VanillaTileInfo> Wrappers = new Dictionary<int, VanillaTileInfo>();
 
-        internal static bool Using;
-        internal static bool Attacking;
-
         /// <summary>
         /// Constructs a new VanillaItemInfo based upon the given ID. Do not try to call this yourself - use <see cref="Wrap"/>
         /// </summary>

@@ -488,7 +488,7 @@
             <param name="path">The pseudo-file-path to place the resource on.</param>
             <param name="resource">The resource to register.</param>
         </member>
-        <member name="M:GadgetCore.API.GadgetCoreAPI.AddTextureToSheet(UnityEngine.Texture)">
+        <member name="M:GadgetCore.API.GadgetCoreAPI.AddTextureToSheet(UnityEngine.Texture2D)">
             <summary>
             Use to register a texture for the tile spritesheet. The texture must be 32x32 in size. You probably shouldn't use this yourself - it is automatically called by <see cref="T:GadgetCore.API.TileInfo"/> after registration. May only be called from <see cref="M:GadgetCore.API.GadgetMod.Initialize"/>.
             </summary>
@@ -703,9 +703,14 @@
             Works like UMFAsset.LoadTexture2D, except it isn't dependent on System.Drawing. Returns null if the texture was not found.
             </summary>
         </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.LoadAssetBundle(System.String,System.Boolean)">
+            <summary>
+            Loads an AssetBundle in a similar fashion to LoadTexture2D. Note that the file should not have an extension. AssetBundles would normally have the extension 'assets', but if it did then UMF would try to load it and crash because of a bug in UMF.
+            </summary>
+        </member>
         <member name="T:GadgetCore.API.GadgetCoreAPI.SpriteSheetEntry">
             <summary>
-            This represents an entry in the tile spritesheet. Returned by <see cref="M:GadgetCore.API.GadgetCoreAPI.AddTextureToSheet(UnityEngine.Texture)"/>
+            This represents an entry in the tile spritesheet. Returned by <see cref="M:GadgetCore.API.GadgetCoreAPI.AddTextureToSheet(UnityEngine.Texture2D)"/>
             </summary>
         </member>
         <member name="M:GadgetCore.API.GadgetCoreAPI.SpriteSheetEntry.GetTex">
@@ -1034,6 +1039,24 @@
             <param name="condition">The condition on which to stop waiting early.</param>
             <param name="invokeInstance">The object to invoke the method on. May be null if the given method is static.</param>
             <param name="parameters">The parameters to pass to the invoked method.</param>
+        </member>
+        <member name="M:GadgetCore.API.GadgetUtils.SafeCopyTexture(UnityEngine.Texture2D,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,UnityEngine.Texture2D,System.Int32,System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Invokes Graphics.CopyTexture on supported systems, otherwise performs the operation using direct pixel manipulation.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetUtils.WildcardMatch(System.String,System.String)">
+            <summary>
+            Uses a recursive algorithm to check if a string matches a given wild
+            </summary>
+            <param name="text"></param>
+            <param name="wild"></param>
+            <returns></returns>
+        </member>
+        <member name="M:GadgetCore.API.GadgetUtils.RecursivelyDeleteDirectory(System.String,System.Boolean)">
+            <summary>
+            Recursively deletes a given directory and its subdirectories. If deleteFiles is false, silently ignores directories containing files.
+            </summary>
         </member>
         <member name="T:GadgetCore.API.GameRegistry">
             <summary>
@@ -2023,7 +2046,7 @@
             The <see cref="T:GadgetCore.API.GadgetCoreAPI.SpriteSheetEntry"/> associated with this tile. Will be null unless the tile's Type is SOLID or WALL.
             </summary>
         </member>
-        <member name="M:GadgetCore.API.TileInfo.#ctor(GadgetCore.API.TileType,UnityEngine.Texture,GadgetCore.API.ItemInfo)">
+        <member name="M:GadgetCore.API.TileInfo.#ctor(GadgetCore.API.TileType,UnityEngine.Texture2D,GadgetCore.API.ItemInfo)">
             <summary>
             Use to create a new TileInfo. This constructor should be used if the Type is SOLID or WALL. Make sure to call Register on it to register your Tile.
             </summary>
@@ -2039,7 +2062,7 @@
             <param name="Mat">The Material of this Tile</param>
             <param name="Item">The Item that places this tile. Automatically calls <see cref="M:GadgetCore.API.ItemInfo.SetTile(GadgetCore.API.TileInfo)"/>, so there is no need to do that yourself.</param>
         </member>
-        <member name="M:GadgetCore.API.TileInfo.#ctor(GadgetCore.API.TileType,UnityEngine.Texture,UnityEngine.GameObject,GadgetCore.API.ItemInfo)">
+        <member name="M:GadgetCore.API.TileInfo.#ctor(GadgetCore.API.TileType,UnityEngine.Texture2D,UnityEngine.GameObject,GadgetCore.API.ItemInfo)">
             <summary>
             Use to create a new TileInfo. This constructor should be used if the Type is NONSOLID or INTERACTIVE. Make sure to call Register on it to register your Tile.
             </summary>
@@ -2265,6 +2288,11 @@
         <member name="M:GadgetCore.IGadgetCoreLib.ForwardPort(System.Int32)">
             <summary>
             Attempts to forward the given port using UPnP. Is a coroutine, so should be treated as such.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.IGadgetCoreLib.DecryptUMFModFile(Ionic.Zip.ZipFile)">
+            <summary>
+            Decrypts the given .umfmod <see cref="T:Ionic.Zip.ZipFile"/>.
             </summary>
         </member>
         <member name="T:GadgetCore.GadgetModHookScript">
