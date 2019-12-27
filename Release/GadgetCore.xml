@@ -375,6 +375,16 @@
             The version of Gadget Core.
             </summary>
         </member>
+        <member name="P:GadgetCore.API.GadgetCoreAPI.ModNames">
+            <summary>
+            List of UMF mod names, not including mod libraries.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.GadgetCoreAPI.LibNames">
+            <summary>
+            List of UMF mod libraries.
+            </summary>
+        </member>
         <member name="M:GadgetCore.API.GadgetCoreAPI.RegisterCustomCraftMenu(System.String,System.String,UnityEngine.Material,UnityEngine.Material,System.Func{Item,System.Int32,System.Boolean},System.Func{Item[],System.Boolean},System.Action{Item[]},GadgetCore.API.TileInfo)">
             <summary>
             Use to register a custom crafting menu. Using RegisterMenu is unnecessary for crafting menus. Note that all crafting menus must have, at most, 3 ingredient slots. Use OpenCraftMenu to open the menu.

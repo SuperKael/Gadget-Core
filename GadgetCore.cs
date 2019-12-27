@@ -36,11 +36,11 @@ namespace GadgetCore
             if (firstLoad)
             {
                 firstLoad = false;
-                IsUnpacked = File.Exists(Path.Combine(UMFData.ModsPath, "GadgetCore.dll")) && File.Exists(Path.Combine(UMFData.LibrariesPath, "GadgetCoreLib.dll")) && !(Directory.GetFiles(UMFData.ModsPath, "GadgetCore*.zip").Length > 0);
+                IsUnpacked = File.Exists(Path.Combine(UMFData.ModsPath, "GadgetCore.dll")) && File.Exists(Path.Combine(Path.Combine(UMFData.ModsPath, "DependentLibs"), "GadgetCoreLib.dll")) && !(Directory.GetFiles(UMFData.ModsPath, "GadgetCore*.zip").Length > 0);
                 LoadMainMenu();
                 if (IsUnpacked)
                 {
-                    CoreLib = Activator.CreateInstance(Assembly.LoadFile(Path.Combine(UMFData.LibrariesPath, "GadgetCoreLib.dll")).GetTypes().First(x => typeof(IGadgetCoreLib).IsAssignableFrom(x))) as IGadgetCoreLib;
+                    CoreLib = Activator.CreateInstance(Assembly.LoadFile(Path.Combine(Path.Combine(UMFData.ModsPath, "DependentLibs"), "GadgetCoreLib.dll")).GetTypes().First(x => typeof(IGadgetCoreLib).IsAssignableFrom(x))) as IGadgetCoreLib;
                     CoreLib.ProvideLogger(Logger);
                     //CoreLib.InitializeSteamAPI();
                     LoadModAssemblies();
@@ -162,7 +162,23 @@ namespace GadgetCore
             nonGadgetMods = new List<string>();
             disabledMods = new List<string>();
             incompatibleMods = new List<string>();
-            List<string> modNames = UMFData.ModNames;
+            List<string> libNames = Directory.GetFiles(UMFData.LibrariesPath).Select(x => Path.GetFileNameWithoutExtension(x)).ToList();
+            List<string> verifiedMods = new List<string>();
+            List<string> verifiedLibs = new List<string>();
+            foreach (string modName in UMFData.ModNames)
+            {
+                if (libNames.Contains(modName))
+                {
+                    verifiedLibs.Add(modName);
+                }
+                else
+                {
+                    verifiedMods.Add(modName);
+                }
+            }
+            GadgetCoreAPI.ModNames = new System.Collections.ObjectModel.ReadOnlyCollection<string>(verifiedMods);
+            GadgetCoreAPI.LibNames = new System.Collections.ObjectModel.ReadOnlyCollection<string>(verifiedLibs);
+            List<string> modNames = verifiedMods;
             int[] currentVersionNums = GadgetCoreAPI.VERSION.Split('.').Select(x => int.Parse(x)).ToArray();
             if (currentVersionNums.Length != 4) Array.Resize(ref currentVersionNums, 4);
             for (int i = 0;i < modNames.Count;i++)

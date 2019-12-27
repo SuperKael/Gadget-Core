@@ -2,6 +2,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -19,7 +20,16 @@ namespace GadgetCore.API
         /// <summary>
         /// The version of Gadget Core.
         /// </summary>
-        public const string VERSION = "1.1.3.0";
+        public const string VERSION = "1.1.3.1";
+
+        /// <summary>
+        /// List of UMF mod names, not including mod libraries.
+        /// </summary>
+        public static ReadOnlyCollection<string> ModNames { get; internal set; }
+        /// <summary>
+        /// List of UMF mod libraries.
+        /// </summary>
+        public static ReadOnlyCollection<string> LibNames { get; internal set; }
 
         private static readonly MethodInfo RefreshExpBar = typeof(GameScript).GetMethod("RefreshExpBar", BindingFlags.NonPublic | BindingFlags.Instance);
         private static readonly MethodInfo Crafting = typeof(GameScript).GetMethod("Crafting", BindingFlags.NonPublic | BindingFlags.Instance);
