@@ -17,6 +17,10 @@ namespace GadgetCore.API.ConfigMenu
         /// </summary>
         public string[] Value { get; protected set; }
         /// <summary>
+        /// Whether to allow multi-key bindings.
+        /// </summary>
+        public readonly bool AllowMultiBind;
+        /// <summary>
         /// The default value of this component.
         /// </summary>
         public readonly string[] DefaultValue;
@@ -36,9 +40,10 @@ namespace GadgetCore.API.ConfigMenu
         /// <summary>
         /// Constructs a new <see cref="GadgetConfigMultiKeybindComponent"/> that serves as one or more buttons where you can enter one or more keybinds. The given <paramref name="valueSetter"/> will be called whenever the keybinds are changed. Be aware that the given height value is only the height of one entry in the list. The actual height can vary depending on the number of set keybinds.
         /// </summary>
-        public GadgetConfigMultiKeybindComponent(BasicGadgetConfigMenu configMenu, string name, string[] value, Action<string[]> valueSetter, bool readOnly = false, string[] defaultValue = null, string[] vanillaValue = null, float height = 0.1f) : base(configMenu, name, height * value.Length)
+        public GadgetConfigMultiKeybindComponent(BasicGadgetConfigMenu configMenu, string name, string[] value, Action<string[]> valueSetter, bool allowMultiBind = true, bool readOnly = false, string[] defaultValue = null, string[] vanillaValue = null, float height = 0.1f) : base(configMenu, name, height * value.Length)
         {
             Value = value;
+            AllowMultiBind = allowMultiBind;
             DefaultValue = defaultValue;
             VanillaValue = vanillaValue;
             ReadOnly = readOnly;
@@ -50,28 +55,31 @@ namespace GadgetCore.API.ConfigMenu
         /// </summary>
         public override void Build(RectTransform parent)
         {
-            StringBuilder nameString = new StringBuilder();
-            int spacesAdded = 0;
-            foreach (char c in Name)
+            if (!string.IsNullOrEmpty(Name))
             {
-                if (nameString.Length > 0 && char.IsUpper(c) && !char.IsUpper(Name[nameString.Length - spacesAdded - 1]) && (Name.Length == 1 || !char.IsUpper(Name[nameString.Length - spacesAdded - 2]) || (Name.Length > 2 && !char.IsUpper(Name[nameString.Length - spacesAdded - 3]))))
+                StringBuilder nameString = new StringBuilder();
+                int spacesAdded = 0;
+                foreach (char c in Name)
                 {
-                    spacesAdded++;
-                    nameString.Append(' ');
+                    if (nameString.Length > 0 && char.IsUpper(c) && !char.IsUpper(Name[nameString.Length - spacesAdded - 1]) && (Name.Length == 1 || !char.IsUpper(Name[nameString.Length - spacesAdded - 2]) || (Name.Length > 2 && !char.IsUpper(Name[nameString.Length - spacesAdded - 3]))))
+                    {
+                        spacesAdded++;
+                        nameString.Append(' ');
+                    }
+                    nameString.Append(nameString.Length > 0 ? c : char.ToUpper(c));
                 }
-                nameString.Append(nameString.Length > 0 ? c : char.ToUpper(c));
+                Text label = new GameObject("Label", typeof(RectTransform), typeof(CanvasRenderer), typeof(Text)).GetComponent<Text>();
+                label.rectTransform.SetParent(parent);
+                label.rectTransform.anchorMin = new Vector2(0f, 0f);
+                label.rectTransform.anchorMax = new Vector2(0.25f, 1f);
+                label.rectTransform.offsetMin = new Vector2(0, 0);
+                label.rectTransform.offsetMax = new Vector2(-10, 0);
+                label.text = nameString + ":";
+                label.font = SceneInjector.ModConfigMenuText.GetComponent<TextMesh>().font;
+                label.fontSize = 12;
+                label.horizontalOverflow = HorizontalWrapMode.Wrap;
+                label.alignment = TextAnchor.MiddleLeft;
             }
-            Text label = new GameObject("Label", typeof(RectTransform), typeof(CanvasRenderer), typeof(Text)).GetComponent<Text>();
-            label.rectTransform.SetParent(parent);
-            label.rectTransform.anchorMin = new Vector2(0f, 1f - (1f / Value.Length));
-            label.rectTransform.anchorMax = new Vector2(0.25f, 1f);
-            label.rectTransform.offsetMin = new Vector2(0, 0);
-            label.rectTransform.offsetMax = new Vector2(-10, 0);
-            label.text = nameString + ":";
-            label.font = SceneInjector.ModConfigMenuText.GetComponent<TextMesh>().font;
-            label.fontSize = 12;
-            label.horizontalOverflow = HorizontalWrapMode.Wrap;
-            label.alignment = TextAnchor.MiddleLeft;
             addButtons.Clear();
             for (int i = 0;i < Value.Length;i++)
             {
@@ -204,7 +212,7 @@ namespace GadgetCore.API.ConfigMenu
                         ValueSetter(Value);
                         foreach (Button addButton in addButtons) addButton.interactable = true;
                     }
-                });
+                }, AllowMultiBind);
             }
             if (Value.Any(x => string.IsNullOrEmpty(x)))
             {

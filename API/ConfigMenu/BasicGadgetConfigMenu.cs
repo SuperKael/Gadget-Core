@@ -19,6 +19,10 @@ namespace GadgetCore.API.ConfigMenu
         /// The parent object of this config menu. Will be null until the menu is built.
         /// </summary>
         public RectTransform MenuParent { get; protected set; }
+        /// <summary>
+        /// Whether this menu has been built yet.
+        /// </summary>
+        public bool HasBuilt { get; protected set; }
 
         /// <summary>
         /// Specifies whether the mod menu should be hidden when this config menu is opened.
@@ -44,7 +48,7 @@ namespace GadgetCore.API.ConfigMenu
         /// </summary>
         public virtual void AddComponent(GadgetConfigComponent component, GadgetConfigComponentAlignment alignment = GadgetConfigComponentAlignment.STANDARD)
         {
-            if (MenuParent != null) throw new InvalidOperationException("GadgetConfigComponents may not be added to a BasicGadgetConfigMenu after the menu has been built!");
+            if (HasBuilt) throw new InvalidOperationException("GadgetConfigComponents may not be added to a BasicGadgetConfigMenu after the menu has been built!");
             component.SetAlignment(alignment);
             ConfigComponents.Add(component);
         }
@@ -54,7 +58,7 @@ namespace GadgetCore.API.ConfigMenu
         /// </summary>
         public virtual void InsertComponent(int index, GadgetConfigComponent component, GadgetConfigComponentAlignment alignment = GadgetConfigComponentAlignment.STANDARD)
         {
-            if (MenuParent != null) throw new InvalidOperationException("GadgetConfigComponents may not be added to a BasicGadgetConfigMenu after the menu has been built!");
+            if (HasBuilt) throw new InvalidOperationException("GadgetConfigComponents may not be added to a BasicGadgetConfigMenu after the menu has been built!");
             component.SetAlignment(alignment);
             ConfigComponents.Insert(Math.Min(index, ConfigComponents.Count - 1), component);
         }
@@ -65,7 +69,8 @@ namespace GadgetCore.API.ConfigMenu
         /// <param name="parent">A <see cref="RectTransform"/> on the Mod Menu canvas intended to be used as the parent object of your config menu. This object will have a large background <see cref="UnityEngine.UI.Image">Image</see> on it, intended to be the background of your config menu. Feel free to change or remove this background. This object will also be enabled and disabled as needed to open and close the config menu.</param>
         public virtual void Build(RectTransform parent)
         {
-            if (MenuParent != null) throw new InvalidOperationException("A BasicGadgetConfigMenu cannot be built again after it has already been built!");
+            if (HasBuilt) throw new InvalidOperationException("A BasicGadgetConfigMenu cannot be built again after it has already been built!");
+            HasBuilt = true;
             MenuParent = parent;
             bool shouldHideModMenu = ShouldHideModMenu();
             Image backgroundImage = new GameObject("Background Image", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image)).GetComponent<Image>();
@@ -306,6 +311,15 @@ namespace GadgetCore.API.ConfigMenu
             }
             menuBodyScrollPanel.transform.localScale = Vector3.one;
             if (scrollPositionCache >= 0) menuBodyScrollPanel.verticalNormalizedPosition = 1 - (scrollPositionCache / (menuBody.anchorMax.y - menuBody.anchorMin.y));
+        }
+
+        /// <summary>
+        /// Removes all <see cref="GadgetConfigComponent"/>s from this <see cref="BasicGadgetConfigMenu"/>. You should call <see cref="Rebuild"/> sometime after this to update the displayed menu.
+        /// </summary>
+        public virtual void Clear()
+        {
+            ConfigComponents.Clear();
+            HasBuilt = false;
         }
 
         /// <summary>

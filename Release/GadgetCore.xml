@@ -187,6 +187,11 @@
             The parent object of this config menu. Will be null until the menu is built.
             </summary>
         </member>
+        <member name="P:GadgetCore.API.ConfigMenu.BasicGadgetConfigMenu.HasBuilt">
+            <summary>
+            Whether this menu has been built yet.
+            </summary>
+        </member>
         <member name="P:GadgetCore.API.ConfigMenu.BasicGadgetConfigMenu.HidesModMenu">
             <summary>
             Specifies whether the mod menu should be hidden when this config menu is opened.
@@ -217,6 +222,11 @@
             Called for every configurable mod and Gadget when the Mod Menu is injected into the title screen. This is called again if the player returns to the title screen after having selected a character. You should never call this yourself.
             </summary>
             <param name="parent">A <see cref="T:UnityEngine.RectTransform"/> on the Mod Menu canvas intended to be used as the parent object of your config menu. This object will have a large background <see cref="T:UnityEngine.UI.Image">Image</see> on it, intended to be the background of your config menu. Feel free to change or remove this background. This object will also be enabled and disabled as needed to open and close the config menu.</param>
+        </member>
+        <member name="M:GadgetCore.API.ConfigMenu.BasicGadgetConfigMenu.Clear">
+            <summary>
+            Removes all <see cref="T:GadgetCore.API.ConfigMenu.GadgetConfigComponent"/>s from this <see cref="T:GadgetCore.API.ConfigMenu.BasicGadgetConfigMenu"/>. You should call <see cref="M:GadgetCore.API.ConfigMenu.BasicGadgetConfigMenu.Rebuild"/> sometime after this to update the displayed menu.
+            </summary>
         </member>
         <member name="M:GadgetCore.API.ConfigMenu.BasicGadgetConfigMenu.Rebuild">
             <summary>
@@ -274,6 +284,26 @@
             </summary>
         </member>
         <member name="M:GadgetCore.API.ConfigMenu.GadgetConfigBoolComponent.Build(UnityEngine.RectTransform)">
+            <summary>
+            Called when <see cref="M:GadgetCore.API.ConfigMenu.BasicGadgetConfigMenu.Build(UnityEngine.RectTransform)"/> is called on the config menu containing this component.
+            </summary>
+        </member>
+        <member name="T:GadgetCore.API.ConfigMenu.GadgetConfigButtonComponent">
+            <summary>
+            This is an implementation of <see cref="T:GadgetCore.API.ConfigMenu.GadgetConfigComponent"/> that serves as a button that can execute arbitrary code when pressed.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ConfigMenu.GadgetConfigButtonComponent.Label">
+            <summary>
+            The label on this button.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ConfigMenu.GadgetConfigButtonComponent.#ctor(GadgetCore.API.ConfigMenu.BasicGadgetConfigMenu,System.String,System.String,System.Action,System.Single)">
+            <summary>
+            Constructs a new <see cref="T:GadgetCore.API.ConfigMenu.GadgetConfigButtonComponent"/> that serves as a button that can execute arbitrary code when pressed. The given <paramref name="trigger"/> will be called whenever the button is pressed.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ConfigMenu.GadgetConfigButtonComponent.Build(UnityEngine.RectTransform)">
             <summary>
             Called when <see cref="M:GadgetCore.API.ConfigMenu.BasicGadgetConfigMenu.Build(UnityEngine.RectTransform)"/> is called on the config menu containing this component.
             </summary>
@@ -513,6 +543,11 @@
             The current value of this component.
             </summary>
         </member>
+        <member name="F:GadgetCore.API.ConfigMenu.GadgetConfigKeybindComponent.AllowMultiBind">
+            <summary>
+            Whether to allow multi-key bindings.
+            </summary>
+        </member>
         <member name="F:GadgetCore.API.ConfigMenu.GadgetConfigKeybindComponent.DefaultValue">
             <summary>
             The default value of this component.
@@ -528,7 +563,7 @@
             Whether this component is read-only.
             </summary>
         </member>
-        <member name="M:GadgetCore.API.ConfigMenu.GadgetConfigKeybindComponent.#ctor(GadgetCore.API.ConfigMenu.BasicGadgetConfigMenu,System.String,System.String,System.Action{System.String},System.Boolean,System.String,System.String,System.Single)">
+        <member name="M:GadgetCore.API.ConfigMenu.GadgetConfigKeybindComponent.#ctor(GadgetCore.API.ConfigMenu.BasicGadgetConfigMenu,System.String,System.String,System.Action{System.String},System.Boolean,System.Boolean,System.String,System.String,System.Single)">
             <summary>
             Constructs a new <see cref="T:GadgetCore.API.ConfigMenu.GadgetConfigKeybindComponent"/> that serves as a button where you can enter a keybind. The given <paramref name="valueSetter"/> will be called whenever the keybind is changed.
             </summary>
@@ -573,6 +608,11 @@
             The current value of this component.
             </summary>
         </member>
+        <member name="F:GadgetCore.API.ConfigMenu.GadgetConfigMultiKeybindComponent.AllowMultiBind">
+            <summary>
+            Whether to allow multi-key bindings.
+            </summary>
+        </member>
         <member name="F:GadgetCore.API.ConfigMenu.GadgetConfigMultiKeybindComponent.DefaultValue">
             <summary>
             The default value of this component.
@@ -588,7 +628,7 @@
             Whether this component is read-only.
             </summary>
         </member>
-        <member name="M:GadgetCore.API.ConfigMenu.GadgetConfigMultiKeybindComponent.#ctor(GadgetCore.API.ConfigMenu.BasicGadgetConfigMenu,System.String,System.String[],System.Action{System.String[]},System.Boolean,System.String[],System.String[],System.Single)">
+        <member name="M:GadgetCore.API.ConfigMenu.GadgetConfigMultiKeybindComponent.#ctor(GadgetCore.API.ConfigMenu.BasicGadgetConfigMenu,System.String,System.String[],System.Action{System.String[]},System.Boolean,System.Boolean,System.String[],System.String[],System.Single)">
             <summary>
             Constructs a new <see cref="T:GadgetCore.API.ConfigMenu.GadgetConfigMultiKeybindComponent"/> that serves as one or more buttons where you can enter one or more keybinds. The given <paramref name="valueSetter"/> will be called whenever the keybinds are changed. Be aware that the given height value is only the height of one entry in the list. The actual height can vary depending on the number of set keybinds.
             </summary>
@@ -802,6 +842,11 @@
             <param name="hidesModMenu">Specifies whether the mod menu should be hidden when this config menu is opened.</param>
             <param name="configFilePath">Specifies the location of the config file to reference. If left unspecified, the standard config file for your mod will be used.</param>
             <param name="readonlyEntries">All config entries that match names in this list will be displayed as read-only.</param>
+        </member>
+        <member name="M:GadgetCore.API.ConfigMenu.UMFGadgetConfigMenu.LoadConfigFile(System.String,System.String,System.String[])">
+            <summary>
+            Loads the given config file, and adds all of the entries within to this <see cref="T:GadgetCore.API.ConfigMenu.UMFGadgetConfigMenu"/>
+            </summary>
         </member>
         <member name="M:GadgetCore.API.ConfigMenu.UMFGadgetConfigMenu.AlignConfigEntry(System.String)">
             <summary>

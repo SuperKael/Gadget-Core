@@ -44,6 +44,28 @@ namespace GadgetCore.API.ConfigMenu
         public UMFGadgetConfigMenu(string section, bool hidesModMenu = false, string configFilePath = null, params string[] readonlyEntries) : base(hidesModMenu)
         {
             if (configFilePath == null) configFilePath = Path.Combine(UMFData.ConfigsPath, Assembly.GetCallingAssembly().GetName().Name) + ".ini";
+            LoadConfigFile(configFilePath, section, readonlyEntries);
+        }
+
+        /// <summary>
+        /// Loads the given config file, and adds all of the entries within to this <see cref="UMFGadgetConfigMenu"/>
+        /// </summary>
+        protected virtual void LoadConfigFile(string configFilePath, string section, params string[] readonlyEntries)
+        {
+            if (!File.Exists(configFilePath))
+            {
+                AddComponent(new GadgetConfigLabelComponent(this, "No Config File", "This mod had no config file when this menu was generated."));
+                AddComponent(new GadgetConfigLabelComponent(this, "No Config File", "Perhaps it was just installed?"));
+                AddComponent(new GadgetConfigLabelComponent(this, "No Config File", "Click the button to reload this config menu."));
+                AddComponent(new GadgetConfigSpacerComponent(this, "Spacer"));
+                AddComponent(new GadgetConfigButtonComponent(this, null, "Refresh Config File", () =>
+                {
+                    Clear();
+                    LoadConfigFile(configFilePath, section, readonlyEntries);
+                    Rebuild();
+                }, 0.25f));
+                return;
+            }
             ConfigFilePath = configFilePath;
             IniParser = new FileIniDataParser();
             Ini = IniParser.ReadFile(configFilePath);
@@ -199,7 +221,7 @@ namespace GadgetCore.API.ConfigMenu
                             string stringVanillaValue = vanillaValueString;
                             if (keyData.Comments.Contains("[IsKeyBind: True]"))
                             {
-                                AddComponent(new GadgetConfigKeybindComponent(this, keyData.KeyName, stringValue, (s) => SetConfigValue(section, keyData.KeyName, s), readonlyEntries.Contains(keyData.KeyName), stringDefaultValue, stringVanillaValue), alignment);
+                                AddComponent(new GadgetConfigKeybindComponent(this, keyData.KeyName, stringValue, (s) => SetConfigValue(section, keyData.KeyName, s), readonlyEntries.Contains(keyData.KeyName), true, stringDefaultValue, stringVanillaValue), alignment);
                             }
                             else
                             {
@@ -212,12 +234,18 @@ namespace GadgetCore.API.ConfigMenu
                             string[] stringArrayVanillaValue = vanillaValueString?.Split(',');
                             if (keyData.Comments.Contains("[IsKeyBind: True]"))
                             {
-                                AddComponent(new GadgetConfigMultiKeybindComponent(this, keyData.KeyName, stringArrayValue, (s) => SetConfigValue(section, keyData.KeyName, s?.Aggregate(new StringBuilder(), (x, y) => { if (x.Length > 0) x.Append(','); x.Append(y); return x; })?.ToString()), readonlyEntries.Contains(keyData.KeyName), stringArrayDefaultValue, stringArrayVanillaValue), alignment);
+                                AddComponent(new GadgetConfigMultiKeybindComponent(this, keyData.KeyName, stringArrayValue, (s) => SetConfigValue(section, keyData.KeyName, s?.Aggregate(new StringBuilder(), (x, y) => { if (x.Length > 0) x.Append(','); x.Append(y); return x; })?.ToString()), readonlyEntries.Contains(keyData.KeyName), true, stringArrayDefaultValue, stringArrayVanillaValue), alignment);
                             }
                             else
                             {
                                 AddComponent(new GadgetConfigMultiStringComponent(this, keyData.KeyName, stringArrayValue, (s) => SetConfigValue(section, keyData.KeyName, s?.Aggregate(new StringBuilder(), (x, y) => { if (x.Length > 0) x.Append(','); x.Append(y); return x; })?.ToString()), readonlyEntries.Contains(keyData.KeyName), stringArrayDefaultValue, stringArrayVanillaValue), alignment);
                             }
+                            break;
+                        case "KeyCode":
+                            string keyCodeValue = keyData.Value;
+                            string keyCodeDefaultValue = defaultValueString;
+                            string keyCodeVanillaValue = vanillaValueString;
+                            AddComponent(new GadgetConfigKeybindComponent(this, keyData.KeyName, keyCodeValue, (s) => SetConfigValue(section, keyData.KeyName, s), readonlyEntries.Contains(keyData.KeyName), false, keyCodeDefaultValue, keyCodeVanillaValue), alignment);
                             break;
                         default: continue;
                     }

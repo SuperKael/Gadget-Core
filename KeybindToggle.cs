@@ -19,11 +19,13 @@ namespace GadgetCore
         private Toggle toggle;
         private List<string> keyList;
         private Action<string> keybindSetter;
+        private bool allowMultiBind;
         private bool clickSkip;
-        public void Init(Toggle toggle, Action<string> keybindSetter)
+        public void Init(Toggle toggle, Action<string> keybindSetter, bool allowMultiBind)
         {
             this.toggle = toggle;
             this.keybindSetter = keybindSetter;
+            this.allowMultiBind = allowMultiBind;
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Code Quality", "IDE0051:Remove unused private members", Justification = "Unity Event")]
@@ -43,6 +45,10 @@ namespace GadgetCore
                 {
                     if (key != KeyCode.Escape && Input.GetKeyDown(key))
                     {
+                        if (!allowMultiBind)
+                        {
+                            keyList = new List<string>();
+                        }
                         keyList.Add(key.ToString());
                         keybindSetter(keyList.Aggregate(new StringBuilder(), (a, b) => { if (a.Length > 0) a.Append('+'); a.Append(b); return a; }).ToString());
                     }

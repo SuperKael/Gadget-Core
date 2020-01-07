@@ -75,7 +75,7 @@ namespace GadgetCore.API.ConfigMenu
         /// </summary>
         public void SetAlignment(GadgetConfigComponentAlignment alignment)
         {
-            if (ConfigMenu.MenuParent != null) throw new InvalidOperationException("A GadgetConfigComponent's alignment cannot be set after it has been built!");
+            if (ConfigMenu.HasBuilt) throw new InvalidOperationException("A GadgetConfigComponent's alignment cannot be set after it has been built!");
             Alignment = alignment;
         }
     }

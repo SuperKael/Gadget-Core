@@ -58,28 +58,31 @@ namespace GadgetCore.API.ConfigMenu
         /// </summary>
         public override void Build(RectTransform parent)
         {
-            StringBuilder nameString = new StringBuilder();
-            int spacesAdded = 0;
-            foreach (char c in Name)
+            if (!string.IsNullOrEmpty(Name))
             {
-                if (nameString.Length > 0 && char.IsUpper(c) && !char.IsUpper(Name[nameString.Length - spacesAdded - 1]) && (Name.Length == 1 || !char.IsUpper(Name[nameString.Length - spacesAdded - 2]) || (Name.Length > 2 && !char.IsUpper(Name[nameString.Length - spacesAdded - 3]))))
+                StringBuilder nameString = new StringBuilder();
+                int spacesAdded = 0;
+                foreach (char c in Name)
                 {
-                    spacesAdded++;
-                    nameString.Append(' ');
+                    if (nameString.Length > 0 && char.IsUpper(c) && !char.IsUpper(Name[nameString.Length - spacesAdded - 1]) && (Name.Length == 1 || !char.IsUpper(Name[nameString.Length - spacesAdded - 2]) || (Name.Length > 2 && !char.IsUpper(Name[nameString.Length - spacesAdded - 3]))))
+                    {
+                        spacesAdded++;
+                        nameString.Append(' ');
+                    }
+                    nameString.Append(nameString.Length > 0 ? c : char.ToUpper(c));
                 }
-                nameString.Append(nameString.Length > 0 ? c : char.ToUpper(c));
+                Text label = new GameObject("Label", typeof(RectTransform), typeof(CanvasRenderer), typeof(Text)).GetComponent<Text>();
+                label.rectTransform.SetParent(parent);
+                label.rectTransform.anchorMin = new Vector2(0f, 0f);
+                label.rectTransform.anchorMax = new Vector2(0.25f, 1f);
+                label.rectTransform.offsetMin = new Vector2(0, 0);
+                label.rectTransform.offsetMax = new Vector2(-10, 0);
+                label.text = nameString + ":";
+                label.font = SceneInjector.ModConfigMenuText.GetComponent<TextMesh>().font;
+                label.fontSize = 12;
+                label.horizontalOverflow = HorizontalWrapMode.Wrap;
+                label.alignment = TextAnchor.MiddleLeft;
             }
-            Text label = new GameObject("Label", typeof(RectTransform), typeof(CanvasRenderer), typeof(Text)).GetComponent<Text>();
-            label.rectTransform.SetParent(parent);
-            label.rectTransform.anchorMin = new Vector2(0f, 0f);
-            label.rectTransform.anchorMax = new Vector2(0.25f, 1f);
-            label.rectTransform.offsetMin = new Vector2(0f, 0f);
-            label.rectTransform.offsetMax = new Vector2(-10f, 0f);
-            label.text = nameString + ":";
-            label.font = SceneInjector.ModConfigMenuText.GetComponent<TextMesh>().font;
-            label.fontSize = 12;
-            label.horizontalOverflow = HorizontalWrapMode.Wrap;
-            label.alignment = TextAnchor.MiddleLeft;
             InputField textbox = new GameObject("Textbox", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(InputField)).GetComponent<InputField>();
             textbox.GetComponent<RectTransform>().SetParent(parent);
             textbox.GetComponent<RectTransform>().anchorMin = new Vector2(0.25f, 0f);
