@@ -59,8 +59,6 @@ namespace GadgetCore
                     UseUPnP = cfg.Read("UseUPnP", new UMFConfigBool(false), "If True, will attempt to use UPnP to bypass the need to port-forward to host-and-play over the internet. Not all routers support this. Disabled by default due to severe unresolved bugs that prevent the game from working at all sometimes.");
                     GadgetNetwork.MatrixTimeout = cfg.Read("NetworkTimeout", new UMFConfigFloat(2.5f), "How long to wait for the host's game to respond to Gadget Core's ID synchronization. If the host's game does not respond in time, it will be assumed that the host does not have Gadget Core installed.");
 
-                    cfg.Read("TestStringArray", new UMFConfigStringArray(new string[] { "Foo", "Bar" }, false));
-
                     string enabledModsString = PlayerPrefs.GetString("EnabledMods", "");
                     try
                     {
