@@ -49,6 +49,10 @@
       <HintPath>D:\Program Files (x86)\Steam\steamapps\common\Roguelands\Roguelands_Data\Managed\Assembly-CSharp.dll</HintPath>
       <Private>false</Private>
     </Reference>
+    <Reference Include="INIFileParser">
+      <HintPath>D:\Program Files (x86)\Steam\steamapps\common\Roguelands\uModFramework\Lib\net35\INIFileParser.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
     <Reference Include="Ionic.Zip.Unity">
       <HintPath>D:\Program Files (x86)\Steam\steamapps\common\Roguelands\uModFramework\Lib\net35\Ionic.Zip.Unity.dll</HintPath>
       <Private>false</Private>
@@ -82,6 +86,15 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <None Update="Assets\GadgetCore\barsprite.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\GadgetCore\boxmask.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\GadgetCore\boxsprite.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Assets\GadgetCore\modmenu.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

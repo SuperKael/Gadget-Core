@@ -55,12 +55,13 @@ namespace GadgetCore
 
                     GadgetCore.Log("Finished UMF Settings.");
 
-                    MaxConnections = cfg.Read("MaxConnections", new UMFConfigInt(4), "The maximum number of connections allowed when using host-and-play. This setting only matters on the host.");
-                    UseUPnP = cfg.Read("UseUPnP", new UMFConfigBool(false), "If True, will attempt to use UPnP to bypass the need to port-forward to host-and-play over the internet. Not all routers support this.");
+                    MaxConnections = cfg.Read("MaxConnections", new UMFConfigInt(4, 1, int.MaxValue, 4), "The maximum number of connections allowed when using host-and-play. This setting only matters on the host.");
+                    UseUPnP = cfg.Read("UseUPnP", new UMFConfigBool(false), "If True, will attempt to use UPnP to bypass the need to port-forward to host-and-play over the internet. Not all routers support this. Disabled by default due to severe unresolved bugs that prevent the game from working at all sometimes.");
                     GadgetNetwork.MatrixTimeout = cfg.Read("NetworkTimeout", new UMFConfigFloat(2.5f), "How long to wait for the host's game to respond to Gadget Core's ID synchronization. If the host's game does not respond in time, it will be assumed that the host does not have Gadget Core installed.");
 
+                    cfg.Read("TestStringArray", new UMFConfigStringArray(new string[] { "Foo", "Bar" }, false));
+
                     string enabledModsString = PlayerPrefs.GetString("EnabledMods", "");
-                    GadgetCore.Log(enabledModsString);
                     try
                     {
                         enabledMods = enabledModsString.Split(',').Select(x => x.Split(':')).ToDictionary(x => x[0], x => bool.Parse(x[1]));
@@ -71,7 +72,6 @@ namespace GadgetCore
                     }
                     foreach (GadgetModInfo mod in GadgetMods.ListAllModInfos())
                     {
-                        GadgetCore.Log(mod.Attribute.Name + ": " + enabledMods.ContainsKey(mod.Attribute.Name));
                         mod.Mod.Enabled = enabledMods.ContainsKey(mod.Attribute.Name) ? enabledMods[mod.Attribute.Name] : (enabledMods[mod.Attribute.Name] = mod.Attribute.EnableByDefault);
                     }
                     GadgetCore.Log("Finished loading settings.");

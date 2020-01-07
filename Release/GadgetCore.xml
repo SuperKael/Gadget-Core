@@ -172,6 +172,648 @@
             This chip is active, and can be activated. Note that active chips can still grant passive effects, if you desire.
             </summary>
         </member>
+        <member name="T:GadgetCore.API.ConfigMenu.BasicGadgetConfigMenu">
+            <summary>
+            Basic <see cref="T:GadgetCore.API.ConfigMenu.IGadgetConfigMenu"/> implementation that displays a list of <see cref="T:GadgetCore.API.ConfigMenu.GadgetConfigComponent"/>s.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ConfigMenu.BasicGadgetConfigMenu.ConfigComponents">
+            <summary>
+            List of <see cref="T:GadgetCore.API.ConfigMenu.GadgetConfigComponent"/>s on this config menu.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.ConfigMenu.BasicGadgetConfigMenu.MenuParent">
+            <summary>
+            The parent object of this config menu. Will be null until the menu is built.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.ConfigMenu.BasicGadgetConfigMenu.HidesModMenu">
+            <summary>
+            Specifies whether the mod menu should be hidden when this config menu is opened.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ConfigMenu.BasicGadgetConfigMenu.scrollPositionCache">
+            <summary>
+            Used to cache the scroll position of the body ScrollRect. Allows preservation of scroll level on rebuild.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ConfigMenu.BasicGadgetConfigMenu.#ctor(System.Boolean,GadgetCore.API.ConfigMenu.GadgetConfigComponent[])">
+            <summary>
+            Constructs a new instance of <see cref="T:GadgetCore.API.ConfigMenu.BasicGadgetConfigMenu"/>. Optionally adds <see cref="T:GadgetCore.API.ConfigMenu.GadgetConfigComponent"/>s in the process. <see cref="T:GadgetCore.API.ConfigMenu.GadgetConfigComponent"/>s can also be added later using <see cref="M:GadgetCore.API.ConfigMenu.BasicGadgetConfigMenu.AddComponent(GadgetCore.API.ConfigMenu.GadgetConfigComponent,GadgetCore.API.ConfigMenu.GadgetConfigComponentAlignment)"/>, but only before the menu is built.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ConfigMenu.BasicGadgetConfigMenu.AddComponent(GadgetCore.API.ConfigMenu.GadgetConfigComponent,GadgetCore.API.ConfigMenu.GadgetConfigComponentAlignment)">
+            <summary>
+            Adds a <see cref="T:GadgetCore.API.ConfigMenu.GadgetConfigComponent"/> to this config menu. May only be called before the menu is built.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ConfigMenu.BasicGadgetConfigMenu.InsertComponent(System.Int32,GadgetCore.API.ConfigMenu.GadgetConfigComponent,GadgetCore.API.ConfigMenu.GadgetConfigComponentAlignment)">
+            <summary>
+            Adds a <see cref="T:GadgetCore.API.ConfigMenu.GadgetConfigComponent"/> to this config menu, at a specified index in the component array. May only be called before the menu is built.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ConfigMenu.BasicGadgetConfigMenu.Build(UnityEngine.RectTransform)">
+            <summary>
+            Called for every configurable mod and Gadget when the Mod Menu is injected into the title screen. This is called again if the player returns to the title screen after having selected a character. You should never call this yourself.
+            </summary>
+            <param name="parent">A <see cref="T:UnityEngine.RectTransform"/> on the Mod Menu canvas intended to be used as the parent object of your config menu. This object will have a large background <see cref="T:UnityEngine.UI.Image">Image</see> on it, intended to be the background of your config menu. Feel free to change or remove this background. This object will also be enabled and disabled as needed to open and close the config menu.</param>
+        </member>
+        <member name="M:GadgetCore.API.ConfigMenu.BasicGadgetConfigMenu.Rebuild">
+            <summary>
+            Called whenever this mod's config menu is opened. The parent <see cref="T:UnityEngine.RectTransform"/> that was passed to <see cref="M:GadgetCore.API.ConfigMenu.BasicGadgetConfigMenu.Build(UnityEngine.RectTransform)"/> will be enabled immediately after this method is called. You should never call this yourself.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ConfigMenu.BasicGadgetConfigMenu.Render">
+            <summary>
+            Called whenever this mod's config menu is opened. The parent <see cref="T:UnityEngine.RectTransform"/> that was passed to <see cref="M:GadgetCore.API.ConfigMenu.BasicGadgetConfigMenu.Build(UnityEngine.RectTransform)"/> will be enabled immediately after this method is called. You should never call this yourself.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ConfigMenu.BasicGadgetConfigMenu.Derender">
+            <summary>
+            Called whenever this mod's config menu is closed. The parent <see cref="T:UnityEngine.RectTransform"/> that was passed to <see cref="M:GadgetCore.API.ConfigMenu.BasicGadgetConfigMenu.Build(UnityEngine.RectTransform)"/> will be disabled immediately before this method is called. You should never call this yourself.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ConfigMenu.BasicGadgetConfigMenu.Update">
+            <summary>
+            Called whenever the config menu's contents are updated in some way. You should probably call this yourself whenever the config menu's contents are updated somehow.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ConfigMenu.BasicGadgetConfigMenu.ShouldHideModMenu">
+            <summary>
+            Called when this config menu is opened, to check whether the mod menu behind your config menu should be hidden when your config menu is opened.
+            </summary>
+        </member>
+        <member name="T:GadgetCore.API.ConfigMenu.GadgetConfigBoolComponent">
+            <summary>
+            This is an implementation of <see cref="T:GadgetCore.API.ConfigMenu.GadgetConfigComponent"/> that serves as a pair of toggles for representing a bool-based config value.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.ConfigMenu.GadgetConfigBoolComponent.Value">
+            <summary>
+            The current value of this component.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ConfigMenu.GadgetConfigBoolComponent.DefaultValue">
+            <summary>
+            The default value of this component.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ConfigMenu.GadgetConfigBoolComponent.VanillaValue">
+            <summary>
+            The vanilla value of this component.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ConfigMenu.GadgetConfigBoolComponent.ReadOnly">
+            <summary>
+            Whether this component is read-only.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ConfigMenu.GadgetConfigBoolComponent.#ctor(GadgetCore.API.ConfigMenu.BasicGadgetConfigMenu,System.String,System.Boolean,System.Action{System.Boolean},System.Boolean,System.Nullable{System.Boolean},System.Nullable{System.Boolean},System.Single)">
+            <summary>
+            Constructs a new <see cref="T:GadgetCore.API.ConfigMenu.GadgetConfigBoolComponent"/> that serves as a pair of toggles for representing a bool-based config value. The given <paramref name="valueSetter"/> will be called whenever the value is changed.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ConfigMenu.GadgetConfigBoolComponent.Build(UnityEngine.RectTransform)">
+            <summary>
+            Called when <see cref="M:GadgetCore.API.ConfigMenu.BasicGadgetConfigMenu.Build(UnityEngine.RectTransform)"/> is called on the config menu containing this component.
+            </summary>
+        </member>
+        <member name="T:GadgetCore.API.ConfigMenu.GadgetConfigComponent">
+            <summary>
+            A component intended to be used in a <see cref="T:GadgetCore.API.ConfigMenu.BasicGadgetConfigMenu"/> representing a single config entry.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.ConfigMenu.GadgetConfigComponent.ConfigMenu">
+            <summary>
+            The <see cref="T:GadgetCore.API.ConfigMenu.BasicGadgetConfigMenu"/> that this component is a part of.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.ConfigMenu.GadgetConfigComponent.Name">
+            <summary>
+            The name of this component.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.ConfigMenu.GadgetConfigComponent.Height">
+            <summary>
+            Indicates how tall this component is, as a percentage of the total height of the config menu.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.ConfigMenu.GadgetConfigComponent.Alignment">
+            <summary>
+            Specifies the alignment of this component. 
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ConfigMenu.GadgetConfigComponent.#ctor(GadgetCore.API.ConfigMenu.BasicGadgetConfigMenu,System.String,System.Single)">
+            <summary>
+            Constructs a new component with the given name and height.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ConfigMenu.GadgetConfigComponent.Build(UnityEngine.RectTransform)">
+            <summary>
+            Called when <see cref="M:GadgetCore.API.ConfigMenu.BasicGadgetConfigMenu.Build(UnityEngine.RectTransform)"/> is called on the config menu containing this component.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ConfigMenu.GadgetConfigComponent.Render">
+            <summary>
+            Called when <see cref="M:GadgetCore.API.ConfigMenu.BasicGadgetConfigMenu.Render"/> is called on the config menu containing this component.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ConfigMenu.GadgetConfigComponent.Derender">
+            <summary>
+            Called when <see cref="M:GadgetCore.API.ConfigMenu.BasicGadgetConfigMenu.Derender"/> is called on the config menu containing this component.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ConfigMenu.GadgetConfigComponent.Update">
+            <summary>
+            Called when <see cref="M:GadgetCore.API.ConfigMenu.BasicGadgetConfigMenu.Update"/> is called on the config menu containing this component.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ConfigMenu.GadgetConfigComponent.UpdateHeight(System.Single)">
+            <summary>
+            Use to change the height of this component. Will trigger the config menu to update all components. As such, do not call this as part of <see cref="M:GadgetCore.API.ConfigMenu.GadgetConfigComponent.Update"/>, or you will cause a <see cref="T:System.StackOverflowException"/>.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ConfigMenu.GadgetConfigComponent.SetAlignment(GadgetCore.API.ConfigMenu.GadgetConfigComponentAlignment)">
+            <summary>
+            Sets the alignment of this component. You should not call this yourself, and this must not be called after the component has been built.
+            </summary>
+        </member>
+        <member name="T:GadgetCore.API.ConfigMenu.GadgetConfigComponentAlignment">
+            <summary>
+            Specifies the alignment of a component in the config menu.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ConfigMenu.GadgetConfigComponentAlignment.STANDARD">
+            <summary>
+            The component will be positioned in the main body of the config menu.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ConfigMenu.GadgetConfigComponentAlignment.HEADER">
+            <summary>
+            The component will be positioned as a non-scrolling header to the config menu. 
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ConfigMenu.GadgetConfigComponentAlignment.FOOTER">
+            <summary>
+            The component will be positioned as a non-scrolling footer to the config menu.
+            </summary>
+        </member>
+        <member name="T:GadgetCore.API.ConfigMenu.GadgetConfigDoubleComponent">
+            <summary>
+            This is an implementation of <see cref="T:GadgetCore.API.ConfigMenu.GadgetConfigComponent"/> that serves as a input field for representing an double-based config value.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.ConfigMenu.GadgetConfigDoubleComponent.Value">
+            <summary>
+            The current value of this component.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ConfigMenu.GadgetConfigDoubleComponent.MinValue">
+            <summary>
+            The minimum value of this component. If <see cref="F:GadgetCore.API.ConfigMenu.GadgetConfigDoubleComponent.MinValue"/> is not less than <see cref="F:GadgetCore.API.ConfigMenu.GadgetConfigDoubleComponent.MaxValue"/>, then they are ignored.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ConfigMenu.GadgetConfigDoubleComponent.MaxValue">
+            <summary>
+            The maximum value of this component. If <see cref="F:GadgetCore.API.ConfigMenu.GadgetConfigDoubleComponent.MinValue"/> is not less than <see cref="F:GadgetCore.API.ConfigMenu.GadgetConfigDoubleComponent.MaxValue"/>, then they are ignored.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ConfigMenu.GadgetConfigDoubleComponent.Decimals">
+            <summary>
+            The level of decimal precision to allow in the input. If this is negative, then it is ignored.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ConfigMenu.GadgetConfigDoubleComponent.DefaultValue">
+            <summary>
+            The default value of this component.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ConfigMenu.GadgetConfigDoubleComponent.VanillaValue">
+            <summary>
+            The vanilla value of this component.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ConfigMenu.GadgetConfigDoubleComponent.ReadOnly">
+            <summary>
+            Whether this component is read-only.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ConfigMenu.GadgetConfigDoubleComponent.#ctor(GadgetCore.API.ConfigMenu.BasicGadgetConfigMenu,System.String,System.Double,System.Action{System.Double},System.Double,System.Double,System.Int32,System.Boolean,System.Nullable{System.Double},System.Nullable{System.Double},System.Single)">
+            <summary>
+            Constructs a new <see cref="T:GadgetCore.API.ConfigMenu.GadgetConfigDoubleComponent"/> that serves as a input field for representing an double-based config value. The given <paramref name="valueSetter"/> will be called whenever the input field's contents are changed.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ConfigMenu.GadgetConfigDoubleComponent.Build(UnityEngine.RectTransform)">
+            <summary>
+            Called when <see cref="M:GadgetCore.API.ConfigMenu.BasicGadgetConfigMenu.Build(UnityEngine.RectTransform)"/> is called on the config menu containing this component.
+            </summary>
+        </member>
+        <member name="T:GadgetCore.API.ConfigMenu.GadgetConfigFloatComponent">
+            <summary>
+            This is an implementation of <see cref="T:GadgetCore.API.ConfigMenu.GadgetConfigComponent"/> that serves as a input field for representing an float-based config value.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.ConfigMenu.GadgetConfigFloatComponent.Value">
+            <summary>
+            The current value of this component.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ConfigMenu.GadgetConfigFloatComponent.MinValue">
+            <summary>
+            The minimum value of this component. If <see cref="F:GadgetCore.API.ConfigMenu.GadgetConfigFloatComponent.MinValue"/> is not less than <see cref="F:GadgetCore.API.ConfigMenu.GadgetConfigFloatComponent.MaxValue"/>, then they are ignored.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ConfigMenu.GadgetConfigFloatComponent.MaxValue">
+            <summary>
+            The maximum value of this component. If <see cref="F:GadgetCore.API.ConfigMenu.GadgetConfigFloatComponent.MinValue"/> is not less than <see cref="F:GadgetCore.API.ConfigMenu.GadgetConfigFloatComponent.MaxValue"/>, then they are ignored.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ConfigMenu.GadgetConfigFloatComponent.Decimals">
+            <summary>
+            The level of decimal precision to allow in the input. If this is negative, then it is ignored.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ConfigMenu.GadgetConfigFloatComponent.DefaultValue">
+            <summary>
+            The default value of this component.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ConfigMenu.GadgetConfigFloatComponent.VanillaValue">
+            <summary>
+            The vanilla value of this component.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ConfigMenu.GadgetConfigFloatComponent.ReadOnly">
+            <summary>
+            Whether this component is read-only.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ConfigMenu.GadgetConfigFloatComponent.#ctor(GadgetCore.API.ConfigMenu.BasicGadgetConfigMenu,System.String,System.Single,System.Action{System.Single},System.Single,System.Single,System.Int32,System.Boolean,System.Nullable{System.Single},System.Nullable{System.Single},System.Single)">
+            <summary>
+            Constructs a new <see cref="T:GadgetCore.API.ConfigMenu.GadgetConfigFloatComponent"/> that serves as a input field for representing an float-based config value. The given <paramref name="valueSetter"/> will be called whenever the input field's contents are changed.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ConfigMenu.GadgetConfigFloatComponent.Build(UnityEngine.RectTransform)">
+            <summary>
+            Called when <see cref="M:GadgetCore.API.ConfigMenu.BasicGadgetConfigMenu.Build(UnityEngine.RectTransform)"/> is called on the config menu containing this component.
+            </summary>
+        </member>
+        <member name="T:GadgetCore.API.ConfigMenu.GadgetConfigIntComponent">
+            <summary>
+            This is an implementation of <see cref="T:GadgetCore.API.ConfigMenu.GadgetConfigComponent"/> that serves as a input field for representing an int-based config value.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.ConfigMenu.GadgetConfigIntComponent.Value">
+            <summary>
+            The current value of this component.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ConfigMenu.GadgetConfigIntComponent.MinValue">
+            <summary>
+            The minimum value of this component. If <see cref="F:GadgetCore.API.ConfigMenu.GadgetConfigIntComponent.MinValue"/> is not less than <see cref="F:GadgetCore.API.ConfigMenu.GadgetConfigIntComponent.MaxValue"/>, then they are ignored.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ConfigMenu.GadgetConfigIntComponent.MaxValue">
+            <summary>
+            The maximum value of this component. If <see cref="F:GadgetCore.API.ConfigMenu.GadgetConfigIntComponent.MinValue"/> is not less than <see cref="F:GadgetCore.API.ConfigMenu.GadgetConfigIntComponent.MaxValue"/>, then they are ignored.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ConfigMenu.GadgetConfigIntComponent.DefaultValue">
+            <summary>
+            The default value of this component.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ConfigMenu.GadgetConfigIntComponent.VanillaValue">
+            <summary>
+            The vanilla value of this component.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ConfigMenu.GadgetConfigIntComponent.ReadOnly">
+            <summary>
+            Whether this component is read-only.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ConfigMenu.GadgetConfigIntComponent.#ctor(GadgetCore.API.ConfigMenu.BasicGadgetConfigMenu,System.String,System.Int32,System.Action{System.Int32},System.Int32,System.Int32,System.Boolean,System.Nullable{System.Int32},System.Nullable{System.Int32},System.Single)">
+            <summary>
+            Constructs a new <see cref="T:GadgetCore.API.ConfigMenu.GadgetConfigIntComponent"/> that serves as a input field for representing an int-based config value. The given <paramref name="valueSetter"/> will be called whenever the input field's contents are changed.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ConfigMenu.GadgetConfigIntComponent.Build(UnityEngine.RectTransform)">
+            <summary>
+            Called when <see cref="M:GadgetCore.API.ConfigMenu.BasicGadgetConfigMenu.Build(UnityEngine.RectTransform)"/> is called on the config menu containing this component.
+            </summary>
+        </member>
+        <member name="T:GadgetCore.API.ConfigMenu.GadgetConfigKeybindComponent">
+            <summary>
+            This is an implementation of <see cref="T:GadgetCore.API.ConfigMenu.GadgetConfigComponent"/> that serves as a button where you can enter a keybind.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.ConfigMenu.GadgetConfigKeybindComponent.Value">
+            <summary>
+            The current value of this component.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ConfigMenu.GadgetConfigKeybindComponent.DefaultValue">
+            <summary>
+            The default value of this component.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ConfigMenu.GadgetConfigKeybindComponent.VanillaValue">
+            <summary>
+            The vanilla value of this component.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ConfigMenu.GadgetConfigKeybindComponent.ReadOnly">
+            <summary>
+            Whether this component is read-only.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ConfigMenu.GadgetConfigKeybindComponent.#ctor(GadgetCore.API.ConfigMenu.BasicGadgetConfigMenu,System.String,System.String,System.Action{System.String},System.Boolean,System.String,System.String,System.Single)">
+            <summary>
+            Constructs a new <see cref="T:GadgetCore.API.ConfigMenu.GadgetConfigKeybindComponent"/> that serves as a button where you can enter a keybind. The given <paramref name="valueSetter"/> will be called whenever the keybind is changed.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ConfigMenu.GadgetConfigKeybindComponent.Build(UnityEngine.RectTransform)">
+            <summary>
+            Called when <see cref="M:GadgetCore.API.ConfigMenu.BasicGadgetConfigMenu.Build(UnityEngine.RectTransform)"/> is called on the config menu containing this component.
+            </summary>
+        </member>
+        <member name="T:GadgetCore.API.ConfigMenu.GadgetConfigLabelComponent">
+            <summary>
+            This is an implementation of <see cref="T:GadgetCore.API.ConfigMenu.GadgetConfigComponent"/> that simply displays a piece of text.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.ConfigMenu.GadgetConfigLabelComponent.Text">
+            <summary>
+            The text that is displayed by this label.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.ConfigMenu.GadgetConfigLabelComponent.AllowHeightResize">
+            <summary>
+            Whether the text height may be resized in the case of text overflow. Be aware that this resizing operation is not perfect - as such, you should avoid using it when possible.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ConfigMenu.GadgetConfigLabelComponent.#ctor(GadgetCore.API.ConfigMenu.BasicGadgetConfigMenu,System.String,System.String,System.Single,System.Boolean)">
+            <summary>
+            Constructs a new <see cref="T:GadgetCore.API.ConfigMenu.GadgetConfigLabelComponent"/> that simply displays a piece of text.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ConfigMenu.GadgetConfigLabelComponent.Build(UnityEngine.RectTransform)">
+            <summary>
+            Called when <see cref="M:GadgetCore.API.ConfigMenu.BasicGadgetConfigMenu.Build(UnityEngine.RectTransform)"/> is called on the config menu containing this component.
+            </summary>
+        </member>
+        <member name="T:GadgetCore.API.ConfigMenu.GadgetConfigMultiKeybindComponent">
+            <summary>
+            This is an implementation of <see cref="T:GadgetCore.API.ConfigMenu.GadgetConfigComponent"/> that serves as one or more buttons where you can enter one or more keybinds.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.ConfigMenu.GadgetConfigMultiKeybindComponent.Value">
+            <summary>
+            The current value of this component.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ConfigMenu.GadgetConfigMultiKeybindComponent.DefaultValue">
+            <summary>
+            The default value of this component.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ConfigMenu.GadgetConfigMultiKeybindComponent.VanillaValue">
+            <summary>
+            The vanilla value of this component.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ConfigMenu.GadgetConfigMultiKeybindComponent.ReadOnly">
+            <summary>
+            Whether this component is read-only.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ConfigMenu.GadgetConfigMultiKeybindComponent.#ctor(GadgetCore.API.ConfigMenu.BasicGadgetConfigMenu,System.String,System.String[],System.Action{System.String[]},System.Boolean,System.String[],System.String[],System.Single)">
+            <summary>
+            Constructs a new <see cref="T:GadgetCore.API.ConfigMenu.GadgetConfigMultiKeybindComponent"/> that serves as one or more buttons where you can enter one or more keybinds. The given <paramref name="valueSetter"/> will be called whenever the keybinds are changed. Be aware that the given height value is only the height of one entry in the list. The actual height can vary depending on the number of set keybinds.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ConfigMenu.GadgetConfigMultiKeybindComponent.Build(UnityEngine.RectTransform)">
+            <summary>
+            Called when <see cref="M:GadgetCore.API.ConfigMenu.BasicGadgetConfigMenu.Build(UnityEngine.RectTransform)"/> is called on the config menu containing this component.
+            </summary>
+        </member>
+        <member name="T:GadgetCore.API.ConfigMenu.GadgetConfigMultiStringComponent">
+            <summary>
+            This is an implementation of <see cref="T:GadgetCore.API.ConfigMenu.GadgetConfigComponent"/> that serves as one or more textboxes where you can enter one or more string values.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.ConfigMenu.GadgetConfigMultiStringComponent.Value">
+            <summary>
+            The current value of this component.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ConfigMenu.GadgetConfigMultiStringComponent.DefaultValue">
+            <summary>
+            The default value of this component.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ConfigMenu.GadgetConfigMultiStringComponent.VanillaValue">
+            <summary>
+            The vanilla value of this component.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ConfigMenu.GadgetConfigMultiStringComponent.ReadOnly">
+            <summary>
+            Whether this component is read-only.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ConfigMenu.GadgetConfigMultiStringComponent.#ctor(GadgetCore.API.ConfigMenu.BasicGadgetConfigMenu,System.String,System.String[],System.Action{System.String[]},System.Boolean,System.String[],System.String[],System.Single)">
+            <summary>
+            Constructs a new <see cref="T:GadgetCore.API.ConfigMenu.GadgetConfigMultiStringComponent"/> that serves as one or more textboxes where you can enter one or more string values. The given <paramref name="valueSetter"/> will be called whenever the values are changed. Be aware that the given height value is only the height of one entry in the list. The actual height can vary depending on the number of set values.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ConfigMenu.GadgetConfigMultiStringComponent.Build(UnityEngine.RectTransform)">
+            <summary>
+            Called when <see cref="M:GadgetCore.API.ConfigMenu.BasicGadgetConfigMenu.Build(UnityEngine.RectTransform)"/> is called on the config menu containing this component.
+            </summary>
+        </member>
+        <member name="T:GadgetCore.API.ConfigMenu.GadgetConfigSeparatorComponent">
+            <summary>
+            This is an implementation of <see cref="T:GadgetCore.API.ConfigMenu.GadgetConfigComponent"/> that creates a separator in the config menu.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ConfigMenu.GadgetConfigSeparatorComponent.#ctor(GadgetCore.API.ConfigMenu.BasicGadgetConfigMenu,System.String,System.Single)">
+            <summary>
+            Constructs a new <see cref="T:GadgetCore.API.ConfigMenu.GadgetConfigSeparatorComponent"/> that creates a separator in the config menu.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ConfigMenu.GadgetConfigSeparatorComponent.Build(UnityEngine.RectTransform)">
+            <summary>
+            Called when <see cref="M:GadgetCore.API.ConfigMenu.BasicGadgetConfigMenu.Build(UnityEngine.RectTransform)"/> is called on the config menu containing this component.
+            </summary>
+        </member>
+        <member name="T:GadgetCore.API.ConfigMenu.GadgetConfigSpacerComponent">
+            <summary>
+            This is an implementation of <see cref="T:GadgetCore.API.ConfigMenu.GadgetConfigComponent"/> that creates a blank space in the config menu.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ConfigMenu.GadgetConfigSpacerComponent.#ctor(GadgetCore.API.ConfigMenu.BasicGadgetConfigMenu,System.String,System.Single)">
+            <summary>
+            Constructs a new <see cref="T:GadgetCore.API.ConfigMenu.GadgetConfigSpacerComponent"/> that creates a blank space in the config menu.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ConfigMenu.GadgetConfigSpacerComponent.Build(UnityEngine.RectTransform)">
+            <summary>
+            Called when <see cref="M:GadgetCore.API.ConfigMenu.BasicGadgetConfigMenu.Build(UnityEngine.RectTransform)"/> is called on the config menu containing this component.
+            </summary>
+        </member>
+        <member name="T:GadgetCore.API.ConfigMenu.GadgetConfigStringComponent">
+            <summary>
+            This is an implementation of <see cref="T:GadgetCore.API.ConfigMenu.GadgetConfigComponent"/> that serves as a textbox for representing a string-based config value.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.ConfigMenu.GadgetConfigStringComponent.Value">
+            <summary>
+            The current value of this component.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ConfigMenu.GadgetConfigStringComponent.DefaultValue">
+            <summary>
+            The default value of this component.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ConfigMenu.GadgetConfigStringComponent.VanillaValue">
+            <summary>
+            The vanilla value of this component.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ConfigMenu.GadgetConfigStringComponent.ReadOnly">
+            <summary>
+            Whether this component is read-only.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ConfigMenu.GadgetConfigStringComponent.#ctor(GadgetCore.API.ConfigMenu.BasicGadgetConfigMenu,System.String,System.String,System.Action{System.String},System.Boolean,System.String,System.String,System.Single)">
+            <summary>
+            Constructs a new <see cref="T:GadgetCore.API.ConfigMenu.GadgetConfigStringComponent"/> that serves as a textbox for representing a string-based config value. The given <paramref name="valueSetter"/> will be called whenever the textbox's contents are changed.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ConfigMenu.GadgetConfigStringComponent.Build(UnityEngine.RectTransform)">
+            <summary>
+            Called when <see cref="M:GadgetCore.API.ConfigMenu.BasicGadgetConfigMenu.Build(UnityEngine.RectTransform)"/> is called on the config menu containing this component.
+            </summary>
+        </member>
+        <member name="T:GadgetCore.API.ConfigMenu.GadgetModConfigs">
+            <summary>
+            Tracker for <see cref="T:GadgetCore.API.ConfigMenu.IGadgetConfigMenu"/>s.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ConfigMenu.GadgetModConfigs.GetConfigMenu(System.Int32)">
+            <summary>
+            Gets the <see cref="T:GadgetCore.API.ConfigMenu.IGadgetConfigMenu"/> for the given ID. Returns null if the mod with the given ID does not have a config menu. Throws an <see cref="T:System.IndexOutOfRangeException"/> if the ID is invalid.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ConfigMenu.GadgetModConfigs.GetConfigMenuObject(System.Int32)">
+            <summary>
+            Gets the <see cref="T:UnityEngine.RectTransform"/> for config menu the given ID. Returns null if the mod with the given ID does not have a config menu. Throws an <see cref="T:System.IndexOutOfRangeException"/> if the ID is invalid.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ConfigMenu.GadgetModConfigs.IsConfigMenuOpen(System.Int32)">
+            <summary>
+            Checks if the specified config menu is currently open.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ConfigMenu.GadgetModConfigs.OpenConfigMenu(System.Int32)">
+            <summary>
+            Opens the specified config menu.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ConfigMenu.GadgetModConfigs.CloseConfigMenu(System.Int32,System.Boolean)">
+            <summary>
+            Closes the specified config menu. Also, if <paramref name="showModMenu"/> is true, then displays the Mod Menu (if it isn't already being displayed).
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ConfigMenu.GadgetModConfigs.CloseAllConfigMenus(System.Boolean)">
+            <summary>
+            Closes any and all config menus. Also, if <paramref name="showModMenu"/> is true, then displays the Mod Menu (if it isn't already being displayed).
+            </summary>
+        </member>
+        <member name="T:GadgetCore.API.ConfigMenu.IGadgetConfigMenu">
+            <summary>
+            Interface for Gadget Config Menu renderers. Most likely, you would be better of using <see cref="T:GadgetCore.API.ConfigMenu.BasicGadgetConfigMenu"/> or <see cref="T:GadgetCore.API.ConfigMenu.UMFGadgetConfigMenu"/>.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ConfigMenu.IGadgetConfigMenu.Build(UnityEngine.RectTransform)">
+            <summary>
+            Called for every configurable mod and Gadget when the Mod Menu is injected into the title screen. This is called again if the player returns to the title screen after having selected a character. You should never call this yourself.
+            </summary>
+            <param name="parent">A <see cref="T:UnityEngine.RectTransform"/> on the Mod Menu canvas intended to be used as the parent object of your config menu. This object will have a large background <see cref="T:UnityEngine.UI.Image">Image</see> on it, intended to be the background of your config menu. Feel free to change or remove this background. This object will also be enabled and disabled as needed to open and close the config menu.</param>
+        </member>
+        <member name="M:GadgetCore.API.ConfigMenu.IGadgetConfigMenu.Rebuild">
+            <summary>
+            Called to make the config menu rebuild itself. 
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ConfigMenu.IGadgetConfigMenu.Render">
+            <summary>
+            Called whenever this mod's config menu is opened. The parent <see cref="T:UnityEngine.RectTransform"/> that was passed to <see cref="M:GadgetCore.API.ConfigMenu.IGadgetConfigMenu.Build(UnityEngine.RectTransform)"/> will be enabled immediately after this method is called. You should never call this yourself.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ConfigMenu.IGadgetConfigMenu.Derender">
+            <summary>
+            Called whenever this mod's config menu is closed. The parent <see cref="T:UnityEngine.RectTransform"/> that was passed to <see cref="M:GadgetCore.API.ConfigMenu.IGadgetConfigMenu.Build(UnityEngine.RectTransform)"/> will be disabled immediately before this method is called. You should never call this yourself.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ConfigMenu.IGadgetConfigMenu.Update">
+            <summary>
+            Called whenever the config menu's contents are updated on some way. You should probably call this yourself whenever the config menu's contents are updated somehow.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ConfigMenu.IGadgetConfigMenu.ShouldHideModMenu">
+            <summary>
+            Called when this config menu is opened, to check whether the mod menu behind your config menu should be hidden when your config menu is opened.
+            </summary>
+        </member>
+        <member name="T:GadgetCore.API.ConfigMenu.UMFGadgetConfigMenu">
+            <summary>
+            This is an extension of <see cref="T:GadgetCore.API.ConfigMenu.BasicGadgetConfigMenu"/> that auto-generates its contents from a UMF config file. This will always be used for non-Gadget mods, and is also the default if you don't specify your own config menu.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ConfigMenu.UMFGadgetConfigMenu.NO_CONFIGURABLE_DATA">
+            <summary>
+            The exception that occurs if the given config file has no configurable data.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ConfigMenu.UMFGadgetConfigMenu.ConfigFilePath">
+            <summary>
+            The path to the config file that this menu is for.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ConfigMenu.UMFGadgetConfigMenu.IniParser">
+            <summary>
+            The <see cref="T:IniParser.FileIniDataParser"/> used for accessing the config file.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ConfigMenu.UMFGadgetConfigMenu.Ini">
+            <summary>
+            The <see cref="T:IniParser.Model.IniData"/> for the config file.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ConfigMenu.UMFGadgetConfigMenu.#ctor(System.String,System.Boolean,System.String,System.String[])">
+            <summary>
+            Constructs a UMFGadgetConfigMenu, optionally for a given ini file section and given config file path. Throws an <see cref="T:System.InvalidOperationException"/> with the message <see cref="F:GadgetCore.API.ConfigMenu.UMFGadgetConfigMenu.NO_CONFIGURABLE_DATA"/> if the given config file has no configurable data.
+            </summary>
+            <param name="section">The ini file section to reference. If the specified section is not present, then the section matching the config file's name will be used instead.</param>
+            <param name="hidesModMenu">Specifies whether the mod menu should be hidden when this config menu is opened.</param>
+            <param name="configFilePath">Specifies the location of the config file to reference. If left unspecified, the standard config file for your mod will be used.</param>
+            <param name="readonlyEntries">All config entries that match names in this list will be displayed as read-only.</param>
+        </member>
+        <member name="M:GadgetCore.API.ConfigMenu.UMFGadgetConfigMenu.AlignConfigEntry(System.String)">
+            <summary>
+            Used for validation and alignment of config entries being read from the config file. Return an alignment to align, or return null to prevent the entry from appearing in the menu.
+            </summary>
+            <param name="name">The name of the config entry</param>
+        </member>
+        <member name="M:GadgetCore.API.ConfigMenu.UMFGadgetConfigMenu.Update">
+            <summary>
+            Called whenever the config menu's contents are updated in some way. This will be called whenever a default component's value is changed.
+            </summary>
+        </member>
         <member name="T:GadgetCore.API.EntityInfo">
             <summary>
             Defines a custom Entity. Make sure to call Register on it to register your Entity.
@@ -789,6 +1431,12 @@
             <summary>
             Returns the version string of this mod. By default, returns the value of the AssemblyFileVersion attribute.
             </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetMod.GetConfigMenu">
+            <summary>
+            Returns an <see cref="T:GadgetCore.API.ConfigMenu.IGadgetConfigMenu"/> for this mod. By default, returns a <see cref="T:GadgetCore.API.ConfigMenu.UMFGadgetConfigMenu"/> for this mod's UMF config file. May return null if the mod should not have a config menu.
+            </summary>
+            <returns></returns>
         </member>
         <member name="T:GadgetCore.API.GadgetModAttribute">
             <summary>
@@ -2313,6 +2961,11 @@
         <member name="P:GadgetCore.GadgetModHookScript.Mod">
             <summary>
             The GadgetModInfo that is updated by this hook script.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.KeybindToggle.Binding">
+            <summary>
+            Whether a binding operation is currently in progress.
             </summary>
         </member>
         <member name="T:GadgetCore.PatchMethods">

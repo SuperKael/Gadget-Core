@@ -20,7 +20,7 @@ namespace GadgetCore.API
         /// <summary>
         /// The version of Gadget Core.
         /// </summary>
-        public const string VERSION = "1.1.3.1";
+        public const string VERSION = "1.1.4.0";
 
         /// <summary>
         /// List of UMF mod names, not including mod libraries.

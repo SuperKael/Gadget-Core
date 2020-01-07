@@ -1,5 +1,7 @@
 ﻿using GadgetCore.API;
+using GadgetCore.API.ConfigMenu;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -16,9 +18,16 @@ namespace GadgetCore
         public static GameObject ModMenuBeam { get; internal set; }
         public static GameObject ModMenuButtonHolder { get; internal set; }
         public static GameObject ModMenu { get; internal set; }
+        public static RectTransform ModMenuPanel { get; internal set; }
+        public static RectTransform ModConfigMenus { get; internal set; }
         public static GameObject ModMenuBackButtonBeam { get; internal set; }
         public static GameObject ModMenuBackButtonHolder { get; internal set; }
+        public static GameObject ModConfigMenuText { get; internal set; }
         public static ModDescPanelController ModMenuDescPanel { get; internal set; }
+
+        public static Sprite BoxSprite { get; internal set; }
+        public static Sprite BoxMask { get; internal set; }
+        public static Sprite BarSprite { get; internal set; }
 
         internal static void InjectMainMenu()
         {
@@ -90,34 +99,46 @@ namespace GadgetCore
             CanvasScaler scaler = canvas.GetComponent<CanvasScaler>();
             scaler.scaleFactor = 2;
             scaler.referencePixelsPerUnit = 100;
-            GameObject modConfigMenuText = UnityEngine.Object.Instantiate(InstanceTracker.Menuu.menuOptions.transform.Find("txt0").gameObject, ModMenu.transform);
-            modConfigMenuText.name = "txt0";
-            modConfigMenuText.transform.localPosition = new Vector3(0, 14, -1);
-            Array.ForEach(modConfigMenuText.GetComponentsInChildren<TextMesh>(), x => { x.text = "MOD CONFIG MENU"; x.anchor = TextAnchor.UpperCenter; });
-            GameObject restartRequiredText = UnityEngine.Object.Instantiate(modConfigMenuText, ModMenu.transform);
+            ModConfigMenuText = UnityEngine.Object.Instantiate(InstanceTracker.Menuu.menuOptions.transform.Find("txt0").gameObject, ModMenu.transform);
+            ModConfigMenuText.name = "txt0";
+            ModConfigMenuText.transform.localPosition = new Vector3(0, 14, -1);
+            Array.ForEach(ModConfigMenuText.GetComponentsInChildren<TextMesh>(), x => { x.text = "MOD CONFIG MENU"; x.anchor = TextAnchor.UpperCenter; });
+            GameObject restartRequiredText = UnityEngine.Object.Instantiate(ModConfigMenuText, ModMenu.transform);
             restartRequiredText.SetActive(false);
             restartRequiredText.name = "Restart Required Text";
             restartRequiredText.transform.localPosition = new Vector3(0, -10.5f, -1);
             restartRequiredText.transform.localScale *= 0.75f;
             Array.ForEach(restartRequiredText.GetComponentsInChildren<TextMesh>(), x => { x.text = "Restart Required!"; x.anchor = TextAnchor.UpperCenter; });
-            RectTransform panel = new GameObject("Panel", typeof(RectTransform)).GetComponent<RectTransform>();
-            panel.SetParent(canvas.transform);
-            panel.anchorMin = new Vector2(0.15f, 0.15f);
-            panel.anchorMax = new Vector2(0.85f, 0.85f);
-            panel.offsetMin = Vector2.zero;
-            panel.offsetMax = Vector2.zero;
+            ModMenuPanel = new GameObject("Panel", typeof(RectTransform)).GetComponent<RectTransform>();
+            ModMenuPanel.SetParent(canvas.transform);
+            ModMenuPanel.anchorMin = new Vector2(0.15f, 0.15f);
+            ModMenuPanel.anchorMax = new Vector2(0.85f, 0.85f);
+            ModMenuPanel.offsetMin = Vector2.zero;
+            ModMenuPanel.offsetMax = Vector2.zero;
+            ModConfigMenus = new GameObject("Mod Config Menus", typeof(RectTransform)).GetComponent<RectTransform>();
+            ModConfigMenus.SetParent(canvas.transform);
+            ModConfigMenus.anchorMin = new Vector2(0.15f, 0.15f);
+            ModConfigMenus.anchorMax = new Vector2(0.85f, 0.85f);
+            ModConfigMenus.offsetMin = Vector2.zero;
+            ModConfigMenus.offsetMax = Vector2.zero;
             Image background = new GameObject("Background", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image)).GetComponent<Image>();
-            background.transform.SetParent(panel);
+            background.transform.SetParent(ModMenuPanel);
             background.rectTransform.anchorMin = new Vector2(0f, 0f);
             background.rectTransform.anchorMax = new Vector2(01f, 1f);
             background.rectTransform.offsetMin = Vector2.zero;
             background.rectTransform.offsetMax = Vector2.zero;
             background.type = Image.Type.Sliced;
             background.fillCenter = true;
-            Texture2D boxTex = GadgetCoreAPI.LoadTexture2D("modmenu.png");
+            Texture2D boxTex = GadgetCoreAPI.LoadTexture2D("boxsprite.png");
             boxTex.filterMode = FilterMode.Point;
-            Sprite boxSprite = Sprite.Create(boxTex, new Rect(0, 0, boxTex.width, boxTex.height), new Vector2(0.5f, 0.5f), 100, 1, SpriteMeshType.Tight, new Vector4(15, 15, 15, 15));
-            background.sprite = boxSprite;
+            Texture2D boxMaskTex = GadgetCoreAPI.LoadTexture2D("boxmask.png");
+            boxMaskTex.filterMode = FilterMode.Point;
+            Texture2D barTex = GadgetCoreAPI.LoadTexture2D("barsprite.png");
+            barTex.filterMode = FilterMode.Point;
+            BoxSprite = Sprite.Create(boxTex, new Rect(0, 0, boxTex.width, boxTex.height), new Vector2(0.5f, 0.5f), 100, 1, SpriteMeshType.Tight, new Vector4(15, 15, 15, 15));
+            BoxMask = Sprite.Create(boxMaskTex, new Rect(0, 0, boxMaskTex.width, boxMaskTex.height), new Vector2(0.5f, 0.5f), 100, 1, SpriteMeshType.Tight, new Vector4(15, 15, 15, 15));
+            BarSprite = Sprite.Create(barTex, new Rect(0, 0, barTex.width, barTex.height), new Vector2(0.5f, 0.5f), 100, 1, SpriteMeshType.Tight, new Vector4(1, 1, 1, 1));
+            background.sprite = BoxSprite;
 
             EventSystem eventSystem = new GameObject("EventSystem", typeof(EventSystem), typeof(StandaloneInputModule)).GetComponent<EventSystem>();
             StandaloneInputModule inputModule = eventSystem.GetComponent<StandaloneInputModule>();
@@ -126,17 +147,29 @@ namespace GadgetCore
             inputModule.submitButton = "Jump";
             inputModule.cancelButton = "Cancel";
 
-            ModMenuDescPanel = new GameObject("Mod Desc Panel", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(ModDescPanelController), typeof(Mask), typeof(ScrollRect)).GetComponent<ModDescPanelController>();
-            ModMenuDescPanel.GetComponent<RectTransform>().SetParent(panel);
+            GadgetModConfigs.BuildConfigMenus(ModConfigMenus);
+
+            ModMenuDescPanel = new GameObject("Mod Desc Panel", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(ModDescPanelController), typeof(ScrollRect)).GetComponent<ModDescPanelController>();
+            ModMenuDescPanel.GetComponent<RectTransform>().SetParent(ModMenuPanel);
             ModMenuDescPanel.GetComponent<RectTransform>().anchorMin = new Vector2(0.4f, 0.25f);
             ModMenuDescPanel.GetComponent<RectTransform>().anchorMax = new Vector2(1f, 1f);
             ModMenuDescPanel.GetComponent<RectTransform>().offsetMin = new Vector2(0, 5);
             ModMenuDescPanel.GetComponent<RectTransform>().offsetMax = new Vector2(-10, -10);
-            ModMenuDescPanel.GetComponent<Image>().sprite = boxSprite;
+            ModMenuDescPanel.GetComponent<Image>().sprite = BoxSprite;
             ModMenuDescPanel.GetComponent<Image>().type = Image.Type.Sliced;
             ModMenuDescPanel.GetComponent<Image>().fillCenter = true;
+            Mask modMenuDescPanelMask = new GameObject("Mask", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Mask)).GetComponent<Mask>();
+            modMenuDescPanelMask.GetComponent<RectTransform>().SetParent(ModMenuDescPanel.transform);
+            modMenuDescPanelMask.GetComponent<RectTransform>().anchorMin = new Vector2(0f, 0f);
+            modMenuDescPanelMask.GetComponent<RectTransform>().anchorMax = new Vector2(1f, 1f);
+            modMenuDescPanelMask.GetComponent<RectTransform>().offsetMin = Vector2.zero;
+            modMenuDescPanelMask.GetComponent<RectTransform>().offsetMax = Vector2.zero;
+            modMenuDescPanelMask.GetComponent<Image>().sprite = BoxMask;
+            modMenuDescPanelMask.GetComponent<Image>().type = Image.Type.Sliced;
+            modMenuDescPanelMask.GetComponent<Image>().fillCenter = true;
+            modMenuDescPanelMask.showMaskGraphic = false;
             RectTransform modMenuDescViewport = new GameObject("Viewport", typeof(RectTransform)).GetComponent<RectTransform>();
-            modMenuDescViewport.SetParent(ModMenuDescPanel.transform);
+            modMenuDescViewport.SetParent(modMenuDescPanelMask.transform);
             modMenuDescViewport.anchorMin = new Vector2(0f, 0f);
             modMenuDescViewport.anchorMax = new Vector2(1f, 1f);
             modMenuDescViewport.offsetMin = new Vector2(10, 10);
@@ -148,7 +181,7 @@ namespace GadgetCore
             modMenuDescText.rectTransform.offsetMin = Vector2.zero;
             modMenuDescText.rectTransform.offsetMax = Vector2.zero;
             modMenuDescText.rectTransform.pivot = new Vector2(0.5f, 1f);
-            modMenuDescText.font = modConfigMenuText.GetComponent<TextMesh>().font;
+            modMenuDescText.font = ModConfigMenuText.GetComponent<TextMesh>().font;
             modMenuDescText.fontSize = 12;
             modMenuDescText.horizontalOverflow = HorizontalWrapMode.Wrap;
             modMenuDescText.GetComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
@@ -159,12 +192,12 @@ namespace GadgetCore
             ModMenuDescPanel.descText = modMenuDescText;
             ModMenuDescPanel.restartRequiredText = restartRequiredText;
             Image modMenuButtonPanel = new GameObject("Button Panel", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image)).GetComponent<Image>();
-            modMenuButtonPanel.GetComponent<RectTransform>().SetParent(panel);
+            modMenuButtonPanel.GetComponent<RectTransform>().SetParent(ModMenuPanel);
             modMenuButtonPanel.GetComponent<RectTransform>().anchorMin = new Vector2(0.4f, 0f);
             modMenuButtonPanel.GetComponent<RectTransform>().anchorMax = new Vector2(1f, 0.25f);
             modMenuButtonPanel.GetComponent<RectTransform>().offsetMin = new Vector2(0, 10);
             modMenuButtonPanel.GetComponent<RectTransform>().offsetMax = new Vector2(-10, -5);
-            modMenuButtonPanel.GetComponent<Image>().sprite = boxSprite;
+            modMenuButtonPanel.GetComponent<Image>().sprite = BoxSprite;
             modMenuButtonPanel.GetComponent<Image>().type = Image.Type.Sliced;
             modMenuButtonPanel.GetComponent<Image>().fillCenter = true;
             ModMenuDescPanel.configButton = new GameObject("Config Button", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Button)).GetComponent<Button>();
@@ -173,7 +206,7 @@ namespace GadgetCore
             ModMenuDescPanel.configButton.GetComponent<RectTransform>().anchorMax = new Vector2(1f, 1f);
             ModMenuDescPanel.configButton.GetComponent<RectTransform>().offsetMin = new Vector2(10, 10);
             ModMenuDescPanel.configButton.GetComponent<RectTransform>().offsetMax = new Vector2(-10, -10);
-            ModMenuDescPanel.configButton.GetComponent<Image>().sprite = boxSprite;
+            ModMenuDescPanel.configButton.GetComponent<Image>().sprite = BoxSprite;
             ModMenuDescPanel.configButton.GetComponent<Image>().type = Image.Type.Sliced;
             ModMenuDescPanel.configButton.GetComponent<Image>().fillCenter = true;
             ModMenuDescPanel.configButton.targetGraphic = ModMenuDescPanel.configButton.GetComponent<Image>();
@@ -188,13 +221,34 @@ namespace GadgetCore
             configButtonText.font = modMenuDescText.font;
             configButtonText.fontSize = 12;
             configButtonText.text = "Configure";
+            ModMenuDescPanel.umfConfigButton = new GameObject("UMF Config Button", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Button)).GetComponent<Button>();
+            ModMenuDescPanel.umfConfigButton.GetComponent<RectTransform>().SetParent(canvas.transform);
+            ModMenuDescPanel.umfConfigButton.GetComponent<RectTransform>().anchorMin = new Vector2(0.025f, 0.4f);
+            ModMenuDescPanel.umfConfigButton.GetComponent<RectTransform>().anchorMax = new Vector2(0.125f, 0.6f);
+            ModMenuDescPanel.umfConfigButton.GetComponent<RectTransform>().offsetMin = new Vector2(0, 0);
+            ModMenuDescPanel.umfConfigButton.GetComponent<RectTransform>().offsetMax = new Vector2(0, 0);
+            ModMenuDescPanel.umfConfigButton.GetComponent<Image>().sprite = BoxSprite;
+            ModMenuDescPanel.umfConfigButton.GetComponent<Image>().type = Image.Type.Sliced;
+            ModMenuDescPanel.umfConfigButton.GetComponent<Image>().fillCenter = true;
+            ModMenuDescPanel.umfConfigButton.targetGraphic = ModMenuDescPanel.umfConfigButton.GetComponent<Image>();
+            ModMenuDescPanel.umfConfigButton.onClick.AddListener(ModMenuDescPanel.UMFConfigButton);
+            Text umfConfigButtonText = new GameObject("Text", typeof(RectTransform), typeof(CanvasRenderer), typeof(Text)).GetComponent<Text>();
+            umfConfigButtonText.rectTransform.SetParent(ModMenuDescPanel.umfConfigButton.transform);
+            umfConfigButtonText.rectTransform.anchorMin = new Vector2(0f, 0f);
+            umfConfigButtonText.rectTransform.anchorMax = new Vector2(1f, 1f);
+            umfConfigButtonText.rectTransform.offsetMin = Vector2.zero;
+            umfConfigButtonText.rectTransform.offsetMax = Vector2.zero;
+            umfConfigButtonText.alignment = TextAnchor.MiddleCenter;
+            umfConfigButtonText.font = modMenuDescText.font;
+            umfConfigButtonText.fontSize = 12;
+            umfConfigButtonText.text = "Configure UMF";
             ModMenuDescPanel.enableUMFButton = new GameObject("Enable UMF Button", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Button)).GetComponent<Button>();
             ModMenuDescPanel.enableUMFButton.GetComponent<RectTransform>().SetParent(modMenuButtonPanel.transform);
             ModMenuDescPanel.enableUMFButton.GetComponent<RectTransform>().anchorMin = new Vector2(1f / 3f, 0f);
             ModMenuDescPanel.enableUMFButton.GetComponent<RectTransform>().anchorMax = new Vector2(2f / 3f, 1f);
             ModMenuDescPanel.enableUMFButton.GetComponent<RectTransform>().offsetMin = new Vector2(10, 10);
             ModMenuDescPanel.enableUMFButton.GetComponent<RectTransform>().offsetMax = new Vector2(-10, -10);
-            ModMenuDescPanel.enableUMFButton.GetComponent<Image>().sprite = boxSprite;
+            ModMenuDescPanel.enableUMFButton.GetComponent<Image>().sprite = BoxSprite;
             ModMenuDescPanel.enableUMFButton.GetComponent<Image>().type = Image.Type.Sliced;
             ModMenuDescPanel.enableUMFButton.GetComponent<Image>().fillCenter = true;
             ModMenuDescPanel.enableUMFButton.targetGraphic = ModMenuDescPanel.enableUMFButton.GetComponent<Image>();
@@ -216,7 +270,7 @@ namespace GadgetCore
             ModMenuDescPanel.enableButton.GetComponent<RectTransform>().anchorMax = new Vector2(1f / 3f, 1f);
             ModMenuDescPanel.enableButton.GetComponent<RectTransform>().offsetMin = new Vector2(10, 10);
             ModMenuDescPanel.enableButton.GetComponent<RectTransform>().offsetMax = new Vector2(-10, -10);
-            ModMenuDescPanel.enableButton.GetComponent<Image>().sprite = boxSprite;
+            ModMenuDescPanel.enableButton.GetComponent<Image>().sprite = BoxSprite;
             ModMenuDescPanel.enableButton.GetComponent<Image>().type = Image.Type.Sliced;
             ModMenuDescPanel.enableButton.GetComponent<Image>().fillCenter = true;
             ModMenuDescPanel.enableButton.targetGraphic = ModMenuDescPanel.enableButton.GetComponent<Image>();
@@ -237,7 +291,7 @@ namespace GadgetCore
             ModMenuDescPanel.unpackButton.GetComponent<RectTransform>().anchorMax = new Vector2(1, 2f);
             ModMenuDescPanel.unpackButton.GetComponent<RectTransform>().offsetMin = new Vector2(10, 20);
             ModMenuDescPanel.unpackButton.GetComponent<RectTransform>().offsetMax = new Vector2(-10, 0);
-            ModMenuDescPanel.unpackButton.GetComponent<Image>().sprite = boxSprite;
+            ModMenuDescPanel.unpackButton.GetComponent<Image>().sprite = BoxSprite;
             ModMenuDescPanel.unpackButton.GetComponent<Image>().type = Image.Type.Sliced;
             ModMenuDescPanel.unpackButton.GetComponent<Image>().fillCenter = true;
             ModMenuDescPanel.unpackButton.targetGraphic = ModMenuDescPanel.unpackButton.GetComponent<Image>();
@@ -260,42 +314,43 @@ namespace GadgetCore
             int disabledModCount = GadgetCore.disabledMods.Count;
             int incompatibleModCount = GadgetCore.incompatibleMods.Count;
             ScrollRect modListScrollView = new GameObject("Scroll View", typeof(RectTransform), typeof(ScrollRect), typeof(CanvasRenderer), typeof(Image)).GetComponent<ScrollRect>();
-            modListScrollView.GetComponent<RectTransform>().SetParent(panel);
+            modListScrollView.GetComponent<RectTransform>().SetParent(ModMenuPanel);
             modListScrollView.GetComponent<RectTransform>().anchorMin = new Vector2(0f, 0f);
             modListScrollView.GetComponent<RectTransform>().anchorMax = new Vector2(0.3f, 1f);
             modListScrollView.GetComponent<RectTransform>().offsetMin = new Vector2(10, 10);
             modListScrollView.GetComponent<RectTransform>().offsetMax = new Vector2(0, -10);
-            modListScrollView.GetComponent<Image>().sprite = boxSprite;
+            modListScrollView.GetComponent<Image>().sprite = BoxSprite;
             modListScrollView.GetComponent<Image>().type = Image.Type.Sliced;
             modListScrollView.GetComponent<Image>().fillCenter = true;
-            RectTransform modListViewport = new GameObject("Viewport", typeof(RectTransform), typeof(Mask), typeof(CanvasRenderer), typeof(Image)).GetComponent<RectTransform>();
-            modListViewport.SetParent(modListScrollView.transform);
+            Mask modListScrollViewMask = new GameObject("Mask", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Mask)).GetComponent<Mask>();
+            modListScrollViewMask.GetComponent<RectTransform>().SetParent(modListScrollView.transform);
+            modListScrollViewMask.GetComponent<RectTransform>().anchorMin = new Vector2(0f, 0f);
+            modListScrollViewMask.GetComponent<RectTransform>().anchorMax = new Vector2(1f, 1f);
+            modListScrollViewMask.GetComponent<RectTransform>().offsetMin = Vector2.zero;
+            modListScrollViewMask.GetComponent<RectTransform>().offsetMax = Vector2.zero;
+            modListScrollViewMask.GetComponent<Image>().sprite = BoxMask;
+            modListScrollViewMask.GetComponent<Image>().type = Image.Type.Sliced;
+            modListScrollViewMask.GetComponent<Image>().fillCenter = true;
+            modListScrollViewMask.showMaskGraphic = false;
+            RectTransform modListViewport = new GameObject("Viewport", typeof(RectTransform)).GetComponent<RectTransform>();
+            modListViewport.SetParent(modListScrollViewMask.transform);
             modListViewport.anchorMin = new Vector2(0f, 0f);
             modListViewport.anchorMax = new Vector2(1f, 1f);
             modListViewport.offsetMin = new Vector2(10, 10);
             modListViewport.offsetMax = new Vector2(-10, -10);
-            modListViewport.GetComponent<Image>().sprite = boxSprite;
-            modListViewport.GetComponent<Image>().type = Image.Type.Sliced;
-            modListViewport.GetComponent<Image>().fillCenter = true;
-            RectTransform modListContent = new GameObject("Content", typeof(RectTransform)).GetComponent<RectTransform>();
-            modListContent.SetParent(modListViewport);
-            modListContent.anchorMin = new Vector2(0f, allMods.Length <= 5 ? 0f : (1f - (allMods.Length / 5f)));
-            modListContent.anchorMax = new Vector2(1f, 1f);
-            modListContent.offsetMin = Vector2.zero;
-            modListContent.offsetMax = Vector2.zero;
             RectTransform modList = new GameObject("ModList", typeof(RectTransform), typeof(ToggleGroup)).GetComponent<RectTransform>();
-            modList.SetParent(modListContent);
-            modList.anchorMin = new Vector2(0f, 0f);
+            modList.SetParent(modListViewport);
+            modList.anchorMin = new Vector2(0f, allMods.Length <= 6 ? 0f : (1f - (allMods.Length / 6f)));
             modList.anchorMax = new Vector2(1f, 1f);
-            modList.offsetMin = new Vector2(10, 10);
-            modList.offsetMax = new Vector2(-10, -10);
+            modList.offsetMin = Vector2.zero;
+            modList.offsetMax = Vector2.zero;
             Scrollbar modListScrollBar = new GameObject("Scrollbar", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Scrollbar)).GetComponent<Scrollbar>();
             modListScrollBar.GetComponent<RectTransform>().SetParent(modListScrollView.transform);
             modListScrollBar.GetComponent<RectTransform>().anchorMin = new Vector2(1f, 0f);
             modListScrollBar.GetComponent<RectTransform>().anchorMax = new Vector2(1.25f, 1f);
             modListScrollBar.GetComponent<RectTransform>().offsetMin = Vector2.zero;
             modListScrollBar.GetComponent<RectTransform>().offsetMax = Vector2.zero;
-            modListScrollBar.GetComponent<Image>().sprite = boxSprite;
+            modListScrollBar.GetComponent<Image>().sprite = BoxSprite;
             modListScrollBar.GetComponent<Image>().type = Image.Type.Sliced;
             modListScrollBar.GetComponent<Image>().fillCenter = true;
             RectTransform modListScrollBarHandle = new GameObject("Handle", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image)).GetComponent<RectTransform>();
@@ -304,20 +359,20 @@ namespace GadgetCore
             modListScrollBarHandle.anchorMax = new Vector2(0.95f, 0.95f);
             modListScrollBarHandle.offsetMin = Vector2.zero;
             modListScrollBarHandle.offsetMax = Vector2.zero;
-            modListScrollBarHandle.GetComponent<Image>().sprite = boxSprite;
+            modListScrollBarHandle.GetComponent<Image>().sprite = BoxSprite;
             modListScrollBarHandle.GetComponent<Image>().type = Image.Type.Sliced;
             modListScrollBarHandle.GetComponent<Image>().fillCenter = true;
             modListScrollBar.targetGraphic = modListScrollBarHandle.GetComponent<Image>();
             modListScrollBar.handleRect = modListScrollBarHandle;
             modListScrollBar.direction = Scrollbar.Direction.BottomToTop;
             if (allMods.Length <= 5) modListScrollBar.interactable = false;
-            modListScrollView.content = modListContent;
+            modListScrollView.content = modList;
             modListScrollView.horizontal = false;
             modListScrollView.scrollSensitivity = 5;
             modListScrollView.movementType = ScrollRect.MovementType.Clamped;
             modListScrollView.viewport = modListViewport;
             modListScrollView.verticalScrollbar = modListScrollBar;
-            float entryHeight = (allMods.Length <= 5 ? 0.2f : 1f / allMods.Length) * 0.8f;
+            float entryHeight = allMods.Length <= 6 ? (1f / 6f) : (1f / allMods.Length);
             Toggle firstToggle = null;
             for (int i = 0; i < allMods.Length; i++)
             {
@@ -334,7 +389,7 @@ namespace GadgetCore
                 modSelected.rectTransform.anchorMax = new Vector2(1f, 1f);
                 modSelected.rectTransform.offsetMin = Vector2.zero;
                 modSelected.rectTransform.offsetMax = Vector2.zero;
-                modSelected.sprite = boxSprite;
+                modSelected.sprite = BoxSprite;
                 modSelected.type = Image.Type.Sliced;
                 modSelected.color = i < gadgetModCount ? new Color(1f, 1f, 0.25f, 1f) : i >= gadgetModCount + normalModCount + disabledModCount + incompatibleModCount ? new Color(0.5f, 0.5f, 0.5f, 1f) : i >= gadgetModCount + normalModCount + disabledModCount ? new Color(1f, 0f, 0f, 1f) : i >= gadgetModCount + normalModCount ? new Color(0.25f, 0.25f, 0.25f, 1f) : new Color(1f, 1f, 1f, 1f);
                 Text modLabel = new GameObject("Label", typeof(RectTransform), typeof(CanvasRenderer), typeof(Text)).GetComponent<Text>();
@@ -343,14 +398,14 @@ namespace GadgetCore
                 modLabel.rectTransform.anchorMax = new Vector2(1f, 1f);
                 modLabel.rectTransform.offsetMin = new Vector2(10, 10);
                 modLabel.rectTransform.offsetMax = new Vector2(-10, -10);
-                modLabel.font = modConfigMenuText.GetComponent<TextMesh>().font;
+                modLabel.font = ModConfigMenuText.GetComponent<TextMesh>().font;
                 modLabel.fontSize = 12;
                 modLabel.horizontalOverflow = HorizontalWrapMode.Overflow;
                 modLabel.verticalOverflow = VerticalWrapMode.Overflow;
                 modLabel.alignment = TextAnchor.MiddleLeft;
                 modLabel.text = (i < gadgetModCount + normalModCount + disabledModCount + incompatibleModCount ? allMods[i] : Path.GetFileNameWithoutExtension(allMods[i])) + Environment.NewLine + (i < gadgetModCount ? ("Gadget Mod (" + GadgetMods.GetModInfo(allMods[i]).UMFName + ")") : (i < gadgetModCount + normalModCount ? "Non-Gadget Mod" : i < gadgetModCount + normalModCount + disabledModCount ? "Disabled" : i < gadgetModCount + normalModCount + disabledModCount + incompatibleModCount ? "Incompatible" : "Packed Mod"));
                 if ((i < gadgetModCount && !gadgetMods[i].Mod.Enabled) || i >= gadgetModCount + GadgetCore.nonGadgetMods.Count) modLabel.color = new Color(1f, 1f, 1f, 0.5f);
-                modToggle.GetComponent<Image>().sprite = boxSprite;
+                modToggle.GetComponent<Image>().sprite = BoxSprite;
                 modToggle.GetComponent<Image>().type = Image.Type.Sliced;
                 modToggle.GetComponent<Image>().color = i < gadgetModCount ? new Color(1f, 1f, 0.25f, 0.25f) : i >= gadgetModCount + normalModCount + disabledModCount + incompatibleModCount ? new Color(0.5f, 0.5f, 0.5f, 0.25f) : i >= gadgetModCount + normalModCount + disabledModCount ? new Color(1f, 0f, 0f, 0.25f) : i >= gadgetModCount + normalModCount ? new Color(0.25f, 0.25f, 0.25f, 0.25f) : new Color(1f, 1f, 1f, 0.25f);
                 modToggle.transition = Selectable.Transition.None;

@@ -4,6 +4,7 @@ using GadgetCore;
 using UnityEngine;
 using System.Collections;
 using System;
+using GadgetCore.API.ConfigMenu;
 
 namespace GadgetCore.Patches
 {
@@ -14,6 +15,7 @@ namespace GadgetCore.Patches
         [HarmonyPrefix]
         public static bool Prefix(Menuu __instance, Ray ___ray, RaycastHit ___hit)
         {
+            if (KeybindToggle.Binding) return false;
             if (ModDescPanelController.RestartNeeded)
             {
                 foreach (System.Diagnostics.Process process in ModDescPanelController.ConfigHandles)
@@ -28,6 +30,7 @@ namespace GadgetCore.Patches
                 SceneInjector.ModMenuBeam.transform.localScale = new Vector3(30f, 0f, 1f);
                 SceneInjector.ModMenuButtonHolder.transform.position = new Vector3(-40f, 0f, 0f);
                 SceneInjector.ModMenu.SetActive(false);
+                GadgetModConfigs.CloseAllConfigMenus();
                 __instance.StartCoroutine(AnimateModMenuButton(__instance));
             }
             return true;

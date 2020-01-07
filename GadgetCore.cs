@@ -33,29 +33,37 @@ namespace GadgetCore
         [UMFConfig]
         public static void LoadConfig()
         {
-            if (firstLoad)
+            try
             {
-                firstLoad = false;
-                IsUnpacked = File.Exists(Path.Combine(UMFData.ModsPath, "GadgetCore.dll")) && File.Exists(Path.Combine(Path.Combine(UMFData.ModsPath, "DependentLibs"), "GadgetCoreLib.dll")) && !(Directory.GetFiles(UMFData.ModsPath, "GadgetCore*.zip").Length > 0);
-                LoadMainMenu();
-                if (IsUnpacked)
+                if (firstLoad)
                 {
-                    CoreLib = Activator.CreateInstance(Assembly.LoadFile(Path.Combine(Path.Combine(UMFData.ModsPath, "DependentLibs"), "GadgetCoreLib.dll")).GetTypes().First(x => typeof(IGadgetCoreLib).IsAssignableFrom(x))) as IGadgetCoreLib;
-                    CoreLib.ProvideLogger(Logger);
-                    //CoreLib.InitializeSteamAPI();
-                    LoadModAssemblies();
-                    GadgetCoreConfig.Load();
-                    InitializeRegistries();
-                    GadgetCoreConfig.LoadRegistries();
-                    VanillaRegistration();
-                    InitializeMods();
+                    firstLoad = false;
+                    IsUnpacked = File.Exists(Path.Combine(UMFData.ModsPath, "GadgetCore.dll")) && File.Exists(Path.Combine(Path.Combine(UMFData.ModsPath, "DependentLibs"), "GadgetCoreLib.dll")) && !(Directory.GetFiles(UMFData.ModsPath, "GadgetCore*.zip").Length > 0);
+                    LoadMainMenu();
+                    if (IsUnpacked)
+                    {
+                        CoreLib = Activator.CreateInstance(Assembly.LoadFile(Path.Combine(Path.Combine(UMFData.ModsPath, "DependentLibs"), "GadgetCoreLib.dll")).GetTypes().First(x => typeof(IGadgetCoreLib).IsAssignableFrom(x))) as IGadgetCoreLib;
+                        CoreLib.ProvideLogger(Logger);
+                        //CoreLib.InitializeSteamAPI();
+                        LoadModAssemblies();
+                        GadgetCoreConfig.Load();
+                        InitializeRegistries();
+                        GadgetCoreConfig.LoadRegistries();
+                        VanillaRegistration();
+                        InitializeMods();
+                    }
+                    SceneInjector.InjectMainMenu();
+                    SceneManager.sceneLoaded += OnSceneLoaded;
                 }
-                SceneInjector.InjectMainMenu();
-                SceneManager.sceneLoaded += OnSceneLoaded;
+                else if (IsUnpacked)
+                {
+                    GadgetCoreConfig.Load();
+                }
             }
-            else if (IsUnpacked)
+            catch (Exception e)
             {
-                GadgetCoreConfig.Load();
+                Log("Exception during GadgetCore load: " + e);
+                throw;
             }
         }
 

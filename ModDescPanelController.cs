@@ -1,4 +1,5 @@
 ﻿using GadgetCore.API;
+using GadgetCore.API.ConfigMenu;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -25,6 +26,7 @@ namespace GadgetCore
         private int modIndex;
         internal Text descText;
         internal GameObject restartRequiredText;
+        internal Button umfConfigButton;
         internal Button configButton;
         internal Button enableUMFButton;
         internal Button enableButton;
@@ -58,6 +60,7 @@ namespace GadgetCore
         {
             try
             {
+                if (GadgetModConfigs.IsConfigMenuOpen(this.modIndex)) GadgetModConfigs.CloseConfigMenu(this.modIndex);
                 if (!File.Exists(UMFData.DisabledModsFile)) File.Create(UMFData.DisabledModsFile).Dispose();
                 this.toggle = toggle;
                 this.modIndex = modIndex;
@@ -91,7 +94,7 @@ namespace GadgetCore
                     {
                         enableButton.interactable = false;
                     }
-                    configButton.interactable = true;
+                    configButton.interactable = GadgetModConfigs.GetConfigMenuObject(modIndex) != null;
                     enableButton.GetComponentInChildren<Text>().text = mod.Mod.Enabled ? "Disable Gadget" : "Enable Gadget";
                     enableUMFButton.GetComponentInChildren<Text>().text = File.ReadAllLines(UMFData.DisabledModsFile).Any(x => x.Equals(mod.UMFName)) ? "Enable Mod" : "Disable Mod";
                     string desc = mod.Mod.GetModDescription();
@@ -139,7 +142,7 @@ namespace GadgetCore
                         enableUMFButton.interactable = !GadgetCore.dependencies.Any(x => !disabledMods.Contains(x.Key) && x.Value.Any(d => { string[] split = d.Split(' '); return split[split.Length - 2].Equals(mod); }));
                     }
                     enableButton.interactable = false;
-                    configButton.interactable = true;
+                    configButton.interactable = GadgetModConfigs.GetConfigMenuObject(modIndex) != null;
                     string desc = null;
                     try
                     {
@@ -173,9 +176,29 @@ namespace GadgetCore
             }
         }
 
+        internal void UMFConfigButton()
+        {
+            if (GadgetModConfigs.IsConfigMenuOpen(-1))
+            {
+                GadgetModConfigs.CloseConfigMenu(-1);
+            }
+            else
+            {
+                GadgetModConfigs.OpenConfigMenu(-1);
+            }
+        }
+
         internal void ConfigButton()
         {
-            string filePath;
+            if (GadgetModConfigs.IsConfigMenuOpen(modIndex))
+            {
+                GadgetModConfigs.CloseConfigMenu(modIndex);
+            }
+            else
+            {
+                GadgetModConfigs.OpenConfigMenu(modIndex);
+            }
+            /*string filePath;
             if (modIndex < GadgetMods.CountMods())
             {
                 filePath = UMFData.ConfigsPath + "/" + GadgetMods.GetModInfo(modIndex).UMFName + ".ini";
@@ -200,7 +223,7 @@ namespace GadgetCore
                 }
                 ConfigHandles.Add(Process.Start(filePath));
             }
-            catch (Exception e) { GadgetCore.Log(e.ToString()); }
+            catch (Exception e) { GadgetCore.Log(e.ToString()); }*/
         }
 
         internal void EnableUMFButton()

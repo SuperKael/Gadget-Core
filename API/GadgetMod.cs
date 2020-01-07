@@ -1,9 +1,13 @@
-﻿using System;
+﻿using GadgetCore.API.ConfigMenu;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
+using UModFramework.API;
 
 namespace GadgetCore.API
 {
@@ -69,6 +73,29 @@ namespace GadgetCore.API
         public virtual string GetModVersionString()
         {
             return (GetType().Assembly.GetCustomAttributes(typeof(AssemblyFileVersionAttribute), false)[0] as AssemblyFileVersionAttribute).Version;
+        }
+
+        /// <summary>
+        /// Returns an <see cref="IGadgetConfigMenu"/> for this mod. By default, returns a <see cref="UMFGadgetConfigMenu"/> for this mod's UMF config file. May return null if the mod should not have a config menu.
+        /// </summary>
+        /// <returns></returns>
+        public virtual IGadgetConfigMenu GetConfigMenu()
+        {
+            try
+            {
+                return new UMFGadgetConfigMenu(Regex.Replace(GadgetMods.GetModInfo(ModID).Attribute.Name, @"\s+", ""), false, Path.Combine(UMFData.ConfigsPath, Assembly.GetAssembly(GetType()).GetName().Name) + ".ini");
+            }
+            catch (InvalidOperationException e)
+            {
+                if (e.Message == UMFGadgetConfigMenu.NO_CONFIGURABLE_DATA)
+                {
+                    return null;
+                }
+                else
+                {
+                    throw;
+                }
+            }
         }
     }
 }
