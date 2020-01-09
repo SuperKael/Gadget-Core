@@ -32,6 +32,8 @@ namespace GadgetCore
         internal Button enableButton;
         internal Button unpackButton;
 
+        private Vector2 canvasSize;
+
         internal static bool RestartNeeded { get; private set; } = false;
 
         internal void Start()
@@ -54,6 +56,18 @@ namespace GadgetCore
                 wasUMFEnabled[GadgetMods.CountMods() + GadgetCore.nonGadgetMods.Count + GadgetCore.disabledMods.Count + i] = false;
             }
             StartCoroutine(WatchForRestartNeeded());
+        }
+
+        internal void Update()
+        {
+            if (canvasSize.x != SceneInjector.ModMenuCanvas.GetComponent<RectTransform>().sizeDelta.x || canvasSize.y != SceneInjector.ModMenuCanvas.GetComponent<RectTransform>().sizeDelta.y)
+            {
+                if (canvasSize != default)
+                {
+                    GadgetModConfigs.RebuildAllConfigMenus();
+                }
+                canvasSize = new Vector2(SceneInjector.ModMenuCanvas.GetComponent<RectTransform>().sizeDelta.x, SceneInjector.ModMenuCanvas.GetComponent<RectTransform>().sizeDelta.y);
+            }
         }
 
         public void UpdateInfo(Toggle toggle, int modIndex)

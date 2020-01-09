@@ -30,6 +30,9 @@ namespace GadgetCore.Patches
                 SceneInjector.ModMenuBeam.transform.localScale = new Vector3(30f, 0f, 1f);
                 SceneInjector.ModMenuButtonHolder.transform.position = new Vector3(-40f, 0f, 0f);
                 SceneInjector.ModMenu.SetActive(false);
+                SceneInjector.ModMenuCanvas.GetComponent<CanvasGroup>().alpha = 0;
+                SceneInjector.ModMenuCanvas.GetComponent<CanvasGroup>().interactable = false;
+                SceneInjector.ModMenuCanvas.GetComponent<CanvasGroup>().blocksRaycasts = false;
                 GadgetModConfigs.CloseAllConfigMenus();
                 __instance.StartCoroutine(AnimateModMenuButton(__instance));
             }

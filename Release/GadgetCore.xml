@@ -228,6 +228,11 @@
             Removes all <see cref="T:GadgetCore.API.ConfigMenu.GadgetConfigComponent"/>s from this <see cref="T:GadgetCore.API.ConfigMenu.BasicGadgetConfigMenu"/>. You should call <see cref="M:GadgetCore.API.ConfigMenu.BasicGadgetConfigMenu.Rebuild"/> sometime after this to update the displayed menu.
             </summary>
         </member>
+        <member name="M:GadgetCore.API.ConfigMenu.BasicGadgetConfigMenu.Reset">
+            <summary>
+            Called to make the config menu totally reset itself.
+            </summary>
+        </member>
         <member name="M:GadgetCore.API.ConfigMenu.BasicGadgetConfigMenu.Rebuild">
             <summary>
             Called whenever this mod's config menu is opened. The parent <see cref="T:UnityEngine.RectTransform"/> that was passed to <see cref="M:GadgetCore.API.ConfigMenu.BasicGadgetConfigMenu.Build(UnityEngine.RectTransform)"/> will be enabled immediately after this method is called. You should never call this yourself.
@@ -588,6 +593,11 @@
             Whether the text height may be resized in the case of text overflow. Be aware that this resizing operation is not perfect - as such, you should avoid using it when possible.
             </summary>
         </member>
+        <member name="F:GadgetCore.API.ConfigMenu.GadgetConfigLabelComponent.InitialHeight">
+            <summary>
+            The height of this component before resizing the height to match the text height.
+            </summary>
+        </member>
         <member name="M:GadgetCore.API.ConfigMenu.GadgetConfigLabelComponent.#ctor(GadgetCore.API.ConfigMenu.BasicGadgetConfigMenu,System.String,System.String,System.Single,System.Boolean)">
             <summary>
             Constructs a new <see cref="T:GadgetCore.API.ConfigMenu.GadgetConfigLabelComponent"/> that simply displays a piece of text.
@@ -773,6 +783,16 @@
             Closes any and all config menus. Also, if <paramref name="showModMenu"/> is true, then displays the Mod Menu (if it isn't already being displayed).
             </summary>
         </member>
+        <member name="M:GadgetCore.API.ConfigMenu.GadgetModConfigs.RebuildAllConfigMenus">
+            <summary>
+            Rebuilds all config menus.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ConfigMenu.GadgetModConfigs.ResetAllConfigMenus">
+            <summary>
+            Resets all config menus.
+            </summary>
+        </member>
         <member name="T:GadgetCore.API.ConfigMenu.IGadgetConfigMenu">
             <summary>
             Interface for Gadget Config Menu renderers. Most likely, you would be better of using <see cref="T:GadgetCore.API.ConfigMenu.BasicGadgetConfigMenu"/> or <see cref="T:GadgetCore.API.ConfigMenu.UMFGadgetConfigMenu"/>.
@@ -783,6 +803,11 @@
             Called for every configurable mod and Gadget when the Mod Menu is injected into the title screen. This is called again if the player returns to the title screen after having selected a character. You should never call this yourself.
             </summary>
             <param name="parent">A <see cref="T:UnityEngine.RectTransform"/> on the Mod Menu canvas intended to be used as the parent object of your config menu. This object will have a large background <see cref="T:UnityEngine.UI.Image">Image</see> on it, intended to be the background of your config menu. Feel free to change or remove this background. This object will also be enabled and disabled as needed to open and close the config menu.</param>
+        </member>
+        <member name="M:GadgetCore.API.ConfigMenu.IGadgetConfigMenu.Reset">
+            <summary>
+            Called to make the config menu totally reset itself.
+            </summary>
         </member>
         <member name="M:GadgetCore.API.ConfigMenu.IGadgetConfigMenu.Rebuild">
             <summary>
@@ -824,6 +849,16 @@
             The path to the config file that this menu is for.
             </summary>
         </member>
+        <member name="F:GadgetCore.API.ConfigMenu.UMFGadgetConfigMenu.ConfigFileSection">
+            <summary>
+            The Ini section of the config file that this config menu is for.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ConfigMenu.UMFGadgetConfigMenu.ReadonlyEntries">
+            <summary>
+            All config entries that match names in this list are displayed as read-only.
+            </summary>
+        </member>
         <member name="F:GadgetCore.API.ConfigMenu.UMFGadgetConfigMenu.IniParser">
             <summary>
             The <see cref="T:IniParser.FileIniDataParser"/> used for accessing the config file.
@@ -838,7 +873,7 @@
             <summary>
             Constructs a UMFGadgetConfigMenu, optionally for a given ini file section and given config file path. Throws an <see cref="T:System.InvalidOperationException"/> with the message <see cref="F:GadgetCore.API.ConfigMenu.UMFGadgetConfigMenu.NO_CONFIGURABLE_DATA"/> if the given config file has no configurable data.
             </summary>
-            <param name="section">The ini file section to reference. If the specified section is not present, then the section matching the config file's name will be used instead.</param>
+            <param name="section">The Ini file section to reference. If the specified section is not present, then the section matching the config file's name will be used instead.</param>
             <param name="hidesModMenu">Specifies whether the mod menu should be hidden when this config menu is opened.</param>
             <param name="configFilePath">Specifies the location of the config file to reference. If left unspecified, the standard config file for your mod will be used.</param>
             <param name="readonlyEntries">All config entries that match names in this list will be displayed as read-only.</param>
@@ -846,6 +881,11 @@
         <member name="M:GadgetCore.API.ConfigMenu.UMFGadgetConfigMenu.LoadConfigFile(System.String,System.String,System.String[])">
             <summary>
             Loads the given config file, and adds all of the entries within to this <see cref="T:GadgetCore.API.ConfigMenu.UMFGadgetConfigMenu"/>
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ConfigMenu.UMFGadgetConfigMenu.Reset">
+            <summary>
+            Called to make the config menu totally reset itself.
             </summary>
         </member>
         <member name="M:GadgetCore.API.ConfigMenu.UMFGadgetConfigMenu.AlignConfigEntry(System.String)">

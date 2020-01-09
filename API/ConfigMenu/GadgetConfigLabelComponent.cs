@@ -23,12 +23,18 @@ namespace GadgetCore.API.ConfigMenu
         public bool AllowHeightResize { get; protected set; }
 
         /// <summary>
+        /// The height of this component before resizing the height to match the text height.
+        /// </summary>
+        protected float InitialHeight;
+
+        /// <summary>
         /// Constructs a new <see cref="GadgetConfigLabelComponent"/> that simply displays a piece of text.
         /// </summary>
         public GadgetConfigLabelComponent(BasicGadgetConfigMenu configMenu, string name, string text, float height = 0.05f, bool allowHeightResize = false) : base(configMenu, name, height)
         {
             Text = text;
             AllowHeightResize = allowHeightResize;
+            InitialHeight = height;
         }
 
         /// <summary>
@@ -50,7 +56,7 @@ namespace GadgetCore.API.ConfigMenu
             label.alignment = TextAnchor.MiddleLeft;
             if (AllowHeightResize)
             {
-                Height *= Mathf.CeilToInt(label.preferredHeight / label.font.lineHeight / 3.5f);
+                Height = InitialHeight * Mathf.CeilToInt(label.preferredHeight / label.fontSize);
             }
         }
     }

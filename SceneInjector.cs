@@ -18,6 +18,7 @@ namespace GadgetCore
         public static GameObject ModMenuBeam { get; internal set; }
         public static GameObject ModMenuButtonHolder { get; internal set; }
         public static GameObject ModMenu { get; internal set; }
+        public static Canvas ModMenuCanvas { get; internal set; }
         public static RectTransform ModMenuPanel { get; internal set; }
         public static RectTransform ModConfigMenus { get; internal set; }
         public static GameObject ModMenuBackButtonBeam { get; internal set; }
@@ -91,12 +92,14 @@ namespace GadgetCore
             ModMenuBackButtonHolder.GetComponent<Animation>().RemoveClip("bbbac2");
             ModMenuBackButtonHolder.GetComponent<Animation>().AddClip(BuildModMenuButtonAnimClip(true), "bbbac2");
             ModMenuBackButtonHolder.GetComponent<Animation>().clip = ModMenuBackButtonHolder.GetComponent<Animation>().GetClip("bbbac2");
-            Canvas canvas = new GameObject("Canvas", typeof(RectTransform), typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster)).GetComponent<Canvas>();
-            canvas.transform.SetParent(ModMenu.transform);
-            canvas.GetComponent<RectTransform>().pivot = new Vector2(0.5f, 0.5f);
-            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-            canvas.pixelPerfect = true;
-            CanvasScaler scaler = canvas.GetComponent<CanvasScaler>();
+            ModMenuCanvas = new GameObject("Mod Menu Canvas", typeof(RectTransform), typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster), typeof(CanvasGroup)).GetComponent<Canvas>();
+            ModMenuCanvas.GetComponent<CanvasGroup>().alpha = 0;
+            ModMenuCanvas.GetComponent<CanvasGroup>().interactable = false;
+            ModMenuCanvas.GetComponent<CanvasGroup>().blocksRaycasts = false;
+            ModMenuCanvas.GetComponent<RectTransform>().pivot = new Vector2(0.5f, 0.5f);
+            ModMenuCanvas.renderMode = RenderMode.ScreenSpaceOverlay;
+            ModMenuCanvas.pixelPerfect = true;
+            CanvasScaler scaler = ModMenuCanvas.GetComponent<CanvasScaler>();
             scaler.scaleFactor = 2;
             scaler.referencePixelsPerUnit = 100;
             ModConfigMenuText = UnityEngine.Object.Instantiate(InstanceTracker.Menuu.menuOptions.transform.Find("txt0").gameObject, ModMenu.transform);
@@ -110,13 +113,13 @@ namespace GadgetCore
             restartRequiredText.transform.localScale *= 0.75f;
             Array.ForEach(restartRequiredText.GetComponentsInChildren<TextMesh>(), x => { x.text = "Restart Required!"; x.anchor = TextAnchor.UpperCenter; });
             ModMenuPanel = new GameObject("Panel", typeof(RectTransform)).GetComponent<RectTransform>();
-            ModMenuPanel.SetParent(canvas.transform);
+            ModMenuPanel.SetParent(ModMenuCanvas.transform);
             ModMenuPanel.anchorMin = new Vector2(0.15f, 0.15f);
             ModMenuPanel.anchorMax = new Vector2(0.85f, 0.85f);
             ModMenuPanel.offsetMin = Vector2.zero;
             ModMenuPanel.offsetMax = Vector2.zero;
             ModConfigMenus = new GameObject("Mod Config Menus", typeof(RectTransform)).GetComponent<RectTransform>();
-            ModConfigMenus.SetParent(canvas.transform);
+            ModConfigMenus.SetParent(ModMenuCanvas.transform);
             ModConfigMenus.anchorMin = new Vector2(0.15f, 0.15f);
             ModConfigMenus.anchorMax = new Vector2(0.85f, 0.85f);
             ModConfigMenus.offsetMin = Vector2.zero;
@@ -222,7 +225,7 @@ namespace GadgetCore
             configButtonText.fontSize = 12;
             configButtonText.text = "Configure";
             ModMenuDescPanel.umfConfigButton = new GameObject("UMF Config Button", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Button)).GetComponent<Button>();
-            ModMenuDescPanel.umfConfigButton.GetComponent<RectTransform>().SetParent(canvas.transform);
+            ModMenuDescPanel.umfConfigButton.GetComponent<RectTransform>().SetParent(ModMenuCanvas.transform);
             ModMenuDescPanel.umfConfigButton.GetComponent<RectTransform>().anchorMin = new Vector2(0.025f, 0.4f);
             ModMenuDescPanel.umfConfigButton.GetComponent<RectTransform>().anchorMax = new Vector2(0.125f, 0.6f);
             ModMenuDescPanel.umfConfigButton.GetComponent<RectTransform>().offsetMin = new Vector2(0, 0);
@@ -242,6 +245,34 @@ namespace GadgetCore
             umfConfigButtonText.font = modMenuDescText.font;
             umfConfigButtonText.fontSize = 12;
             umfConfigButtonText.text = "Configure UMF";
+            Button configReloadButton = new GameObject("Config Reload Button", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Button)).GetComponent<Button>();
+            configReloadButton.GetComponent<RectTransform>().SetParent(ModMenuCanvas.transform);
+            configReloadButton.GetComponent<RectTransform>().anchorMin = new Vector2(0.875f, 0.4f);
+            configReloadButton.GetComponent<RectTransform>().anchorMax = new Vector2(0.975f, 0.6f);
+            configReloadButton.GetComponent<RectTransform>().offsetMin = new Vector2(0, 0);
+            configReloadButton.GetComponent<RectTransform>().offsetMax = new Vector2(0, 0);
+            configReloadButton.GetComponent<Image>().sprite = BoxSprite;
+            configReloadButton.GetComponent<Image>().type = Image.Type.Sliced;
+            configReloadButton.GetComponent<Image>().fillCenter = true;
+            configReloadButton.targetGraphic = configReloadButton.GetComponent<Image>();
+            configReloadButton.onClick.AddListener(() =>
+            {
+                foreach (string mod in UMFData.ModNames)
+                {
+                    UMFGUI.SendCommand("cfgReload " + mod);
+                }
+                GadgetModConfigs.ResetAllConfigMenus();
+            });
+            Text configReloadButtonText = new GameObject("Text", typeof(RectTransform), typeof(CanvasRenderer), typeof(Text)).GetComponent<Text>();
+            configReloadButtonText.rectTransform.SetParent(configReloadButton.transform);
+            configReloadButtonText.rectTransform.anchorMin = new Vector2(0f, 0f);
+            configReloadButtonText.rectTransform.anchorMax = new Vector2(1f, 1f);
+            configReloadButtonText.rectTransform.offsetMin = Vector2.zero;
+            configReloadButtonText.rectTransform.offsetMax = Vector2.zero;
+            configReloadButtonText.alignment = TextAnchor.MiddleCenter;
+            configReloadButtonText.font = modMenuDescText.font;
+            configReloadButtonText.fontSize = 12;
+            configReloadButtonText.text = "Reload Configs";
             ModMenuDescPanel.enableUMFButton = new GameObject("Enable UMF Button", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Button)).GetComponent<Button>();
             ModMenuDescPanel.enableUMFButton.GetComponent<RectTransform>().SetParent(modMenuButtonPanel.transform);
             ModMenuDescPanel.enableUMFButton.GetComponent<RectTransform>().anchorMin = new Vector2(1f / 3f, 0f);

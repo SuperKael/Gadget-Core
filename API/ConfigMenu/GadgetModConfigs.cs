@@ -168,5 +168,41 @@ namespace GadgetCore.API.ConfigMenu
             }
             if (showModMenu) SceneInjector.ModMenuPanel.gameObject.SetActive(true);
         }
+
+        /// <summary>
+        /// Rebuilds all config menus.
+        /// </summary>
+        public static void RebuildAllConfigMenus()
+        {
+            if (UMFConfigMenu != null)
+            {
+                UMFConfigMenu.Item1.Rebuild();
+            }
+            foreach (Tuple<IGadgetConfigMenu, RectTransform> configMenu in ConfigMenus)
+            {
+                if (configMenu != null)
+                {
+                    configMenu.Item1.Rebuild();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Resets all config menus.
+        /// </summary>
+        public static void ResetAllConfigMenus()
+        {
+            if (UMFConfigMenu != null)
+            {
+                UMFConfigMenu.Item1.Reset();
+            }
+            foreach (Tuple<IGadgetConfigMenu, RectTransform> configMenu in ConfigMenus)
+            {
+                if (configMenu != null)
+                {
+                    configMenu.Item1.Reset();
+                }
+            }
+        }
     }
 }

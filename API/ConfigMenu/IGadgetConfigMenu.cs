@@ -14,6 +14,11 @@ namespace GadgetCore.API.ConfigMenu
         void Build(RectTransform parent);
 
         /// <summary>
+        /// Called to make the config menu totally reset itself.
+        /// </summary>
+        void Reset();
+
+        /// <summary>
         /// Called to make the config menu rebuild itself. 
         /// </summary>
         void Rebuild();

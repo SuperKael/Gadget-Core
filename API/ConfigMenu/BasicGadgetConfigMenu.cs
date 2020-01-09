@@ -323,6 +323,14 @@ namespace GadgetCore.API.ConfigMenu
         }
 
         /// <summary>
+        /// Called to make the config menu totally reset itself.
+        /// </summary>
+        public virtual void Reset()
+        {
+            Rebuild();
+        }
+
+        /// <summary>
         /// Called whenever this mod's config menu is opened. The parent <see cref="RectTransform"/> that was passed to <see cref="Build(RectTransform)"/> will be enabled immediately after this method is called. You should never call this yourself.
         /// </summary>
         public virtual void Rebuild()
@@ -332,7 +340,7 @@ namespace GadgetCore.API.ConfigMenu
             scrollPositionCache = (1 - bodyScrollPanel.GetComponent<ScrollRect>().verticalNormalizedPosition) * (body.anchorMax.y - body.anchorMin.y);
             foreach (Transform t in MenuParent) UnityEngine.Object.Destroy(t.gameObject);
             RectTransform menuParent = MenuParent;
-            MenuParent = null;
+            HasBuilt = false;
             Build(menuParent);
         }
 

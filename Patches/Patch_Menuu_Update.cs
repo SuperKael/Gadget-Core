@@ -6,6 +6,7 @@ using System.Collections;
 using Ionic.Zip;
 using System.IO;
 using UModFramework.API;
+using GadgetCore.API.ConfigMenu;
 
 namespace GadgetCore.Patches
 {
@@ -58,12 +59,24 @@ namespace GadgetCore.Patches
             SceneInjector.ModMenuBackButtonHolder.transform.position = new Vector3(-40f, 0f, 0f);
             instance.menuMain.SetActive(false);
             SceneInjector.ModMenu.SetActive(true);
+            SceneInjector.ModMenuCanvas.GetComponent<CanvasGroup>().alpha = 1;
+            SceneInjector.ModMenuCanvas.GetComponent<CanvasGroup>().interactable = true;
+            SceneInjector.ModMenuCanvas.GetComponent<CanvasGroup>().blocksRaycasts = true;
+            instance.StartCoroutine(DelayRebuildConfigMenus());
             SceneInjector.ModMenuBackButtonBeam.GetComponent<Animation>().Play();
             yield return new WaitForSeconds(0.1f);
             SceneInjector.ModMenuBackButtonHolder.GetComponent<Animation>().Play();
             yield return null;
             yield break;
         }
+
+        private static IEnumerator DelayRebuildConfigMenus()
+        {
+            yield return new WaitForEndOfFrame();
+            GadgetModConfigs.ResetAllConfigMenus();
+            yield break;
+        }
+
         private static IEnumerator UnpackGadgetCore()
         {
             if (ZipUtils.UnpackMod("GadgetCore"))

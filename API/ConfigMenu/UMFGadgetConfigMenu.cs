@@ -26,6 +26,14 @@ namespace GadgetCore.API.ConfigMenu
         /// </summary>
         protected string ConfigFilePath;
         /// <summary>
+        /// The Ini section of the config file that this config menu is for.
+        /// </summary>
+        protected string ConfigFileSection;
+        /// <summary>
+        /// All config entries that match names in this list are displayed as read-only.
+        /// </summary>
+        protected string[] ReadonlyEntries;
+        /// <summary>
         /// The <see cref="FileIniDataParser"/> used for accessing the config file.
         /// </summary>
         protected FileIniDataParser IniParser;
@@ -37,7 +45,7 @@ namespace GadgetCore.API.ConfigMenu
         /// <summary>
         /// Constructs a UMFGadgetConfigMenu, optionally for a given ini file section and given config file path. Throws an <see cref="InvalidOperationException"/> with the message <see cref="NO_CONFIGURABLE_DATA"/> if the given config file has no configurable data.
         /// </summary>
-        /// <param name="section">The ini file section to reference. If the specified section is not present, then the section matching the config file's name will be used instead.</param>
+        /// <param name="section">The Ini file section to reference. If the specified section is not present, then the section matching the config file's name will be used instead.</param>
         /// <param name="hidesModMenu">Specifies whether the mod menu should be hidden when this config menu is opened.</param>
         /// <param name="configFilePath">Specifies the location of the config file to reference. If left unspecified, the standard config file for your mod will be used.</param>
         /// <param name="readonlyEntries">All config entries that match names in this list will be displayed as read-only.</param>
@@ -60,13 +68,13 @@ namespace GadgetCore.API.ConfigMenu
                 AddComponent(new GadgetConfigSpacerComponent(this, "Spacer"));
                 AddComponent(new GadgetConfigButtonComponent(this, null, "Refresh Config File", () =>
                 {
-                    Clear();
-                    LoadConfigFile(configFilePath, section, readonlyEntries);
-                    Rebuild();
+                    Reset();
                 }, 0.25f));
                 return;
             }
             ConfigFilePath = configFilePath;
+            ConfigFileSection = section;
+            ReadonlyEntries = readonlyEntries;
             IniParser = new FileIniDataParser();
             Ini = IniParser.ReadFile(configFilePath);
             Ini.Configuration.SkipInvalidLines = true;
@@ -221,7 +229,7 @@ namespace GadgetCore.API.ConfigMenu
                             string stringVanillaValue = vanillaValueString;
                             if (keyData.Comments.Contains("[IsKeyBind: True]"))
                             {
-                                AddComponent(new GadgetConfigKeybindComponent(this, keyData.KeyName, stringValue, (s) => SetConfigValue(section, keyData.KeyName, s), readonlyEntries.Contains(keyData.KeyName), true, stringDefaultValue, stringVanillaValue), alignment);
+                                AddComponent(new GadgetConfigKeybindComponent(this, keyData.KeyName, stringValue, (s) => SetConfigValue(section, keyData.KeyName, s), true, readonlyEntries.Contains(keyData.KeyName), stringDefaultValue, stringVanillaValue), alignment);
                             }
                             else
                             {
@@ -234,7 +242,7 @@ namespace GadgetCore.API.ConfigMenu
                             string[] stringArrayVanillaValue = vanillaValueString?.Split(',');
                             if (keyData.Comments.Contains("[IsKeyBind: True]"))
                             {
-                                AddComponent(new GadgetConfigMultiKeybindComponent(this, keyData.KeyName, stringArrayValue, (s) => SetConfigValue(section, keyData.KeyName, s?.Aggregate(new StringBuilder(), (x, y) => { if (x.Length > 0) x.Append(','); x.Append(y); return x; })?.ToString()), readonlyEntries.Contains(keyData.KeyName), true, stringArrayDefaultValue, stringArrayVanillaValue), alignment);
+                                AddComponent(new GadgetConfigMultiKeybindComponent(this, keyData.KeyName, stringArrayValue, (s) => SetConfigValue(section, keyData.KeyName, s?.Aggregate(new StringBuilder(), (x, y) => { if (x.Length > 0) x.Append(','); x.Append(y); return x; })?.ToString()), true, readonlyEntries.Contains(keyData.KeyName), stringArrayDefaultValue, stringArrayVanillaValue), alignment);
                             }
                             else
                             {
@@ -245,7 +253,7 @@ namespace GadgetCore.API.ConfigMenu
                             string keyCodeValue = keyData.Value;
                             string keyCodeDefaultValue = defaultValueString;
                             string keyCodeVanillaValue = vanillaValueString;
-                            AddComponent(new GadgetConfigKeybindComponent(this, keyData.KeyName, keyCodeValue, (s) => SetConfigValue(section, keyData.KeyName, s), readonlyEntries.Contains(keyData.KeyName), false, keyCodeDefaultValue, keyCodeVanillaValue), alignment);
+                            AddComponent(new GadgetConfigKeybindComponent(this, keyData.KeyName, keyCodeValue, (s) => SetConfigValue(section, keyData.KeyName, s), false, readonlyEntries.Contains(keyData.KeyName), keyCodeDefaultValue, keyCodeVanillaValue), alignment);
                             break;
                         default: continue;
                     }
@@ -357,6 +365,16 @@ namespace GadgetCore.API.ConfigMenu
         }
 
         /// <summary>
+        /// Called to make the config menu totally reset itself.
+        /// </summary>
+        public override void Reset()
+        {
+            Clear();
+            LoadConfigFile(ConfigFilePath, ConfigFileSection, ReadonlyEntries);
+            Rebuild();
+        }
+
+        /// <summary>
         /// Used for validation and alignment of config entries being read from the config file. Return an alignment to align, or return null to prevent the entry from appearing in the menu.
         /// </summary>
         /// <param name="name">The name of the config entry</param>
@@ -378,6 +396,7 @@ namespace GadgetCore.API.ConfigMenu
         {
             base.Update();
             IniParser.WriteFile(ConfigFilePath, Ini);
+            UMFGUI.SendCommand("cfgReload " + Path.GetFileNameWithoutExtension(ConfigFilePath));
         }
     }
 }
