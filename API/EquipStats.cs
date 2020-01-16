@@ -14,6 +14,10 @@ namespace GadgetCore.API
         /// EquipStats where all stats are 0.
         /// </summary>
         public static readonly EquipStats NONE = new EquipStats(0, 0, 0, 0, 0, 0);
+        /// <summary>
+        /// EquipStats where all stats are 1.
+        /// </summary>
+        public static readonly EquipStats ONE = new EquipStats(1, 1, 1, 1, 1, 1);
 
         private readonly int[] stats;
         /// <summary>
@@ -61,6 +65,20 @@ namespace GadgetCore.API
             stats[3] = TEC;
             stats[4] = MAG;
             stats[5] = FTH;
+        }
+
+        /// <summary>
+        /// Creates a new instance of EquipStats where all stats are the given value.
+        /// </summary>
+        public EquipStats(int stat)
+        {
+            stats = new int[6];
+            stats[0] = stat;
+            stats[1] = stat;
+            stats[2] = stat;
+            stats[3] = stat;
+            stats[4] = stat;
+            stats[5] = stat;
         }
 
         /// <summary>
@@ -132,6 +150,54 @@ namespace GadgetCore.API
         public static EquipStats operator -(EquipStats a, EquipStats b)
         {
             return new EquipStats(a.VIT - b.VIT, a.STR - b.STR, a.DEX - b.DEX, a.TEC - b.TEC, a.MAG - b.MAG, a.FTH - b.FTH);
+        }
+
+        /// <summary>
+        /// Creates a new EquipStats by multiplying together the values of two other EquipStats.
+        /// </summary>
+        public static EquipStats operator *(EquipStats a, EquipStats b)
+        {
+            return new EquipStats(a.VIT * b.VIT, a.STR * b.STR, a.DEX * b.DEX, a.TEC * b.TEC, a.MAG * b.MAG, a.FTH * b.FTH);
+        }
+
+        /// <summary>
+        /// Creates a new EquipStats by diving the values of one EquipStats from another.
+        /// </summary>
+        public static EquipStats operator /(EquipStats a, EquipStats b)
+        {
+            return new EquipStats(a.VIT / b.VIT, a.STR / b.STR, a.DEX / b.DEX, a.TEC / b.TEC, a.MAG / b.MAG, a.FTH / b.FTH);
+        }
+
+        /// <summary>
+        /// Creates a new EquipStats by adding a value to all stats.
+        /// </summary>
+        public static EquipStats operator +(EquipStats a, int b)
+        {
+            return new EquipStats(a.VIT + b, a.STR + b, a.DEX + b, a.TEC + b, a.MAG + b, a.FTH + b);
+        }
+
+        /// <summary>
+        /// Creates a new EquipStats by subtracting a value from all stats.
+        /// </summary>
+        public static EquipStats operator -(EquipStats a, int b)
+        {
+            return new EquipStats(a.VIT - b, a.STR - b, a.DEX - b, a.TEC - b, a.MAG - b, a.FTH - b);
+        }
+
+        /// <summary>
+        /// Creates a new EquipStats by multiplying all stats by a value.
+        /// </summary>
+        public static EquipStats operator *(EquipStats a, float b)
+        {
+            return new EquipStats((int)(a.VIT * b), (int)(a.STR * b), (int)(a.DEX * b), (int)(a.TEC * b), (int)(a.MAG * b), (int)(a.FTH * b));
+        }
+
+        /// <summary>
+        /// Creates a new EquipStats by dividing all stats by a value.
+        /// </summary>
+        public static EquipStats operator /(EquipStats a, float b)
+        {
+            return new EquipStats((int)(a.VIT / b), (int)(a.STR / b), (int)(a.DEX / b), (int)(a.TEC / b), (int)(a.MAG / b), (int)(a.FTH / b));
         }
     }
 }

@@ -1017,6 +1017,11 @@
             EquipStats where all stats are 0.
             </summary>
         </member>
+        <member name="F:GadgetCore.API.EquipStats.ONE">
+            <summary>
+            EquipStats where all stats are 1.
+            </summary>
+        </member>
         <member name="P:GadgetCore.API.EquipStats.VIT">
             <summary>
             The VIT stat.
@@ -1057,6 +1062,11 @@
             Creates a new instance of EquipStats that has the specified stats.
             </summary>
         </member>
+        <member name="M:GadgetCore.API.EquipStats.#ctor(System.Int32)">
+            <summary>
+            Creates a new instance of EquipStats where all stats are the given value.
+            </summary>
+        </member>
         <member name="M:GadgetCore.API.EquipStats.#ctor(System.Int32[])">
             <summary>
             Creates a new instance of EquipStats from an array of stat values. The array must be of length 6.
@@ -1090,6 +1100,36 @@
         <member name="M:GadgetCore.API.EquipStats.op_Subtraction(GadgetCore.API.EquipStats,GadgetCore.API.EquipStats)">
             <summary>
             Creates a new EquipStats by subtracting the values of one EquipStats from another.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.EquipStats.op_Multiply(GadgetCore.API.EquipStats,GadgetCore.API.EquipStats)">
+            <summary>
+            Creates a new EquipStats by multiplying together the values of two other EquipStats.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.EquipStats.op_Division(GadgetCore.API.EquipStats,GadgetCore.API.EquipStats)">
+            <summary>
+            Creates a new EquipStats by diving the values of one EquipStats from another.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.EquipStats.op_Addition(GadgetCore.API.EquipStats,System.Int32)">
+            <summary>
+            Creates a new EquipStats by adding a value to all stats.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.EquipStats.op_Subtraction(GadgetCore.API.EquipStats,System.Int32)">
+            <summary>
+            Creates a new EquipStats by subtracting a value from all stats.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.EquipStats.op_Multiply(GadgetCore.API.EquipStats,System.Single)">
+            <summary>
+            Creates a new EquipStats by multiplying all stats by a value.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.EquipStats.op_Division(GadgetCore.API.EquipStats,System.Single)">
+            <summary>
+            Creates a new EquipStats by dividing all stats by a value.
             </summary>
         </member>
         <member name="T:GadgetCore.API.GadgetCoreAPI">
@@ -1213,6 +1253,15 @@
             <param name="item">The item to spawn.</param>
             <param name="isChip">True to drop a chip instead of a normal item.</param>
         </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.DropItemLocal(UnityEngine.Vector3,Item,System.Boolean)">
+            <summary>
+            Use to spawn an item into the game world as if dropped by this player, but only spawns it locally.
+            You may notice that the vanilla game's source-code uses Resources.Load to spawn items. You should not use that.
+            </summary>
+            <param name="pos">The position to spawn the item at. Note that despite being a 2D game, Roguelands uses 3D space. That being said, the z-coordinate should nearly always be 0.</param>
+            <param name="item">The item to spawn.</param>
+            <param name="isChip">True to drop a chip instead of a normal item.</param>
+        </member>
         <member name="M:GadgetCore.API.GadgetCoreAPI.GetCursorPos">
             <summary>
             Returns the position of the mouse cursor.
@@ -1245,6 +1294,29 @@
             <summary>
             Gets the EquipStats of the item with the given ID. Easier than using reflection to call GetGearBaseStats on GameScript.
             </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.GetGearBaseStats(Item)">
+            <summary>
+            Gets the EquipStats of the given item. Applies 'Base' stat modifiers to the stats.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.GetGearStats(Item)">
+            <summary>
+            Gets the EquipStats of the given item. This accounts for all factors that effect the item's stats.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.RegisterStatModifier(GadgetCore.API.GadgetCoreAPI.StatModifier,GadgetCore.API.StatModifierType)">
+            <summary>
+            Registers an gear stats modifier. Can be used to change how one or more pieces of gear's stats are calculated.
+            </summary>
+            <param name="modifier"></param>
+            <param name="type"></param>
+        </member>
+        <member name="T:GadgetCore.API.GadgetCoreAPI.StatModifier">
+            <summary>
+            Delegate used for stat modifiers.
+            </summary>
+            <param name="item">The item who's stats are being modified.</param>
         </member>
         <member name="M:GadgetCore.API.GadgetCoreAPI.IsResourceRegistered(System.String)">
             <summary>
@@ -2752,6 +2824,72 @@
         <member name="M:GadgetCore.API.RegistryEntry`2.GetNextIDForType(System.Int32)">
             <summary>
             Returns the next valid ID for this Registry Entry's Type, after the provided lastValidID.
+            </summary>
+        </member>
+        <member name="T:GadgetCore.API.StatModifierType">
+            <summary>
+            Indicates the type of stat modifier the modifier being applied is. Note that they are applied in the order Flat -> AddMult -> ExpMult. Also note that the 'AddMult' types are additive multipliers, meaning that, for example, returning EquipStats.ONE will double the base stats.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.StatModifierType.BaseFlat">
+            <summary>
+            Adds a flat modifier to the item's true base stats.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.StatModifierType.BaseAddMult">
+            <summary>
+            Adds a multiplicative modifier based off of the item's true base stats to the item's modified base stats.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.StatModifierType.BaseExpMult">
+            <summary>
+            Applies a multiplicative modifier based off of the item's modified base stats.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.StatModifierType.LevelFlat">
+            <summary>
+            Adds an otherwise flat modifier that scales with the item's level.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.StatModifierType.LevelAddMult">
+            <summary>
+            Adds a multiplicative modifier based off of the item's base stats that scales with each level.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.StatModifierType.LevelExpMult">
+            <summary>
+            Applies a multiplicative modifier based off the item's modified stats that scales with each level.
+            WARNING: Think about what you are doing before using this one. Thanks to the level scaling, things can get out of hand very quickly.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.StatModifierType.Flat">
+            <summary>
+            Adds a simple flat modifier to the item's stats. Behaves the same way as the bonuses from item quality, or stat-boosting gear mods do.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.StatModifierType.AddMult">
+            <summary>
+            Adds a simple multiplicative modifier based of the item's base stats.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.StatModifierType.ExpMult">
+            <summary>
+            Applies a simple multiplicative modifier based of the item's modified stats.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.StatModifierType.FinalFlat">
+            <summary>
+            Adds a flat modifier that is applied after all non-Final modifiers have been applied.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.StatModifierType.FinalAddMult">
+            <summary>
+            Adds a multiplicative modifier based off of the item's final stats pre-modification that is applied after all non-Final modifiers have been applied.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.StatModifierType.FinalExpMult">
+            <summary>
+            Applies a multiplicative modifier based off of the item's final modified stats that is applied after all other modifiers have been applied.
             </summary>
         </member>
         <member name="T:GadgetCore.API.TileInfo">

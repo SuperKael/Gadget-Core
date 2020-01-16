@@ -20,7 +20,7 @@ namespace GadgetCore.API
         /// <summary>
         /// The version of Gadget Core.
         /// </summary>
-        public const string VERSION = "1.1.4.2";
+        public const string VERSION = "1.1.4.3";
 
         /// <summary>
         /// List of UMF mod names, not including mod libraries.
@@ -45,6 +45,7 @@ namespace GadgetCore.API
         internal static Dictionary<int, string> resourcePaths = new Dictionary<int, string>();
         internal static Dictionary<string, Texture2D> cachedTexes = new Dictionary<string, Texture2D>();
         internal static Dictionary<string, AssetBundle> cachedBundles = new Dictionary<string, AssetBundle>();
+        internal static Dictionary<StatModifierType, List<StatModifier>> statModifiers = new Dictionary<StatModifierType, List<StatModifier>>();
         internal static List<SpriteSheetEntry> spriteSheetSprites = new List<SpriteSheetEntry>();
         internal static int spriteSheetSize = -1;
         internal static Texture2D spriteSheet;
@@ -360,6 +361,31 @@ namespace GadgetCore.API
         }
 
         /// <summary>
+        /// Use to spawn an item into the game world as if dropped by this player, but only spawns it locally.
+        /// You may notice that the vanilla game's source-code uses Resources.Load to spawn items. You should not use that.
+        /// </summary>
+        /// <param name="pos">The position to spawn the item at. Note that despite being a 2D game, Roguelands uses 3D space. That being said, the z-coordinate should nearly always be 0.</param>
+        /// <param name="item">The item to spawn.</param>
+        /// <param name="isChip">True to drop a chip instead of a normal item.</param>
+        public static ItemScript DropItemLocal(Vector3 pos, Item item, bool isChip = false)
+        {
+            if (!isChip)
+            {
+                int[] st = ConstructIntArrayFromItem(item);
+                ItemScript itemScript = ((GameObject)UnityEngine.Object.Instantiate(Resources.Load("i2"), pos, Quaternion.identity)).GetComponent<ItemScript>();
+                itemScript.SendMessage("InitL", st);
+                if (ItemRegistry.GetSingleton().HasEntry(item.id) && (ItemRegistry.GetSingleton().GetEntry(item.id).Type & ItemType.EQUIPABLE) == ItemType.EQUIPABLE) itemScript.back.SetActive(true);
+                return itemScript;
+            }
+            else
+            {
+                ItemScript itemScript = ((GameObject)UnityEngine.Object.Instantiate(Resources.Load("i2"), pos, Quaternion.identity)).GetComponent<ItemScript>();
+                itemScript.SendMessage("ChipL", item.id);
+                return itemScript;
+            }
+        }
+
+        /// <summary>
         /// Returns the position of the mouse cursor.
         /// </summary>
         public static Vector3 GetCursorPos()
@@ -370,7 +396,8 @@ namespace GadgetCore.API
             }
             else
             {
-                return Camera.main.ScreenToWorldPoint(Input.mousePosition);
+                Vector3 pos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+                return new Vector3(pos.x, pos.y, 0);
             }
         }
 
@@ -434,6 +461,88 @@ namespace GadgetCore.API
         {
             return new EquipStats(GetGearBaseStatsMethod.Invoke(InstanceTracker.GameScript, new object[] { ID }) as int[]);
         }
+
+        /// <summary>
+        /// Gets the EquipStats of the given item. Applies 'Base' stat modifiers to the stats.
+        /// </summary>
+        public static EquipStats GetGearBaseStats(Item item)
+        {
+            EquipStats stats = GetGearBaseStats(item.id);
+            if (statModifiers.ContainsKey(StatModifierType.BaseFlat))
+            {
+                foreach (StatModifier modifier in statModifiers[StatModifierType.BaseFlat])
+                {
+                    stats += modifier(item);
+                }
+            }
+            if (statModifiers.ContainsKey(StatModifierType.BaseAddMult))
+            {
+                EquipStats newStats = stats;
+                foreach (StatModifier modifier in statModifiers[StatModifierType.BaseAddMult])
+                {
+                    newStats += stats * modifier(item);
+                }
+                stats = newStats;
+            }
+            if (statModifiers.ContainsKey(StatModifierType.BaseExpMult))
+            {
+                foreach (StatModifier modifier in statModifiers[StatModifierType.BaseExpMult])
+                {
+                    stats *= modifier(item);
+                }
+            }
+            return stats;
+        }
+
+        /// <summary>
+        /// Gets the EquipStats of the given item. This accounts for all factors that effect the item's stats.
+        /// </summary>
+        public static EquipStats GetGearStats(Item item)
+        {
+            EquipStats baseStats = GetGearBaseStats(item);
+            EquipStats stats = baseStats;
+            if (statModifiers.ContainsKey(StatModifierType.Flat))
+            {
+                foreach (StatModifier modifier in statModifiers[StatModifierType.Flat])
+                {
+                    stats += modifier(item);
+                }
+            }
+            if (statModifiers.ContainsKey(StatModifierType.AddMult))
+            {
+                EquipStats newStats = stats;
+                foreach (StatModifier modifier in statModifiers[StatModifierType.AddMult])
+                {
+                    newStats += stats * modifier(item);
+                }
+                stats = newStats;
+            }
+            if (statModifiers.ContainsKey(StatModifierType.ExpMult))
+            {
+                foreach (StatModifier modifier in statModifiers[StatModifierType.ExpMult])
+                {
+                    stats *= modifier(item);
+                }
+            }
+            return stats;
+        }
+
+        /// <summary>
+        /// Registers an gear stats modifier. Can be used to change how one or more pieces of gear's stats are calculated.
+        /// </summary>
+        /// <param name="modifier"></param>
+        /// <param name="type"></param>
+        public static void RegisterStatModifier(StatModifier modifier, StatModifierType type)
+        {
+            if (!statModifiers.ContainsKey(type)) statModifiers.Add(type, new List<StatModifier>());
+            statModifiers[type].Add(modifier);
+        }
+
+        /// <summary>
+        /// Delegate used for stat modifiers.
+        /// </summary>
+        /// <param name="item">The item who's stats are being modified.</param>
+        public delegate EquipStats StatModifier(Item item);
 
         /// <summary>
         /// Use to check if there is a resource registered at the specified path. This includes resources registered by the base game.
