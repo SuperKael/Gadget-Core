@@ -3,7 +3,7 @@
 namespace GadgetCore.API.ConfigMenu
 {
     /// <summary>
-    /// Interface for Gadget Config Menu renderers. Most likely, you would be better of using <see cref="BasicGadgetConfigMenu"/> or <see cref="UMFGadgetConfigMenu"/>.
+    /// Interface for Gadget Config Menu renderers. Most likely, you would be better of using <see cref="BasicGadgetConfigMenu"/> or <see cref="INIGadgetConfigMenu"/>.
     /// </summary>
     public interface IGadgetConfigMenu
     {

@@ -1,6 +1,5 @@
 using HarmonyLib;
 using GadgetCore.API;
-using GadgetCore;
 using UnityEngine;
 
 namespace GadgetCore.Patches
@@ -9,6 +8,15 @@ namespace GadgetCore.Patches
     [HarmonyPatch("RefreshHoldingSlot")]
     static class Patch_GameScript_RefreshHoldingSlot
     {
+        [HarmonyPrefix]
+        public static void Prefix(GameScript __instance, bool ___holdingCombatChip, Item ___holdingItem)
+        {
+            if (!___holdingCombatChip && ___holdingItem.q <= 0)
+            {
+                ___holdingItem.RemoveAllExtraData();
+            }
+        }
+
         [HarmonyPostfix]
         public static void Postfix(GameScript __instance, bool ___holdingCombatChip, Item ___holdingItem)
         {

@@ -1,13 +1,11 @@
-﻿using Ionic.Zip;
+﻿using GadgetCore.Loader;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using UModFramework.API;
 using UnityEngine;
 
 namespace GadgetCore.API
@@ -18,24 +16,27 @@ namespace GadgetCore.API
     public static class GadgetCoreAPI
     {
         /// <summary>
-        /// The version of Gadget Core.
+        /// The version numbers for this version of Gadget Core. You generally shouldn't access this directly, instead use <see cref="GetRawVersion()"/>
         /// </summary>
-        public const string VERSION = "1.1.4.3";
+        public const string RAW_VERSION = "2.0.0.0";
+        /// <summary>
+        /// A slightly more informative version. You generally shouldn't access this directly, instead use <see cref="GetFullVersion()"/>
+        /// </summary>
+        public const string FULL_VERSION = "2.0.0.0-BETA1";
+        /// <summary>
+        /// Indicates whether this version of GadgetCore is a beta version. You generally shouldn't access this directly, instead use <see cref="GetIsBeta()"/>
+        /// </summary>
+        public const bool IS_BETA = true;
 
-        /// <summary>
-        /// List of UMF mod names, not including mod libraries.
-        /// </summary>
-        public static ReadOnlyCollection<string> ModNames { get; internal set; }
-        /// <summary>
-        /// List of UMF mod libraries.
-        /// </summary>
-        public static ReadOnlyCollection<string> LibNames { get; internal set; }
+        internal static readonly int[] currentVersionNums = RAW_VERSION.Split('.').Select(x => int.Parse(x)).ToArray();
 
         private static readonly MethodInfo RefreshExpBar = typeof(GameScript).GetMethod("RefreshExpBar", BindingFlags.NonPublic | BindingFlags.Instance);
         private static readonly MethodInfo Crafting = typeof(GameScript).GetMethod("Crafting", BindingFlags.NonPublic | BindingFlags.Instance);
         private static readonly MethodInfo CraftCheck = typeof(GameScript).GetMethod("CraftCheck", BindingFlags.NonPublic | BindingFlags.Instance);
         private static readonly MethodInfo GetItemNameMethod = typeof(GameScript).GetMethod("GetItemName", BindingFlags.NonPublic | BindingFlags.Instance);
         private static readonly MethodInfo GetItemDescMethod = typeof(GameScript).GetMethod("GetItemDesc", BindingFlags.NonPublic | BindingFlags.Instance);
+        private static readonly MethodInfo GetChipNameMethod = typeof(GameScript).GetMethod("GetChipName", BindingFlags.NonPublic | BindingFlags.Instance);
+        private static readonly MethodInfo GetChipDescMethod = typeof(GameScript).GetMethod("GetChipDesc", BindingFlags.NonPublic | BindingFlags.Instance);
         private static readonly MethodInfo GetGearBaseStatsMethod = typeof(GameScript).GetMethod("GetGearBaseStats", BindingFlags.NonPublic | BindingFlags.Instance);
         private static readonly FieldInfo craftType = typeof(GameScript).GetField("craftType", BindingFlags.NonPublic | BindingFlags.Instance);
         private static readonly FieldInfo craftValue = typeof(GameScript).GetField("craftValue", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -44,33 +45,127 @@ namespace GadgetCore.API
         internal static Dictionary<string, UnityEngine.Object> resources = new Dictionary<string, UnityEngine.Object>();
         internal static Dictionary<int, string> resourcePaths = new Dictionary<int, string>();
         internal static Dictionary<string, Texture2D> cachedTexes = new Dictionary<string, Texture2D>();
+        internal static Dictionary<string, AudioClip> cachedAudioClips = new Dictionary<string, AudioClip>();
         internal static Dictionary<string, AssetBundle> cachedBundles = new Dictionary<string, AssetBundle>();
+        internal static Dictionary<KeyCode, List<Action>> keyDownListeners = new Dictionary<KeyCode, List<Action>>();
+        internal static Dictionary<KeyCode, List<Action>> keyUpListeners = new Dictionary<KeyCode, List<Action>>();
         internal static Dictionary<StatModifierType, List<StatModifier>> statModifiers = new Dictionary<StatModifierType, List<StatModifier>>();
+        internal static Dictionary<string, PlayerScript> playersByName = new Dictionary<string, PlayerScript>();
         internal static List<SpriteSheetEntry> spriteSheetSprites = new List<SpriteSheetEntry>();
         internal static int spriteSheetSize = -1;
         internal static Texture2D spriteSheet;
-        internal static List<CustomCraftMenu> customCraftMenus = new List<CustomCraftMenu>();
         internal static List<string> menuPaths = new List<string>();
         internal static List<GameObject> menus;
-        private static int lastCrafterID = 3;
+        private static List<string> frozenInput = new List<string>();
+
+        static GadgetCoreAPI()
+        {
+            if (currentVersionNums.Length != 4) Array.Resize(ref currentVersionNums, 4);
+        }
 
         /// <summary>
-        /// Use to register a custom crafting menu. Using RegisterMenu is unnecessary for crafting menus. Note that all crafting menus must have, at most, 3 ingredient slots. Use OpenCraftMenu to open the menu.
+        /// Returns the raw version of the running version of GadgetCore. Use this instead of directly accessing <see cref="RAW_VERSION"/>
         /// </summary>
-        /// <param name="Title">The text to display as the title of the crafting window.</param>
-        /// <param name="Desc">The text to display as the description of the crafting window.</param>
-        /// <param name="MenuMat">The material to use for the crafting window.</param>
-        /// <param name="ProgressBarMat">The material to use for the crafting progress bar.</param>
-        /// <param name="SlotValidator">A Func that is used to check if an item is valid for a slot.</param>
-        /// <param name="CraftValidator">A Func that is used to check if the items currently in the slots are valid for a recipe. The Item array is of length 4, where the first three Items are the inputs, and the fourth Item is the output.</param>
-        /// <param name="CraftPerformer">An Action that is used to perform a crafting operation by modifying the contents of the Item array. The Item array is of length 4, where the first three Items are the inputs, and the fourth Item is the output. Should decrement the inputs, and set the output, possibly respecting whatever is already in the output.</param>
-        /// <param name="Tile">An optional parameter that specifies what Interactive tile should open the menu when interacted with. Shortcut for adding OpenCraftMenuRoutine to the tile's OnInteract event.</param>
-        /// <returns></returns>
-        public static int RegisterCustomCraftMenu(string Title, string Desc, Material MenuMat, Material ProgressBarMat, Func<Item, int, bool> SlotValidator, Func<Item[], bool> CraftValidator, Action<Item[]> CraftPerformer, TileInfo Tile = null)
+        public static string GetRawVersion()
         {
-            customCraftMenus.Add(new CustomCraftMenu(Title, Desc, MenuMat, ProgressBarMat, SlotValidator, CraftValidator, CraftPerformer));
-            if (Tile != null) Tile.OnInteract += () => OpenCraftMenuRoutine(lastCrafterID + 1);
-            return ++lastCrafterID;
+            return RAW_VERSION;
+        }
+        /// <summary>
+        /// Returns the full version of the running version of GadgetCore. Use this instead of directly accessing <see cref="FULL_VERSION"/>
+        /// </summary>
+        public static string GetFullVersion()
+        {
+            return FULL_VERSION;
+        }
+        /// <summary>
+        /// Returns whether the running version of GadgetCore is a beta version. Use this instead of directly accessing <see cref="IS_BETA"/>
+        /// </summary>
+        public static bool GetIsBeta()
+        {
+            return IS_BETA;
+        }
+
+        /// <summary>
+        /// Returns the <see cref="PlayerScript"/> for the player with the given name. Returns null if no player with that name exists.
+        /// </summary>
+        public static PlayerScript GetPlayerByName(string name)
+        {
+            return playersByName.ContainsKey(name) ? playersByName[name] : name == Menuu.curName ? InstanceTracker.PlayerScript : null;
+        }
+
+        /// <summary>
+        /// Freezes keyboard input to GameScript.Update and PlayerScript.Update. Useful when presenting menus that have keyboard input.
+        /// </summary>
+        public static void FreezeInput(string reason)
+        {
+            if (!frozenInput.Contains(reason)) frozenInput.Add(reason);
+        }
+
+        /// <summary>
+        /// Unfreezes input as it was set for the given reason.
+        /// </summary>
+        public static void UnfreezeInput(string reason)
+        {
+            frozenInput.Remove(reason);
+        }
+
+        /// <summary>
+        /// Indicates whether keyboard input was frozen through <see cref="FreezeInput"/>
+        /// </summary>
+        public static bool IsInputFrozen()
+        {
+            return frozenInput.Count > 0;
+        }
+
+        /// <summary>
+        /// Quits the game. You should use this instead of <see cref="Application.Quit"/>
+        /// </summary>
+        public static void Quit()
+        {
+            GadgetCore.Quitting = true;
+            Application.Quit();
+        }
+
+        /// <summary>
+        /// Returns an interface that can be used for interfacing with UMF. Will return null if UMF is not installed.
+        /// </summary>
+        public static IUMFAPI GetUMFAPI()
+        {
+            return GadgetCore.UMFAPI;
+        }
+
+        /// <summary>
+        /// Registers the provided action so that it will be triggered when the provided key is pressed.
+        /// </summary>
+        public static void RegisterKeyDownListener(KeyCode key, Action action)
+        {
+            if (!keyDownListeners.ContainsKey(key)) keyDownListeners.Add(key, new List<Action>());
+            keyDownListeners[key].Add(action);
+        }
+
+        /// <summary>
+        /// Unregisters the given key down listener for the given key.
+        /// </summary>
+        public static bool UnregisterKeyDownListener(KeyCode key, Action action)
+        {
+            return keyDownListeners.ContainsKey(key) && keyDownListeners[key].Remove(action) && keyDownListeners[key].Count == 0 ? keyDownListeners.Remove(key) : true;
+        }
+
+        /// <summary>
+        /// Registers the provided action so that it will be triggered when the provided key is released.
+        /// </summary>
+        public static void RegisterKeyUpListener(KeyCode key, Action action)
+        {
+            if (!keyUpListeners.ContainsKey(key)) keyUpListeners.Add(key, new List<Action>());
+            keyUpListeners[key].Add(action);
+        }
+
+        /// <summary>
+        /// Unregisters the given key up listener for the given key.
+        /// </summary>
+        public static bool UnregisterKeyUpListener(KeyCode key, Action action)
+        {
+            return keyUpListeners.ContainsKey(key) && keyUpListeners[key].Remove(action) && keyUpListeners[key].Count == 0 ? keyUpListeners.Remove(key) : true;
         }
 
         /// <summary>
@@ -110,7 +205,7 @@ namespace GadgetCore.API
         /// </summary>
         public static void OpenCraftMenu(int ID)
         {
-            CustomCraftMenu craftMenu = customCraftMenus[ID];
+            CustomCraftMenu craftMenu = CraftMenus.customCraftMenus[ID];
             InstanceTracker.GameScript.StartCoroutine(RefreshExpBar.Invoke(InstanceTracker.GameScript, new object[] { }) as IEnumerator);
             InstanceTracker.GameScript.txtCraftName[0].text = craftMenu.Title;
             InstanceTracker.GameScript.txtCraftName[1].text = InstanceTracker.GameScript.txtCraftName[0].text;
@@ -141,6 +236,54 @@ namespace GadgetCore.API
                 menus[ID].SetActive(true);
                 menus[ID].SendMessage("OnMenuOpened", options: SendMessageOptions.DontRequireReceiver);
             }
+        }
+
+        /// <summary>
+        /// Displays a dialog box with the button 'Yes' and 'No' on it. One of the provided actions will be executed once a choice is made.
+        /// </summary>
+        public static void DisplayYesNoDialog(string text, Action onYes, Action onNo = null)
+        {
+            SceneInjector.ConfirmationText.text = text;
+            SceneInjector.ConfirmationYesAction = onYes;
+            SceneInjector.ConfirmationNoAction = onNo;
+            SceneInjector.ConfirmationDialog.SetActive(true);
+        }
+
+        /// <summary>
+        /// Displays a dialog box with the button 'OK' and 'Cancel' on it. One of the provided actions will be executed once a choice is made.
+        /// </summary>
+        public static void DisplayOKCancelDialog(string text, Action onOK, Action onCancel = null)
+        {
+            SceneInjector.ConfirmationText.text = text;
+            SceneInjector.ConfirmationYesAction = onOK;
+            SceneInjector.ConfirmationNoAction = onCancel;
+            SceneInjector.ConfirmationYesText.text = "OK";
+            SceneInjector.ConfirmationNoText.text = "Cancel";
+            SceneInjector.ConfirmationDialog.SetActive(true);
+        }
+
+        /// <summary>
+        /// Displays an information dialog box with just the button 'OK' on it.
+        /// </summary>
+        public static void DisplayInfoDialog(string text)
+        {
+            SceneInjector.ConfirmationText.text = text;
+            SceneInjector.ConfirmationYesText.transform.parent.gameObject.SetActive(false);
+            SceneInjector.ConfirmationNoText.text = "OK";
+            SceneInjector.ConfirmationDialog.SetActive(true);
+        }
+
+        /// <summary>
+        /// Closes the general-purpose dialog box, if it's open.
+        /// </summary>
+        public static void CloseDialog()
+        {
+            SceneInjector.ConfirmationDialog.SetActive(false);
+            SceneInjector.ConfirmationText.text = "";
+            SceneInjector.ConfirmationYesText.text = "Yes";
+            SceneInjector.ConfirmationNoText.text = "No";
+            SceneInjector.ConfirmationYesText.transform.parent.gameObject.SetActive(true);
+            SceneInjector.ConfirmationNoText.transform.parent.gameObject.SetActive(true);
         }
 
         /// <summary>
@@ -402,13 +545,13 @@ namespace GadgetCore.API
         }
 
         /// <summary>
-        /// Use to manually add new resources to the game, or overwrite existing ones. May only be called from the Initialize method of a GadgetMod.
+        /// Use to manually add new resources to the game, or overwrite existing ones. May only be called from the Initialize method of a Gadget.
         /// </summary>
         /// <param name="path">The pseudo-file-path to place the resource on.</param>
         /// <param name="resource">The resource to register.</param>
         public static void AddCustomResource(string path, UnityEngine.Object resource)
         {
-            if (!Registry.registeringVanilla && Registry.modRegistering < 0) throw new InvalidOperationException("Data registration may only be performed by the Initialize method of a GadgetMod!");
+            if (!Registry.registeringVanilla && Registry.modRegistering < 0) throw new InvalidOperationException("Data registration may only be performed by the Initialize method of a Gadget!");
             UnityEngine.Object.DontDestroyOnLoad(resource);
             resource.hideFlags |= HideFlags.HideAndDontSave;
             if (resource is GameObject)
@@ -427,12 +570,12 @@ namespace GadgetCore.API
         }
 
         /// <summary>
-        /// Use to register a texture for the tile spritesheet. The texture must be 32x32 in size. You probably shouldn't use this yourself - it is automatically called by <see cref="TileInfo"/> after registration. May only be called from <see cref="GadgetMod.Initialize"/>.
+        /// Use to register a texture for the tile spritesheet. The texture must be 32x32 in size. You probably shouldn't use this yourself - it is automatically called by <see cref="TileInfo"/> after registration. May only be called from <see cref="Gadget.Initialize"/>.
         /// </summary>
         /// <param name="sprite">The Texture2D to register to the spritesheet</param>
         public static SpriteSheetEntry AddTextureToSheet(Texture2D sprite)
         {
-            if (!Registry.registeringVanilla && Registry.modRegistering < 0) throw new InvalidOperationException("Data registration may only be performed by the Initialize method of a GadgetMod!");
+            if (!Registry.registeringVanilla && Registry.modRegistering < 0) throw new InvalidOperationException("Data registration may only be performed by the Initialize method of a Gadget!");
             SpriteSheetEntry entry = new SpriteSheetEntry(sprite, spriteSheetSprites.Count);
             spriteSheetSprites.Add(entry);
             return entry;
@@ -452,6 +595,22 @@ namespace GadgetCore.API
         public static string GetItemDesc(int ID)
         {
             return GetItemDescMethod.Invoke(InstanceTracker.GameScript, new object[] { ID }) as string;
+        }
+
+        /// <summary>
+        /// Gets the name of the chip with the given ID. Easier than using reflection to call GetChipName on GameScript.
+        /// </summary>
+        public static string GetChipName(int ID)
+        {
+            return GetChipNameMethod.Invoke(InstanceTracker.GameScript, new object[] { ID }) as string;
+        }
+
+        /// <summary>
+        /// Gets the description of the chip with the given ID. Easier than using reflection to call GetChipDesc on GameScript.
+        /// </summary>
+        public static string GetChipDesc(int ID)
+        {
+            return GetChipDescMethod.Invoke(InstanceTracker.GameScript, new object[] { ID }) as string;
         }
 
         /// <summary>
@@ -845,54 +1004,27 @@ namespace GadgetCore.API
         }
 
         /// <summary>
-        /// Works like UMFAsset.LoadTexture2D, except it isn't dependent on System.Drawing. Returns null if the texture was not found.
+        /// Loads an image file from your Assets folder as a Texture2D. Assumes a file extension of .png if one is not specified. Returns null if no file with the given name was found.
         /// </summary>
         public static Texture2D LoadTexture2D(string file, bool shared = false)
         {
-            string modName = shared ? "Shared" : Assembly.GetCallingAssembly().GetName().Name;
-            string filePath = Path.Combine(Path.Combine(UMFData.AssetsPath, modName), file);
-            if (cachedTexes.ContainsKey(filePath))
+            if (file.IndexOf('.') == -1) file += ".png";
+            GadgetMod mod = GadgetMods.GetModByAssembly(Assembly.GetCallingAssembly());
+            if (cachedTexes.ContainsKey(mod.Name + ":" + file))
             {
-                return cachedTexes[filePath];
+                return cachedTexes[mod.Name + ":" + file];
             }
-            string assetPath = Path.Combine(Path.Combine("Assets", modName), file);
-            if (cachedTexes.ContainsKey(Path.Combine(UMFData.TempPath, assetPath)))
+            string filePath = Path.Combine("Assets", file);
+            if (mod.HasModFile(filePath) || File.Exists(filePath = Path.Combine(Path.Combine(GadgetPaths.AssetsPath, mod.Name), file)))
             {
-                return cachedTexes[Path.Combine(UMFData.TempPath, assetPath)];
-            }
-            if (!File.Exists(filePath) && GadgetCore.CoreLib != null)
-            {
-                filePath = Path.Combine(UMFData.TempPath, assetPath);
-                string[] umfmods = Directory.GetFiles(UMFData.ModsPath, (shared ? "" : modName) + "*.umfmod");
-                string[] zipmods = Directory.GetFiles(UMFData.ModsPath, (shared ? "" : modName) + "*.zip");
-                string[] mods = new string[umfmods.Length + zipmods.Length];
-                Array.Copy(umfmods, mods, umfmods.Length);
-                Array.Copy(zipmods, 0, mods, umfmods.Length, zipmods.Length);
-                foreach (string mod in mods)
-                {
-                    using (ZipFile modZip = new ZipFile(mod))
-                    {
-                        if (mod.EndsWith(".umfmod")) GadgetCore.CoreLib.DecryptUMFModFile(modZip);
-                        if (modZip.ContainsEntry(assetPath))
-                        {
-                            modZip[assetPath].Extract(UMFData.TempPath, ExtractExistingFileAction.OverwriteSilently);
-                        }
-                    }
-                }
-            }
-            if (File.Exists(filePath))
-            {
-                byte[] fileData;
-                fileData = File.ReadAllBytes(filePath);
+                Stream stream = mod.ReadModFile(filePath);
+                byte[] fileData = new byte[stream.Length];
+                stream.Read(fileData, 0, fileData.Length);
+                stream.Dispose();
                 Texture2D tex = new Texture2D(2, 2);
                 tex.LoadImage(fileData);
                 tex.filterMode = FilterMode.Point;
-                cachedTexes.Add(filePath, tex);
-                if (filePath.StartsWith(UMFData.TempPath))
-                {
-                    File.Delete(filePath);
-                    GadgetUtils.RecursivelyDeleteDirectory(UMFData.TempPath);
-                }
+                cachedTexes.Add(mod.Name + ":" + file, tex);
                 return tex;
             }
             else
@@ -902,50 +1034,54 @@ namespace GadgetCore.API
         }
 
         /// <summary>
-        /// Loads an AssetBundle in a similar fashion to LoadTexture2D. Note that the file should not have an extension. AssetBundles would normally have the extension 'assets', but if it did then UMF would try to load it and crash because of a bug in UMF.
+        /// Loads an audio file from your Assets folder as an AudioClip. Assumes a file extension of .wav if one is not specified. Returns null if no file with the given name was found.
         /// </summary>
-        public static AssetBundle LoadAssetBundle(string file, bool shared = false)
+        public static AudioClip LoadAudioClip(string file, bool shared = false)
         {
-            string modName = shared ? "Shared" : Assembly.GetCallingAssembly().GetName().Name;
-            string filePath = Path.Combine(Path.Combine(Path.Combine(Path.GetDirectoryName(UMFData.AssetsPath), "Assets"), modName), file);
-            if (cachedTexes.ContainsKey(filePath))
+            if (file.IndexOf('.') == -1) file += ".wav";
+            GadgetMod mod = GadgetMods.GetModByAssembly(Assembly.GetCallingAssembly());
+            if (cachedAudioClips.ContainsKey(mod.Name + ":" + file))
             {
-                return cachedBundles[filePath];
+                return cachedAudioClips[mod.Name + ":" + file];
             }
-            string bundlePath = Path.Combine(Path.Combine("Assets", modName), file);
-            if (cachedTexes.ContainsKey(Path.Combine(UMFData.TempPath, bundlePath)))
+            string filePath = Path.Combine("Assets", file);
+            if (mod.HasModFile(filePath))
             {
-                return cachedBundles[Path.Combine(UMFData.TempPath, bundlePath)];
-            }
-            if (!File.Exists(filePath) && GadgetCore.CoreLib != null)
-            {
-                filePath = Path.Combine(UMFData.TempPath, bundlePath);
-                string[] umfmods = Directory.GetFiles(UMFData.ModsPath, (shared ? "" : modName) + "*.umfmod");
-                string[] zipmods = Directory.GetFiles(UMFData.ModsPath, (shared ? "" : modName) + "*.zip");
-                string[] mods = new string[umfmods.Length + zipmods.Length];
-                Array.Copy(umfmods, mods, umfmods.Length);
-                Array.Copy(zipmods, 0, mods, umfmods.Length, zipmods.Length);
-                foreach (string mod in mods)
+                using (GadgetModFile modFile = mod.GetModFile(filePath))
                 {
-                    using (ZipFile modZip = new ZipFile(mod))
+                    using (WWW www = new WWW("file:///" + modFile.FilePath))
                     {
-                        if (mod.EndsWith(".umfmod")) GadgetCore.CoreLib.DecryptUMFModFile(modZip);
-                        if (modZip.ContainsEntry(bundlePath))
-                        {
-                            modZip[bundlePath].Extract(UMFData.TempPath, ExtractExistingFileAction.OverwriteSilently);
-                        }
+                        AudioClip clip = www.GetAudioClip(true, false);
+                        cachedAudioClips.Add(mod.Name + ":" + file, clip);
+                        return clip;
                     }
                 }
             }
-            if (File.Exists(filePath))
+            else
             {
-                AssetBundle bundle = AssetBundle.LoadFromFile(filePath);
-                if (filePath.StartsWith(UMFData.TempPath))
-                {
-                    File.Delete(filePath);
-                    GadgetUtils.RecursivelyDeleteDirectory(UMFData.TempPath);
-                }
-                cachedBundles[filePath] = bundle;
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Loads an AssetBundle from your Assets folder. Returns null if no file with the given name was found.
+        /// </summary>
+        public static AssetBundle LoadAssetBundle(string file, bool shared = false)
+        {
+            GadgetMod mod = GadgetMods.GetModByAssembly(Assembly.GetCallingAssembly());
+            if (cachedBundles.ContainsKey(mod.Name + ":" + file))
+            {
+                return cachedBundles[mod.Name + ":" + file];
+            }
+            string filePath = Path.Combine("Assets", file);
+            if (mod.HasModFile(filePath))
+            {
+                Stream stream = mod.ReadModFile(filePath);
+                byte[] fileData = new byte[stream.Length];
+                stream.Read(fileData, 0, fileData.Length);
+                stream.Dispose();
+                AssetBundle bundle = AssetBundle.LoadFromMemory(fileData);
+                cachedBundles.Add(mod.Name + ":" + file, bundle);
                 return bundle;
             }
             else
@@ -986,28 +1122,6 @@ namespace GadgetCore.API
             {
                 if (spriteSheet != null) return coords;
                 throw new InvalidOperationException("The SpriteSheet has not been generated yet!");
-            }
-        }
-
-        internal struct CustomCraftMenu
-        {
-            internal readonly string Title;
-            internal readonly string Desc;
-            internal readonly Material MenuMat;
-            internal readonly Material ProgressBarMat;
-            internal readonly Func<Item, int, bool> SlotValidator;
-            internal readonly Func<Item[], bool> CraftValidator;
-            internal readonly Action<Item[]> CraftPerformer;
-
-            internal CustomCraftMenu(string Title, string Desc, Material MenuMat, Material ProgressBarMat, Func<Item, int, bool> SlotValidator, Func<Item[], bool> CraftValidator, Action<Item[]> CraftPerformer)
-            {
-                this.Title = Title;
-                this.Desc = Desc;
-                this.MenuMat = MenuMat;
-                this.ProgressBarMat = ProgressBarMat;
-                this.SlotValidator = SlotValidator;
-                this.CraftValidator = CraftValidator;
-                this.CraftPerformer = CraftPerformer;
             }
         }
     }

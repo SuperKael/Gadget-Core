@@ -1,6 +1,5 @@
 using HarmonyLib;
 using GadgetCore.API;
-using GadgetCore;
 using UnityEngine;
 
 namespace GadgetCore.Patches
@@ -9,6 +8,15 @@ namespace GadgetCore.Patches
     [HarmonyPatch("RefreshSlotGather")]
     static class Patch_GameScript_RefreshSlotGather
     {
+        [HarmonyPrefix]
+        public static void Prefix(GameScript __instance, int i, ref Item[] ___gatherStorage)
+        {
+            if (___gatherStorage[i].q <= 0)
+            {
+                ___gatherStorage[i].RemoveAllExtraData();
+            }
+        }
+
         [HarmonyPostfix]
         public static void Postfix(GameScript __instance, int i, ref Item[] ___gatherStorage)
         {

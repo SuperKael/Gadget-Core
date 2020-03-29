@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace GadgetCore.API
 {
@@ -10,20 +8,141 @@ namespace GadgetCore.API
     /// </summary>
     public class ChipRegistry : Registry<ChipRegistry, ChipInfo, ChipType>
     {
+        private static Dictionary<string, int> chipIDsByName;
+        private static Dictionary<string, int> chipIDsByRegistryName;
+
         /// <summary>
-        /// Gets the name of this registry. Must be constant.
+        /// The name of this registry.
         /// </summary>
-        public override string GetRegistryName()
+        public const string REGISTRY_NAME = "Chip";
+
+        static ChipRegistry()
         {
-            return "Chip";
+            InitializeVanillaChipIDNames();
         }
 
         /// <summary>
-        /// Gets the ID that modded IDs should start at for this registry. May be 0 if the vanilla game does not use IDs for this type of thing.
+        /// Gets the name of this registry. Must be constant. Returns <see cref="REGISTRY_NAME"/>.
+        /// </summary>
+        public override string GetRegistryName()
+        {
+            return REGISTRY_NAME;
+        }
+
+        /// <summary>
+        /// Gets the item ID for the given name. Case-insensitive. Returns -1 if there is no item with the given name.
+        /// </summary>
+        public static int GetChipIDByName(string name)
+        {
+            name = name.ToLowerInvariant();
+            if (chipIDsByName.ContainsKey(name))
+            {
+                return chipIDsByName[name];
+            }
+            return -1;
+        }
+
+        /// <summary>
+        /// Gets the item ID for the given registry name. Case-insensitive. Returns -1 if there is no item with the given name.
+        /// </summary>
+        public static int GetChipIDByRegistryName(string name)
+        {
+            name = name.ToLowerInvariant();
+            if (chipIDsByRegistryName.ContainsKey(name))
+            {
+                return chipIDsByRegistryName[name];
+            }
+            return 0;
+        }
+
+        /// <summary>
+        /// Called after the specified Registry Entry has been registered. You should never call this yourself. Note that this is called before <see cref="RegistryEntry{E, T}.PostRegister"/>
+        /// </summary>
+        protected override void PostRegistration(ChipInfo entry)
+        {
+            chipIDsByName[entry.Name] = entry.ID;
+            chipIDsByRegistryName[entry.RegistryName] = entry.ID;
+        }
+
+        /// <summary>
+        /// Called just before an entry is removed from the registry by <see cref="Registry.UnregisterGadget(GadgetInfo)"/>
+        /// </summary>
+        protected override void OnUnregister(ChipInfo entry)
+        {
+            chipIDsByName.Remove(entry.Name);
+            chipIDsByRegistryName.Remove(entry.RegistryName);
+        }
+
+        /// <summary>
+        /// Gets the ID that modded IDs should start at for this registry. <see cref="ChipRegistry"/> always returns 10000.
         /// </summary>
         public override int GetIDStart()
         {
             return 10000;
+        }
+
+        private static void InitializeVanillaChipIDNames()
+        {
+            chipIDsByName = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["Swiftness"] = 1,
+                ["Vitality I"] = 2,
+                ["Strength I"] = 3,
+                ["Dexterity I"] = 4,
+                ["Tech I"] = 5,
+                ["Intelligence I"] = 6,
+                ["Faith I"] = 7,
+                ["Photon Blade"] = 8,
+                ["Dancing Slash"] = 9,
+                ["Triple Shot"] = 10,
+                ["Atalanta's Eye"] = 11,
+                ["Plasma Grenade"] = 12,
+                ["Gadget Turret"] = 13,
+                ["Blaze"] = 14,
+                ["Shock"] = 15,
+                ["Healing Ward"] = 16,
+                ["Bubble"] = 17,
+                ["Berserk"] = 18,
+                ["Megaslash"] = 19,
+                ["Hyperbeam"] = 20,
+                ["Trickster"] = 21,
+                ["Quadracopter"] = 22,
+                ["Cluster Bomber"] = 23,
+                ["Inferno"] = 24,
+                ["Enhanced Mind"] = 25,
+                ["Angelic Augur"] = 26,
+                ["Prism"] = 27,
+                ["Photon Blade"] = 28,
+                ["Dancing Slash"] = 29,
+                ["Triple Shot"] = 30,
+                ["Atalanta's Eye"] = 31,
+                ["Plasma Grenade"] = 32,
+                ["Gadget Turret"] = 33,
+                ["Blaze"] = 34,
+                ["Shock"] = 35,
+                ["Healing Ward"] = 36,
+                ["Bubble"] = 37,
+                ["Darkfire"] = 38,
+                ["Alacrity"] = 51,
+                ["Vitality II"] = 52,
+                ["Strength II"] = 53,
+                ["Dexterity II"] = 54,
+                ["Tech II"] = 55,
+                ["Intelligence II"] = 56,
+                ["Faith II"] = 57,
+                ["Alacrity"] = 101,
+                ["Vitality X"] = 102,
+                ["Strength X"] = 103,
+                ["Dexterity X"] = 104,
+                ["Tech X"] = 105,
+                ["Intelligence X"] = 106,
+                ["Faith X"] = 107
+            };
+            chipIDsByRegistryName = new Dictionary<string, int>(chipIDsByName.Comparer);
+            foreach (KeyValuePair<string, int> item in chipIDsByName)
+            {
+                chipIDsByRegistryName["Roguelands:" + item.Key] = item.Value;
+            }
         }
     }
 

@@ -1,6 +1,5 @@
 using HarmonyLib;
 using GadgetCore.API;
-using GadgetCore;
 using UnityEngine;
 using System.Collections;
 using System.Reflection;

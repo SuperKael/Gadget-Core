@@ -13,14 +13,14 @@ namespace GadgetCore.API
     /// </summary>
     public static class ItemExtension
     {
-        private static Dictionary<WeakReference<Item>, Dictionary<string, object>> extraItemData = new Dictionary<WeakReference<Item>, Dictionary<string, object>>();
+        private static Dictionary<Item, Dictionary<string, object>> extraItemData = new Dictionary<Item, Dictionary<string, object>>();
 
         /// <summary>
         /// Returns true of the Item has any extra data at all.
         /// </summary>
         public static bool HasAnyExtraData(this Item item)
         {
-            return extraItemData.ContainsKey(new WeakReference<Item>(item));
+            return extraItemData.ContainsKey(item);
         }
 
         /// <summary>
@@ -29,7 +29,7 @@ namespace GadgetCore.API
         public static bool HasExtraData(this Item item, string dataKey)
         {
             if (dataKey.IndexOf(':') == -1) throw new ArgumentException("dataKey must be of the format ModName:Key");
-            return extraItemData.ContainsKey(new WeakReference<Item>(item)) ? extraItemData[new WeakReference<Item>(item)].ContainsKey(dataKey) : false;
+            return extraItemData.ContainsKey(item) && extraItemData[item].ContainsKey(dataKey);
         }
 
         /// <summary>
@@ -39,8 +39,8 @@ namespace GadgetCore.API
         {
             if (dataKey.IndexOf(':') == -1) throw new ArgumentException("dataKey must be of the format ModName:Key");
             if (!typeof(T).IsSerializable && !typeof(ISerializable).IsAssignableFrom(typeof(T))) throw new ArgumentException("dataValue must be serializable!");
-            if (!extraItemData.ContainsKey(new WeakReference<Item>(item))) extraItemData.Add(new WeakReference<Item>(item), new Dictionary<string, object>());
-            extraItemData[new WeakReference<Item>(item)][dataKey] = dataValue;
+            if (!extraItemData.ContainsKey(item)) extraItemData.Add(item, new Dictionary<string, object>());
+            extraItemData[item][dataKey] = dataValue;
         }
 
         /// <summary>
@@ -49,7 +49,7 @@ namespace GadgetCore.API
         public static T GetExtraData<T>(this Item item, string dataKey)
         {
             if (dataKey.IndexOf(':') == -1) throw new ArgumentException("dataKey must be of the format ModName:Key");
-            if (extraItemData.ContainsKey(new WeakReference<Item>(item)) && extraItemData[new WeakReference<Item>(item)].TryGetValue(dataKey, out object value))
+            if (extraItemData.ContainsKey(item) && extraItemData[item].TryGetValue(dataKey, out object value))
             {
                 return (T) value;
             }
@@ -64,9 +64,9 @@ namespace GadgetCore.API
         /// </summary>
         public static Dictionary<string, object> GetAllExtraData(this Item item)
         {
-            if (extraItemData.ContainsKey(new WeakReference<Item>(item)))
+            if (extraItemData.ContainsKey(item))
             {
-                return extraItemData[new WeakReference<Item>(item)];
+                return extraItemData[item];
             }
             else
             {
@@ -80,13 +80,13 @@ namespace GadgetCore.API
         public static bool RemoveExtraData(this Item item, string dataKey)
         {
             if (dataKey.IndexOf(':') == -1) throw new ArgumentException("dataKey must be of the format ModName:Key");
-            if (extraItemData.ContainsKey(new WeakReference<Item>(item)))
+            if (extraItemData.ContainsKey(item))
             {
-                Dictionary<string, object> existingDic = extraItemData[new WeakReference<Item>(item)];
+                Dictionary<string, object> existingDic = extraItemData[item];
                 bool success = existingDic.Remove(dataKey);
                 if (existingDic.Count == 0)
                 {
-                    extraItemData.Remove(new WeakReference<Item>(item));
+                    extraItemData.Remove(item);
                 }
                 return success;
             }
@@ -98,7 +98,7 @@ namespace GadgetCore.API
         /// </summary>
         public static bool RemoveAllExtraData(this Item item)
         {
-            return extraItemData.Remove(new WeakReference<Item>(item));
+            return extraItemData.Remove(item);
         }
 
         /// <summary>
@@ -106,8 +106,13 @@ namespace GadgetCore.API
         /// </summary>
         public static void SetAllExtraData(this Item item, Dictionary<string, object> dic)
         {
-            if (!extraItemData.ContainsKey(new WeakReference<Item>(item))) extraItemData.Add(new WeakReference<Item>(item), new Dictionary<string, object>());
-            Dictionary<string, object> existingDic = extraItemData[new WeakReference<Item>(item)];
+            if (dic == null || dic.Count == 0)
+            {
+                extraItemData.Remove(item);
+                return;
+            }
+            if (!extraItemData.ContainsKey(item)) extraItemData.Add(item, new Dictionary<string, object>());
+            Dictionary<string, object> existingDic = extraItemData[item];
             existingDic.Clear();
             foreach (KeyValuePair<string, object> entry in dic)
             {
@@ -132,7 +137,7 @@ namespace GadgetCore.API
                     br.Serialize(ms, x.Value);
                     return x.Key + "=" + Convert.ToBase64String(ms.ToArray()).Replace("\"", "\"\"");
                 }
-            })?.Aggregate(string.Empty, (x, y) => x + "," + y) ?? "";
+            }).Aggregate(string.Empty, (x, y) => x + "," + y) ?? "";
         }
 
         /// <summary>

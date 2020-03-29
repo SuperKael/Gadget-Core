@@ -1,8 +1,6 @@
 using HarmonyLib;
 using GadgetCore.API;
-using GadgetCore;
 using System.Collections;
-using System.Reflection;
 
 namespace GadgetCore.Patches
 {

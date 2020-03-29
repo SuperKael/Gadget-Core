@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace GadgetCore.API
 {
@@ -19,13 +16,13 @@ namespace GadgetCore.API
         /// <summary>
         /// Gets the mod that registered this Registry Entry. This will return null until the Registry Entry has been registered.
         /// </summary>
-        public GadgetMod GetMod()
+        public Gadget GetMod()
         {
-            return ModID >= 0 ? GadgetMods.GetMod(ModID) : null;
+            return ModID >= 0 ? Gadgets.GetGadget(ModID) : null;
         }
         
         /// <summary>
-        /// Gets the Mod ID that registered this Registry Entry. This ID is the index of the mod as used in <see cref="GadgetMods.GetMod(int)"/>. This will be -1 until the Registry Entry has been registered.
+        /// Gets the Mod ID that registered this Registry Entry. This ID is the index of the mod as used in <see cref="Gadgets.GetGadget(int)"/>. This will be -1 until the Registry Entry has been registered.
         /// </summary>
         public int GetModID()
         {
@@ -60,7 +57,7 @@ namespace GadgetCore.API
         /// <summary>
         /// Called after this Registry Entry has been registered to its Registry. You should never call this yourself.
         /// </summary>
-        public virtual void PostRegister() { }
+        protected internal virtual void PostRegister() { }
         /// <summary>
         /// Returns true if this Registry Entry is ready to be registered. Returns false if the registry entry is not yet in the correct state to be registered, or has already been registered.
         /// </summary>

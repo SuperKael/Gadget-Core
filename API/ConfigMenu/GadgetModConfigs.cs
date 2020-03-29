@@ -3,8 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using UModFramework.API;
 using UnityEngine;
 
 namespace GadgetCore.API.ConfigMenu
@@ -14,38 +12,43 @@ namespace GadgetCore.API.ConfigMenu
     /// </summary>
     public static class GadgetModConfigs
     {
-        private static List<Tuple<IGadgetConfigMenu, RectTransform>> ConfigMenus;
+        private static Dictionary<int, Tuple<IGadgetConfigMenu, RectTransform>> ConfigMenus = new Dictionary<int, Tuple<IGadgetConfigMenu, RectTransform>>();
         private static Tuple<IGadgetConfigMenu, RectTransform> UMFConfigMenu;
 
         internal static void BuildConfigMenus(RectTransform parent)
         {
-            UMFConfigMenu umfConfigMenu = new UMFConfigMenu();
-            if (umfConfigMenu != null)
+            if (GadgetCoreAPI.GetUMFAPI() != null)
             {
-                RectTransform menuParent = new GameObject("uModFramework", typeof(RectTransform)).GetComponent<RectTransform>();
-                menuParent.gameObject.SetActive(false);
-                menuParent.SetParent(parent);
-                menuParent.anchorMin = new Vector2(0f, 0f);
-                menuParent.anchorMax = new Vector2(1f, 1f);
-                menuParent.offsetMin = Vector2.zero;
-                menuParent.offsetMax = Vector2.zero;
-                umfConfigMenu.Build(menuParent);
-                UMFConfigMenu = Tuple.Create<IGadgetConfigMenu, RectTransform>(umfConfigMenu, menuParent);
+                if (UMFConfigMenu == null)
+                {
+                    UMFConfigMenu umfConfigMenu = new UMFConfigMenu();
+                    RectTransform menuParent = new GameObject("uModFramework", typeof(RectTransform)).GetComponent<RectTransform>();
+                    menuParent.gameObject.SetActive(false);
+                    menuParent.SetParent(parent);
+                    menuParent.anchorMin = new Vector2(0f, 0f);
+                    menuParent.anchorMax = new Vector2(1f, 1f);
+                    menuParent.offsetMin = Vector2.zero;
+                    menuParent.offsetMax = Vector2.zero;
+                    umfConfigMenu.Build(menuParent);
+                    UMFConfigMenu = Tuple.Create<IGadgetConfigMenu, RectTransform>(umfConfigMenu, menuParent);
+                }
+                else
+                {
+                    UMFConfigMenu.Item1.Reset();
+                }
             }
 
-            ConfigMenus = new List<Tuple<IGadgetConfigMenu, RectTransform>>();
-            GadgetModInfo[] gadgetMods = GadgetMods.ListAllModInfos();
-            string[] allMods = gadgetMods.Select(x => x.Attribute.Name).Concat(GadgetCore.nonGadgetMods).Concat(GadgetCore.disabledMods).Concat(GadgetCore.incompatibleMods).Concat(GadgetCore.packedMods).ToArray();
-            for (int i = 0;i < allMods.Length;i++)
+            for (int i = 0;i < ModMenuController.modEntries.Count;i++)
             {
-                try
+                ModMenuEntry entry = ModMenuController.modEntries[i];
+                if (entry.Type == ModMenuEntryType.GADGET || entry.Type == ModMenuEntryType.UMF || entry.Type == ModMenuEntryType.DISABLED_UMF)
                 {
-                    if (i < gadgetMods.Length)
+                    try
                     {
-                        IGadgetConfigMenu configMenu = gadgetMods[i].Mod.GetConfigMenu();
+                        IGadgetConfigMenu configMenu = new INIGadgetConfigMenu(entry.Name, false, Path.Combine(GadgetPaths.ConfigsPath, entry.Name) + ".ini");
                         if (configMenu != null)
                         {
-                            RectTransform menuParent = new GameObject(allMods[i], typeof(RectTransform)).GetComponent<RectTransform>();
+                            RectTransform menuParent = new GameObject(entry.Name, typeof(RectTransform)).GetComponent<RectTransform>();
                             menuParent.gameObject.SetActive(false);
                             menuParent.SetParent(parent);
                             menuParent.anchorMin = new Vector2(0f, 0f);
@@ -53,21 +56,34 @@ namespace GadgetCore.API.ConfigMenu
                             menuParent.offsetMin = Vector2.zero;
                             menuParent.offsetMax = Vector2.zero;
                             configMenu.Build(menuParent);
-                            ConfigMenus.Add(Tuple.Create(configMenu, menuParent));
+                            ConfigMenus.Add((i << 16) + 0xFFFF, Tuple.Create(configMenu, menuParent));
                         }
                         else
                         {
-                            ConfigMenus.Add(null);
+                            ConfigMenus.Add((i << 16) + 0xFFFF, null);
                         }
                     }
-                    else
+                    catch (InvalidOperationException e)
                     {
+                        if (e.Message == INIGadgetConfigMenu.NO_CONFIGURABLE_DATA)
+                        {
+                            ConfigMenus.Add((i << 16) + 0xFFFF, null);
+                        }
+                        else
+                        {
+                            throw;
+                        }
+                    }
+
+                    for (int g = 0;g < entry.Gadgets.Length;g++)
+                    {
+                        GadgetInfo gadget = entry.Gadgets[g];
                         try
                         {
-                            IGadgetConfigMenu configMenu = new UMFGadgetConfigMenu(allMods[i], false, Path.Combine(UMFData.ConfigsPath, allMods[i]) + ".ini");
+                            IGadgetConfigMenu configMenu = new INIGadgetConfigMenu(gadget.Attribute.Name, false, Path.Combine(GadgetPaths.ConfigsPath, entry.Name) + ".ini");
                             if (configMenu != null)
                             {
-                                RectTransform menuParent = new GameObject(allMods[i], typeof(RectTransform)).GetComponent<RectTransform>();
+                                RectTransform menuParent = new GameObject(gadget.Attribute.Name, typeof(RectTransform)).GetComponent<RectTransform>();
                                 menuParent.gameObject.SetActive(false);
                                 menuParent.SetParent(parent);
                                 menuParent.anchorMin = new Vector2(0f, 0f);
@@ -75,18 +91,18 @@ namespace GadgetCore.API.ConfigMenu
                                 menuParent.offsetMin = Vector2.zero;
                                 menuParent.offsetMax = Vector2.zero;
                                 configMenu.Build(menuParent);
-                                ConfigMenus.Add(Tuple.Create(configMenu, menuParent));
+                                ConfigMenus.Add((i << 16) + g, Tuple.Create(configMenu, menuParent));
                             }
                             else
                             {
-                                ConfigMenus.Add(null);
+                                ConfigMenus.Add((i << 16) + g, null);
                             }
                         }
                         catch (InvalidOperationException e)
                         {
-                            if (e.Message == UMFGadgetConfigMenu.NO_CONFIGURABLE_DATA)
+                            if (e.Message == INIGadgetConfigMenu.NO_CONFIGURABLE_DATA)
                             {
-                                ConfigMenus.Add(null);
+                                ConfigMenus.Add((i << 16) + g, null);
                             }
                             else
                             {
@@ -94,11 +110,6 @@ namespace GadgetCore.API.ConfigMenu
                             }
                         }
                     }
-                }
-                catch
-                {
-                    ConfigMenus.Add(null);
-                    throw;
                 }
             }
         }
@@ -108,7 +119,7 @@ namespace GadgetCore.API.ConfigMenu
         /// </summary>
         public static IGadgetConfigMenu GetConfigMenu(int ID)
         {
-            return ID == -1 ? UMFConfigMenu?.Item1 : ConfigMenus[ID]?.Item1;
+            return ID == -1 ? UMFConfigMenu?.Item1 : ConfigMenus.ContainsKey(ID) ? ConfigMenus[ID]?.Item1 : null;
         }
 
         /// <summary>
@@ -116,7 +127,7 @@ namespace GadgetCore.API.ConfigMenu
         /// </summary>
         public static RectTransform GetConfigMenuObject(int ID)
         {
-            return ID == -1 ? UMFConfigMenu?.Item2 : ConfigMenus[ID]?.Item2;
+            return ID == -1 ? UMFConfigMenu?.Item2 : ConfigMenus.ContainsKey(ID) ? ConfigMenus[ID]?.Item2 : null;
         }
 
         /// <summary>
@@ -158,7 +169,7 @@ namespace GadgetCore.API.ConfigMenu
                 UMFConfigMenu.Item2.gameObject.SetActive(false);
                 UMFConfigMenu.Item1.Derender();
             }
-            foreach (Tuple<IGadgetConfigMenu, RectTransform> configMenu in ConfigMenus)
+            foreach (Tuple<IGadgetConfigMenu, RectTransform> configMenu in ConfigMenus.Values)
             {
                 if (configMenu != null && configMenu.Item2.gameObject.activeSelf)
                 {
@@ -174,13 +185,13 @@ namespace GadgetCore.API.ConfigMenu
         /// </summary>
         public static void RebuildAllConfigMenus()
         {
-            if (UMFConfigMenu != null)
+            if (UMFConfigMenu?.Item1 != null)
             {
                 UMFConfigMenu.Item1.Rebuild();
             }
-            foreach (Tuple<IGadgetConfigMenu, RectTransform> configMenu in ConfigMenus)
+            if (ConfigMenus != null) foreach (Tuple<IGadgetConfigMenu, RectTransform> configMenu in ConfigMenus.Values)
             {
-                if (configMenu != null)
+                if (configMenu?.Item1 != null)
                 {
                     configMenu.Item1.Rebuild();
                 }
@@ -196,7 +207,7 @@ namespace GadgetCore.API.ConfigMenu
             {
                 UMFConfigMenu.Item1.Reset();
             }
-            foreach (Tuple<IGadgetConfigMenu, RectTransform> configMenu in ConfigMenus)
+            foreach (Tuple<IGadgetConfigMenu, RectTransform> configMenu in ConfigMenus.Values)
             {
                 if (configMenu != null)
                 {

@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
 
 namespace GadgetCore.API
 {
@@ -47,14 +44,14 @@ namespace GadgetCore.API
         /// <summary>
         /// Provides a wrapper for the given vanilla ID. If the given ID has already been wrapped before, it will return the same wrapper instance as was returned before. If register is true, then the wrapper will be registered to its ID in the appropriate registry.
         /// </summary>
-        public static VanillaItemInfo Wrap(int ID, bool register)
+        public static VanillaItemInfo Wrap(int ID, bool register = false)
         {
             VanillaItemInfo itemInfo = Wrappers.ContainsKey(ID) ? Wrappers[ID] : (Wrappers[ID] = new VanillaItemInfo(ID, false));
             if (register && itemInfo.RegistryName == null) itemInfo.Register(itemInfo.Name, ID, true);
             return itemInfo;
         }
 
-        internal static VanillaItemInfo WrapForTile(int ID, bool register)
+        internal static VanillaItemInfo WrapForTile(int ID, bool register = false)
         {
             VanillaItemInfo itemInfo = Wrappers.ContainsKey(ID) ? Wrappers[ID] : (Wrappers[ID] = new VanillaItemInfo(ID, true));
             if (register && itemInfo.RegistryName == null) itemInfo.Register(itemInfo.Name, ID, true);

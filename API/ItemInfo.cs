@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using UnityEngine;
 
 namespace GadgetCore.API
@@ -209,7 +207,7 @@ namespace GadgetCore.API
         /// <summary>
         /// Called after this Registry Entry has been registered to its Registry. You should never call this yourself.
         /// </summary>
-        public override void PostRegister()
+        protected internal override void PostRegister()
         {
             if ((Type & ItemType.BASIC_MASK) == (ItemType.WEAPON & ItemType.BASIC_MASK) && WeaponScaling == null) throw new ArgumentException("WeaponScaling must be set on weapons!");
             if (ProjectileID < 0) ProjectileID = ID;

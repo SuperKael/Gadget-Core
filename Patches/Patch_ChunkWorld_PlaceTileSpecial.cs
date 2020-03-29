@@ -1,6 +1,5 @@
 using HarmonyLib;
 using GadgetCore.API;
-using GadgetCore;
 using UnityEngine;
 using System.Reflection;
 
@@ -26,11 +25,11 @@ namespace GadgetCore.Patches
                 __instance.gridSpecial[num3, num4] = num5;
                 if (tile.Type != TileType.INTERACTIVE)
                 {
-                    ___gridSpecialObj[num3, num4] = (GameObject)UnityEngine.Object.Instantiate(Resources.Load("prop/" + num5), new Vector3(num, num2, 0.9f), Quaternion.identity);
+                    ___gridSpecialObj[num3, num4] = (GameObject)Object.Instantiate(Resources.Load("prop/" + num5), new Vector3(num, num2, 0.9f), Quaternion.identity);
                 }
                 else
                 {
-                    ___gridSpecialObj[num3, num4] = (GameObject)UnityEngine.Object.Instantiate(Resources.Load("npc/npc" + num5), new Vector3(num, num2, 0.9f), Quaternion.identity);
+                    ___gridSpecialObj[num3, num4] = (GameObject)Object.Instantiate(Resources.Load("npc/npc" + num5), new Vector3(num, num2, 0.9f), Quaternion.identity);
                 }
                 ___gridSpecialObj[num3, num4].transform.parent = __instance.transform;
                 MultiplayerSupport.Invoke(__instance, new object[] { });

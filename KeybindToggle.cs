@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GadgetCore.API;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -38,7 +39,7 @@ namespace GadgetCore
                     keyList = new List<string>();
                     keybindSetter("");
                     clickSkip = false;
-                    Binding = true;
+                    GadgetCoreAPI.FreezeInput("Keybinding");
                 }
                 toggle.graphic.color = new Color(toggle.graphic.color.r, toggle.graphic.color.g, toggle.graphic.color.b, Mathf.RoundToInt(Time.time * 8) % 2);
                 foreach (KeyCode key in Enum.GetValues(typeof(KeyCode)))
@@ -61,7 +62,7 @@ namespace GadgetCore
                         }
                         keyList = null;
                         toggle.isOn = false;
-                        Binding = false;
+                        GadgetCoreAPI.UnfreezeInput("Keybinding");
                     }
                 }
             }

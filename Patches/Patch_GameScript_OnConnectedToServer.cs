@@ -1,8 +1,6 @@
 using HarmonyLib;
 using GadgetCore.API;
 using UnityEngine;
-using System;
-using System.Threading;
 using System.Collections;
 using System.Reflection;
 using System.Linq;
@@ -26,7 +24,7 @@ namespace GadgetCore.Patches
             }
             else
             {
-                if (GadgetNetwork.GetTimeSinceConnect() > GadgetNetwork.MatrixTimeout && GadgetMods.ListAllModInfos().Any(x => x.Attribute.RequiredOnClients))
+                if (GadgetNetwork.GetTimeSinceConnect() > GadgetNetwork.MatrixTimeout && Gadgets.ListAllGadgetInfos().Any(x => x.Attribute.RequiredOnClients))
                 {
                     Network.Disconnect();
                     return false;

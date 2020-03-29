@@ -1,9 +1,8 @@
 using HarmonyLib;
 using GadgetCore.API;
 using UnityEngine;
+using System.Collections.Generic;
 using System.IO;
-using UModFramework.API;
-using System.Collections;
 
 namespace GadgetCore.Patches
 {
@@ -19,9 +18,10 @@ namespace GadgetCore.Patches
             GadgetUtils.SafeCopyTexture(__instance.TileManager.GetComponent<ChunkWorld>().Texture, 0, 0, 0, 0, 128, 128, GadgetCoreAPI.spriteSheet, 0, 0, 0, 0);
             __instance.TileManager.GetComponent<ChunkWorld>().Texture = GadgetCoreAPI.spriteSheet;
             __instance.WallManager.GetComponent<ChunkWorld>().Texture = GadgetCoreAPI.spriteSheet;
-            foreach (GadgetModInfo mod in GadgetMods.ListAllModInfos())
+            GameObject gadgetHookScriptHolder = new GameObject("Gadget Hook Script Holder");
+            foreach (GadgetInfo mod in Gadgets.ListAllGadgetInfos())
             {
-                __instance.gameObject.AddComponent<GadgetModHookScript>().Mod = mod;
+                gadgetHookScriptHolder.AddComponent<GadgetHookScript>().Mod = mod;
             }
         }
     }

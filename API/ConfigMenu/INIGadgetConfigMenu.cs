@@ -5,16 +5,13 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using UModFramework.API;
-using UnityEngine;
-using UnityEngine.UI;
 
 namespace GadgetCore.API.ConfigMenu
 {
     /// <summary>
-    /// This is an extension of <see cref="BasicGadgetConfigMenu"/> that auto-generates its contents from a UMF config file. This will always be used for non-Gadget mods, and is also the default if you don't specify your own config menu.
+    /// This is an extension of <see cref="BasicGadgetConfigMenu"/> that auto-generates its contents from an INI-based config file. This will always be used for non-Gadgets, and is also the default if you don't specify your own config menu.
     /// </summary>
-    public class UMFGadgetConfigMenu : BasicGadgetConfigMenu
+    public class INIGadgetConfigMenu : BasicGadgetConfigMenu
     {
         /// <summary>
         /// The exception that occurs if the given config file has no configurable data.
@@ -41,6 +38,10 @@ namespace GadgetCore.API.ConfigMenu
         /// The <see cref="IniData"/> for the config file.
         /// </summary>
         protected IniData Ini;
+        /// <summary>
+        /// If not null, auto-reloads the configs for the given <see cref="ModMenuEntry"/>.
+        /// </summary>
+        protected ModMenuEntry autoReload;
 
         /// <summary>
         /// Constructs a UMFGadgetConfigMenu, optionally for a given ini file section and given config file path. Throws an <see cref="InvalidOperationException"/> with the message <see cref="NO_CONFIGURABLE_DATA"/> if the given config file has no configurable data.
@@ -48,15 +49,16 @@ namespace GadgetCore.API.ConfigMenu
         /// <param name="section">The Ini file section to reference. If the specified section is not present, then the section matching the config file's name will be used instead.</param>
         /// <param name="hidesModMenu">Specifies whether the mod menu should be hidden when this config menu is opened.</param>
         /// <param name="configFilePath">Specifies the location of the config file to reference. If left unspecified, the standard config file for your mod will be used.</param>
+        /// <param name="autoReload">If not null, auto-reloads the configs for the given <see cref="ModMenuEntry"/>.</param>
         /// <param name="readonlyEntries">All config entries that match names in this list will be displayed as read-only.</param>
-        public UMFGadgetConfigMenu(string section, bool hidesModMenu = false, string configFilePath = null, params string[] readonlyEntries) : base(hidesModMenu)
+        public INIGadgetConfigMenu(string section, bool hidesModMenu = false, string configFilePath = null, ModMenuEntry autoReload = null, params string[] readonlyEntries) : base(hidesModMenu)
         {
-            if (configFilePath == null) configFilePath = Path.Combine(UMFData.ConfigsPath, Assembly.GetCallingAssembly().GetName().Name) + ".ini";
+            if (configFilePath == null) configFilePath = Path.Combine(GadgetPaths.ConfigsPath, Assembly.GetCallingAssembly().GetName().Name) + ".ini";
             LoadConfigFile(configFilePath, section, readonlyEntries);
         }
 
         /// <summary>
-        /// Loads the given config file, and adds all of the entries within to this <see cref="UMFGadgetConfigMenu"/>
+        /// Loads the given config file, and adds all of the entries within to this <see cref="INIGadgetConfigMenu"/>
         /// </summary>
         protected virtual void LoadConfigFile(string configFilePath, string section, params string[] readonlyEntries)
         {
@@ -87,11 +89,16 @@ namespace GadgetCore.API.ConfigMenu
                     throw new InvalidOperationException(NO_CONFIGURABLE_DATA);
                 }
             }
-            AddComponent(new GadgetConfigLabelComponent(this, "ConfigVersion", "Config Version (not to be confused with mod version): " + Ini["uModFramework"]["ConfigVersion"]), GadgetConfigComponentAlignment.HEADER);
+            if (Ini.Sections.ContainsSection("uModFramework") && Ini["uModFramework"].ContainsKey("ConfigVersion")) AddComponent(new GadgetConfigLabelComponent(this, "ConfigVersion", "Config Version (not to be confused with mod version): " + Ini["uModFramework"]["ConfigVersion"]), GadgetConfigComponentAlignment.HEADER);
             bool firstStandard = true, firstHeader = false, firstFooter = true;
             foreach (KeyData keyData in Ini[section])
             {
                 if (keyData == null) continue;
+                if (keyData.KeyName == "ConfigVersion")
+                {
+                    AddComponent(new GadgetConfigLabelComponent(this, "ConfigVersion", "Config Version (not to be confused with mod version): " + keyData.Value), GadgetConfigComponentAlignment.HEADER);
+                    continue;
+                }
                 GadgetConfigComponentAlignment alignment = default;
                 bool seperatorMade = false, commentsMade = false;
                 try
@@ -396,7 +403,14 @@ namespace GadgetCore.API.ConfigMenu
         {
             base.Update();
             IniParser.WriteFile(ConfigFilePath, Ini);
-            UMFGUI.SendCommand("cfgReload " + Path.GetFileNameWithoutExtension(ConfigFilePath));
+            if (autoReload != null)
+            {
+                if (autoReload.Name == ConfigFileSection)
+                {
+                    GadgetCoreAPI.GetUMFAPI()?.SendCommand("cfgReload " + Path.GetFileNameWithoutExtension(ConfigFilePath));
+                }
+                autoReload.Gadgets.FirstOrDefault(x => x.Attribute.Name == ConfigFileSection)?.Gadget.ReloadConfig();
+            }
         }
     }
 }

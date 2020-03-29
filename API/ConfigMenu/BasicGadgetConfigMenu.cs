@@ -72,6 +72,7 @@ namespace GadgetCore.API.ConfigMenu
             if (HasBuilt) throw new InvalidOperationException("A BasicGadgetConfigMenu cannot be built again after it has already been built!");
             HasBuilt = true;
             MenuParent = parent;
+            MenuParent.localScale = Vector3.one;
             bool shouldHideModMenu = ShouldHideModMenu();
             Image backgroundImage = new GameObject("Background Image", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image)).GetComponent<Image>();
             backgroundImage.GetComponent<RectTransform>().SetParent(parent);

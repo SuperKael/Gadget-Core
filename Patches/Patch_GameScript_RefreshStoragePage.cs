@@ -1,6 +1,4 @@
 using HarmonyLib;
-using GadgetCore.API;
-using GadgetCore;
 using UnityEngine;
 using System.Collections;
 using System.Reflection;
@@ -17,11 +15,11 @@ namespace GadgetCore.Patches
         [HarmonyPrefix]
         public static bool Prefix(GameScript __instance, int p, ref IEnumerator __result)
         {
-            __result = RefreshInventory(__instance, p);
+            __result = RefreshStoragePage(__instance, p);
             return false;
         }
 
-        private static IEnumerator RefreshInventory(GameScript __instance, int p)
+        private static IEnumerator RefreshStoragePage(GameScript __instance, int p)
         {
             int oldCurStoragePage = (int)curStoragePage.GetValue(__instance);
             curStoragePage.SetValue(__instance, p);

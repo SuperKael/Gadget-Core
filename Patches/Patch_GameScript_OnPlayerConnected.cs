@@ -1,9 +1,7 @@
 using HarmonyLib;
 using GadgetCore.API;
-using GadgetCore;
 using UnityEngine;
 using System.Collections;
-using System.Reflection;
 using System.Linq;
 
 namespace GadgetCore.Patches
@@ -29,7 +27,7 @@ namespace GadgetCore.Patches
 
         private static void VerifyCompatible(NetworkPlayer pl)
         {
-            if (!GadgetNetwork.MatrixReady && GadgetNetwork.GetTimeSinceConnect() > GadgetNetwork.MatrixTimeout && GadgetMods.ListAllModInfos().Any(x => x.Attribute.RequiredOnClients))
+            if (!GadgetNetwork.MatrixReady && GadgetNetwork.GetTimeSinceConnect() > GadgetNetwork.MatrixTimeout && Gadgets.ListAllGadgetInfos().Any(x => x.Attribute.RequiredOnClients))
             {
                 Network.CloseConnection(pl, true);
             }

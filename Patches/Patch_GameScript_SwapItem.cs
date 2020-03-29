@@ -1,8 +1,6 @@
 using HarmonyLib;
 using GadgetCore.API;
-using GadgetCore;
 using UnityEngine;
-using System.Collections;
 using System.Reflection;
 
 namespace GadgetCore.Patches
@@ -67,7 +65,7 @@ namespace GadgetCore.Patches
                         {
                             __instance.GetComponent<AudioSource>().PlayOneShot((AudioClip)Resources.Load("Au/bling"), Menuu.soundLevel / 10f);
                         }
-                        UnityEngine.Object.Instantiate(Resources.Load("clickBurst"), new Vector3(__instance.invIcon[slot].transform.position.x, __instance.invIcon[slot].transform.position.y, 0f), Quaternion.identity);
+                        Object.Instantiate(Resources.Load("clickBurst"), new Vector3(__instance.invIcon[slot].transform.position.x, __instance.invIcon[slot].transform.position.y, 0f), Quaternion.identity);
                         if (slot == 36)
                         {
                             GameScript.equippedIDs[0] = ___inventory[slot].id;

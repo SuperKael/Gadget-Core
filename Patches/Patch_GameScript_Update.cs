@@ -1,6 +1,5 @@
 using HarmonyLib;
 using GadgetCore.API;
-using GadgetCore;
 using UnityEngine;
 using System.Collections.Generic;
 using System.Reflection.Emit;
@@ -119,7 +118,16 @@ namespace GadgetCore.Patches
             for (int i = 11; i < codes.Length; i++)
             {
                 newCodes.Add(codes[i]);
-                if (codes[i - 11] != null && codes[i - 11].opcode == OpCodes.Ldloc_S
+                if ((codes[i - 1] != null && codes[i - 1].opcode == OpCodes.Ldsfld && codes[i - 1].operand.ToString().Equals("System.Boolean pausing")
+                 && codes[i] != null && codes[i].opcode == OpCodes.Brtrue) ||
+                    (codes[i - 2] != null && codes[i - 2].opcode == OpCodes.Ldc_I4_S && ((sbyte)codes[i - 2].operand) == 98
+                 && codes[i - 1] != null && codes[i - 1].opcode == OpCodes.Call && (codes[i - 1].operand as MethodBase).Name == "GetKeyDown"
+                 && codes[i] != null && codes[i].opcode == OpCodes.Brfalse))
+                {
+                    newCodes.Add(new CodeInstruction(OpCodes.Call, typeof(GadgetCoreAPI).GetMethod("IsInputFrozen", BindingFlags.Public | BindingFlags.Static)));
+                    newCodes.Add(new CodeInstruction(OpCodes.Brtrue, codes[i].operand));
+                }
+                else if (codes[i - 11] != null && codes[i - 11].opcode == OpCodes.Ldloc_S
                  && codes[i - 10] != null && codes[i - 10].opcode == OpCodes.Ldc_I4_S
                  && codes[i - 9] != null && codes[i - 9].opcode == OpCodes.Bge
                  && codes[i - 8] != null && codes[i - 8].opcode == OpCodes.Ldloc_S

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 
 namespace GadgetCore.Util
 {
@@ -12,6 +11,19 @@ namespace GadgetCore.Util
     public static class ReflectionUtils
     {
         private static Dictionary<MethodInfoData, MethodInfo> cachedMethods = new Dictionary<MethodInfoData, MethodInfo>();
+
+        /// <summary>
+        /// Invokes the method with the specified name and parameters.
+        /// </summary>
+        /// <param name="type">The object instance to invoke upon.</param>
+        /// <param name="methodName">The name of the method to invoke.</param>
+        /// <param name="parameters">The parameters to run the method with.</param>
+        /// <returns>The value returned by the invoked method.</returns>
+        public static T InvokeMethod<T>(this object type, string methodName, params object[] parameters)
+        {
+            return (T)InvokeMethod(type, methodName, parameters);
+        }
+
         /// <summary>
         /// Invokes the method with the specified name and parameters.
         /// </summary>

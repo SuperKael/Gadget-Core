@@ -1,9 +1,6 @@
 using HarmonyLib;
-using GadgetCore.API;
-using GadgetCore;
 using UnityEngine;
 using System;
-using System.Threading;
 
 namespace GadgetCore.Patches
 {

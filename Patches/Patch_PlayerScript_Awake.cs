@@ -1,5 +1,6 @@
 using HarmonyLib;
 using GadgetCore.API;
+using UnityEngine;
 
 namespace GadgetCore.Patches
 {
@@ -10,7 +11,7 @@ namespace GadgetCore.Patches
         [HarmonyPrefix]
         public static void Prefix(PlayerScript __instance)
         {
-            if (InstanceTracker.PlayerScript == null) InstanceTracker.PlayerScript = __instance;
+            if (__instance.GetComponent<NetworkView>().isMine) InstanceTracker.PlayerScript = __instance;
         }
     }
 }

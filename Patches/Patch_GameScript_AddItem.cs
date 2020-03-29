@@ -1,6 +1,5 @@
 using HarmonyLib;
 using GadgetCore.API;
-using GadgetCore;
 using System.Collections;
 using System.Reflection;
 using UnityEngine;
@@ -75,7 +74,7 @@ namespace GadgetCore.Patches
             {
                 script.GetComponent<AudioSource>().PlayOneShot((AudioClip)Resources.Load("Au/pickup"), Menuu.soundLevel / 10f);
                 Vector3 position = MenuScript.player.transform.position;
-                GameObject gameObject = (GameObject)UnityEngine.Object.Instantiate(Resources.Load("txtGet"), new Vector3(position.x, position.y + 1f, -3.2f), Quaternion.identity);
+                GameObject gameObject = (GameObject)Object.Instantiate(Resources.Load("txtGet"), new Vector3(position.x, position.y + 1f, -3.2f), Quaternion.identity);
                 Package1 value = new Package1(GetItemName.Invoke(script, new object[] { package.item.id }) as string, package.item.q);
                 gameObject.SendMessage("Init", value);
             }
