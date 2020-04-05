@@ -130,6 +130,36 @@ namespace GadgetCore.Loader
         }
 
         /// <summary>
+        /// Lists all mod files in the given mod directory. The returned values are relative paths that can be used by <see cref="GetModFile(string)"/> or <see cref="ReadModFile(string)"/>
+        /// </summary>
+        public string[] ListModFiles(string relativeDirectoryPath)
+        {
+            if (IsArchive)
+            {
+                return Archive.Where(x => x.FileName.Length > relativeDirectoryPath.Length && x.FileName.StartsWith(relativeDirectoryPath) && !x.FileName.Substring(relativeDirectoryPath.Length + 1).Contains(Path.DirectorySeparatorChar)).Select(x => x.FileName).ToArray();
+            }
+            else
+            {
+                return Directory.GetFiles(Path.Combine(ModPath, relativeDirectoryPath)).Select(x => Path.Combine(relativeDirectoryPath, Path.GetFileName(x))).ToArray();
+            }
+        }
+
+        /// <summary>
+        /// Lists all child mod directories of the given mod directory. Note that this will not return empty directories. The returned values are relative paths that can be used by <see cref="ListModFiles(string)"/>
+        /// </summary>
+        public string[] ListModDirectories(string relativeDirectoryPath)
+        {
+            if (IsArchive)
+            {
+                return Archive.Where(x => x.FileName.Length > relativeDirectoryPath.Length && x.FileName.StartsWith(relativeDirectoryPath) && x.FileName.Substring(relativeDirectoryPath.Length + 1).Contains(Path.DirectorySeparatorChar)).Select(x => x.FileName.Substring(0, x.FileName.IndexOf(Path.DirectorySeparatorChar, relativeDirectoryPath.Length + 1))).Distinct().ToArray();
+            }
+            else
+            {
+                return Directory.GetDirectories(Path.Combine(ModPath, relativeDirectoryPath)).Select(x => Path.Combine(relativeDirectoryPath, Path.GetFileName(x))).ToArray();
+            }
+        }
+
+        /// <summary>
         /// Checks if this mod contains the file with the given path.
         /// </summary>
         public bool HasModFile(string relativeFilePath)

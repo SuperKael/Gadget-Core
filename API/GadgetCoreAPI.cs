@@ -22,7 +22,7 @@ namespace GadgetCore.API
         /// <summary>
         /// A slightly more informative version. You generally shouldn't access this directly, instead use <see cref="GetFullVersion()"/>
         /// </summary>
-        public const string FULL_VERSION = "2.0.0.0-BETA1";
+        public const string FULL_VERSION = "2.0.0.0-BETA2";
         /// <summary>
         /// Indicates whether this version of GadgetCore is a beta version. You generally shouldn't access this directly, instead use <see cref="GetIsBeta()"/>
         /// </summary>
@@ -99,6 +99,21 @@ namespace GadgetCore.API
         public static void FreezeInput(string reason)
         {
             if (!frozenInput.Contains(reason)) frozenInput.Add(reason);
+        }
+
+        /// <summary>
+        /// Unfreezes input on a one-frame delay.
+        /// </summary>
+        public static void DelayUnfreezeInput(string reason)
+        {
+            SceneInjector.PersistantCanvas.GetComponent<UnityEngine.UI.CanvasScaler>().StartCoroutine(DelayUnfreezeInputRoutine(reason));
+        }
+
+        private static IEnumerator DelayUnfreezeInputRoutine(string reason)
+        {
+            yield return new WaitForEndOfFrame();
+            frozenInput.Remove(reason);
+            yield break;
         }
 
         /// <summary>
@@ -1015,22 +1030,27 @@ namespace GadgetCore.API
                 return cachedTexes[mod.Name + ":" + file];
             }
             string filePath = Path.Combine("Assets", file);
-            if (mod.HasModFile(filePath) || File.Exists(filePath = Path.Combine(Path.Combine(GadgetPaths.AssetsPath, mod.Name), file)))
+            Stream stream;
+            if (mod.HasModFile(filePath))
             {
-                Stream stream = mod.ReadModFile(filePath);
-                byte[] fileData = new byte[stream.Length];
-                stream.Read(fileData, 0, fileData.Length);
-                stream.Dispose();
-                Texture2D tex = new Texture2D(2, 2);
-                tex.LoadImage(fileData);
-                tex.filterMode = FilterMode.Point;
-                cachedTexes.Add(mod.Name + ":" + file, tex);
-                return tex;
+                stream = mod.ReadModFile(filePath);
+            }
+            else if (File.Exists(filePath = Path.Combine(Path.Combine(GadgetPaths.AssetsPath, mod.Name), file)))
+            {
+                stream = File.OpenRead(filePath);
             }
             else
             {
                 return null;
             }
+            byte[] fileData = new byte[stream.Length];
+            stream.Read(fileData, 0, fileData.Length);
+            stream.Dispose();
+            Texture2D tex = new Texture2D(2, 2);
+            tex.LoadImage(fileData);
+            tex.filterMode = FilterMode.Point;
+            cachedTexes.Add(mod.Name + ":" + file, tex);
+            return tex;
         }
 
         /// <summary>

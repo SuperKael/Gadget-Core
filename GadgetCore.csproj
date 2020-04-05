@@ -48,6 +48,7 @@
   <ItemGroup>
     <Reference Include="0Harmony">
       <HintPath>D:\Program Files (x86)\Steam\steamapps\common\Roguelands\Roguelands_Data\Managed\0Harmony.dll</HintPath>
+      <Private>false</Private>
     </Reference>
     <Reference Include="Assembly-CSharp">
       <HintPath>D:\Program Files (x86)\Steam\steamapps\common\Roguelands\Roguelands_Data\Managed\Assembly-CSharp.dll</HintPath>
@@ -55,7 +56,7 @@
     </Reference>
     <Reference Include="INIFileParser">
       <HintPath>..\CoreLibs\INIFileParser.dll</HintPath>
-      <Private>true</Private>
+      <Private>false</Private>
     </Reference>
     <Reference Include="System">
       <HintPath>D:\Program Files (x86)\Steam\steamapps\common\Roguelands\Roguelands_Data\Managed\System.dll</HintPath>
@@ -64,9 +65,13 @@
     <Reference Include="System.Core">
       <Private>false</Private>
     </Reference>
-    <Reference Include="System.Web" />
+    <Reference Include="System.Web">
+      <HintPath>..\CoreLibs\System.Web.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
     <Reference Include="uModFramework">
       <HintPath>D:\Program Files (x86)\Steam\steamapps\common\Roguelands\uModFramework\Lib\net35\uModFramework.U5.dll</HintPath>
+      <Private>false</Private>
     </Reference>
     <Reference Include="UnityEngine">
       <HintPath>..\Libs\UnityEngine.dll</HintPath>
@@ -96,6 +101,12 @@
     <None Update="Assets\Shared\gadgetcore.assets">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="CoreLibs\0Harmony.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="CoreLibs\DotNetZip.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="CoreLibs\I18N.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -120,11 +131,17 @@
     <None Update="CoreLibs\System.Threading.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="CoreLibs\System.Web.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="CoreLibs\System.Xml.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="DependentLibs\GadgetCoreLib.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Libs\GadgetCoreLib.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Libs\Open.Nat.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

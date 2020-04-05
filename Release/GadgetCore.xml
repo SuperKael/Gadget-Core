@@ -1688,6 +1688,11 @@
             Freezes keyboard input to GameScript.Update and PlayerScript.Update. Useful when presenting menus that have keyboard input.
             </summary>
         </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.DelayUnfreezeInput(System.String)">
+            <summary>
+            Unfreezes input on a one-frame delay.
+            </summary>
+        </member>
         <member name="M:GadgetCore.API.GadgetCoreAPI.UnfreezeInput(System.String)">
             <summary>
             Unfreezes input as it was set for the given reason.
@@ -4354,6 +4359,16 @@
         <member name="M:GadgetCore.Loader.GadgetMod.GetModFile(System.String)">
             <summary>
             Gets a temporary reference to a file contained within a Gadget Mod. Make sure to call <see cref="M:GadgetCore.Loader.GadgetModFile.Dispose"/> when you are done with it. Do not call this again before disposing of the previous instance of <see cref="T:GadgetCore.Loader.GadgetModFile"/>.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Loader.GadgetMod.ListModFiles(System.String)">
+            <summary>
+            Lists all mod files in the given mod directory. The returned values are relative paths that can be used by <see cref="M:GadgetCore.Loader.GadgetMod.GetModFile(System.String)"/> or <see cref="M:GadgetCore.Loader.GadgetMod.ReadModFile(System.String)"/>
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Loader.GadgetMod.ListModDirectories(System.String)">
+            <summary>
+            Lists all child mod directories of the given mod directory. Note that this will not return empty directories. The returned values are relative paths that can be used by <see cref="M:GadgetCore.Loader.GadgetMod.ListModFiles(System.String)"/>
             </summary>
         </member>
         <member name="M:GadgetCore.Loader.GadgetMod.HasModFile(System.String)">

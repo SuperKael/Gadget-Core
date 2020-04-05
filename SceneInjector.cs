@@ -1,6 +1,7 @@
 ﻿using GadgetCore.API;
 using GadgetCore.API.ConfigMenu;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -64,10 +65,17 @@ namespace GadgetCore
             GameObject bModMenu = ModMenuButtonHolder.transform.GetChild(0).gameObject;
             bModMenu.name = "bModMenu";
             Array.ForEach(bModMenu.GetComponentsInChildren<TextMesh>(), x => x.text = "MOD MENU");
-            ModMenuBeam.GetComponent<Animation>().Play();
-            ModMenuButtonHolder.GetComponent<Animation>().Play();
+            InstanceTracker.Menuu.StartCoroutine(AnimateModMenuButton(InstanceTracker.Menuu));
             BuildModMenu();
             if (PersistantCanvas == null) BuildPersistantCanvas();
+        }
+
+        private static IEnumerator AnimateModMenuButton(Menuu instance)
+        {
+            ModMenuBeam.GetComponent<Animation>().Play();
+            yield return new WaitForSeconds(0.3f);
+            ModMenuButtonHolder.GetComponent<Animation>().Play();
+            yield break;
         }
 
         internal static void InjectIngame()
@@ -322,6 +330,8 @@ namespace GadgetCore
             configReloadButtonText.font = modMenuDescText.font;
             configReloadButtonText.fontSize = 12;
             configReloadButtonText.text = "Reload Configs";
+
+            GadgetModConfigs.ConfigMenus.Clear();
         }
 
         private static void BuildPersistantCanvas()

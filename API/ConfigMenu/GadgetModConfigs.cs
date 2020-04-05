@@ -12,11 +12,13 @@ namespace GadgetCore.API.ConfigMenu
     /// </summary>
     public static class GadgetModConfigs
     {
-        private static Dictionary<int, Tuple<IGadgetConfigMenu, RectTransform>> ConfigMenus = new Dictionary<int, Tuple<IGadgetConfigMenu, RectTransform>>();
+        internal static Dictionary<int, Tuple<IGadgetConfigMenu, RectTransform>> ConfigMenus = new Dictionary<int, Tuple<IGadgetConfigMenu, RectTransform>>();
         private static Tuple<IGadgetConfigMenu, RectTransform> UMFConfigMenu;
 
         internal static void BuildConfigMenus(RectTransform parent)
         {
+            ConfigMenus.Clear();
+
             if (GadgetCoreAPI.GetUMFAPI() != null)
             {
                 if (UMFConfigMenu == null)

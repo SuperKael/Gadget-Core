@@ -539,7 +539,7 @@ namespace GadgetCore
                 }
                 else
                 {
-                    enableButton.interactable = modEnabled || modEntries[modIndex].Type == ModMenuEntryType.DISABLED_UMF;
+                    enableButton.interactable = modEntries[modIndex].Name != "GadgetCore" && (modEnabled || modEntries[modIndex].Type == ModMenuEntryType.DISABLED_UMF);
                     reloadButton.interactable = modEntries[modIndex].Name != "GadgetCore" && (modEntries[modIndex].Type == ModMenuEntryType.GADGET || modEntries[modIndex].Type == ModMenuEntryType.UMF);
                     configButton.interactable = GadgetModConfigs.GetConfigMenuObject((modIndex << 16) + (gadgetIndex & 0xFFFF)) != null;
                     enableButton.GetComponentInChildren<Text>().text = (modEnabled ^ modsToToggle.Contains(modEntries[modIndex].Name)) ? "Disable" : "Enable";

@@ -101,7 +101,16 @@ namespace GadgetCore
                 CoreLogger = new GadgetLogger("GadgetCore", "Core");
                 CoreLogger.Log("GadgetCore v" + GadgetCoreAPI.FULL_VERSION + " Initializing!");
                 HarmonyInstance = new Harmony("GadgetCore.core");
-                Assembly.GetExecutingAssembly().GetTypes().Do(delegate (Type type)
+                Type[] types;
+                try
+                {
+                    types = Assembly.GetExecutingAssembly().GetTypes();
+                }
+                catch (ReflectionTypeLoadException e)
+                {
+                    types = e.Types.Where(t => t != null).ToArray();
+                }
+                types.Do(delegate (Type type)
                 {
                     object[] attributes = type.GetCustomAttributes(true);
                     if (!attributes.Any(x => x.GetType() == typeof(HarmonyGadgetAttribute)))

@@ -75,7 +75,7 @@ namespace GadgetCore
         /// </summary>
         public static void HideConsole()
         {
-            GadgetCoreAPI.UnfreezeInput("Gadget Console Open");
+            GadgetCoreAPI.DelayUnfreezeInput("Gadget Console Open");
             wasOpen = false;
             console.gameObject.SetActive(false);
             console.AlwaysActivePanel.gameObject.SetActive(true);
@@ -100,7 +100,7 @@ namespace GadgetCore
             }
             else
             {
-                GadgetCoreAPI.UnfreezeInput("Gadget Console Open");
+                GadgetCoreAPI.DelayUnfreezeInput("Gadget Console Open");
                 wasOpen = false;
                 console.InputField.text = "";
                 console.InputField.DeactivateInputField();
@@ -861,7 +861,7 @@ namespace GadgetCore
                 }
                 if (int.TryParse(itemName, out int id))
                 {
-                    if (!ItemRegistry.GetSingleton().HasEntry(id))
+                    if (string.IsNullOrEmpty(GadgetCoreAPI.GetItemName(id)))
                     {
                         return new GadgetConsoleMessage("There is no item with the ID `" + id + "`", null, MessageSeverity.ERROR);
                     }
