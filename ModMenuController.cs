@@ -469,9 +469,12 @@ namespace GadgetCore
             if (modEntries.Count > 0)
             {
                 RectTransform modListScrollView = transform.Find("Scroll View") as RectTransform;
-                RectTransform modList = modListScrollView.Find("Mask").Find("Viewport").Find("ModList") as RectTransform;
-                scrollPositionCache = (1 - modListScrollView.GetComponent<ScrollRect>().verticalNormalizedPosition) * (modList.anchorMax.y - modList.anchorMin.y);
-                Destroy(modListScrollView.gameObject);
+                if (modListScrollView != null)
+                {
+                    RectTransform modList = modListScrollView.Find("Mask").Find("Viewport").Find("ModList") as RectTransform;
+                    scrollPositionCache = (1 - modListScrollView.GetComponent<ScrollRect>().verticalNormalizedPosition) * (modList.anchorMax.y - modList.anchorMin.y);
+                    Destroy(modListScrollView.gameObject);
+                }
                 modEntries.Clear();
             }
             Build();
@@ -535,7 +538,8 @@ namespace GadgetCore
                         descTextBuilder.Append('\n');
                         descTextBuilder.Append(info.Key + ": " + info.Value);
                     }
-                    descTextBuilder.Append("\n\n" + mod.Gadget.GetModDescription() ?? modEntries[modIndex].Description);
+                    string gadgetDesc = mod.Gadget.GetModDescription();
+                    descTextBuilder.Append("\n\n" + (!string.IsNullOrEmpty(gadgetDesc) ? gadgetDesc : modEntries[modIndex].Description));
                 }
                 else
                 {

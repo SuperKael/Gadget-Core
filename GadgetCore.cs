@@ -187,12 +187,12 @@ namespace GadgetCore
                 {
                     UMFAPI = new UMFAPI();
                     UMFAPI.GetModNames();
-                    Log("Enabling UMF API as UMF is installed.");
+                    CoreLogger.Log("Enabling UMF API as UMF is installed.");
                 }
                 catch (Exception)
                 {
                     UMFAPI = null;
-                    Log("Disabling UMF API as UMF is not installed.");
+                    CoreLogger.Log("Disabling UMF API as UMF is not installed.");
                 }
                 CoreLib = Activator.CreateInstance(Assembly.LoadFile(Path.Combine(Path.Combine(GadgetPaths.GadgetCorePath, "DependentLibs"), "GadgetCoreLib.dll")).GetTypes().First(x => typeof(IGadgetCoreLib).IsAssignableFrom(x))) as IGadgetCoreLib;
                 CoreLib.ProvideLogger(CoreLogger);
@@ -216,11 +216,6 @@ namespace GadgetCore
             {
                 CoreLogger.LogError("There was a fatal error loading GadgetCore: " + e);
             }
-        }
-
-        internal static void Log(string text)
-        {
-            CoreLogger.Log(text);
         }
 
         internal static void OnSceneLoaded(Scene scene, LoadSceneMode mode)

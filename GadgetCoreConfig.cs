@@ -93,7 +93,6 @@ namespace GadgetCore
         {
             try
             {
-                GadgetCore.Log(enabledGadgets.Select(x => x.Key + ":" + x.Value).Aggregate(new StringBuilder(), (a, b) => { if (a.Length > 0) a.Append(","); a.Append(b); return a; }).ToString());
                 PlayerPrefs.SetString("EnabledGadgets", enabledGadgets.Select(x => x.Key + ":" + x.Value).Aggregate(new StringBuilder(), (a, b) => { if (a.Length > 0) a.Append(","); a.Append(b); return a; }).ToString());
                 foreach (Registry reg in GameRegistry.ListAllRegistries())
                 {

@@ -1382,22 +1382,22 @@
         </member>
         <member name="M:GadgetCore.API.Gadget.GetModDescription">
             <summary>
-            Returns the description of this mod. By default, returns null, which will cause the mod's ModInfo to be used as its description.
+            Returns the description of this Gadget. By default, returns null, which will cause the Gadget's ModInfo to be used as its description.
             </summary>
         </member>
         <member name="M:GadgetCore.API.Gadget.GetPreviousModNames">
             <summary>
-            Returns a list of all previous names this mod has had. If you must change the name of your mod, use this to prevent registry data corruption. Null is not a valid return value, return an empty array if your mod has had no previous names.
+            Returns a list of all previous names this Gadget has had. If you must change the name of your Gadget, use this to prevent registry data corruption. Null is not a valid return value, return an empty array if your Gadget has had no previous names.
             </summary>
         </member>
         <member name="M:GadgetCore.API.Gadget.GetModVersionString">
             <summary>
-            Returns the version string of this mod. By default, returns the value of the AssemblyFileVersion attribute.
+            Returns the version string of this Gadget. By default, returns the value of the AssemblyFileVersion attribute.
             </summary>
         </member>
         <member name="M:GadgetCore.API.Gadget.GetConfigMenu">
             <summary>
-            Returns an <see cref="T:GadgetCore.API.ConfigMenu.IGadgetConfigMenu"/> for this mod. By default, returns a <see cref="T:GadgetCore.API.ConfigMenu.INIGadgetConfigMenu"/> for this mod's UMF config file. May return null if the mod should not have a config menu.
+            Returns an <see cref="T:GadgetCore.API.ConfigMenu.IGadgetConfigMenu"/> for this Gadget. By default, returns a <see cref="T:GadgetCore.API.ConfigMenu.INIGadgetConfigMenu"/> for this Gadget's UMF config file. May return null if the Gadget should not have a config menu.
             </summary>
             <returns></returns>
         </member>

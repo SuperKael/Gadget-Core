@@ -486,6 +486,7 @@ namespace GadgetCore.Loader
             foreach (GadgetInfo gadget in QueuedGadgets)
             {
                 gadget.Gadget.Unload();
+                LootTables.RemoveModEntries(gadget.Gadget.ModID);
                 foreach (Registry reg in GameRegistry.ListAllRegistries())
                 {
                     reg.UnregisterGadget(gadget);

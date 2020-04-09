@@ -267,7 +267,7 @@ namespace GadgetCore.API.ConfigMenu
                 }
                 catch (Exception e)
                 {
-                    GadgetCore.Log("WARNING: Exception parsing config entry '" + keyData.KeyName + "' with value '" + keyData.Value + "': " + e);
+                    GadgetCore.CoreLogger.Log("WARNING: Exception parsing config entry '" + keyData.KeyName + "' with value '" + keyData.Value + "': " + e);
                     try
                     {
                         if (!seperatorMade)
@@ -323,7 +323,7 @@ namespace GadgetCore.API.ConfigMenu
                     }
                     catch (Exception ee)
                     {
-                        GadgetCore.Log("WARNING: Failed fallback parsing of config entry '" + keyData.KeyName + "' with value '" + keyData.Value + "': " + ee);
+                        GadgetCore.CoreLogger.Log("WARNING: Failed fallback parsing of config entry '" + keyData.KeyName + "' with value '" + keyData.Value + "': " + ee);
                         try
                         {
                             if (!seperatorMade)
@@ -356,7 +356,7 @@ namespace GadgetCore.API.ConfigMenu
                                 }
                                 catch (Exception se)
                                 {
-                                    GadgetCore.Log("WARNING: Failed creating seperator for failed config entry '" + keyData.KeyName + "': " + se);
+                                    GadgetCore.CoreLogger.Log("WARNING: Failed creating seperator for failed config entry '" + keyData.KeyName + "': " + se);
                                 }
                             }
                             AddComponent(new GadgetConfigLabelComponent(this, "Fatal Error Name Label for: " + keyData.KeyName, "A FATAL ERROR OCCURED PROCESSING THE FOLLOWING CONFIG ENTRY: " + keyData.KeyName, 0.05f, true), alignment);
@@ -364,7 +364,7 @@ namespace GadgetCore.API.ConfigMenu
                         }
                         catch (Exception fe)
                         {
-                            GadgetCore.Log("WARNING: Failed creating label for failed config entry '" + keyData.KeyName + "': " + fe);
+                            GadgetCore.CoreLogger.Log("WARNING: Failed creating label for failed config entry '" + keyData.KeyName + "': " + fe);
                         }
                     }
                 }

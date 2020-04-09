@@ -38,7 +38,7 @@ namespace GadgetCore
 
         internal static void InjectMainMenu()
         {
-            GadgetCore.Log("Injecting objects into Main Menu");
+            GadgetCore.CoreLogger.Log("Injecting objects into Main Menu");
 
             Texture2D boxTex = GadgetCoreAPI.LoadTexture2D("boxsprite.png");
             boxTex.filterMode = FilterMode.Point;
@@ -58,7 +58,7 @@ namespace GadgetCore
             ModMenuBeam.transform.position = new Vector3(0, -13.5f, 1);
             ModMenuButtonHolder = UnityEngine.Object.Instantiate(mainMenu.transform.Find("BUTTONHOLDER").gameObject, mainMenu.transform);
             ModMenuButtonHolder.name = "BUTTONHOLDER";
-            ModMenuButtonHolder.transform.position = new Vector3(0, -13.5f, 0);
+            ModMenuButtonHolder.transform.position = new Vector3(-40f, -13.5f, 0);
             ModMenuButtonHolder.GetComponent<Animation>().RemoveClip("enterr1");
             ModMenuButtonHolder.GetComponent<Animation>().AddClip(BuildModMenuButtonAnimClip(false), "enterr1");
             ModMenuButtonHolder.GetComponent<Animation>().clip = ModMenuButtonHolder.GetComponent<Animation>().GetClip("enterr1");
@@ -104,7 +104,7 @@ namespace GadgetCore
 
         private static void BuildModMenu()
         {
-            GadgetCore.Log("Injecting Mod Menu into Main Menu");
+            GadgetCore.CoreLogger.Log("Injecting Mod Menu into Main Menu");
 
             ModMenu = new GameObject("MODMENU");
             ModMenu.SetActive(false);
@@ -336,7 +336,7 @@ namespace GadgetCore
 
         private static void BuildPersistantCanvas()
         {
-            GadgetCore.Log("Building Persistant Canvas");
+            GadgetCore.CoreLogger.Log("Building Persistant Canvas");
             EventSystem eventSystem = new GameObject("EventSystem", typeof(EventSystem), typeof(StandaloneInputModule)).GetComponent<EventSystem>();
             UnityEngine.Object.DontDestroyOnLoad(eventSystem.gameObject);
             StandaloneInputModule inputModule = eventSystem.GetComponent<StandaloneInputModule>();

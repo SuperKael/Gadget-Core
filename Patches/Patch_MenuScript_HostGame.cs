@@ -32,11 +32,11 @@ namespace GadgetCore.Patches
                 }
                 catch (System.IO.FileNotFoundException)
                 {
-                    GadgetCore.Log("Gadget Core was unable to perform UPnP Port Forwarding because Gadget Core's zip file has not been unpacked!");
+                    GadgetCore.CoreLogger.Log("Gadget Core was unable to perform UPnP Port Forwarding because Gadget Core's zip file has not been unpacked!");
                 }
                 catch (Exception e)
                 {
-                    GadgetCore.Log("The following error occured while attempting to perform UPnP Port Forwarding:" + Environment.NewLine + e.ToString());
+                    GadgetCore.CoreLogger.Log("The following error occured while attempting to perform UPnP Port Forwarding:" + Environment.NewLine + e.ToString());
                 }
             }
             ___playing = false;

@@ -58,7 +58,7 @@ namespace GadgetCore.API
                             break;
                         }
                     }
-                    if (dllFile == null) GadgetCore.Log("WARNING! Mod .zip " + Path.GetFileName(filePath) + " is being unpacked, but it does not contain a .dll whos name matches the .zip!");
+                    if (dllFile == null) GadgetCore.CoreLogger.Log("WARNING! Mod .zip " + Path.GetFileName(filePath) + " is being unpacked, but it does not contain a .dll whos name matches the .zip!");
                     if (Directory.Exists(Path.Combine(GadgetPaths.ModsPath, "Tools")))
                     {
                         foreach (string file in Directory.GetFiles(Path.Combine(GadgetPaths.ModsPath, "Tools")))
@@ -127,7 +127,7 @@ namespace GadgetCore.API
             }
             catch (Exception e)
             {
-                GadgetCore.Log("Error unpacking mod '" + filePath.Split('\\', '/').Last() + "': " + e.ToString());
+                GadgetCore.CoreLogger.Log("Error unpacking mod '" + filePath.Split('\\', '/').Last() + "': " + e.ToString());
                 return false;
             }
         }

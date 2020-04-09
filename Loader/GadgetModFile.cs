@@ -97,7 +97,7 @@ namespace GadgetCore.Loader
             foreach (GadgetModFile reference in openReferences)
             {
                 GadgetMod Mod = reference.Mod;
-                GadgetCore.Log("WARNING: Forcibly disposing of GadgetModFile that " + Mod.Name + " failed to dispose of!");
+                GadgetCore.CoreLogger.Log("WARNING: Forcibly disposing of GadgetModFile that " + Mod.Name + " failed to dispose of!");
                 reference.Dispose();
             }
         }

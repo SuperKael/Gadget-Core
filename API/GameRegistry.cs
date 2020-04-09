@@ -17,10 +17,10 @@ namespace GadgetCore.API
         {
             if (registries.Any(x => x.Value.GetRegistryName() == registry.GetRegistryName()))
             {
-                GadgetCore.Log("Skipping " + registry.GetRegistryName() + " Registry as a registry with that name is already registered.");
+                GadgetCore.CoreLogger.Log("Skipping " + registry.GetRegistryName() + " Registry as a registry with that name is already registered.");
                 return;
             }
-            GadgetCore.Log("Initializing " + registry.GetRegistryName() + " Registry");
+            GadgetCore.CoreLogger.Log("Initializing " + registry.GetRegistryName() + " Registry");
             registries.Add(registry.GetEntryType(), registry);
             registriesByName.Add(registry.GetRegistryName(), registry);
             if (registry.reservedIDs == null)

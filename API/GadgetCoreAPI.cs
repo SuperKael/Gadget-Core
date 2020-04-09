@@ -22,7 +22,7 @@ namespace GadgetCore.API
         /// <summary>
         /// A slightly more informative version. You generally shouldn't access this directly, instead use <see cref="GetFullVersion()"/>
         /// </summary>
-        public const string FULL_VERSION = "2.0.0.0-BETA2";
+        public const string FULL_VERSION = "2.0.0.0-BETA3";
         /// <summary>
         /// Indicates whether this version of GadgetCore is a beta version. You generally shouldn't access this directly, instead use <see cref="GetIsBeta()"/>
         /// </summary>
@@ -1029,15 +1029,14 @@ namespace GadgetCore.API
             {
                 return cachedTexes[mod.Name + ":" + file];
             }
-            string filePath = Path.Combine("Assets", file);
             Stream stream;
-            if (mod.HasModFile(filePath))
+            if (File.Exists(Path.Combine(Path.Combine(GadgetPaths.AssetsPath, mod.Name), file)))
             {
-                stream = mod.ReadModFile(filePath);
+                stream = File.OpenRead(Path.Combine(Path.Combine(GadgetPaths.AssetsPath, mod.Name), file));
             }
-            else if (File.Exists(filePath = Path.Combine(Path.Combine(GadgetPaths.AssetsPath, mod.Name), file)))
+            else if (mod.HasModFile(Path.Combine("Assets", file)))
             {
-                stream = File.OpenRead(filePath);
+                stream = mod.ReadModFile(Path.Combine("Assets", file));
             }
             else
             {

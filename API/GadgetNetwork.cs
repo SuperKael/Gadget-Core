@@ -218,8 +218,8 @@ namespace GadgetCore.API
             }
             catch (Exception e)
             {
-                GadgetCore.Log("Received bad host ID conversion data: " + packedData);
-                GadgetCore.Log("Exception that occured while parsing host ID conversion data:" + Environment.NewLine + e.ToString());
+                GadgetCore.CoreLogger.Log("Received bad host ID conversion data: " + packedData);
+                GadgetCore.CoreLogger.Log("Exception that occured while parsing host ID conversion data:" + Environment.NewLine + e.ToString());
                 Network.Disconnect();
             }
         }

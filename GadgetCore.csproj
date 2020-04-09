@@ -2,23 +2,24 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Release</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
     <ProjectGuid>{5FB088ED-0A70-493E-A084-599018BFA16A}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>GadgetCore</RootNamespace>
     <AssemblyName>GadgetCore</AssemblyName>
     <FileAlignment>512</FileAlignment>
-	<TargetFrameworks>net35</TargetFrameworks>
+	  <TargetFrameworks>net35</TargetFrameworks>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <Configurations>Release</Configurations>
     <Authors>HaneyDev</Authors>
     <ApplicationIcon />
     <StartupObject />
     <AutoGenerateBindingRedirects></AutoGenerateBindingRedirects>
-	<DisableImplicitFrameworkReferences>true</DisableImplicitFrameworkReferences>
+	  <DisableImplicitFrameworkReferences>true</DisableImplicitFrameworkReferences>
+	  <Platforms>x86</Platforms>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
     <PlatformTarget>x86</PlatformTarget>
     <DebugType>none</DebugType>
     <Optimize>true</Optimize>
@@ -29,7 +30,7 @@
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net35|AnyCPU'">
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net35|x86'">
     <DocumentationFile>Release\GadgetCore.xml</DocumentationFile>
     <NoWarn>1701;1702;IDE0060</NoWarn>
   </PropertyGroup>
@@ -70,7 +71,7 @@
       <Private>false</Private>
     </Reference>
     <Reference Include="uModFramework">
-      <HintPath>D:\Program Files (x86)\Steam\steamapps\common\Roguelands\uModFramework\Lib\net35\uModFramework.U5.dll</HintPath>
+      <HintPath>..\Libs\uModFramework.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="UnityEngine">

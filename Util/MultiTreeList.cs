@@ -71,7 +71,7 @@ namespace GadgetCore.Util
             {
                 foreach (T child in data[t])
                 {
-                    GadgetCore.Log(t.ToString() + " -> " + child.ToString());
+                    GadgetCore.CoreLogger.Log(t.ToString() + " -> " + child.ToString());
                     nodifiedData[t].Add(nodifiedData[child]);
                 }
             }

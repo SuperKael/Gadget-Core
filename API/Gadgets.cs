@@ -184,7 +184,6 @@ namespace GadgetCore.API
         {
             try
             {
-                GadgetCore.Log("Batch Loading: " + GadgetLoader.BatchLoading);
                 if (gadget.Gadget.Enabled == enabled) return false;
                 if (gadget.Attribute.AllowRuntimeReloading || !enabled) gadget.Gadget.Enabled = enabled;
                 GadgetCoreConfig.enabledGadgets[gadget.Attribute.Name] = enabled;

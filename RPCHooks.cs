@@ -19,7 +19,7 @@ namespace GadgetCore
             view = GetComponent<NetworkView>();
             if (Network.isServer)
             {
-                GadgetCore.Log("Listening for client connections...");
+                GadgetCore.CoreLogger.Log("Listening for client connections...");
                 IdentifyNewClients();
             }
         }
@@ -38,7 +38,7 @@ namespace GadgetCore
             }
             else
             {
-                GadgetCore.Log("Host is requesting local mod list. Sending...");
+                GadgetCore.CoreLogger.Log("Host is requesting local mod list. Sending...");
                 GadgetNetwork.connectTime = Time.realtimeSinceStartup;
                 if (view == null) view = GetComponent<NetworkView>();
                 view.RPC("SendRequiredModList", RPCMode.Server, Gadgets.ListAllGadgetInfos().Where(x => x.Gadget.Enabled && x.Attribute.RequiredOnClients).Select(x => x.Attribute.Name + ":" + x.Gadget.GetModVersionString()).Aggregate(new StringBuilder(), (x, y) => { if (x.Length > 0) x.Append(","); x.Append(y); return x; }).ToString());
@@ -70,25 +70,25 @@ namespace GadgetCore
                 }
                 if (isCompatible && modCount != splitModList.Length)
                 {
-                    GadgetCore.Log(modCount + ":" + splitModList.Length);
+                    GadgetCore.CoreLogger.Log(modCount + ":" + splitModList.Length);
                     isCompatible = false;
                 }
                 if (isCompatible)
                 {
                     if (string.IsNullOrEmpty(info.sender.ipAddress))
                     {
-                        GadgetCore.Log("Self-connection succesfully established and identified.");
+                        GadgetCore.CoreLogger.Log("Self-connection succesfully established and identified.");
                         ReceiveIDMatrixData(GadgetNetwork.GenerateIDMatrixData());
                     }
                     else
                     {
-                        GadgetCore.Log("A client connected with compatible mods: " + info.sender.ipAddress);
+                        GadgetCore.CoreLogger.Log("A client connected with compatible mods: " + info.sender.ipAddress);
                         view.RPC("ReceiveIDMatrixData", info.sender, GadgetNetwork.GenerateIDMatrixData());
                     }
                 }
                 else
                 {
-                    GadgetCore.Log("A client tried to connect with incompatible mods: " + info.sender.ipAddress + Environment.NewLine + modList);
+                    GadgetCore.CoreLogger.Log("A client tried to connect with incompatible mods: " + info.sender.ipAddress + Environment.NewLine + modList);
                     if (Network.isServer)
                     {
                         Network.Disconnect();
@@ -101,7 +101,7 @@ namespace GadgetCore
             }
             catch (Exception e)
             {
-                GadgetCore.Log("The following error occured processing the client's mod list: " + info.sender.ipAddress + Environment.NewLine + e.ToString());
+                GadgetCore.CoreLogger.Log("The following error occured processing the client's mod list: " + info.sender.ipAddress + Environment.NewLine + e.ToString());
                 if (Network.isServer)
                 {
                     Network.CloseConnection(info.sender, true);
@@ -118,7 +118,7 @@ namespace GadgetCore
         {
             if (!Network.isServer)
             {
-                GadgetCore.Log("Received Host ID Conversion Matrix data.");
+                GadgetCore.CoreLogger.Log("Received Host ID Conversion Matrix data.");
                 GadgetNetwork.connectTime = Time.realtimeSinceStartup;
             }
             GadgetNetwork.ParseIDMatrixData(IDMatrixData);
