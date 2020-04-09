@@ -44,6 +44,7 @@ namespace GadgetCore.API
 
         internal static Dictionary<string, UnityEngine.Object> resources = new Dictionary<string, UnityEngine.Object>();
         internal static Dictionary<int, string> resourcePaths = new Dictionary<int, string>();
+        internal static Dictionary<int, List<int>> modResources = new Dictionary<int, List<int>>();
         internal static Dictionary<string, Texture2D> cachedTexes = new Dictionary<string, Texture2D>();
         internal static Dictionary<string, AudioClip> cachedAudioClips = new Dictionary<string, AudioClip>();
         internal static Dictionary<string, AssetBundle> cachedBundles = new Dictionary<string, AssetBundle>();
@@ -582,6 +583,19 @@ namespace GadgetCore.API
             }
             resources[path] = resource;
             resourcePaths[resource.GetInstanceID()] = path;
+            if (!modResources.ContainsKey(Registry.modRegistering)) modResources.Add(Registry.modRegistering, new List<int>());
+            modResources[Registry.modRegistering].Add(resource.GetInstanceID());
+        }
+
+        internal static void RemoveModResources(int modID)
+        {
+            if (!modResources.ContainsKey(modID)) return;
+            foreach (int resourceID in modResources[modID])
+            {
+                resources.Remove(resourcePaths[resourceID]);
+                resourcePaths.Remove(resourceID);
+            }
+            modResources.Remove(modID);
         }
 
         /// <summary>
