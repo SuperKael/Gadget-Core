@@ -55,6 +55,10 @@ namespace GadgetCore.API
         /// The path to the Temp directory.
         /// </summary>
         public static readonly string TempPath;
+        /// <summary>
+        /// The path to the Save Backups directory.
+        /// </summary>
+        public static readonly string SaveBackupsPath;
 
         static GadgetPaths()
         {
@@ -80,6 +84,8 @@ namespace GadgetCore.API
             Directory.CreateDirectory(ToolsPath);
             TempPath = Path.Combine(GadgetCorePath, "Temp");
             Directory.CreateDirectory(TempPath);
+            SaveBackupsPath = Path.Combine(GadgetCorePath, "Save Backups");
+            Directory.CreateDirectory(SaveBackupsPath);
 
             foreach (string directory in Directory.GetDirectories(TempPath))
             {

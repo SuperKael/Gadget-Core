@@ -130,5 +130,31 @@ namespace GadgetCore.API
                 }
             }
         }
+
+        internal virtual void CreateSingleton(Gadget singleton) { }
+    }
+
+    /// <summary>
+    /// At least one class in your mod must extend this for your mod to be identified by Gadget Core. Must also have the <see cref="GadgetAttribute">Gadget</see> Attribute.
+    /// May have multiple Gadgets in one mod - They will be able to be individually enabled or disabled in the ingame mod manager.
+    /// 
+    /// This self-referencing generic-form Gadget includes a "GetSingleton" method.
+    /// </summary>
+    public abstract class Gadget<T> : Gadget where T : Gadget<T>
+    {
+        internal static Gadget<T> singleton;
+
+        /// <summary>
+        /// Returns this <see cref="Gadget{T}"/>'s singleton.
+        /// </summary>
+        public static Gadget<T> GetSingleton()
+        {
+            return singleton;
+        }
+
+        internal sealed override void CreateSingleton(Gadget singleton)
+        {
+            Gadget<T>.singleton = singleton as Gadget<T>;
+        }
     }
 }

@@ -252,9 +252,17 @@ namespace GadgetCore.Loader
                     try
                     {
                         gadget = Activator.CreateInstance(type) as Gadget;
-                        if (gadget != null)
+                    }
+                    catch (Exception)
+                    {
+                        Logger.LogWarning("Found Gadget that could not be constructed: " + attribute.Name + ", in mod: {" + mod.Name + "}");
+                    }
+                    if (gadget != null)
+                    {
+                        try
                         {
                             Logger.Log("Found Gadget to load: " + attribute.Name + ", in mod: {" + mod.Name + "}");
+                            gadget.CreateSingleton(gadget);
                             GadgetInfo info = new GadgetInfo(gadget, attribute, mod);
                             gadget.Logger = new GadgetLogger(mod.Name, attribute.Name);
                             gadget.Config = new GadgetConfig(Path.Combine(GadgetPaths.ConfigsPath, mod.Name + ".ini"), attribute.Name);
@@ -266,13 +274,13 @@ namespace GadgetCore.Loader
                                 EnableQueuedGadgets();
                             }
                         }
-                    }
-                    catch (Exception) { }
-                    finally
-                    {
-                        if (gadget == null)
+                        catch (Exception e)
                         {
-                            Logger.LogWarning("Found Gadget that could not be constructed: " + attribute.Name + ", in mod: {" + mod.Name + "}");
+                            Logger.LogWarning("Found Gadget that had an error during registration: " + attribute.Name + ", in mod: {" + mod.Name + "}. Error: " + e);
+                            if (Gadgets.GetGadgetInfo(attribute.Name) != null)
+                            {
+                                Gadgets.UnregisterGadget(Gadgets.GetGadgetInfo(attribute.Name));
+                            }
                         }
                     }
                 }

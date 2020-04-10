@@ -1401,6 +1401,19 @@
             </summary>
             <returns></returns>
         </member>
+        <member name="T:GadgetCore.API.Gadget`1">
+            <summary>
+            At least one class in your mod must extend this for your mod to be identified by Gadget Core. Must also have the <see cref="T:GadgetCore.API.GadgetAttribute">Gadget</see> Attribute.
+            May have multiple Gadgets in one mod - They will be able to be individually enabled or disabled in the ingame mod manager.
+            
+            This self-referencing generic-form Gadget includes a "GetSingleton" method.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.Gadget`1.GetSingleton">
+            <summary>
+            Returns this <see cref="T:GadgetCore.API.Gadget`1"/>'s singleton.
+            </summary>
+        </member>
         <member name="T:GadgetCore.API.GadgetAttribute">
             <summary>
             Required by classes that extend Gadget. Provides information about your Gadget.
@@ -2299,6 +2312,11 @@
         <member name="F:GadgetCore.API.GadgetPaths.TempPath">
             <summary>
             The path to the Temp directory.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.GadgetPaths.SaveBackupsPath">
+            <summary>
+            The path to the Save Backups directory.
             </summary>
         </member>
         <member name="T:GadgetCore.API.Gadgets">
@@ -4137,6 +4155,11 @@
         <member name="P:GadgetCore.GadgetCoreConfig.ConsoleKey">
             <summary>
             The key used to open the console.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.GadgetCoreConfig.MaxBackups">
+            <summary>
+            The maximum number of save backups to have at any one time.
             </summary>
         </member>
         <member name="T:GadgetCore.IGadgetCoreLib">

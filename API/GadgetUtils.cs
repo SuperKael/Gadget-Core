@@ -51,7 +51,6 @@ namespace GadgetCore.API
                         RenderTexture previous = RenderTexture.active;
                         RenderTexture.active = renderTex;
                         dst.ReadPixels(new Rect(srcX, srcY, srcWidth, srcHeight), dstX, dstY);
-                        dst.Apply();
                         RenderTexture.active = previous;
                         RenderTexture.ReleaseTemporary(renderTex);
                     }
@@ -60,6 +59,7 @@ namespace GadgetCore.API
                         throw e;
                     }
                 }
+                dst.Apply();
             }
         }
 

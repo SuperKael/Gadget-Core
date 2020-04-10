@@ -16,7 +16,7 @@ namespace GadgetCore
         /// <summary>
         /// The current version of Gadget Core's config.
         /// </summary>
-        public static readonly string configVersion = "2.0";
+        public static readonly string configVersion = "2.1";
 
         internal static Dictionary<string, bool> enabledMods = new Dictionary<string, bool>();
         internal static Dictionary<string, bool> enabledGadgets = new Dictionary<string, bool>();
@@ -33,6 +33,10 @@ namespace GadgetCore
         /// The key used to open the console.
         /// </summary>
         public static UnityEngine.KeyCode ConsoleKey { get; private set; } = UnityEngine.KeyCode.BackQuote;
+        /// <summary>
+        /// The maximum number of save backups to have at any one time.
+        /// </summary>
+        public static int MaxBackups { get; private set; } = 30;
 
         private static GadgetConfig cfg = new GadgetConfig(Path.Combine(GadgetPaths.ConfigsPath, "GadgetCore.ini"), "GadgetCore");
 
@@ -59,6 +63,7 @@ namespace GadgetCore
                 GadgetNetwork.MatrixTimeout = cfg.ReadFloat("NetworkTimeout", 2.5f, comments: "How long to wait for the host's game to respond to Gadget Core's ID synchronization. If the host's game does not respond in time, it will be assumed that the host does not have Gadget Core installed.");
                 ConsoleKey = cfg.ReadKeyCode("ConsoleKey", UnityEngine.KeyCode.BackQuote, comments: "The key to open the console.");
                 GadgetConsole.Debug = cfg.ReadBool("ConsoleDebug", false, comments: "If true, shows debug messages in the console.");
+                MaxBackups = cfg.ReadInt("MaxBackups", 30, 0, false, 0, int.MaxValue, "The maximum number of save backups to have at any one time. Disables backups if set to 0");
 
                 cfg.Save();
 

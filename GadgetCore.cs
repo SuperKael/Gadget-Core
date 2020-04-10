@@ -100,6 +100,35 @@ namespace GadgetCore
             {
                 CoreLogger = new GadgetLogger("GadgetCore", "Core");
                 CoreLogger.Log("GadgetCore v" + GadgetCoreAPI.FULL_VERSION + " Initializing!");
+            }
+            catch (Exception e)
+            {
+                Debug.Log(e);
+                GadgetCoreAPI.Quit();
+                return;
+            }
+            try
+            {
+                if (VerifySaveFile())
+                {
+                    if (GadgetCoreConfig.MaxBackups > 0)
+                    {
+                        File.Copy(Application.persistentDataPath + "/PlayerPrefs.txt", Path.Combine(GadgetPaths.SaveBackupsPath, "Save Backup - " + DateTime.Now.ToString("yyyy-dd-M_HH-mm-ss") + ".txt"));
+                        FileInfo[] backups = new DirectoryInfo(GadgetPaths.SaveBackupsPath).GetFiles().OrderByDescending(x => x.LastWriteTime.Year <= 1601 ? x.CreationTime : x.LastWriteTime).ToArray();
+                        if (backups.Length > GadgetCoreConfig.MaxBackups)
+                        {
+                            for (int i = GadgetCoreConfig.MaxBackups;i < backups.Length;i++)
+                            {
+                                backups[i].Delete();
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    GadgetCoreAPI.Quit();
+                    return;
+                }
                 HarmonyInstance = new Harmony("GadgetCore.core");
                 Type[] types;
                 try
@@ -143,15 +172,6 @@ namespace GadgetCore
                         Thread.Sleep(100);
                     }
                 })).Start();
-            }
-            catch (Exception e)
-            {
-                Debug.Log(e);
-                GadgetCoreAPI.Quit();
-                return;
-            }
-            try
-            {
                 AppDomain.CurrentDomain.AssemblyResolve += (object sender, ResolveEventArgs args) =>
                 {
                     string name = new AssemblyName(args.Name).Name;
@@ -242,6 +262,80 @@ namespace GadgetCore
         internal static void LoadIngame()
         {
             InstanceTracker.MainCamera = GameObject.Find("Main Camera").GetComponent<Camera>();
+        }
+
+        private static bool VerifySaveFile()
+        {
+            bool loadedBackup = false;
+            DateTime time = DateTime.Now;
+            while (true)
+            {
+                if (ValidateSaveFileContent(File.ReadAllText(Application.persistentDataPath + "/PlayerPrefs.txt")))
+                {
+                    if (loadedBackup)
+                    {
+                        CoreLogger.LogWarning("There was an error loading the save file, but a save backup was succesfully loaded!\n" +
+                                              "Be prepared for lost progress due to loading the backup. The backup that was loaded was created at: " +
+                                              time);
+                    }
+                    return true;
+                }
+                else
+                {
+                    FileInfo[] backups = new DirectoryInfo(GadgetPaths.SaveBackupsPath).GetFiles().OrderByDescending(x => x.LastWriteTime.Year <= 1601 ? x.CreationTime : x.LastWriteTime).ToArray();
+                    int fileIndex = 0;
+                    string fileContent = null;
+                    while (string.IsNullOrEmpty(fileContent) && fileIndex < backups.Length)
+                    {
+                        time = backups[fileIndex].LastWriteTime.Year <= 1601 ? backups[fileIndex].CreationTime : backups[fileIndex].LastWriteTime;
+                        fileContent = File.ReadAllText(backups[fileIndex].FullName);
+                        fileIndex++;
+                    }
+                    if (string.IsNullOrEmpty(fileContent))
+                    {
+                        CoreLogger.LogError("There was an error loading the save file, and no viable backups were found!");
+                        return false;
+                    }
+                    File.Delete(Application.persistentDataPath + "/PlayerPrefs.txt");
+                    File.Move(backups[fileIndex - 1].FullName, Application.persistentDataPath + "/PlayerPrefs.txt");
+                    loadedBackup = true;
+                }
+            }
+        }
+
+        private static bool ValidateSaveFileContent(string content)
+        {
+            try
+            {
+                if (!string.IsNullOrEmpty(content))
+                {
+                    if (content.Length > 0 && content[content.Length - 1] == '\n')
+                    {
+                        content = content.Substring(0, content.Length - 1);
+                        if (content.Length > 0 && content[content.Length - 1] == '\r')
+                        {
+                            content = content.Substring(0, content.Length - 1);
+                        }
+                    }
+                    string[] array = content.Split(new string[]
+                    {
+                        " ; "
+                    }, StringSplitOptions.RemoveEmptyEntries);
+                    foreach (string text in array)
+                    {
+                        string[] array3 = text.Split(new string[]
+                        {
+                            " : "
+                        }, StringSplitOptions.None);
+                        if (array3.Length < 3) throw new Exception();
+                    }
+                }
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
         }
 
         private static void RegisterKeys()
