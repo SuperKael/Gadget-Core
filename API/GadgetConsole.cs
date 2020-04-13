@@ -307,11 +307,11 @@ namespace GadgetCore
             }
             if (IsOpen())
             {
-                InstanceTracker.MainCamera.GetComponent<AudioSource>().PlayOneShot((AudioClip)Resources.Load("au/click2"), Menuu.soundLevel / 10f);
+                Camera.main.GetComponent<AudioSource>()?.PlayOneShot((AudioClip)Resources.Load("au/click2"), Menuu.soundLevel / 10f);
             }
             else
             {
-                InstanceTracker.MainCamera.GetComponent<AudioSource>().PlayOneShot((AudioClip)Resources.Load("au/pickup"), Menuu.soundLevel / 10f);
+                Camera.main.GetComponent<AudioSource>()?.PlayOneShot((AudioClip)Resources.Load("au/pickup"), Menuu.soundLevel / 10f);
             }
             return messages.Count - 1;
         }

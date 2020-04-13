@@ -16,6 +16,7 @@ namespace GadgetCore.Patches
         [HarmonyPrefix]
         public static bool Prefix(GameScript __instance, int slot, ref int[] ___combatChips, ref bool ___skilling, ref bool[] ___skillUsin)
         {
+            if (GadgetCoreAPI.IsInputFrozen()) return false;
             int chipID = ___combatChips[slot];
             if (ChipRegistry.GetSingleton().HasEntry(chipID))
             {

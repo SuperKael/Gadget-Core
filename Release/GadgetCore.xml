@@ -1867,6 +1867,21 @@
             Returns the position of the mouse cursor.
             </summary>
         </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.RegisterCustomRPC(System.String,System.Action{System.Object[]})">
+            <summary>
+            Registers a custom RPC that can be later called using CallCustomRPC
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.CallCustomRPC(System.String,UnityEngine.RPCMode,System.Object[])">
+            <summary>
+            Calls a custom RPC that was previously registered with <see cref="M:GadgetCore.API.GadgetCoreAPI.RegisterCustomRPC(System.String,System.Action{System.Object[]})"/>
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.CallCustomRPC(System.String,UnityEngine.NetworkPlayer,System.Object[])">
+            <summary>
+            Calls a custom RPC that was previously registered with <see cref="M:GadgetCore.API.GadgetCoreAPI.RegisterCustomRPC(System.String,System.Action{System.Object[]})"/>
+            </summary>
+        </member>
         <member name="M:GadgetCore.API.GadgetCoreAPI.AddCustomResource(System.String,UnityEngine.Object)">
             <summary>
             Use to manually add new resources to the game, or overwrite existing ones. May only be called from the Initialize method of a Gadget.
@@ -3179,7 +3194,7 @@
         </member>
         <member name="F:GadgetCore.API.ItemType.TIER_MASK">
             <summary>
-            A bitmask that filters out the TIER1* flags.
+            A bitmask that filters out the TIER* flags.
             </summary>
         </member>
         <member name="F:GadgetCore.API.ItemType.LOOT_MASK">

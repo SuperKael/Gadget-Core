@@ -253,9 +253,9 @@ namespace GadgetCore.Loader
                     {
                         gadget = Activator.CreateInstance(type) as Gadget;
                     }
-                    catch (Exception)
+                    catch (Exception e)
                     {
-                        Logger.LogWarning("Found Gadget that could not be constructed: " + attribute.Name + ", in mod: {" + mod.Name + "}");
+                        Logger.LogWarning("Found Gadget that could not be constructed: " + attribute.Name + ", in mod: {" + mod.Name + "}: Error: " + e);
                     }
                     if (gadget != null)
                     {

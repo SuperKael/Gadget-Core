@@ -99,6 +99,7 @@ namespace GadgetCore.Loader
             {
                 MemoryStream stream = new MemoryStream();
                 Archive[relativeFilePath].Extract(stream);
+                stream.Position = 0;
                 return stream;
             }
             else

@@ -22,7 +22,7 @@ namespace GadgetCore.API
         /// <summary>
         /// A slightly more informative version. You generally shouldn't access this directly, instead use <see cref="GetFullVersion()"/>
         /// </summary>
-        public const string FULL_VERSION = "2.0.0.0-BETA4";
+        public const string FULL_VERSION = "2.0.0.0-BETA5";
         /// <summary>
         /// Indicates whether this version of GadgetCore is a beta version. You generally shouldn't access this directly, instead use <see cref="GetIsBeta()"/>
         /// </summary>
@@ -52,6 +52,7 @@ namespace GadgetCore.API
         internal static Dictionary<KeyCode, List<Action>> keyUpListeners = new Dictionary<KeyCode, List<Action>>();
         internal static Dictionary<StatModifierType, List<StatModifier>> statModifiers = new Dictionary<StatModifierType, List<StatModifier>>();
         internal static Dictionary<string, PlayerScript> playersByName = new Dictionary<string, PlayerScript>();
+        internal static Dictionary<string, Action<object[]>> customRPCs = new Dictionary<string, Action<object[]>>();
         internal static List<SpriteSheetEntry> spriteSheetSprites = new List<SpriteSheetEntry>();
         internal static int spriteSheetSize = -1;
         internal static Texture2D spriteSheet;
@@ -558,6 +559,31 @@ namespace GadgetCore.API
                 Vector3 pos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
                 return new Vector3(pos.x, pos.y, 0);
             }
+        }
+
+        /// <summary>
+        /// Registers a custom RPC that can be later called using CallCustomRPC
+        /// </summary>
+        public static void RegisterCustomRPC(string name, Action<object[]> rpc)
+        {
+            if (!Registry.registeringVanilla && Registry.modRegistering < 0) throw new InvalidOperationException("Data registration may only be performed by the Initialize method of a Gadget!");
+            customRPCs.Add(name, rpc);
+        }
+
+        /// <summary>
+        /// Calls a custom RPC that was previously registered with <see cref="RegisterCustomRPC(string, Action{object[]})"/>
+        /// </summary>
+        public static void CallCustomRPC(string name, RPCMode mode, params object[] args)
+        {
+            RPCHooks.Singleton.CallGeneral(name, mode, args);
+        }
+
+        /// <summary>
+        /// Calls a custom RPC that was previously registered with <see cref="RegisterCustomRPC(string, Action{object[]})"/>
+        /// </summary>
+        public static void CallCustomRPC(string name, NetworkPlayer target, params object[] args)
+        {
+            RPCHooks.Singleton.CallGeneral(name, target, args);
         }
 
         /// <summary>

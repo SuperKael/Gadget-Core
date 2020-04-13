@@ -36,7 +36,7 @@ namespace GadgetCore.Util
             MethodInfoData methodInfoData = new MethodInfoData(type.GetType(), methodName, parameters.Select(x => x.GetType()).ToArray());
             if (!cachedMethods.ContainsKey(methodInfoData))
             {
-                cachedMethods.Add(methodInfoData, type.GetType().GetMethod(methodName, methodInfoData.parameters));
+                cachedMethods.Add(methodInfoData, type.GetType().GetMethod(methodName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static, Type.DefaultBinder, CallingConventions.Standard, methodInfoData.parameters, null));
             }
             MethodInfo method = cachedMethods[methodInfoData];
             if (method != null)
@@ -59,6 +59,32 @@ namespace GadgetCore.Util
                 this.type = type;
                 this.name = name;
                 this.parameters = parameters;
+            }
+
+            public override int GetHashCode()
+            {
+                var hc = 0;
+                if (!ReferenceEquals(type, null))
+                    hc = type.GetHashCode();
+                if (!ReferenceEquals(name, null))
+                    hc = ((hc << 5) + hc) ^ name.GetHashCode();
+                if (!ReferenceEquals(parameters, null))
+                    for (int i = 0;i < parameters.Length;i++)
+                    {
+                        hc = ((hc << 5) + hc) ^ parameters[i].GetHashCode();
+                    }
+                return hc;
+            }
+            public override bool Equals(object obj)
+            {
+                if (obj is MethodInfoData other)
+                {
+                    return type == other.type && name == other.name && Enumerable.SequenceEqual(parameters, other.parameters);
+                }
+                else
+                {
+                    return base.Equals(obj);
+                }
             }
         }
     }

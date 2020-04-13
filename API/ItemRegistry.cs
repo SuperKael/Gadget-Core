@@ -1275,7 +1275,7 @@ namespace GadgetCore.API
         /// </summary>
         TYPE_MASK   = 0b0000000011110000,
         /// <summary>
-        /// A bitmask that filters out the TIER1* flags.
+        /// A bitmask that filters out the TIER* flags.
         /// </summary>
         TIER_MASK   = 0b0000111100000000,
         /// <summary>

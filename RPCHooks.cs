@@ -1,6 +1,8 @@
 ﻿using GadgetCore.API;
 using System;
+using System.IO;
 using System.Linq;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using UnityEngine;
 
@@ -235,6 +237,50 @@ namespace GadgetCore
         internal void RPCGiveChip(int[] st)
         {
             GadgetCoreAPI.SpawnItemLocal(InstanceTracker.PlayerScript.transform.position, GadgetCoreAPI.ConstructItemFromIntArray(st), true).gameObject.SendMessage("Request");
+        }
+
+        internal void CallGeneral(string name, RPCMode mode, params object[] args)
+        {
+            BinaryFormatter formatter = new BinaryFormatter();
+            MemoryStream stream = new MemoryStream();
+            foreach (object arg in args)
+            {
+                formatter.Serialize(stream, arg);
+            }
+            view.RPC("RPCCallGeneral", mode, new object[] { name, args.Length, stream.ToArray()});
+            stream.Close();
+        }
+
+        internal void CallGeneral(string name, NetworkPlayer target, params object[] args)
+        {
+            BinaryFormatter formatter = new BinaryFormatter();
+            MemoryStream stream = new MemoryStream();
+            foreach (object arg in args)
+            {
+                formatter.Serialize(stream, arg);
+            }
+            stream.Position = 0;
+            view.RPC("RPCCallGeneral", target, new object[] { name, args.Length, stream.ToArray() });
+            stream.Close();
+        }
+
+        [RPC]
+        internal void RPCCallGeneral(string name, int argCount, byte[] serializedArgs)
+        {
+            BinaryFormatter formatter = new BinaryFormatter();
+            MemoryStream stream = new MemoryStream();
+            stream.Write(serializedArgs, 0, serializedArgs.Length);
+            stream.Position = 0;
+            object[] args = new object[argCount];
+            for (int i = 0;i < argCount; i++)
+            {
+                args[i] = formatter.Deserialize(stream);
+            }
+            if (GadgetCoreAPI.customRPCs.ContainsKey(name))
+            {
+                GadgetCoreAPI.customRPCs[name].Invoke(args);
+            }
+            stream.Close();
         }
     }
 }
