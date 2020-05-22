@@ -10,8 +10,8 @@ namespace TemplateGadgetMod.Patches // You may create multiple files like this. 
     public static class Patch_ClassName_MethodName
     {
 		/*
-		[HarmonyPostfix]
-        public static bool Postfix(ClassName __instance)
+		[HarmonyPrefix]
+        public static bool Prefix(ClassName __instance)
         {
             // Add code to run before `MethodName` is called.
 			return true; // Return false to prevent the vanilla method from running.
