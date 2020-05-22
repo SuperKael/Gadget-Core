@@ -4,7 +4,7 @@ using GadgetCore.API;
 namespace TemplateGadgetMod
 {
     [Gadget("Template Gadget Mod")]
-    public class TemplateGadgetMod : Gadget
+    public class TemplateGadgetMod : Gadget<TemplateGadgetMod>
     {
         public const string MOD_VERSION = "1.0"; // Set this to the version of your mod.
         public const string CONFIG_VERSION = "1.0"; // Increment this whenever you change your mod's config file.
