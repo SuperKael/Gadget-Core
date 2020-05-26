@@ -81,7 +81,7 @@ namespace GadgetCore
                             }
                             InstanceTracker.GameScript.aspectObj[i].SetActive(true);
                         }
-                        int[] gearStats = GadgetCoreAPI.GetGearBaseStats(id).GetStatArray();
+                        int[] gearStats = GadgetCoreAPI.GetTrueGearBaseStats(id).GetStatArray();
                         for (int i = 0; i < 6; i++)
                         {
                             int num3 = 0;

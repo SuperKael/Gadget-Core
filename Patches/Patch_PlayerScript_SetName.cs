@@ -27,7 +27,7 @@ namespace GadgetCore.Patches
                     {
                         GadgetCoreAPI.playersByName.Remove(entry.Key);
                     }
-                    GadgetCoreAPI.playersByName.Add(n + "-1", existingPlayer);
+                    GadgetCoreAPI.playersByName[n + "-1"] = existingPlayer;
                 }
             }
             else
@@ -54,7 +54,7 @@ namespace GadgetCore.Patches
             {
                 GadgetCoreAPI.playersByName.Remove(entry.Key);
             }
-            GadgetCoreAPI.playersByName.Add(n, __instance);
+            GadgetCoreAPI.playersByName[n] = __instance;
         }
     }
 }

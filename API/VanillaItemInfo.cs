@@ -22,7 +22,7 @@ namespace GadgetCore.API
         /// </summary>
         /// <param name="ID">The vanilla ID to be wrapped.</param>
         /// <param name="WrapForTile">If true, the Tile property should not be set by this constructor, as it will be set later as part of a TileInfo's constructor.</param>
-        protected VanillaItemInfo(int ID, bool WrapForTile) : base(ItemRegistry.GetDefaultTypeByID(ID), GadgetCoreAPI.GetItemName(ID), GadgetCoreAPI.GetItemDesc(ID), GadgetCoreAPI.GetItemMaterial(ID), -1, GadgetCoreAPI.GetGearBaseStats(ID), GadgetCoreAPI.GetWeaponMaterial(ID), ID >= 1000 && ID < 2000 ? GadgetCoreAPI.GetDroidHeadMaterial(ID) : GadgetCoreAPI.GetHeadMaterial(ID), ID >= 1000 && ID < 2000 ? GadgetCoreAPI.GetDroidBodyMaterial(ID) : GadgetCoreAPI.GetBodyMaterial(ID), GadgetCoreAPI.GetArmMaterial(ID))
+        protected VanillaItemInfo(int ID, bool WrapForTile) : base(ItemRegistry.GetDefaultTypeByID(ID), GadgetCoreAPI.GetItemName(ID), GadgetCoreAPI.GetItemDesc(ID), GadgetCoreAPI.GetItemMaterial(ID), -1, GadgetCoreAPI.GetTrueGearBaseStats(ID), GadgetCoreAPI.GetWeaponMaterial(ID), ID >= 1000 && ID < 2000 ? GadgetCoreAPI.GetDroidHeadMaterial(ID) : GadgetCoreAPI.GetHeadMaterial(ID), ID >= 1000 && ID < 2000 ? GadgetCoreAPI.GetDroidBodyMaterial(ID) : GadgetCoreAPI.GetBodyMaterial(ID), GadgetCoreAPI.GetArmMaterial(ID))
         {
             this.ID = ID;
             if (Type == ItemType.WEAPON)

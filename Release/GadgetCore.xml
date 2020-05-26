@@ -1249,6 +1249,16 @@
             Gets the stat with the specified index. 0 is VIT, 1 is STR, 2 is DEX, 3 is TEC, 4 is MAG, 5 is FTH.
             </summary>
         </member>
+        <member name="M:GadgetCore.API.EquipStats.SetByIndex(System.Int32,System.Int32)">
+            <summary>
+            Sets the stat with the specified index. 0 is VIT, 1 is STR, 2 is DEX, 3 is TEC, 4 is MAG, 5 is FTH.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.EquipStats.AddByIndex(System.Int32,System.Int32)">
+            <summary>
+            Adds to the stat with the specified index. 0 is VIT, 1 is STR, 2 is DEX, 3 is TEC, 4 is MAG, 5 is FTH.
+            </summary>
+        </member>
         <member name="M:GadgetCore.API.EquipStats.AddTo(System.Int32[])">
             <summary>
             Adds this EquipStat's values to the given stat value array. The array must be of length 6.
@@ -1869,7 +1879,7 @@
         </member>
         <member name="M:GadgetCore.API.GadgetCoreAPI.RegisterCustomRPC(System.String,System.Action{System.Object[]})">
             <summary>
-            Registers a custom RPC that can be later called using CallCustomRPC
+            Registers a custom RPC that can be later called using <see cref="M:GadgetCore.API.GadgetCoreAPI.CallCustomRPC(System.String,UnityEngine.RPCMode,System.Object[])"/>
             </summary>
         </member>
         <member name="M:GadgetCore.API.GadgetCoreAPI.CallCustomRPC(System.String,UnityEngine.RPCMode,System.Object[])">
@@ -1915,9 +1925,14 @@
             Gets the description of the chip with the given ID. Easier than using reflection to call GetChipDesc on GameScript.
             </summary>
         </member>
-        <member name="M:GadgetCore.API.GadgetCoreAPI.GetGearBaseStats(System.Int32)">
+        <member name="M:GadgetCore.API.GadgetCoreAPI.GetTrueGearBaseStats(System.Int32)">
             <summary>
-            Gets the EquipStats of the item with the given ID. Easier than using reflection to call GetGearBaseStats on GameScript.
+            Gets the true EquipStats of the item with the given ID, before any stat modifiers at all are applied.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.GetGearLevel(Item)">
+            <summary>
+            Gets the level of the given piece of gear.
             </summary>
         </member>
         <member name="M:GadgetCore.API.GadgetCoreAPI.GetGearBaseStats(Item)">
@@ -2231,43 +2246,36 @@
             <summary>
             Checks if the network host has the specified registry.
             </summary>
-            <exception cref="T:System.InvalidOperationException">Thrown when the network ID conversion matrix is not ready.</exception>
         </member>
         <member name="M:GadgetCore.API.GadgetNetwork.ConvertIDToHost(GadgetCore.API.Registry,System.Object@)">
             <summary>
             Gets the host ID that matches the specified local ID. The given ID MUST be an int. Returns -1 if the host does not have a matching ID for the specified local ID.
             </summary>
-            <exception cref="T:System.InvalidOperationException">Thrown when the network ID conversion matrix is not ready.</exception>
         </member>
         <member name="M:GadgetCore.API.GadgetNetwork.ConvertIDToHost(GadgetCore.API.Registry,System.Int32@)">
             <summary>
             Gets the host ID that matches the specified local ID. Returns -1 if the host does not have a matching ID for the specified local ID.
             </summary>
-            <exception cref="T:System.InvalidOperationException">Thrown when the network ID conversion matrix is not ready.</exception>
         </member>
         <member name="M:GadgetCore.API.GadgetNetwork.ConvertIDToHost(GadgetCore.API.Registry,System.Int32)">
             <summary>
             Gets the host ID that matches the specified local ID. Returns -1 if the host does not have a matching ID for the specified local ID.
             </summary>
-            <exception cref="T:System.InvalidOperationException">Thrown when the network ID conversion matrix is not ready.</exception>
         </member>
         <member name="M:GadgetCore.API.GadgetNetwork.ConvertIDToLocal(GadgetCore.API.Registry,System.Object@)">
             <summary>
             Gets the local ID that matches the specified host ID. The given ID must be an int. Returns -1 if there is no matching local ID for the specified host ID.
             </summary>
-            <exception cref="T:System.InvalidOperationException">Thrown when the network ID conversion matrix is not ready.</exception>
         </member>
         <member name="M:GadgetCore.API.GadgetNetwork.ConvertIDToLocal(GadgetCore.API.Registry,System.Int32@)">
             <summary>
             Gets the local ID that matches the specified host ID. Returns -1 if there is no matching local ID for the specified host ID.
             </summary>
-            <exception cref="T:System.InvalidOperationException">Thrown when the network ID conversion matrix is not ready.</exception>
         </member>
         <member name="M:GadgetCore.API.GadgetNetwork.ConvertIDToLocal(GadgetCore.API.Registry,System.Int32)">
             <summary>
             Gets the local ID that matches the specified host ID. Returns -1 if there is no matching local ID for the specified host ID.
             </summary>
-            <exception cref="T:System.InvalidOperationException">Thrown when the network ID conversion matrix is not ready.</exception>
         </member>
         <member name="T:GadgetCore.API.GadgetPaths">
             <summary>
@@ -4823,12 +4831,32 @@
             <param name="parameters">The parameters to run the method with.</param>
             <returns>The value returned by the invoked method.</returns>
         </member>
+        <member name="M:GadgetCore.Util.ReflectionUtils.InvokeMethod``1(System.Object,System.String,System.Type[],System.Object[])">
+            <summary>
+            Invokes the method with the specified name and parameters.
+            </summary>
+            <param name="type">The object instance to invoke upon.</param>
+            <param name="methodName">The name of the method to invoke.</param>
+            <param name="generics">The generic types that the target method uses</param>
+            <param name="parameters">The parameters to run the method with.</param>
+            <returns>The value returned by the invoked method.</returns>
+        </member>
         <member name="M:GadgetCore.Util.ReflectionUtils.InvokeMethod(System.Object,System.String,System.Object[])">
             <summary>
             Invokes the method with the specified name and parameters.
             </summary>
             <param name="type">The object instance to invoke upon.</param>
             <param name="methodName">The name of the method to invoke.</param>
+            <param name="parameters">The parameters to run the method with.</param>
+            <returns>The value returned by the invoked method.</returns>
+        </member>
+        <member name="M:GadgetCore.Util.ReflectionUtils.InvokeMethod(System.Object,System.String,System.Type[],System.Object[])">
+            <summary>
+            Invokes the method with the specified name and parameters.
+            </summary>
+            <param name="type">The object instance to invoke upon.</param>
+            <param name="methodName">The name of the method to invoke.</param>
+            <param name="generics">The generic types that the target method uses</param>
             <param name="parameters">The parameters to run the method with.</param>
             <returns>The value returned by the invoked method.</returns>
         </member>

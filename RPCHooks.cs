@@ -282,5 +282,11 @@ namespace GadgetCore
             }
             stream.Close();
         }
+
+        [RPC]
+        internal void RPCRegisterLocalSyncVar(string name, NetworkMessageInfo info)
+        {
+
+        }
     }
 }

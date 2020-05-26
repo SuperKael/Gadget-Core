@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GadgetCore.Util;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -26,6 +27,9 @@ namespace GadgetCore.API
         private static readonly Dictionary<string, Dictionary<int, int>> IDConversionMatrixToLocal = new Dictionary<string, Dictionary<int, int>>();
         internal static float connectTime = -1;
 
+        //private static readonly Dictionary<string, Tuple<object, int>> SyncVars = new Dictionary<string, Tuple<object, int>>();
+        //private static readonly Dictionary<string, Dictionary<NetworkPlayer, Tuple<object, int>>> LocalSyncVars = new Dictionary<string, Dictionary<NetworkPlayer, Tuple<object, int>>>();
+
         /// <summary>
         /// Gets the amount of time, in seconds, that has passed since the Network connection was established. Returns -1 if there is no currently active Network connection.
         /// </summary>
@@ -37,7 +41,6 @@ namespace GadgetCore.API
         /// <summary>
         /// Checks if the network host has the specified registry.
         /// </summary>
-        /// <exception cref="InvalidOperationException">Thrown when the network ID conversion matrix is not ready.</exception>
         public static bool HostHasReg(Registry reg)
         {
             if (!MatrixReady)
@@ -51,7 +54,6 @@ namespace GadgetCore.API
         /// <summary>
         /// Gets the host ID that matches the specified local ID. The given ID MUST be an int. Returns -1 if the host does not have a matching ID for the specified local ID.
         /// </summary>
-        /// <exception cref="InvalidOperationException">Thrown when the network ID conversion matrix is not ready.</exception>
         public static object ConvertIDToHost(this Registry reg, ref object ID)
         {
             int id = (int)ID;
@@ -71,7 +73,6 @@ namespace GadgetCore.API
         /// <summary>
         /// Gets the host ID that matches the specified local ID. Returns -1 if the host does not have a matching ID for the specified local ID.
         /// </summary>
-        /// <exception cref="InvalidOperationException">Thrown when the network ID conversion matrix is not ready.</exception>
         public static int ConvertIDToHost(this Registry reg, ref int ID)
         {
             if (!MatrixReady)
@@ -90,7 +91,6 @@ namespace GadgetCore.API
         /// <summary>
         /// Gets the host ID that matches the specified local ID. Returns -1 if the host does not have a matching ID for the specified local ID.
         /// </summary>
-        /// <exception cref="InvalidOperationException">Thrown when the network ID conversion matrix is not ready.</exception>
         public static int ConvertIDToHost(this Registry reg, int ID)
         {
             if (!MatrixReady)
@@ -109,7 +109,6 @@ namespace GadgetCore.API
         /// <summary>
         /// Gets the local ID that matches the specified host ID. The given ID must be an int. Returns -1 if there is no matching local ID for the specified host ID.
         /// </summary>
-        /// <exception cref="InvalidOperationException">Thrown when the network ID conversion matrix is not ready.</exception>
         public static object ConvertIDToLocal(this Registry reg, ref object ID)
         {
             int id = (int)ID;
@@ -129,7 +128,6 @@ namespace GadgetCore.API
         /// <summary>
         /// Gets the local ID that matches the specified host ID. Returns -1 if there is no matching local ID for the specified host ID.
         /// </summary>
-        /// <exception cref="InvalidOperationException">Thrown when the network ID conversion matrix is not ready.</exception>
         public static int ConvertIDToLocal(this Registry reg, ref int ID)
         {
             if (!MatrixReady)
@@ -148,7 +146,6 @@ namespace GadgetCore.API
         /// <summary>
         /// Gets the local ID that matches the specified host ID. Returns -1 if there is no matching local ID for the specified host ID.
         /// </summary>
-        /// <exception cref="InvalidOperationException">Thrown when the network ID conversion matrix is not ready.</exception>
         public static int ConvertIDToLocal(this Registry reg, int ID)
         {
             if (!MatrixReady)
@@ -223,5 +220,70 @@ namespace GadgetCore.API
                 Network.Disconnect();
             }
         }
+
+        /*/// <summary>
+        /// Registers a new sync var. The value of this sync var can be updated using <see cref="UpdateSyncVar"/>,
+        /// and retrieved using <see cref="GetSyncVar"/>. This value will always be synced across all clients.
+        /// Must be called in the Initialize method of a Gadget.
+        /// </summary>
+        public static void RegisterSyncVar<T>(string name, T initialValue)
+        {
+            if (!Registry.registeringVanilla && Registry.modRegistering < 0) throw new InvalidOperationException("SyncVars may only be registered in the Initialize method of a Gadget!");
+        }
+
+        /// <summary>
+        /// Registers a new local sync var. The value of this sync var can be updated using <see cref="UpdateLocalSyncVar"/>,
+        /// and retrieved using <see cref="GetLocalSyncVar"/>. This value will always be synced across all clients.
+        /// Each client has their own value for this sync var, but any client can retrieve any other client's value.
+        /// Must be called in the Initialize method of a Gadget.
+        /// </summary>
+        public static void RegisterLocalSyncVar<T>(string name, T initialValue)
+        {
+            if (!Registry.registeringVanilla && Registry.modRegistering < 0) throw new InvalidOperationException("SyncVars may only be registered in the Initialize method of a Gadget!");
+        }
+
+        /// <summary>
+        /// Updates the value of a sync var. The new value will be synced across all clients.
+        /// </summary>
+        public static void UpdateSyncVar<T>(string name, T value)
+        {
+
+        }
+
+        /// <summary>
+        /// Updates the value of a local sync var. The new value will be synced across all clients.
+        /// </summary>
+        public static void UpdateLocalSyncVar<T>(string name, T value)
+        {
+
+        }
+
+        /// <summary>
+        /// Gets the value of a sync var.
+        /// </summary>
+        public static T GetSyncVar<T>(string name)
+        {
+
+        }
+
+        /// <summary>
+        /// Gets the value of a local sync var, for a given player.
+        /// </summary>
+        public static T GetLocalSyncVar<T>(string name, NetworkPlayer? otherPlayer = null)
+        {
+            NetworkPlayer player = otherPlayer ?? Network.player;
+        }
+
+        internal enum SyncVarType
+        {
+            INT,
+            FLOAT,
+            STRING,
+            VECTOR3,
+            INT_ARRAY,
+            FLOAT_ARRAY,
+            STRING_ARRAY,
+            VECTOR3_ARRAY
+        }*/
     }
 }

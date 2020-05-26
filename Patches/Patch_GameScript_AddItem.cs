@@ -40,7 +40,7 @@ namespace GadgetCore.Patches
             {
                 for (int i = 0; i < 36; i++)
                 {
-                    if (inventory[i].id == package.item.id && inventory[i].q < 9999)
+                    if (inventory[i].id == package.item.id && inventory[i].corrupted == package.item.corrupted && inventory[i].q < 9999)
                     {
                         inventory[i].q += package.item.q;
                         if (inventory[i].q > 9999)

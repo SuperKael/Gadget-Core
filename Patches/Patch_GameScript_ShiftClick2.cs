@@ -29,7 +29,7 @@ namespace GadgetCore.Patches
                     {
                         for (int i = 0; i < 3; i++)
                         {
-                            if (___craft[i].id == itemInSlot.id && ___craft[i].q + ___inventory[slot].q <= 9999)
+                            if (___craft[i].id == itemInSlot.id && ___craft[i].corrupted == itemInSlot.corrupted && ___craft[i].q + ___inventory[slot].q <= 9999)
                             {
                                 flag = true;
                                 num = i;
@@ -65,7 +65,7 @@ namespace GadgetCore.Patches
                 {
                     for (int i = 0; i < 3; i++)
                     {
-                        if (___craft[i].id == itemInSlot.id && ___craft[i].q + ___inventory[slot].q <= 9999)
+                        if (___craft[i].id == itemInSlot.id && ___craft[i].corrupted == itemInSlot.corrupted && ___craft[i].q + ___inventory[slot].q <= 9999)
                         {
                             __instance.GetComponent<AudioSource>().PlayOneShot((AudioClip)Resources.Load("Au/CLICK3"), Menuu.soundLevel / 10f);
                             flag = true;

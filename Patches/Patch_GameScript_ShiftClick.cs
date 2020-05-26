@@ -28,7 +28,7 @@ namespace GadgetCore.Patches
                     bool flag1 = false, flag2 = false;
                     for (int i = num2; i < num3; i++)
                     {
-                        if (___storage[i].id == itemInSlot.id && ___storage[i].q < 9999)
+                        if (___storage[i].id == itemInSlot.id && ___storage[i].corrupted == itemInSlot.corrupted && ___storage[i].q < 9999)
                         {
                             if (___storage[i].q + ___inventory[slot].q <= 9999)
                             {
@@ -62,7 +62,7 @@ namespace GadgetCore.Patches
                                 ___inventory[slot] = new Item(0, 0, 0, 0, 0, new int[3], new int[3]);
                                 break;
                             }
-                            else if (___storage[i].id == itemInSlot.id && ___storage[i].q < 9999)
+                            else if (___storage[i].id == itemInSlot.id && ___storage[i].corrupted == itemInSlot.corrupted && ___storage[i].q < 9999)
                             {
                                 if (___storage[i].q + ___inventory[slot].q <= 9999)
                                 {

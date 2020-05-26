@@ -15,6 +15,21 @@ namespace GadgetCore.Patches
         [HarmonyPrefix]
         public static bool Prefix(ItemScript __instance, int[] stats, ref Item ___item, ref Package ___package)
         {
+            if (stats[0] == 52)
+            {
+                int trophies = (stats[1] - 1) / 9999;
+                stats[1] -= trophies * 9999;
+                if (trophies > 0) GadgetCoreAPI.SpawnItemLocal(__instance.transform.position, new Item(59, trophies, 0, 0, 0, new int[3], new int[3]));
+            }
+            else
+            {
+                int extraStacks = (stats[1] - 1) / 9999;
+                stats[1] -= extraStacks * 9999;
+                for (int i = 0; i < extraStacks; i++)
+                {
+                    GadgetCoreAPI.SpawnItemLocal(__instance.transform.position, new Item(stats[0], 9999, 0, 0, 0, new int[3], new int[3]));
+                }
+            }
             ___item = GadgetCoreAPI.ConstructItemFromIntArray(stats);
             ___package = new Package(___item, __instance.gameObject, __instance.localItem);
             __instance.b.GetComponent<Renderer>().material = (Material)Resources.Load("i/i" + ___item.id);

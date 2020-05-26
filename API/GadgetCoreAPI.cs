@@ -22,7 +22,7 @@ namespace GadgetCore.API
         /// <summary>
         /// A slightly more informative version. You generally shouldn't access this directly, instead use <see cref="GetFullVersion()"/>
         /// </summary>
-        public const string FULL_VERSION = "2.0.0.0-BETA5";
+        public const string FULL_VERSION = "2.0.0.0-BETA6";
         /// <summary>
         /// Indicates whether this version of GadgetCore is a beta version. You generally shouldn't access this directly, instead use <see cref="GetIsBeta()"/>
         /// </summary>
@@ -562,7 +562,7 @@ namespace GadgetCore.API
         }
 
         /// <summary>
-        /// Registers a custom RPC that can be later called using CallCustomRPC
+        /// Registers a custom RPC that can be later called using <see cref="CallCustomRPC(string, RPCMode, object[])"/>
         /// </summary>
         public static void RegisterCustomRPC(string name, Action<object[]> rpc)
         {
@@ -610,7 +610,7 @@ namespace GadgetCore.API
             resources[path] = resource;
             resourcePaths[resource.GetInstanceID()] = path;
             if (!modResources.ContainsKey(Registry.modRegistering)) modResources.Add(Registry.modRegistering, new List<int>());
-            modResources[Registry.modRegistering].Add(resource.GetInstanceID());
+            if (!modResources[Registry.modRegistering].Contains(resource.GetInstanceID())) modResources[Registry.modRegistering].Add(resource.GetInstanceID());
         }
 
         internal static void RemoveModResources(int modID)
@@ -669,11 +669,38 @@ namespace GadgetCore.API
         }
 
         /// <summary>
-        /// Gets the EquipStats of the item with the given ID. Easier than using reflection to call GetGearBaseStats on GameScript.
+        /// Gets the true EquipStats of the item with the given ID, before any stat modifiers at all are applied.
         /// </summary>
-        public static EquipStats GetGearBaseStats(int ID)
+        public static EquipStats GetTrueGearBaseStats(int ID)
         {
             return new EquipStats(GetGearBaseStatsMethod.Invoke(InstanceTracker.GameScript, new object[] { ID }) as int[]);
+        }
+
+        /// <summary>
+        /// Gets the level of the given piece of gear.
+        /// </summary>
+        public static int GetGearLevel(Item item)
+        {
+            int num = 1;
+            int num2 = 100;
+            int i = item.exp;
+            int num3 = 0;
+            while (i > num2)
+            {
+                i -= num2;
+                num3++;
+                num2 += 75 + num3 * 100;
+                num++;
+                if (num == 10)
+                {
+                    break;
+                }
+            }
+            if (num > 10)
+            {
+                num = 10;
+            }
+            return num;
         }
 
         /// <summary>
@@ -681,7 +708,7 @@ namespace GadgetCore.API
         /// </summary>
         public static EquipStats GetGearBaseStats(Item item)
         {
-            EquipStats stats = GetGearBaseStats(item.id);
+            EquipStats stats = GetTrueGearBaseStats(item.id);
             if (statModifiers.ContainsKey(StatModifierType.BaseFlat))
             {
                 foreach (StatModifier modifier in statModifiers[StatModifierType.BaseFlat])
@@ -714,7 +741,29 @@ namespace GadgetCore.API
         public static EquipStats GetGearStats(Item item)
         {
             EquipStats baseStats = GetGearBaseStats(item);
-            EquipStats stats = baseStats;
+            EquipStats stats = baseStats * GetGearLevel(item);
+            for (int j = 0; j < 6; j++)
+            {
+                if (stats.GetByIndex(j) > 0)
+                {
+                    stats.AddByIndex(j, item.tier * 3);
+                }
+            }
+            for (int i = 0; i < item.aspect.Length; i++)
+            {
+                ItemInfo gearMod = Registry<ItemRegistry, ItemInfo, ItemType>.GetSingleton().GetEntry(item.aspect[i]);
+                for (int j = 0; j < 6; j++)
+                {
+                    if (gearMod != null)
+                    {
+                        stats.AddByIndex(j, gearMod.Stats.GetByIndex(j));
+                    }
+                    else if (item.aspect[i] - 200 == j + 1)
+                    {
+                        stats.AddByIndex(j, item.aspectLvl[i]);
+                    }
+                }
+            }
             if (statModifiers.ContainsKey(StatModifierType.Flat))
             {
                 foreach (StatModifier modifier in statModifiers[StatModifierType.Flat])
@@ -724,12 +773,10 @@ namespace GadgetCore.API
             }
             if (statModifiers.ContainsKey(StatModifierType.AddMult))
             {
-                EquipStats newStats = stats;
                 foreach (StatModifier modifier in statModifiers[StatModifierType.AddMult])
                 {
-                    newStats += stats * modifier(item);
+                    stats += baseStats * modifier(item);
                 }
-                stats = newStats;
             }
             if (statModifiers.ContainsKey(StatModifierType.ExpMult))
             {

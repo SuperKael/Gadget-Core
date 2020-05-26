@@ -104,6 +104,22 @@ namespace GadgetCore.API
         }
 
         /// <summary>
+        /// Sets the stat with the specified index. 0 is VIT, 1 is STR, 2 is DEX, 3 is TEC, 4 is MAG, 5 is FTH.
+        /// </summary>
+        public void SetByIndex(int index, int stat)
+        {
+            stats[index] = stat;
+        }
+
+        /// <summary>
+        /// Adds to the stat with the specified index. 0 is VIT, 1 is STR, 2 is DEX, 3 is TEC, 4 is MAG, 5 is FTH.
+        /// </summary>
+        public void AddByIndex(int index, int stat)
+        {
+            stats[index] += stat;
+        }
+
+        /// <summary>
         /// Adds this EquipStat's values to the given stat value array. The array must be of length 6.
         /// </summary>
         public int[] AddTo(int[] statArray)

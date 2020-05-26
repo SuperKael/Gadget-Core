@@ -12,7 +12,6 @@ namespace GadgetCore.Patches
         public static readonly MethodInfo RefreshSlot = typeof(GameScript).GetMethod("RefreshSlot", BindingFlags.NonPublic | BindingFlags.Instance);
         public static readonly MethodInfo RefreshHoldingSlot = typeof(GameScript).GetMethod("RefreshHoldingSlot", BindingFlags.NonPublic | BindingFlags.Instance);
         public static readonly MethodInfo UpdateDroids = typeof(GameScript).GetMethod("UpdateDroids", BindingFlags.NonPublic | BindingFlags.Instance);
-        public static readonly MethodInfo GetGearBaseStats = typeof(GameScript).GetMethod("GetGearBaseStats", BindingFlags.NonPublic | BindingFlags.Instance);
         public static readonly MethodInfo GetItemLevel = typeof(GameScript).GetMethod("GetItemLevel", BindingFlags.NonPublic | BindingFlags.Instance);
         public static readonly MethodInfo RefreshStats = typeof(GameScript).GetMethod("RefreshStats", BindingFlags.NonPublic | BindingFlags.Instance);
         public static readonly MethodInfo RefreshMODS = typeof(GameScript).GetMethod("RefreshMODS", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -73,43 +72,13 @@ namespace GadgetCore.Patches
                         {
                             GameScript.equippedIDs[3] = ___inventory[slot].id;
                         }
-                        int[] gearBaseStats = (int[])GetGearBaseStats.Invoke(__instance, new object[] { ___inventory[slot].id });
-                        int num = (int)GetItemLevel.Invoke(__instance, new object[] { ___inventory[slot].exp });
-                        if (slot > 41)
+                        int[] gearStats = GadgetCoreAPI.GetGearStats(___inventory[slot]).GetStatArray();
+                        for (int i = 0; i < 6; i++)
                         {
-                            for (int i = 0; i < 6; i++)
+                            if (gearStats[i] > 0)
                             {
-                                if (gearBaseStats[i] > 0)
-                                {
-                                    GameScript.GEARSTAT[i] += gearBaseStats[i];
-                                    __instance.txtPlayerStat[i].GetComponent<Animation>().Play();
-                                }
-                            }
-                        }
-                        else
-                        {
-                            for (int i = 0; i < 6; i++)
-                            {
-                                if (gearBaseStats[i] > 0)
-                                {
-                                    GameScript.GEARSTAT[i] += ___inventory[slot].tier * 3 + gearBaseStats[i] * num;
-                                    __instance.txtPlayerStat[i].GetComponent<Animation>().Play();
-                                }
-                            }
-                            for (int j = 0; j < 3; j++)
-                            {
-                                ItemInfo slotAspect = ItemRegistry.GetSingleton().GetEntry(___inventory[slot].aspect[j]);
-                                for (int i = 0; i < 6; i++)
-                                {
-                                    if (slotAspect != null)
-                                    {
-                                        GameScript.GEARSTAT[i] += slotAspect.Stats.GetByIndex(i);
-                                    }
-                                    else if (___inventory[slot].aspect[j] - 200 == i + 1)
-                                    {
-                                        GameScript.GEARSTAT[i] += ___inventory[slot].aspectLvl[j];
-                                    }
-                                }
+                                GameScript.GEARSTAT[i] += gearStats[i];
+                                __instance.txtPlayerStat[i].GetComponent<Animation>().Play();
                             }
                         }
                         RefreshStats.Invoke(__instance, new object[] { });

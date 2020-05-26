@@ -308,7 +308,7 @@ namespace GadgetCore.Patches.NetIDPatches
                 __instance.StartCoroutine(GadgetUtils.WaitAndInvoke(RPCMethod, GadgetNetwork.MatrixTimeout - GadgetNetwork.GetTimeSinceConnect(), () => GadgetNetwork.MatrixReady, __instance, p));
                 return false;
             }
-            GadgetNetwork.ConvertIDToLocal(ItemRegistry.GetSingleton(), ref p[0]);
+            GadgetNetwork.ConvertIDToLocal(__instance.isChipStand ? (Registry)ChipRegistry.GetSingleton() : ItemRegistry.GetSingleton(), ref p[0]);
             return true;
         }
     }

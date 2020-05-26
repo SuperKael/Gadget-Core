@@ -26,7 +26,7 @@ namespace GadgetCore.Patches
                     bool flag1 = false, flag2 = false;
                     for (int i = 0; i < 36; i++)
                     {
-                        if (___inventory[i].id == itemInSlot.id && ___inventory[i].q < 9999)
+                        if (___inventory[i].id == itemInSlot.id && ___inventory[i].corrupted == itemInSlot.corrupted && ___inventory[i].q < 9999)
                         {
                             if (___inventory[i].q + ___gatherStorage[slot].q <= 9999)
                             {
@@ -63,7 +63,7 @@ namespace GadgetCore.Patches
                                 typeof(GameScript).GetMethod("RefreshSlot", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(__instance, new object[] { i });
                                 break;
                             }
-                            else if (___inventory[i].id == itemInSlot.id && ___inventory[i].q < 9999)
+                            else if (___inventory[i].id == itemInSlot.id && ___inventory[i].corrupted == itemInSlot.corrupted && ___inventory[i].q < 9999)
                             {
                                 if (___inventory[i].q + ___gatherStorage[slot].q <= 9999)
                                 {
