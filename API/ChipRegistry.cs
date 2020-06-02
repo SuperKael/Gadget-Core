@@ -112,25 +112,13 @@ namespace GadgetCore.API
                 ["Enhanced Mind"] = 25,
                 ["Angelic Augur"] = 26,
                 ["Prism"] = 27,
-                ["Photon Blade"] = 28,
-                ["Dancing Slash"] = 29,
-                ["Triple Shot"] = 30,
-                ["Atalanta's Eye"] = 31,
-                ["Plasma Grenade"] = 32,
-                ["Gadget Turret"] = 33,
-                ["Blaze"] = 34,
-                ["Shock"] = 35,
-                ["Healing Ward"] = 36,
-                ["Bubble"] = 37,
                 ["Darkfire"] = 38,
-                ["Alacrity"] = 51,
                 ["Vitality II"] = 52,
                 ["Strength II"] = 53,
                 ["Dexterity II"] = 54,
                 ["Tech II"] = 55,
                 ["Intelligence II"] = 56,
                 ["Faith II"] = 57,
-                ["Alacrity"] = 101,
                 ["Vitality X"] = 102,
                 ["Strength X"] = 103,
                 ["Dexterity X"] = 104,
@@ -155,6 +143,7 @@ namespace GadgetCore.API
         /// This chip is passive, and cannot be activated.
         /// </summary>
         PASSIVE,
+
         /// <summary>
         /// This chip is active, and can be activated. Note that active chips can still grant passive effects, if you desire.
         /// </summary>
