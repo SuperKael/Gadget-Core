@@ -19,3 +19,4 @@ To do:
 
 And it also provides the following additional features:
  - An in-game mod configuration menu.
+ - An in-game multiplayer chat with chat commands. (Open with the grave/tilde key by default)

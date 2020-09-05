@@ -1,4 +1,5 @@
 ﻿using GadgetCore.Loader;
+using GadgetCore.Util;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -22,13 +23,18 @@ namespace GadgetCore.API
         /// <summary>
         /// A slightly more informative version. You generally shouldn't access this directly, instead use <see cref="GetFullVersion()"/>
         /// </summary>
-        public const string FULL_VERSION = "2.0.0.0-BETA6";
+        public const string FULL_VERSION = "2.0.0.0-BETA7";
         /// <summary>
         /// Indicates whether this version of GadgetCore is a beta version. You generally shouldn't access this directly, instead use <see cref="GetIsBeta()"/>
         /// </summary>
         public const bool IS_BETA = true;
 
         internal static readonly int[] currentVersionNums = RAW_VERSION.Split('.').Select(x => int.Parse(x)).ToArray();
+
+        /// <summary>
+        /// The sprite used for missing tile textures
+        /// </summary>
+        public static SpriteSheetEntry MissingTexSprite { get; internal set; }
 
         private static readonly MethodInfo RefreshExpBar = typeof(GameScript).GetMethod("RefreshExpBar", BindingFlags.NonPublic | BindingFlags.Instance);
         private static readonly MethodInfo Crafting = typeof(GameScript).GetMethod("Crafting", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -47,17 +53,20 @@ namespace GadgetCore.API
         internal static Dictionary<int, List<int>> modResources = new Dictionary<int, List<int>>();
         internal static Dictionary<string, Texture2D> cachedTexes = new Dictionary<string, Texture2D>();
         internal static Dictionary<string, AudioClip> cachedAudioClips = new Dictionary<string, AudioClip>();
+        internal static Dictionary<string, Mesh> cachedMeshes = new Dictionary<string, Mesh>();
         internal static Dictionary<string, AssetBundle> cachedBundles = new Dictionary<string, AssetBundle>();
         internal static Dictionary<KeyCode, List<Action>> keyDownListeners = new Dictionary<KeyCode, List<Action>>();
         internal static Dictionary<KeyCode, List<Action>> keyUpListeners = new Dictionary<KeyCode, List<Action>>();
-        internal static Dictionary<StatModifierType, List<StatModifier>> statModifiers = new Dictionary<StatModifierType, List<StatModifier>>();
+        internal static Dictionary<StatModifierType, List<Tuple<StatModifier, int>>> statModifiers = new Dictionary<StatModifierType, List<Tuple<StatModifier, int>>>();
         internal static Dictionary<string, PlayerScript> playersByName = new Dictionary<string, PlayerScript>();
         internal static Dictionary<string, Action<object[]>> customRPCs = new Dictionary<string, Action<object[]>>();
+        internal static Dictionary<int, Tuple<int, int>> emblemForgeRecipes = new Dictionary<int, Tuple<int, int>>();
         internal static List<SpriteSheetEntry> spriteSheetSprites = new List<SpriteSheetEntry>();
         internal static int spriteSheetSize = -1;
         internal static Texture2D spriteSheet;
         internal static List<string> menuPaths = new List<string>();
         internal static List<GameObject> menus;
+        internal static int[][] equipedGearStats = new int[9][];
         private static List<string> frozenInput = new List<string>();
 
         static GadgetCoreAPI()
@@ -165,7 +174,7 @@ namespace GadgetCore.API
         /// </summary>
         public static bool UnregisterKeyDownListener(KeyCode key, Action action)
         {
-            return keyDownListeners.ContainsKey(key) && keyDownListeners[key].Remove(action) && keyDownListeners[key].Count == 0 ? keyDownListeners.Remove(key) : true;
+            return keyDownListeners.ContainsKey(key) && keyDownListeners[key].Remove(action) && (keyDownListeners[key].Count != 0 || keyDownListeners.Remove(key));
         }
 
         /// <summary>
@@ -182,7 +191,7 @@ namespace GadgetCore.API
         /// </summary>
         public static bool UnregisterKeyUpListener(KeyCode key, Action action)
         {
-            return keyUpListeners.ContainsKey(key) && keyUpListeners[key].Remove(action) && keyUpListeners[key].Count == 0 ? keyUpListeners.Remove(key) : true;
+            return keyUpListeners.ContainsKey(key) && keyUpListeners[key].Remove(action) && (keyUpListeners[key].Count != 0 || keyUpListeners.Remove(key));
         }
 
         /// <summary>
@@ -668,12 +677,13 @@ namespace GadgetCore.API
             return GetChipDescMethod.Invoke(InstanceTracker.GameScript, new object[] { ID }) as string;
         }
 
+
         /// <summary>
-        /// Gets the true EquipStats of the item with the given ID, before any stat modifiers at all are applied.
+        /// Adds a recipe to the Emblem Forge.
         /// </summary>
-        public static EquipStats GetTrueGearBaseStats(int ID)
+        public static void AddEmblemRecipe(int lootID, int emblemID, int lootCount = 10)
         {
-            return new EquipStats(GetGearBaseStatsMethod.Invoke(InstanceTracker.GameScript, new object[] { ID }) as int[]);
+            emblemForgeRecipes[lootID] = Tuple.Create(emblemID, lootCount);
         }
 
         /// <summary>
@@ -704,32 +714,43 @@ namespace GadgetCore.API
         }
 
         /// <summary>
+        /// Gets the true EquipStats of the item with the given ID, before any stat modifiers at all are applied.
+        /// </summary>
+        public static EquipStats GetTrueGearBaseStats(int ID)
+        {
+            if (ItemRegistry.GetSingleton().HasEntry(ID))
+            {
+                return ItemRegistry.GetSingleton().GetEntry(ID).Stats;
+            }
+            return new EquipStats(GetGearBaseStatsMethod.Invoke(InstanceTracker.GameScript, new object[] { ID }) as int[]);
+        }
+
+        /// <summary>
         /// Gets the EquipStats of the given item. Applies 'Base' stat modifiers to the stats.
         /// </summary>
         public static EquipStats GetGearBaseStats(Item item)
         {
-            EquipStats stats = GetTrueGearBaseStats(item.id);
+            EquipStats baseStats = GetTrueGearBaseStats(item.id);
+            EquipStats stats = baseStats;
             if (statModifiers.ContainsKey(StatModifierType.BaseFlat))
             {
-                foreach (StatModifier modifier in statModifiers[StatModifierType.BaseFlat])
+                foreach (Tuple<StatModifier, int> modifier in statModifiers[StatModifierType.BaseFlat])
                 {
-                    stats += modifier(item);
+                    stats += modifier.Item1(item);
                 }
             }
             if (statModifiers.ContainsKey(StatModifierType.BaseAddMult))
             {
-                EquipStats newStats = stats;
-                foreach (StatModifier modifier in statModifiers[StatModifierType.BaseAddMult])
+                foreach (Tuple<StatModifier, int> modifier in statModifiers[StatModifierType.BaseAddMult])
                 {
-                    newStats += stats * modifier(item);
+                    stats += baseStats * modifier.Item1(item);
                 }
-                stats = newStats;
             }
             if (statModifiers.ContainsKey(StatModifierType.BaseExpMult))
             {
-                foreach (StatModifier modifier in statModifiers[StatModifierType.BaseExpMult])
+                foreach (Tuple<StatModifier, int> modifier in statModifiers[StatModifierType.BaseExpMult])
                 {
-                    stats *= modifier(item);
+                    stats *= modifier.Item1(item);
                 }
             }
             return stats;
@@ -740,8 +761,11 @@ namespace GadgetCore.API
         /// </summary>
         public static EquipStats GetGearStats(Item item)
         {
+            ItemInfo itemInfo = ItemRegistry.GetItem(item.id);
+            bool itemLevels = (itemInfo?.Type & ItemType.LEVELING) == ItemType.LEVELING;
+            int level = itemLevels ? GetGearLevel(item) : 1;
             EquipStats baseStats = GetGearBaseStats(item);
-            EquipStats stats = baseStats * GetGearLevel(item);
+            EquipStats stats = baseStats * level;
             for (int j = 0; j < 6; j++)
             {
                 if (stats.GetByIndex(j) > 0)
@@ -751,7 +775,8 @@ namespace GadgetCore.API
             }
             for (int i = 0; i < item.aspect.Length; i++)
             {
-                ItemInfo gearMod = Registry<ItemRegistry, ItemInfo, ItemType>.GetSingleton().GetEntry(item.aspect[i]);
+                ItemInfo gearMod = ItemRegistry.GetSingleton().GetEntry(item.aspect[i]);
+                if (gearMod == null) continue;
                 for (int j = 0; j < 6; j++)
                 {
                     if (gearMod != null)
@@ -766,23 +791,70 @@ namespace GadgetCore.API
             }
             if (statModifiers.ContainsKey(StatModifierType.Flat))
             {
-                foreach (StatModifier modifier in statModifiers[StatModifierType.Flat])
+                foreach (Tuple<StatModifier, int> modifier in statModifiers[StatModifierType.Flat])
                 {
-                    stats += modifier(item);
+                    stats += modifier.Item1(item);
                 }
             }
             if (statModifiers.ContainsKey(StatModifierType.AddMult))
             {
-                foreach (StatModifier modifier in statModifiers[StatModifierType.AddMult])
+                foreach (Tuple<StatModifier, int> modifier in statModifiers[StatModifierType.AddMult])
                 {
-                    stats += baseStats * modifier(item);
+                    stats += baseStats * modifier.Item1(item);
                 }
             }
             if (statModifiers.ContainsKey(StatModifierType.ExpMult))
             {
-                foreach (StatModifier modifier in statModifiers[StatModifierType.ExpMult])
+                foreach (Tuple<StatModifier, int> modifier in statModifiers[StatModifierType.ExpMult])
                 {
-                    stats *= modifier(item);
+                    stats *= modifier.Item1(item);
+                }
+            }
+            if (itemLevels)
+            {
+                if (statModifiers.ContainsKey(StatModifierType.LevelFlat))
+                {
+                    foreach (Tuple<StatModifier, int> modifier in statModifiers[StatModifierType.LevelFlat])
+                    {
+                        stats += modifier.Item1(item) * level;
+                    }
+                }
+                if (statModifiers.ContainsKey(StatModifierType.LevelAddMult))
+                {
+                    foreach (Tuple<StatModifier, int> modifier in statModifiers[StatModifierType.LevelAddMult])
+                    {
+                        stats += baseStats * modifier.Item1(item) * level;
+                    }
+                }
+                if (statModifiers.ContainsKey(StatModifierType.LevelExpMult))
+                {
+                    foreach (Tuple<StatModifier, int> modifier in statModifiers[StatModifierType.LevelExpMult])
+                    {
+                        EquipStats multiplier = modifier.Item1(item);
+                        for (int i = 0;i < level;i++) stats *= multiplier;
+                    }
+                }
+            }
+            baseStats = stats;
+            if (statModifiers.ContainsKey(StatModifierType.FinalFlat))
+            {
+                foreach (Tuple<StatModifier, int> modifier in statModifiers[StatModifierType.FinalFlat])
+                {
+                    stats += modifier.Item1(item);
+                }
+            }
+            if (statModifiers.ContainsKey(StatModifierType.FinalAddMult))
+            {
+                foreach (Tuple<StatModifier, int> modifier in statModifiers[StatModifierType.FinalAddMult])
+                {
+                    stats += baseStats * modifier.Item1(item);
+                }
+            }
+            if (statModifiers.ContainsKey(StatModifierType.FinalExpMult))
+            {
+                foreach (Tuple<StatModifier, int> modifier in statModifiers[StatModifierType.FinalExpMult])
+                {
+                    stats *= modifier.Item1(item);
                 }
             }
             return stats;
@@ -795,8 +867,18 @@ namespace GadgetCore.API
         /// <param name="type"></param>
         public static void RegisterStatModifier(StatModifier modifier, StatModifierType type)
         {
-            if (!statModifiers.ContainsKey(type)) statModifiers.Add(type, new List<StatModifier>());
-            statModifiers[type].Add(modifier);
+            if (!Registry.registeringVanilla && Registry.modRegistering < 0) throw new InvalidOperationException("Stat modifiers may only be registered by the Initialize method of a Gadget!");
+            if (!statModifiers.ContainsKey(type)) statModifiers.Add(type, new List<Tuple<StatModifier, int>>());
+            statModifiers[type].Add(Tuple.Create(modifier, Registry.modRegistering));
+        }
+
+        internal static void UnregisterStatModifiers(int modID)
+        {
+            foreach (StatModifierType type in statModifiers.Keys.ToList())
+            {
+                foreach (Tuple<StatModifier, int> modifier in statModifiers[type].Where(x => x.Item2 == modID).ToList()) statModifiers[type].Remove(modifier);
+                if (statModifiers[type].Count == 0) statModifiers.Remove(type);
+            }
         }
 
         /// <summary>
@@ -1112,16 +1194,17 @@ namespace GadgetCore.API
         {
             if (file.IndexOf('.') == -1) file += ".png";
             GadgetMod mod = GadgetMods.GetModByAssembly(Assembly.GetCallingAssembly());
-            if (cachedTexes.ContainsKey(mod.Name + ":" + file))
+            string modName = mod.Name ?? "GadgetCore";
+            if (cachedTexes.ContainsKey(modName + ":" + file))
             {
-                return cachedTexes[mod.Name + ":" + file];
+                return cachedTexes[modName + ":" + file];
             }
             Stream stream;
-            if (File.Exists(Path.Combine(Path.Combine(GadgetPaths.AssetsPath, mod.Name), file)))
+            if (File.Exists(Path.Combine(Path.Combine(GadgetPaths.AssetsPath, modName), file)))
             {
-                stream = File.OpenRead(Path.Combine(Path.Combine(GadgetPaths.AssetsPath, mod.Name), file));
+                stream = File.OpenRead(Path.Combine(Path.Combine(GadgetPaths.AssetsPath, modName), file));
             }
-            else if (mod.HasModFile(Path.Combine("Assets", file)))
+            else if (mod?.HasModFile(Path.Combine("Assets", file)) ?? false)
             {
                 stream = mod.ReadModFile(Path.Combine("Assets", file));
             }
@@ -1135,7 +1218,7 @@ namespace GadgetCore.API
             Texture2D tex = new Texture2D(2, 2);
             tex.LoadImage(fileData);
             tex.filterMode = FilterMode.Point;
-            cachedTexes.Add(mod.Name + ":" + file, tex);
+            cachedTexes.Add(modName + ":" + file, tex);
             return tex;
         }
 
@@ -1170,6 +1253,34 @@ namespace GadgetCore.API
         }
 
         /// <summary>
+        /// Loads an obj-format mesh from your Assets folder as a Mesh. Assumes a file extension of .obj if one is not specified. Returns null if no file with the given name was found.
+        /// </summary>
+        public static Mesh LoadObjMesh(string file, bool shared = false)
+        {
+            if (file.IndexOf('.') == -1) file += ".wav";
+            GadgetMod mod = GadgetMods.GetModByAssembly(Assembly.GetCallingAssembly());
+            if (cachedMeshes.ContainsKey(mod.Name + ":" + file))
+            {
+                return cachedMeshes[mod.Name + ":" + file];
+            }
+            string filePath = Path.Combine("Assets", file);
+            if (mod.HasModFile(filePath))
+            {
+                using (Stream modFile = mod.ReadModFile(filePath))
+                using (StreamReader reader = new StreamReader(mod.ReadModFile(filePath)))
+                {
+                    Mesh mesh = ObjImporter.ImportMesh(reader.ReadToEnd());
+                    cachedMeshes.Add(mod.Name + ":" + file, mesh);
+                    return mesh;
+                }
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        /// <summary>
         /// Loads an AssetBundle from your Assets folder. Returns null if no file with the given name was found.
         /// </summary>
         public static AssetBundle LoadAssetBundle(string file, bool shared = false)
@@ -1188,7 +1299,7 @@ namespace GadgetCore.API
                 stream.Dispose();
                 AssetBundle bundle = AssetBundle.LoadFromMemory(fileData);
                 cachedBundles.Add(mod.Name + ":" + file, bundle);
-                return bundle;
+                return bundle;  
             }
             else
             {

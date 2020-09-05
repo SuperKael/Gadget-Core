@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Reflection.Emit;
 using System.Linq;
 using System.Reflection;
+using GadgetCore.Util;
+using System.IO;
 
 namespace GadgetCore.Patches
 {
@@ -110,13 +112,14 @@ namespace GadgetCore.Patches
         }
 
         [HarmonyTranspiler]
-        public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+        public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator generator)
         {
+            GadgetCore.CoreLogger.Log(OpCodes.Call.StackBehaviourPop);
             CodeInstruction[] codes = instructions.ToArray();
             List<CodeInstruction> newCodes = new List<CodeInstruction>();
             for (int i = 0; i < 11;i++) newCodes.Add(codes[i]);
             for (int i = 11; i < codes.Length; i++)
-            {
+            {   
                 newCodes.Add(codes[i]);
                 if ((codes[i - 1] != null && codes[i - 1].opcode == OpCodes.Ldsfld && codes[i - 1].operand.ToString().Equals("System.Boolean pausing")
                  && codes[i] != null && codes[i].opcode == OpCodes.Brtrue) ||
@@ -148,7 +151,14 @@ namespace GadgetCore.Patches
                     }
                 }
             }
-            return newCodes;
+            var p = TranspilerHelper.CreateProcessor(newCodes, generator);
+            File.WriteAllText("Before CILProcessor Patch.txt", p.DumpInstructions());
+            var forgeEmblemBlock = p.FindRefByInsn(new CodeInstruction(OpCodes.Call, "Void ForgeEmblem(Int32)"));
+            p.InjectInsn(forgeEmblemBlock.GetRefByOffset(-21), new CodeInstruction(OpCodes.Brtrue, p.GetInsn(forgeEmblemBlock.GetRefByOffset(-20)).operand), false);
+            p.RemoveInsns(forgeEmblemBlock.GetRefByOffset(-20), 17);
+            p.RemoveInsns(forgeEmblemBlock.GetRefByOffset(1), 6);
+            File.WriteAllText("After CILProcessor Patch.txt", p.DumpInstructions());
+            return p.GetInstructions();
         }
     }
 }

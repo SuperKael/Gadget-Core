@@ -20,89 +20,86 @@ namespace GadgetCore.Patches
         [HarmonyPrefix]
         public static bool Prefix(GameScript __instance, int slot, ref Item ___holdingItem, ref Item[] ___inventory, ref int ___droidCount, bool ___emblemAgain)
         {
-            if (ItemRegistry.GetSingleton().HasEntry(___holdingItem.id))
+            ItemInfo itemInfo = ItemRegistry.GetSingleton().GetEntry(___holdingItem.id);
+            ItemType holdingItemType = itemInfo != null ? (itemInfo.Type & (ItemType.BASIC_MASK | ItemType.TYPE_MASK)) : ItemRegistry.GetDefaultTypeByID(___holdingItem.id);
+            if ((slot == 36 && (holdingItemType & ItemType.BASIC_MASK) != (ItemType.WEAPON & ItemType.BASIC_MASK)) || (slot == 37 && ((holdingItemType & ItemType.BASIC_MASK) != (ItemType.OFFHAND & ItemType.BASIC_MASK))) || (slot == 38 && ((holdingItemType & ItemType.BASIC_MASK) != (ItemType.HELMET & ItemType.BASIC_MASK))) || (slot == 39 && ((holdingItemType & ItemType.BASIC_MASK) != (ItemType.ARMOR & ItemType.BASIC_MASK))) || ((slot == 40 || slot == 41) && ((holdingItemType & ItemType.BASIC_MASK) != (ItemType.RING & ItemType.BASIC_MASK))) || (slot > 41 && ((holdingItemType & ItemType.BASIC_MASK) != (ItemType.DROID & ItemType.BASIC_MASK))))
             {
-                ItemInfo itemInfo = ItemRegistry.GetSingleton().GetEntry(___holdingItem.id);
-                ItemType holdingItemType = itemInfo != null ? (itemInfo.Type & (ItemType.BASIC_MASK | ItemType.TYPE_MASK)) : ItemRegistry.GetDefaultTypeByID(___holdingItem.id);
-                if ((slot == 36 && (holdingItemType & ItemType.BASIC_MASK) != (ItemType.WEAPON & ItemType.BASIC_MASK)) || (slot == 37 && ((holdingItemType & ItemType.BASIC_MASK) != (ItemType.OFFHAND & ItemType.BASIC_MASK))) || (slot == 38 && ((holdingItemType & ItemType.BASIC_MASK) != (ItemType.HELMET & ItemType.BASIC_MASK))) || (slot == 39 && ((holdingItemType & ItemType.BASIC_MASK) != (ItemType.ARMOR & ItemType.BASIC_MASK))) || ((slot == 40 || slot == 41) && ((holdingItemType & ItemType.BASIC_MASK) != (ItemType.RING & ItemType.BASIC_MASK))) || (slot > 41 && ((holdingItemType & ItemType.BASIC_MASK) != (ItemType.DROID & ItemType.BASIC_MASK))))
+                __instance.Error(2);
+            }
+            else
+            {
+                if (___emblemAgain)
                 {
-                    __instance.Error(2);
+                    EmblemForging.Invoke(__instance, new object[] { });
                 }
-                else
+                ___inventory[slot] = ___holdingItem;
+                ___holdingItem = new Item(0, 0, 0, 0, 0, new int[3], new int[3]);
+                ItemType slotItemType = holdingItemType;
+                RefreshSlot.Invoke(__instance, new object[] { slot });
+                RefreshHoldingSlot.Invoke(__instance, new object[] { });
+                if (slotItemType == ItemType.DROID && slot > 41 && slot < 45)
                 {
-                    if (___emblemAgain)
+                    ___droidCount++;
+                    UpdateDroids.Invoke(__instance, new object[] { });
+                    __instance.droid[slot - 42].SendMessage("SetStats", ___inventory[slot].id);
+                }
+                if (slot > 35)
+                {
+                    if (slot > 41)
                     {
-                        EmblemForging.Invoke(__instance, new object[] { });
-                    }
-                    ___inventory[slot] = ___holdingItem;
-                    ___holdingItem = new Item(0, 0, 0, 0, 0, new int[3], new int[3]);
-                    ItemType slotItemType = holdingItemType;
-                    RefreshSlot.Invoke(__instance, new object[] { slot });
-                    RefreshHoldingSlot.Invoke(__instance, new object[] { });
-                    if (slotItemType == ItemType.DROID && slot > 41 && slot < 45)
-                    {
-                        ___droidCount++;
-                        UpdateDroids.Invoke(__instance, new object[] { });
-                        __instance.droid[slot - 42].SendMessage("SetStats", ___inventory[slot].id);
-                    }
-                    if (slot > 35)
-                    {
-                        if (slot > 41)
-                        {
-                            __instance.GetComponent<AudioSource>().PlayOneShot((AudioClip)Resources.Load("Au/placeD"), Menuu.soundLevel / 10f);
-                        }
-                        else
-                        {
-                            __instance.GetComponent<AudioSource>().PlayOneShot((AudioClip)Resources.Load("Au/bling"), Menuu.soundLevel / 10f);
-                        }
-                        Object.Instantiate(Resources.Load("clickBurst"), new Vector3(__instance.invIcon[slot].transform.position.x, __instance.invIcon[slot].transform.position.y, 0f), Quaternion.identity);
-                        if (slot == 36)
-                        {
-                            GameScript.equippedIDs[0] = ___inventory[slot].id;
-                        }
-                        else if (slot == 37)
-                        {
-                            GameScript.equippedIDs[1] = ___inventory[slot].id;
-                        }
-                        else if (slot == 38)
-                        {
-                            GameScript.equippedIDs[2] = ___inventory[slot].id;
-                        }
-                        else if (slot == 39)
-                        {
-                            GameScript.equippedIDs[3] = ___inventory[slot].id;
-                        }
-                        int[] gearStats = GadgetCoreAPI.GetGearStats(___inventory[slot]).GetStatArray();
-                        for (int i = 0; i < 6; i++)
-                        {
-                            if (gearStats[i] > 0)
-                            {
-                                GameScript.GEARSTAT[i] += gearStats[i];
-                                __instance.txtPlayerStat[i].GetComponent<Animation>().Play();
-                            }
-                        }
-                        RefreshStats.Invoke(__instance, new object[] { });
-                        Network.RemoveRPCs(MenuScript.playerAppearance.GetComponent<NetworkView>().viewID);
-                        MenuScript.playerAppearance.GetComponent<NetworkView>().RPC("UA", RPCMode.AllBuffered, new object[]
-                        {
-                GameScript.equippedIDs,
-                0,
-                GameScript.dead
-                        });
-                        RefreshMODS.Invoke(__instance, new object[] { });
-                        __instance.UpdateHP();
-                        __instance.UpdateEnergy();
-                        __instance.UpdateMana();
-                        if (itemInfo != null) itemInfo.InvokeOnEquip(slot);
+                        __instance.GetComponent<AudioSource>().PlayOneShot((AudioClip)Resources.Load("Au/placeD"), Menuu.soundLevel / 10f);
                     }
                     else
                     {
-                        __instance.GetComponent<AudioSource>().PlayOneShot((AudioClip)Resources.Load("Au/CLICK1"), Menuu.soundLevel / 10f);
+                        __instance.GetComponent<AudioSource>().PlayOneShot((AudioClip)Resources.Load("Au/bling"), Menuu.soundLevel / 10f);
                     }
+                    Object.Instantiate(Resources.Load("clickBurst"), new Vector3(__instance.invIcon[slot].transform.position.x, __instance.invIcon[slot].transform.position.y, 0f), Quaternion.identity);
+                    if (slot == 36)
+                    {
+                        GameScript.equippedIDs[0] = ___inventory[slot].id;
+                    }
+                    else if (slot == 37)
+                    {
+                        GameScript.equippedIDs[1] = ___inventory[slot].id;
+                    }
+                    else if (slot == 38)
+                    {
+                        GameScript.equippedIDs[2] = ___inventory[slot].id;
+                    }
+                    else if (slot == 39)
+                    {
+                        GameScript.equippedIDs[3] = ___inventory[slot].id;
+                    }
+                    int[] gearStats = GadgetCoreAPI.GetGearStats(___inventory[slot]).GetStatArray();
+                    for (int i = 0; i < 6; i++)
+                    {
+                        if (gearStats[i] > 0)
+                        {
+                            GameScript.GEARSTAT[i] += gearStats[i];
+                            __instance.txtPlayerStat[i].GetComponent<Animation>().Play();
+                        }
+                    }
+                    GadgetCoreAPI.equipedGearStats[slot - 36] = gearStats;
+                    RefreshStats.Invoke(__instance, new object[] { });
+                    Network.RemoveRPCs(MenuScript.playerAppearance.GetComponent<NetworkView>().viewID);
+                    MenuScript.playerAppearance.GetComponent<NetworkView>().RPC("UA", RPCMode.AllBuffered, new object[]
+                    {
+                        GameScript.equippedIDs,
+                        0,
+                        GameScript.dead
+                    });
+                    RefreshMODS.Invoke(__instance, new object[] { });
+                    __instance.UpdateHP();
+                    __instance.UpdateEnergy();
+                    __instance.UpdateMana();
+                    if (itemInfo != null) itemInfo.InvokeOnEquip(slot);
                 }
-                return false;
+                else
+                {
+                    __instance.GetComponent<AudioSource>().PlayOneShot((AudioClip)Resources.Load("Au/CLICK1"), Menuu.soundLevel / 10f);
+                }
             }
-            return true;
+            return false;
         }
     }
 }

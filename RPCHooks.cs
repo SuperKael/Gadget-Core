@@ -155,6 +155,22 @@ namespace GadgetCore
             }
         }
 
+        internal static void Destroy(NetworkViewID viewID)
+        {
+            if (view == null) view = Singleton.GetComponent<NetworkView>();
+            view.RPC("NetworkDestroy", RPCMode.AllBuffered, viewID);
+        }
+
+        [RPC]
+        internal void NetworkDestroy(NetworkViewID viewID)
+        {
+            NetworkView view = NetworkView.Find(viewID);
+            if (view != null)
+            {
+                Destroy(view.gameObject);
+            }
+        }
+
         internal void BroadcastConsoleMessage(string text, string sender, GadgetConsole.MessageSeverity severity, float sendTime)
         {
             view.RPC("RPCBroadcastConsoleMessage", RPCMode.Others, text, sender, (int)severity, sendTime);
@@ -283,10 +299,34 @@ namespace GadgetCore
             stream.Close();
         }
 
-        [RPC]
-        internal void RPCRegisterLocalSyncVar(string name, NetworkMessageInfo info)
+        internal void UpdateSyncVar(string name, object value, bool local)
         {
+            BinaryFormatter formatter = new BinaryFormatter();
+            MemoryStream stream = new MemoryStream();
+            formatter.Serialize(stream, value);
+            stream.Position = 0;
+            view.RPC("RPCUpdateSyncVar", RPCMode.AllBuffered, new object[] { name, stream.ToArray(), local, InstanceTracker.PlayerScript.txtName[0].text });
+            stream.Close();
+        }
 
+        [RPC]
+        internal void RPCUpdateSyncVar(string name, byte[] valueBytes, bool local, string playerName)
+        {
+            BinaryFormatter formatter = new BinaryFormatter();
+            MemoryStream stream = new MemoryStream();
+            stream.Write(valueBytes, 0, valueBytes.Length);
+            stream.Position = 0;
+            object value = formatter.Deserialize(stream);
+            stream.Close();
+            if (local)
+            {
+                GadgetNetwork.UpdateLocalSyncVarInternal(name, value, playerName);
+            }
+            else if (playerName == GadgetNetwork.ServerPlayerName)
+            {
+                GadgetNetwork.UpdateSyncVarInternal(name, value);
+            }
+            else GadgetCore.CoreLogger.LogWarning("Received non-local UpdateSyncVar RPC from player other than the server: " + playerName);
         }
     }
 }

@@ -26,8 +26,12 @@ namespace GadgetCore.Patches
                     foreach (KeyValuePair<string, PlayerScript> entry in GadgetCoreAPI.playersByName.Where(x => x.Value == existingPlayer).ToList())
                     {
                         GadgetCoreAPI.playersByName.Remove(entry.Key);
+                        GadgetNetwork.NetworkPlayersByName.Remove(entry.Key);
+                        GadgetNetwork.NamesByNetworkPlayer.Remove(entry.Value.GetComponent<NetworkView>().owner);
                     }
                     GadgetCoreAPI.playersByName[n + "-1"] = existingPlayer;
+                    GadgetNetwork.NetworkPlayersByName[n + "-1"] = existingPlayer.GetComponent<NetworkView>().owner;
+                    GadgetNetwork.NamesByNetworkPlayer[existingPlayer.GetComponent<NetworkView>().owner] = n + "-1";
                 }
             }
             else
@@ -44,7 +48,7 @@ namespace GadgetCore.Patches
                 if (wasOp) GadgetConsole.operators.Add(n);
             }
             if (existingPlayer == null) existingPlayer = GadgetCoreAPI.GetPlayerByName(n + "-1");
-            if (existingPlayer != null)
+            if (existingPlayer != null && existingPlayer != __instance)
             {
                 int num = 2;
                 while (GadgetCoreAPI.GetPlayerByName(n + "-" + num) != null) num++;
@@ -53,8 +57,13 @@ namespace GadgetCore.Patches
             foreach (KeyValuePair<string, PlayerScript> entry in GadgetCoreAPI.playersByName.Where(x => x.Value == __instance).ToList())
             {
                 GadgetCoreAPI.playersByName.Remove(entry.Key);
+                GadgetNetwork.NetworkPlayersByName.Remove(entry.Key);
+                GadgetNetwork.NamesByNetworkPlayer.Remove(entry.Value.GetComponent<NetworkView>().owner);
             }
             GadgetCoreAPI.playersByName[n] = __instance;
+            GadgetNetwork.NetworkPlayersByName[n] = existingPlayer.GetComponent<NetworkView>().owner;
+            GadgetNetwork.NamesByNetworkPlayer[existingPlayer.GetComponent<NetworkView>().owner] = n;
+            if (__instance.GetComponent<NetworkView>().owner == RPCHooks.Singleton.GetComponent<NetworkView>().owner) GadgetNetwork.ServerPlayerName = n;
         }
     }
 }

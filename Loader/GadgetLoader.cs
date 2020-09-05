@@ -496,6 +496,8 @@ namespace GadgetCore.Loader
                 gadget.Gadget.Unload();
                 LootTables.RemoveModEntries(gadget.Gadget.ModID);
                 GadgetCoreAPI.RemoveModResources(gadget.Gadget.ModID);
+                GadgetCoreAPI.UnregisterStatModifiers(gadget.Gadget.ModID);
+                GadgetNetwork.UnregisterSyncVars(gadget.Gadget.ModID);
                 foreach (Registry reg in GameRegistry.ListAllRegistries())
                 {
                     reg.UnregisterGadget(gadget);

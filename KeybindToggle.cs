@@ -67,5 +67,17 @@ namespace GadgetCore
                 }
             }
         }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Code Quality", "IDE0051:Remove unused private members", Justification = "Unity Event")]
+        private void OnDisable()
+        {
+            GadgetCoreAPI.UnfreezeInput("Keybinding");
+        }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Code Quality", "IDE0051:Remove unused private members", Justification = "Unity Event")]
+        private void OnDestroy()
+        {
+            GadgetCoreAPI.UnfreezeInput("Keybinding");
+        }
     }
 }

@@ -1686,6 +1686,11 @@
             Indicates whether this version of GadgetCore is a beta version. You generally shouldn't access this directly, instead use <see cref="M:GadgetCore.API.GadgetCoreAPI.GetIsBeta"/>
             </summary>
         </member>
+        <member name="P:GadgetCore.API.GadgetCoreAPI.MissingTexSprite">
+            <summary>
+            The sprite used for missing tile textures
+            </summary>
+        </member>
         <member name="M:GadgetCore.API.GadgetCoreAPI.GetRawVersion">
             <summary>
             Returns the raw version of the running version of GadgetCore. Use this instead of directly accessing <see cref="F:GadgetCore.API.GadgetCoreAPI.RAW_VERSION"/>
@@ -1925,14 +1930,19 @@
             Gets the description of the chip with the given ID. Easier than using reflection to call GetChipDesc on GameScript.
             </summary>
         </member>
-        <member name="M:GadgetCore.API.GadgetCoreAPI.GetTrueGearBaseStats(System.Int32)">
+        <member name="M:GadgetCore.API.GadgetCoreAPI.AddEmblemRecipe(System.Int32,System.Int32,System.Int32)">
             <summary>
-            Gets the true EquipStats of the item with the given ID, before any stat modifiers at all are applied.
+            Adds a recipe to the Emblem Forge.
             </summary>
         </member>
         <member name="M:GadgetCore.API.GadgetCoreAPI.GetGearLevel(Item)">
             <summary>
             Gets the level of the given piece of gear.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.GetTrueGearBaseStats(System.Int32)">
+            <summary>
+            Gets the true EquipStats of the item with the given ID, before any stat modifiers at all are applied.
             </summary>
         </member>
         <member name="M:GadgetCore.API.GadgetCoreAPI.GetGearBaseStats(Item)">
@@ -2157,6 +2167,11 @@
             Loads an audio file from your Assets folder as an AudioClip. Assumes a file extension of .wav if one is not specified. Returns null if no file with the given name was found.
             </summary>
         </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.LoadObjMesh(System.String,System.Boolean)">
+            <summary>
+            Loads an obj-format mesh from your Assets folder as a Mesh. Assumes a file extension of .obj if one is not specified. Returns null if no file with the given name was found.
+            </summary>
+        </member>
         <member name="M:GadgetCore.API.GadgetCoreAPI.LoadAssetBundle(System.String,System.Boolean)">
             <summary>
             Loads an AssetBundle from your Assets folder. Returns null if no file with the given name was found.
@@ -2237,6 +2252,11 @@
             True if you are currently connected as a client, and the host does not have Gadget Core installed. This can be a false positive, in the case of a slow connection.
             </summary>
         </member>
+        <member name="P:GadgetCore.API.GadgetNetwork.ServerPlayerName">
+            <summary>
+            The name of the server host's player
+            </summary>
+        </member>
         <member name="M:GadgetCore.API.GadgetNetwork.GetTimeSinceConnect">
             <summary>
             Gets the amount of time, in seconds, that has passed since the Network connection was established. Returns -1 if there is no currently active Network connection.
@@ -2275,6 +2295,46 @@
         <member name="M:GadgetCore.API.GadgetNetwork.ConvertIDToLocal(GadgetCore.API.Registry,System.Int32)">
             <summary>
             Gets the local ID that matches the specified host ID. Returns -1 if there is no matching local ID for the specified host ID.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetNetwork.RegisterSyncVar``1(System.String,``0)">
+            <summary>
+            Registers a new SyncVar. The value of this SyncVar can be updated using <see cref="M:GadgetCore.API.GadgetNetwork.UpdateSyncVar``1(System.String,``0)"/>,
+            and retrieved using <see cref="M:GadgetCore.API.GadgetNetwork.GetSyncVar``1(System.String)"/>. This value will always be synced across all clients.
+            Must be called in the Initialize method of a Gadget.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetNetwork.RegisterLocalSyncVar``1(System.String,``0)">
+            <summary>
+            Registers a new local SyncVar. The value of this SyncVar can be updated using <see cref="M:GadgetCore.API.GadgetNetwork.UpdateLocalSyncVar``1(System.String,``0)"/>,
+            and retrieved using <see cref="M:GadgetCore.API.GadgetNetwork.GetLocalSyncVar``1(System.String,UnityEngine.NetworkPlayer)"/>. This value will always be synced across all clients.
+            Each client has their own value for this SyncVar, but any client can retrieve any other client's value.
+            Must be called in the Initialize method of a Gadget.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetNetwork.UpdateSyncVar``1(System.String,``0)">
+            <summary>
+            Updates the value of a SyncVar. The new value will be synced across all clients. May only be used by the server.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetNetwork.UpdateLocalSyncVar``1(System.String,``0)">
+            <summary>
+            Updates the value of a local SyncVar. The new value will be synced across all clients.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetNetwork.GetSyncVar``1(System.String)">
+            <summary>
+            Gets the value of a SyncVar.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetNetwork.GetLocalSyncVar``1(System.String,UnityEngine.NetworkPlayer)">
+            <summary>
+            Gets the value of a local SyncVar, for a given player.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetNetwork.GetLocalSyncVar``1(System.String,System.String)">
+            <summary>
+            Gets the value of a local SyncVar, for a given player.
             </summary>
         </member>
         <member name="T:GadgetCore.API.GadgetPaths">
@@ -2803,7 +2863,6 @@
             <summary>
             Returns true if this ItemInfo is ready to be registered. Returns false if it has already been registered, or if it is a weapon and SetWeaponInfo has not been called.
             </summary>
-            <returns></returns>
         </member>
         <member name="E:GadgetCore.API.ItemInfo.OnUse">
             <summary>
@@ -4587,6 +4646,11 @@
             Displays the item-hover window on the cursor. For some reason, the base game has six different methods that all pretty much just do this.
             </summary>
         </member>
+        <member name="M:GadgetCore.PatchMethods.RecalculateGearStats(Item[])">
+            <summary>
+            Completely recalculates GameScript.GEARSTAT from your equipped gear.
+            </summary>
+        </member>
         <member name="T:GadgetCore.Util.ComparisonComparer`1">
             <summary>
             Implementation of <see cref="T:System.Collections.Generic.IComparer`1"/> that uses a <see cref="T:System.Comparison`1"/>
@@ -4630,6 +4694,51 @@
         <member name="M:GadgetCore.Util.ExtensionUtils.Concat(System.Collections.Generic.IEnumerable{System.String},System.String)">
             <summary>
             Concatenates the strings in the given <see cref="T:System.Collections.Generic.IEnumerable`1"/> together. Uses ", " as the seperator if one is not explicitly specified.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.ExtensionUtils.IsSublist``1(System.Collections.Generic.List{``0},System.Collections.Generic.List{``0},System.Int32,GadgetCore.Util.EqualityComparison{``0})">
+            <summary>
+            Checks if the list has the given sublist at the specified index.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.ExtensionUtils.IndexOfSublist``1(System.Collections.Generic.List{``0},System.Collections.Generic.List{``0},System.Int32,GadgetCore.Util.EqualityComparison{``0})">
+            <summary>
+            Finds the index of the first instance of a sublist within a list.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.ExtensionUtils.LastIndexOfSublist``1(System.Collections.Generic.List{``0},System.Collections.Generic.List{``0},System.Int32,GadgetCore.Util.EqualityComparison{``0})">
+            <summary>
+            Finds the index of the last instance of a sublist within a list.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.ExtensionUtils.AllIndexesOfSublist``1(System.Collections.Generic.List{``0},System.Collections.Generic.List{``0},System.Int32,GadgetCore.Util.EqualityComparison{``0})">
+            <summary>
+            Finds the indexes of all instances of the sublist within a list.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.ExtensionUtils.IsSublist``1(System.Collections.Generic.List{``0},System.Collections.Generic.List{``0},System.Int32,GadgetCore.Util.EqualityComparison{``0}[])">
+            <summary>
+            Checks if the list has the given sublist at the specified index.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.ExtensionUtils.IndexOfSublist``1(System.Collections.Generic.List{``0},System.Collections.Generic.List{``0},System.Int32,GadgetCore.Util.EqualityComparison{``0}[])">
+            <summary>
+            Finds the index of the first instance of a sublist within a list.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.ExtensionUtils.LastIndexOfSublist``1(System.Collections.Generic.List{``0},System.Collections.Generic.List{``0},System.Int32,GadgetCore.Util.EqualityComparison{``0}[])">
+            <summary>
+            Finds the index of the last instance of a sublist within a list.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.ExtensionUtils.AllIndexesOfSublist``1(System.Collections.Generic.List{``0},System.Collections.Generic.List{``0},System.Int32,GadgetCore.Util.EqualityComparison{``0}[])">
+            <summary>
+            Finds the indexes of all instances of the sublist within a list.
+            </summary>
+        </member>
+        <member name="T:GadgetCore.Util.EqualityComparison`1">
+            <summary>
+            A <see cref="T:System.Comparison`1"/> that only checks for equality.
             </summary>
         </member>
         <member name="T:GadgetCore.Util.MultiTreeList`1">
@@ -4817,6 +4926,16 @@
             </summary>
             <returns></returns>
         </member>
+        <member name="T:GadgetCore.Util.ObjImporter">
+            <summary>
+            Obj format mesh importer. You should probably use <see cref="M:GadgetCore.API.GadgetCoreAPI.LoadObjMesh(System.String,System.Boolean)"/>.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.ObjImporter.ImportMesh(System.String)">
+            <summary>
+            Imports a mesh from the raw string content of an obj mesh file.
+            </summary>
+        </member>
         <member name="T:GadgetCore.Util.ReflectionUtils">
             <summary>
             Provides the extension method 'InvokeMethod' for easily invoking methods with Reflection.
@@ -4870,6 +4989,241 @@
             Topologically sorts the given dictionary of values and dependencies using Kahn's algorithm. Returns null if there are any cyclic dependencies.
             </summary>
             <returns>Sorted values</returns>
+        </member>
+        <member name="T:GadgetCore.Util.TranspilerHelper">
+            <summary>
+            Offers utility functions for making Transpilers.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.TranspilerHelper.DumpInstructions(System.Collections.Generic.IEnumerable{HarmonyLib.CodeInstruction},System.Int32,System.Int32)">
+            <summary>
+            Dumps the given <see cref="T:System.Collections.Generic.IEnumerable`1"/> of <see cref="T:HarmonyLib.CodeInstruction"/>s as a string,
+            optionally with a given starting instruction index and count of instructions to print.
+            lines are seperated by the \n character.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.TranspilerHelper.GetOperandSize(HarmonyLib.CodeInstruction)">
+            <summary>
+            Returns the size, in bytes, of the given <see cref="T:HarmonyLib.CodeInstruction"/>'s operand.
+            The size of a complete CodeInstruction is this + <paramref name="insn"/>.opcode.Size.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.TranspilerHelper.GetReverseConditionalCode(System.Reflection.Emit.OpCode)">
+            <summary>
+            Returns the opcode with the reverse conditional behavior as the one given, I.E. ble instead of bgt.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.TranspilerHelper.CreateProcessor(System.Collections.Generic.IEnumerable{HarmonyLib.CodeInstruction},System.Reflection.Emit.ILGenerator)">
+            <summary>
+            Creates a new <see cref="T:GadgetCore.Util.TranspilerHelper.CILProcessor"/> based upon the given instructions.
+            </summary>
+        </member>
+        <member name="T:GadgetCore.Util.TranspilerHelper.CILProcessor">
+            <summary>
+            Represents a block of <see cref="T:HarmonyLib.CodeInstruction"/>s. Tracks changes, and provides data for various helper functions.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.Util.TranspilerHelper.CILProcessor.Insns">
+            <summary>
+            The workable list of <see cref="T:HarmonyLib.CodeInstruction"/>s
+            </summary>
+        </member>
+        <member name="F:GadgetCore.Util.TranspilerHelper.CILProcessor.BaseInsns">
+            <summary>
+            The <see cref="T:HarmonyLib.CodeInstruction"/>s at the moment this analysis was made.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.Util.TranspilerHelper.CILProcessor.LabelIndexes">
+            <summary>
+            Tracks all of the labels in the CodeInstructions, where <see cref="P:GadgetCore.Util.Tuple`2.Item1"/> is the label number, and <see cref="P:GadgetCore.Util.Tuple`2.Item2"/> is the instruction index.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.Util.TranspilerHelper.CILProcessor.ILAddresses">
+            <summary>
+            Contains the addresses of each IL instruction by index.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.Util.TranspilerHelper.CILProcessor.ILIndexes">
+            <summary>
+            Contains the index of each IL instruction by address.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.Util.TranspilerHelper.CILProcessor.ILGen">
+            <summary>
+            The <see cref="T:System.Reflection.Emit.ILGenerator"/> available for use by this CILProcessor.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.TranspilerHelper.CILProcessor.GetRefByIndex(System.Int32)">
+            <summary>
+            Returns an <see cref="T:GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef"/> for the given instruction index.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.TranspilerHelper.CILProcessor.GetRefByAddress(System.Int32,System.Boolean)">
+            <summary>
+            Returns an <see cref="T:GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef"/> for the given instruction address.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.TranspilerHelper.CILProcessor.GetRefByOffset(GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef,System.Int32)">
+            <summary>
+            Returns an <see cref="T:GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef"/> for the instruction with its index offset from the given <see cref="T:GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef"/>
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.TranspilerHelper.CILProcessor.FindAllRefsByInsn(HarmonyLib.CodeInstruction)">
+            <summary>
+            Finds all instructions that match the given instruction's opcode and operand.
+            Ignores the instruction's labels and exception blocks.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.TranspilerHelper.CILProcessor.FindRefByInsn(HarmonyLib.CodeInstruction)">
+            <summary>
+            Finds the first instruction that matches the given instruction's opcode and operand.
+            Ignores the instruction's labels and exception blocks.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.TranspilerHelper.CILProcessor.FindLastRefByInsn(HarmonyLib.CodeInstruction)">
+            <summary>
+            Finds the last instruction that matches the given instruction's opcode and operand.
+            Ignores the instruction's labels and exception blocks.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.TranspilerHelper.CILProcessor.FindAllRefsByInsns(System.Collections.Generic.List{HarmonyLib.CodeInstruction})">
+            <summary>
+            Finds all instructions that match the given instructions' opcodes and operands.
+            Ignores the instructions' labels and exception blocks.
+            The <see cref="T:GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef"/> points to the first instruction in the block.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.TranspilerHelper.CILProcessor.FindRefByInsns(HarmonyLib.CodeInstruction[])">
+            <summary>
+            Finds the first instruction block that matches the given instructions' opcodes and operands.
+            Ignores the instruction's labels and exception blocks.
+            The <see cref="T:GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef"/> points to the first instruction in the block.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.TranspilerHelper.CILProcessor.FindLastRefByInsns(HarmonyLib.CodeInstruction[])">
+            <summary>
+            Finds the last instruction block that matches the given instructions' opcodes and operands.
+            Ignores the instruction's labels and exception blocks.
+            The <see cref="T:GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef"/> points to the first instruction in the block.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.TranspilerHelper.CILProcessor.FindAllRefsByOpCode(System.Reflection.Emit.OpCode)">
+            <summary>
+            Finds all instructions that have the given opcode.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.TranspilerHelper.CILProcessor.FindRefByOpCode(System.Reflection.Emit.OpCode)">
+            <summary>
+            Finds the first instruction that has the given opcode.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.TranspilerHelper.CILProcessor.FindLastRefByOpCode(System.Reflection.Emit.OpCode)">
+            <summary>
+            Finds the last instruction that has the given opcode.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.TranspilerHelper.CILProcessor.FindRefByLabel(System.Reflection.Emit.Label)">
+            <summary>
+            Finds the instruction with the given label. Returns null if no instruction has the given label.
+            Returns the first instruction found with the given label - if multiple instructions have the same label, then that is an invalid state.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.TranspilerHelper.CILProcessor.DumpInstructions(GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef,System.Int32)">
+            <summary>
+            Dumps the instructions of this <see cref="T:GadgetCore.Util.TranspilerHelper.CILProcessor"/> as a string,
+            optionally with a given starting <see cref="T:GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef"/> and count of instructions to print.
+            lines are seperated by the \n character.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.TranspilerHelper.CILProcessor.DumpInstructions(System.Int32,System.Int32)">
+            <summary>
+            Dumps the instructions of this <see cref="T:GadgetCore.Util.TranspilerHelper.CILProcessor"/> as a string,
+            optionally with a given starting instruction index and count of instructions to print.
+            lines are seperated by the \n character.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.TranspilerHelper.CILProcessor.GetInsn(GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef)">
+            <summary>
+            Gets the <see cref="T:HarmonyLib.CodeInstruction"/> referenced by the given <see cref="T:GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef"/>
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.TranspilerHelper.CILProcessor.SimplifyConditionalBranch(GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef)">
+            <summary>
+            Simplifies needlessly complicated conditional branch structures.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.TranspilerHelper.CILProcessor.InjectElseIf(GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef,System.Reflection.Emit.OpCode,GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef@,GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef@)">
+            <summary>
+            Injects an elseif structure onto the end of a specified if block specified by the <see cref="T:GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef"/> that is targeting a conditional branch instruction.
+            The returned <see cref="T:GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef"/>s will point to NOPs you can use and/or replace.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.TranspilerHelper.CILProcessor.InjectHook(GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef,System.Reflection.MethodBase,System.Boolean)">
+            <summary>
+            Injects a CALL instruction into the given <see cref="T:GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef"/>. By default, it will replace the target instruction.
+            If <paramref name="insert"/> is true, then it will insert the new instruction and push forward the instructions at
+            and after the given <see cref="T:GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef"/>
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.TranspilerHelper.CILProcessor.InjectInsn(GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef,HarmonyLib.CodeInstruction,System.Boolean)">
+            <summary>
+            Injects an instruction into the given <see cref="T:GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef"/>. By default, it will replace the target instruction.
+            If <paramref name="insert"/> is true, then it will insert the new instruction and push forward the instructions at
+            and after the given <see cref="T:GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef"/>
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.TranspilerHelper.CILProcessor.InjectInsns(GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef,HarmonyLib.CodeInstruction[],System.Boolean)">
+            <summary>
+            Injects a set of instructions into the block started by the given <see cref="T:GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef"/>. By default, it will replace the target instructions.
+            If <paramref name="insert"/> is true, then it will insert the new instructions and push forward the instructions at
+            and after the given <see cref="T:GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef"/>
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.TranspilerHelper.CILProcessor.RemoveInsn(GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef)">
+            <summary>
+            Removes the instruction at the given <see cref="T:GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef"/>.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.TranspilerHelper.CILProcessor.RemoveInsns(GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef,System.Int32)">
+            <summary>
+            Removes the set of instructions in the block started by the given <see cref="T:GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef"/>.
+            Accepts values of <paramref name="count"/> higher than the number of instructions.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.TranspilerHelper.CILProcessor.GetInstructions">
+            <summary>
+            Returns the complete list of <see cref="T:HarmonyLib.CodeInstruction"/>s.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.TranspilerHelper.CILProcessor.op_Implicit(GadgetCore.Util.TranspilerHelper.CILProcessor)~System.Collections.Generic.List{HarmonyLib.CodeInstruction}">
+            <summary>
+            Converts this <see cref="T:GadgetCore.Util.TranspilerHelper.CILProcessor"/> into its complete list of <see cref="T:HarmonyLib.CodeInstruction"/>s.
+            </summary>
+        </member>
+        <member name="T:GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef">
+            <summary>
+            Represents a reference to a specific IL address.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef.Index">
+            <summary>
+            The index of the referenced instruction.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef.Address">
+            <summary>
+            The address of the referenced instruction.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef.Valid">
+            <summary>
+            Indicates whether this <see cref="T:GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef"/> is still valid - The reference will be invalidated if the instruction it references is removed.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef.GetRefByOffset(System.Int32)">
+            <summary>
+            Returns an <see cref="T:GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef"/> for the instruction with its index offset from the given <see cref="T:GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef"/>
+            </summary>
         </member>
     </members>
 </doc>

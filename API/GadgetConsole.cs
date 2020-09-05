@@ -340,7 +340,7 @@ namespace GadgetCore
                         if (SceneManager.GetActiveScene().buildIndex == 0 || Network.isServer || !isOperatorOnly[commandAliases[args[0]]] || operators.Contains(Menuu.curName))
                         {
                             GadgetConsoleMessage feedback = commands[commandAliases[args[0]]](sender, args);
-                            if (printCommandFeedback) return Print(feedback);
+                            if (printCommandFeedback && feedback != null) return Print(feedback);
                         }
                         else
                         {
@@ -599,6 +599,7 @@ namespace GadgetCore
         /// </summary>
         public static class CoreCommands
         {
+
             /// <summary>
             /// The /help command
             /// </summary>

@@ -536,7 +536,6 @@ namespace GadgetCore.API
         /// <summary>
         /// Returns true if this ItemInfo is ready to be registered. Returns false if it has already been registered, or if it is a weapon and SetWeaponInfo has not been called.
         /// </summary>
-        /// <returns></returns>
         public override bool ReadyToRegister()
         {
             return base.ReadyToRegister() && !((Type & ItemType.BASIC_MASK) == (ItemType.WEAPON & ItemType.BASIC_MASK) && WeaponScaling == null);

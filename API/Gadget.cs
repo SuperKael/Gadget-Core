@@ -116,7 +116,7 @@ namespace GadgetCore.API
         {
             try
             {
-                return new INIGadgetConfigMenu(Regex.Replace(Gadgets.GetGadgetInfo(ModID).Attribute.Name, @"\s+", ""), false, Path.Combine(GadgetPaths.ConfigsPath, Assembly.GetAssembly(GetType()).GetName().Name) + ".ini");
+                return new INIGadgetConfigMenu(Regex.Replace(Gadgets.GetGadgetInfo(ModID).Attribute.Name, @"\s+", ""), false, Path.Combine(GadgetPaths.ConfigsPath, Assembly.GetAssembly(GetType()).GetName().Name) + ".ini", Info.Attribute.AllowConfigReloading ? ModMenuController.modEntries[ModID] : null);
             }
             catch (InvalidOperationException e)
             {

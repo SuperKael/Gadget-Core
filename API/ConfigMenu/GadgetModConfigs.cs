@@ -47,7 +47,8 @@ namespace GadgetCore.API.ConfigMenu
                 {
                     try
                     {
-                        IGadgetConfigMenu configMenu = new INIGadgetConfigMenu(entry.Name, false, Path.Combine(GadgetPaths.ConfigsPath, entry.Name) + ".ini");
+                        GadgetInfo gadgetForConfig = entry.Gadgets.FirstOrDefault(x => x.Attribute.Name == entry.Name);
+                        IGadgetConfigMenu configMenu = new INIGadgetConfigMenu(entry.Name, false, Path.Combine(GadgetPaths.ConfigsPath, entry.Name) + ".ini", gadgetForConfig?.Attribute.AllowConfigReloading == true ? entry : null);
                         if (configMenu != null)
                         {
                             RectTransform menuParent = new GameObject(entry.Name, typeof(RectTransform)).GetComponent<RectTransform>();
@@ -82,7 +83,7 @@ namespace GadgetCore.API.ConfigMenu
                         GadgetInfo gadget = entry.Gadgets[g];
                         try
                         {
-                            IGadgetConfigMenu configMenu = new INIGadgetConfigMenu(gadget.Attribute.Name, false, Path.Combine(GadgetPaths.ConfigsPath, entry.Name) + ".ini");
+                            IGadgetConfigMenu configMenu = new INIGadgetConfigMenu(gadget.Attribute.Name, false, Path.Combine(GadgetPaths.ConfigsPath, entry.Name) + ".ini", gadget.Attribute.AllowConfigReloading ? entry : null);
                             if (configMenu != null)
                             {
                                 RectTransform menuParent = new GameObject(gadget.Attribute.Name, typeof(RectTransform)).GetComponent<RectTransform>();

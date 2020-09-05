@@ -11,8 +11,9 @@ namespace GadgetCore.Patches
     static class Patch_Menuu_MainMenu
     {
         [HarmonyPrefix]
-        public static bool Prefix(Menuu __instance, Ray ___ray, RaycastHit ___hit)
+        public static bool Prefix(Menuu __instance, Ray ___ray, RaycastHit ___hit, ref IEnumerator __result)
         {
+            __result = GadgetCoreAPI.EmptyEnumerator();
             if (GadgetCoreAPI.IsInputFrozen()) return false;
             if (ModMenuController.RestartNeeded)
             {

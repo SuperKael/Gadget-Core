@@ -81,33 +81,25 @@ namespace GadgetCore
                             }
                             InstanceTracker.GameScript.aspectObj[i].SetActive(true);
                         }
-                        int[] gearStats = GadgetCoreAPI.GetTrueGearBaseStats(id).GetStatArray();
+                        int[] gearStats = GadgetCoreAPI.GetGearStats(item).GetStatArray();
                         for (int i = 0; i < 6; i++)
                         {
-                            int num3 = 0;
-                            for (int j = 0; j < 3; j++)
-                            {
-                                if (item.aspect[j] - 200 == i + 1)
-                                {
-                                    num3 += item.aspectLvl[j];
-                                }
-                            }
-                            int num4;
                             if (gearStats[i] > 0)
                             {
-                                num4 = gearStats[i] * num2 + item.tier * 3 + num3;
-                            }
-                            else
-                            {
-                                num4 = num3;
-                            }
-                            if (num4 > 0)
-                            {
-                                InstanceTracker.GameScript.itemStat[i].text = "+" + num4;
+                                InstanceTracker.GameScript.itemStat[i].text = "+" + gearStats[i];
+                                if (InstanceTracker.GameScript.itemStat[i].text.Length > 4)
+                                {
+                                    InstanceTracker.GameScript.itemStat[i].characterSize = 4f / InstanceTracker.GameScript.itemStat[i].text.Length;
+                                }
+                                else
+                                {
+                                    InstanceTracker.GameScript.itemStat[i].characterSize = 1;
+                                }
                             }
                             else
                             {
                                 InstanceTracker.GameScript.itemStat[i].text = string.Empty;
+                                InstanceTracker.GameScript.itemStat[i].characterSize = 1;
                             }
                         }
                         InstanceTracker.GameScript.txtStats.SetActive(true);
@@ -158,6 +150,26 @@ namespace GadgetCore
             else
             {
                 InstanceTracker.GameScript.hoverItem.SetActive(false);
+            }
+        }
+
+        /// <summary>
+        /// Completely recalculates GameScript.GEARSTAT from your equipped gear.
+        /// </summary>
+        public static void RecalculateGearStats(Item[] inventory)
+        {
+            GameScript.GEARSTAT = new int[6];
+            for (int i = 36; i < 45; i++)
+            {
+                int[] gearStats = GadgetCoreAPI.GetGearStats(inventory[i]).GetStatArray();
+                for (int s = 0; s < 6; s++)
+                {
+                    if (gearStats[s] > 0)
+                    {
+                        GameScript.GEARSTAT[s] += gearStats[s];
+                    }
+                }
+                GadgetCoreAPI.equipedGearStats[i - 36] = gearStats;
             }
         }
     }

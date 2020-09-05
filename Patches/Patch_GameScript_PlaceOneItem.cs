@@ -97,13 +97,14 @@ namespace GadgetCore.Patches
                                 __instance.txtPlayerStat[i].GetComponent<Animation>().Play();
                             }
                         }
+                        GadgetCoreAPI.equipedGearStats[slot - 36] = gearStats;
                         RefreshStats.Invoke(__instance, new object[] { });
                         Network.RemoveRPCs(MenuScript.playerAppearance.GetComponent<NetworkView>().viewID);
                         MenuScript.playerAppearance.GetComponent<NetworkView>().RPC("UA", RPCMode.AllBuffered, new object[]
                         {
-                GameScript.equippedIDs,
-                0,
-                GameScript.dead
+                            GameScript.equippedIDs,
+                            0,
+                            GameScript.dead
                         });
                         RefreshMODS.Invoke(__instance, new object[] { });
                         __instance.UpdateHP();

@@ -110,7 +110,7 @@ namespace GadgetCore
             }
             try
             {
-                if (VerifySaveFile())
+                if (File.Exists(Application.persistentDataPath + "/PlayerPrefs.txt") && VerifySaveFile())
                 {
                     if (GadgetCoreConfig.MaxBackups > 0)
                     {
@@ -348,10 +348,14 @@ namespace GadgetCore
         {
             Registry.modRegistering = -1;
             Registry.registeringVanilla = true;
+
             GameRegistry.RegisterRegistry(ItemRegistry.GetSingleton());
             GameRegistry.RegisterRegistry(ChipRegistry.GetSingleton());
             GameRegistry.RegisterRegistry(TileRegistry.GetSingleton());
             GameRegistry.RegisterRegistry(EntityRegistry.GetSingleton());
+
+            GadgetCoreAPI.MissingTexSprite = GadgetCoreAPI.AddTextureToSheet(GadgetCoreAPI.LoadTexture2D("missing_tex"));
+
             Registry.registeringVanilla = false;
         }
 

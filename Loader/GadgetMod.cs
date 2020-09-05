@@ -137,7 +137,7 @@ namespace GadgetCore.Loader
         {
             if (IsArchive)
             {
-                return Archive.Where(x => x.FileName.Length > relativeDirectoryPath.Length && x.FileName.StartsWith(relativeDirectoryPath) && !x.FileName.Substring(relativeDirectoryPath.Length + 1).Contains(Path.DirectorySeparatorChar)).Select(x => x.FileName).ToArray();
+                return Archive.Where(x => x.FileName.Length > relativeDirectoryPath.Length && x.FileName.StartsWith(relativeDirectoryPath) && !(x.FileName.Substring(relativeDirectoryPath.Length + 1).Contains('/') || x.FileName.Substring(relativeDirectoryPath.Length + 1).Contains('\\'))).Select(x => x.FileName).ToArray();
             }
             else
             {
@@ -152,7 +152,7 @@ namespace GadgetCore.Loader
         {
             if (IsArchive)
             {
-                return Archive.Where(x => x.FileName.Length > relativeDirectoryPath.Length && x.FileName.StartsWith(relativeDirectoryPath) && x.FileName.Substring(relativeDirectoryPath.Length + 1).Contains(Path.DirectorySeparatorChar)).Select(x => x.FileName.Substring(0, x.FileName.IndexOf(Path.DirectorySeparatorChar, relativeDirectoryPath.Length + 1))).Distinct().ToArray();
+                return Archive.Where(x => x.FileName.Length > relativeDirectoryPath.Length && x.FileName.StartsWith(relativeDirectoryPath) && (x.FileName.Substring(relativeDirectoryPath.Length + 1).Contains('/') || x.FileName.Substring(relativeDirectoryPath.Length + 1).Contains('\\'))).Select(x => x.FileName.Substring(0, Math.Min(x.FileName.IndexOf('/', relativeDirectoryPath.Length + 1), x.FileName.IndexOf('\\', relativeDirectoryPath.Length + 1)))).Distinct().ToArray();
             }
             else
             {

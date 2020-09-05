@@ -54,6 +54,7 @@ namespace GadgetCore.API.ConfigMenu
         public INIGadgetConfigMenu(string section, bool hidesModMenu = false, string configFilePath = null, ModMenuEntry autoReload = null, params string[] readonlyEntries) : base(hidesModMenu)
         {
             if (configFilePath == null) configFilePath = Path.Combine(GadgetPaths.ConfigsPath, Assembly.GetCallingAssembly().GetName().Name) + ".ini";
+            this.autoReload = autoReload;
             LoadConfigFile(configFilePath, section, readonlyEntries);
         }
 
@@ -75,7 +76,6 @@ namespace GadgetCore.API.ConfigMenu
                 return;
             }
             ConfigFilePath = configFilePath;
-            ConfigFileSection = section;
             ReadonlyEntries = readonlyEntries;
             IniParser = new FileIniDataParser();
             Ini = IniParser.ReadFile(configFilePath);
@@ -89,6 +89,7 @@ namespace GadgetCore.API.ConfigMenu
                     throw new InvalidOperationException(NO_CONFIGURABLE_DATA);
                 }
             }
+            ConfigFileSection = section;
             if (Ini.Sections.ContainsSection("uModFramework") && Ini["uModFramework"].ContainsKey("ConfigVersion")) AddComponent(new GadgetConfigLabelComponent(this, "ConfigVersion", "Config Version (not to be confused with mod version): " + Ini["uModFramework"]["ConfigVersion"]), GadgetConfigComponentAlignment.HEADER);
             bool firstStandard = true, firstHeader = false, firstFooter = true;
             foreach (KeyData keyData in Ini[section])
@@ -403,13 +404,14 @@ namespace GadgetCore.API.ConfigMenu
         {
             base.Update();
             IniParser.WriteFile(ConfigFilePath, Ini);
+            GadgetCore.CoreLogger.LogConsole("Reloading Config: " + ConfigFileSection);
             if (autoReload != null)
             {
                 if (autoReload.Name == ConfigFileSection)
                 {
                     GadgetCoreAPI.GetUMFAPI()?.SendCommand("cfgReload " + Path.GetFileNameWithoutExtension(ConfigFilePath));
                 }
-                autoReload.Gadgets.FirstOrDefault(x => x.Attribute.Name == ConfigFileSection)?.Gadget.ReloadConfig();
+                autoReload.Gadgets.FirstOrDefault(x => x.Attribute.Name == ConfigFileSection && x.Attribute.AllowConfigReloading)?.Gadget.ReloadConfig();
             }
         }
     }

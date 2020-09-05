@@ -68,7 +68,7 @@ namespace GadgetCore
         /// </summary>
         public void Log(object text)
         {
-            foreach (string line in (text?.ToString() ?? "null").Replace("\r", "").Split('\n'))
+            foreach (string line in (text?.ToString() ?? "null").Replace('\r', '\n').Split(new char[] { '\n' }, StringSplitOptions.RemoveEmptyEntries))
                 streamWriter.WriteLine("[" + DateTime.Now + "]" + (!string.IsNullOrEmpty(LoggerName) ? "[" + LoggerName + "]" : "") + "[Info] " + line);
         }
 
@@ -78,7 +78,7 @@ namespace GadgetCore
         public void LogWarning(object text, bool includeConsole = true)
         {
             if (includeConsole) GadgetConsole.Print(text?.ToString() ?? "null", LoggerName, GadgetConsole.MessageSeverity.WARN);
-            foreach (string line in (text?.ToString() ?? "null").Replace("\r", "").Split('\n'))
+            foreach (string line in (text?.ToString() ?? "null").Replace('\r', '\n').Split(new char[] { '\n' }, StringSplitOptions.RemoveEmptyEntries))
                 streamWriter.WriteLine("[" + DateTime.Now + "]" + (!string.IsNullOrEmpty(LoggerName) ? "[" + LoggerName + "]" : "") + "[Warning] " + line);
         }
 
@@ -88,7 +88,7 @@ namespace GadgetCore
         public void LogError(object text, bool includeConsole = true)
         {
             if (includeConsole) GadgetConsole.Print(text?.ToString() ?? "null", LoggerName, GadgetConsole.MessageSeverity.ERROR);
-            foreach (string line in (text?.ToString() ?? "null").Replace("\r", "").Split('\n'))
+            foreach (string line in (text?.ToString() ?? "null").Replace('\r', '\n').Split(new char[] { '\n' }, StringSplitOptions.RemoveEmptyEntries))
                 streamWriter.WriteLine("[" + DateTime.Now + "]" + (!string.IsNullOrEmpty(LoggerName) ? "[" + LoggerName + "]" : "") + "[Error] " + line);
         }
 
