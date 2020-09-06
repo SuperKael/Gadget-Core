@@ -766,7 +766,7 @@ namespace GadgetCore.API
             int level = itemLevels ? GetGearLevel(item) : 1;
             EquipStats baseStats = GetGearBaseStats(item);
             EquipStats stats = baseStats * level;
-            for (int j = 0; j < 6; j++)
+            if ((itemInfo?.Type & ItemType.BASIC_MASK) != (ItemType.DROID & ItemType.BASIC_MASK)) for (int j = 0; j < 6; j++)
             {
                 if (stats.GetByIndex(j) > 0)
                 {

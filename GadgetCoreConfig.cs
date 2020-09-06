@@ -16,7 +16,7 @@ namespace GadgetCore
         /// <summary>
         /// The current version of Gadget Core's config.
         /// </summary>
-        public static readonly string configVersion = "2.1";
+        public static readonly string configVersion = "2.2";
 
         internal static Dictionary<string, bool> enabledMods = new Dictionary<string, bool>();
         internal static Dictionary<string, bool> enabledGadgets = new Dictionary<string, bool>();
