@@ -4224,6 +4224,11 @@
             The current version of Gadget Core's config.
             </summary>
         </member>
+        <member name="P:GadgetCore.GadgetCoreConfig.BetterDroidHover">
+            <summary>
+            Whether to use the standard hover box for droids, rather than the text-based description.
+            </summary>
+        </member>
         <member name="P:GadgetCore.GadgetCoreConfig.MaxConnections">
             <summary>
             The maximum connections allowed when hosting a game. This value is irrelevant if we are the client, not the host.

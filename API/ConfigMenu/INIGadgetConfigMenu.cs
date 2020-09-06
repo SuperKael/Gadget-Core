@@ -404,7 +404,11 @@ namespace GadgetCore.API.ConfigMenu
         {
             base.Update();
             IniParser.WriteFile(ConfigFilePath, Ini);
-            GadgetCore.CoreLogger.LogConsole("Reloading Config: " + ConfigFileSection);
+            if (ConfigFileSection == "GadgetCore")
+            {
+                GadgetCoreConfig.Load();
+                GadgetCore.CoreLogger.Log("Finished reloading config.");
+            }
             if (autoReload != null)
             {
                 if (autoReload.Name == ConfigFileSection)

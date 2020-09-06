@@ -82,10 +82,9 @@
     </GetFileVersion>
     <ItemGroup>
       <OldZip Include="$(TargetDir)$(AssemblyName)_v*.zip" />
-      <OldDest Include="$(GamePath)GadgetCore\Mods\$(AssemblyName)_v*.zip" />
+      <OldZip Include="$(GamePath)GadgetCore\Mods\$(AssemblyName)_v*.zip" />
     </ItemGroup>
     <Delete Files="@(OldZip)" />
-    <Delete Files="@(OldDest)" />
     <MakeDir Directories="$(TargetDir)..\BuildCache\" />
     <ZipDirectory SourceDirectory="$(TargetDir)" DestinationFile="$(TargetDir)..\BuildCache\$(AssemblyName)_v$(AssemblyFileVersion).zip" />
     <Copy SourceFiles="$(TargetDir)..\BuildCache\$(AssemblyName)_v$(AssemblyFileVersion).zip" DestinationFiles="$(TargetDir)$(AssemblyName)_v$(AssemblyFileVersion).zip" />

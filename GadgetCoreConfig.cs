@@ -22,6 +22,10 @@ namespace GadgetCore
         internal static Dictionary<string, bool> enabledGadgets = new Dictionary<string, bool>();
 
         /// <summary>
+        /// Whether to use the standard hover box for droids, rather than the text-based description.
+        /// </summary>
+        public static bool BetterDroidHover { get; private set; } = true;
+        /// <summary>
         /// The maximum connections allowed when hosting a game. This value is irrelevant if we are the client, not the host.
         /// </summary>
         public static int MaxConnections { get; private set; } = 4;
@@ -58,6 +62,7 @@ namespace GadgetCore
                     cfg.WriteString("ConfigVersion", configVersion, comments: "The Config Version (not to be confused with mod version)");
                 }
 
+                BetterDroidHover = cfg.ReadBool("BetterDroidHover", true, false, false, "Whether to use the standard hover box for droids, rather than the text-based description.");
                 MaxConnections = cfg.ReadInt("MaxConnections", 4, 4, false, 1, int.MaxValue, "The maximum number of connections allowed when using host-and-play. This setting only matters on the host.");
                 UseUPnP = cfg.ReadBool("UseUPnP", false, false, false, "If True, will attempt to use UPnP to bypass the need to port-forward to host-and-play over the internet. Not all routers support this. Disabled by default due to severe unresolved bugs that prevent the game from working at all sometimes.");
                 GadgetNetwork.MatrixTimeout = cfg.ReadFloat("NetworkTimeout", 2.5f, comments: "How long to wait for the host's game to respond to Gadget Core's ID synchronization. If the host's game does not respond in time, it will be assumed that the host does not have Gadget Core installed.");

@@ -12,7 +12,7 @@ namespace GadgetCore.Patches
         {
             if (ItemRegistry.GetSingleton().HasEntry(id))
             {
-                __result = ItemRegistry.GetSingleton().GetEntry(id).Value;
+                __result = ItemRegistry.GetSingleton().GetEntry(id).GetValue();
                 return false;
             }
             return true;

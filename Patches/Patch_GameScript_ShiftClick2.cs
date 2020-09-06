@@ -25,7 +25,7 @@ namespace GadgetCore.Patches
                 int num = 0;
                 if (___craftType == 0)
                 {
-                    if (slotItemType == ItemType.EMBLEM)
+                    if ((slotItemType & ItemType.BASIC_MASK) == ItemType.EMBLEM)
                     {
                         for (int i = 0; i < 3; i++)
                         {

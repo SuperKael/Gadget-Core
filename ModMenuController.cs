@@ -531,6 +531,7 @@ namespace GadgetCore
                     {
                         ["Name"] = mod.Attribute.Name,
                         ["Version"] = mod.Mod.Version.ToString(),
+                        ["Required On Clients"] = mod.Attribute.RequiredOnClients ? "Yes" : "No",
                         ["Dependencies"] = mod.Attribute.Dependencies.Length > 0 ? mod.Attribute.Dependencies.Aggregate(new StringBuilder(), (a, b) => { if (a.Length == 0) a.Append(", "); a.Append(b); return a; }).ToString() : "None"
                     };
                     foreach (KeyValuePair<string, string> info in gadgetInfo)
