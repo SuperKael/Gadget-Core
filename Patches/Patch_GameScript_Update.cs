@@ -152,12 +152,10 @@ namespace GadgetCore.Patches
                 }
             }
             var p = TranspilerHelper.CreateProcessor(newCodes, generator);
-            File.WriteAllText("Before CILProcessor Patch.txt", p.DumpInstructions());
             var forgeEmblemBlock = p.FindRefByInsn(new CodeInstruction(OpCodes.Call, "Void ForgeEmblem(Int32)"));
             p.InjectInsn(forgeEmblemBlock.GetRefByOffset(-21), new CodeInstruction(OpCodes.Brtrue, p.GetInsn(forgeEmblemBlock.GetRefByOffset(-20)).operand), false);
             p.RemoveInsns(forgeEmblemBlock.GetRefByOffset(-20), 17);
             p.RemoveInsns(forgeEmblemBlock.GetRefByOffset(1), 6);
-            File.WriteAllText("After CILProcessor Patch.txt", p.DumpInstructions());
             return p.GetInstructions();
         }
     }
