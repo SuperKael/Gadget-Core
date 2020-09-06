@@ -2307,7 +2307,7 @@
         <member name="M:GadgetCore.API.GadgetNetwork.RegisterLocalSyncVar``1(System.String,``0)">
             <summary>
             Registers a new local SyncVar. The value of this SyncVar can be updated using <see cref="M:GadgetCore.API.GadgetNetwork.UpdateLocalSyncVar``1(System.String,``0)"/>,
-            and retrieved using <see cref="M:GadgetCore.API.GadgetNetwork.GetLocalSyncVar``1(System.String,UnityEngine.NetworkPlayer)"/>. This value will always be synced across all clients.
+            and retrieved using <see cref="M:GadgetCore.API.GadgetNetwork.GetLocalSyncVar``1(System.String,System.String)"/>. This value will always be synced across all clients.
             Each client has their own value for this SyncVar, but any client can retrieve any other client's value.
             Must be called in the Initialize method of a Gadget.
             </summary>
@@ -5158,23 +5158,31 @@
             The returned <see cref="T:GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef"/>s will point to NOPs you can use and/or replace.
             </summary>
         </member>
+        <member name="M:GadgetCore.Util.TranspilerHelper.CILProcessor.InjectLoadField(GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef,System.Reflection.FieldInfo,System.Boolean)">
+            <summary>
+            Injects a LDFLD instruction into the given <see cref="T:GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef"/>. Will fail to load a non-static field from a static method.
+            If <paramref name="insert"/> is false, it will replace the target instruction.
+            If <paramref name="insert"/> is true, then it will insert the new instruction and push forward the instructions at
+            and after the given <see cref="T:GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef"/>
+            </summary>
+        </member>
         <member name="M:GadgetCore.Util.TranspilerHelper.CILProcessor.InjectHook(GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef,System.Reflection.MethodBase,System.Boolean)">
             <summary>
-            Injects a CALL instruction into the given <see cref="T:GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef"/>. By default, it will replace the target instruction.
+            Injects a CALL instruction into the given <see cref="T:GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef"/>. If <paramref name="insert"/> is false, it will replace the target instruction.
             If <paramref name="insert"/> is true, then it will insert the new instruction and push forward the instructions at
             and after the given <see cref="T:GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef"/>
             </summary>
         </member>
         <member name="M:GadgetCore.Util.TranspilerHelper.CILProcessor.InjectInsn(GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef,HarmonyLib.CodeInstruction,System.Boolean)">
             <summary>
-            Injects an instruction into the given <see cref="T:GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef"/>. By default, it will replace the target instruction.
+            Injects an instruction into the given <see cref="T:GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef"/>. If <paramref name="insert"/> is false, it will replace the target instruction.
             If <paramref name="insert"/> is true, then it will insert the new instruction and push forward the instructions at
             and after the given <see cref="T:GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef"/>
             </summary>
         </member>
         <member name="M:GadgetCore.Util.TranspilerHelper.CILProcessor.InjectInsns(GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef,HarmonyLib.CodeInstruction[],System.Boolean)">
             <summary>
-            Injects a set of instructions into the block started by the given <see cref="T:GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef"/>. By default, it will replace the target instructions.
+            Injects a set of instructions into the block started by the given <see cref="T:GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef"/>. If <paramref name="insert"/> is false, it will replace the target instructions.
             If <paramref name="insert"/> is true, then it will insert the new instructions and push forward the instructions at
             and after the given <see cref="T:GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef"/>
             </summary>

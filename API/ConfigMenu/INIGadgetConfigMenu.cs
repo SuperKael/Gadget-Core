@@ -158,7 +158,7 @@ namespace GadgetCore.API.ConfigMenu
                     {
                         requiresRestartString = null;
                     }
-                    bool requiresRestart = requiresRestartString != null ? bool.Parse(requiresRestartString) : false;
+                    bool requiresRestart = requiresRestartString != null && bool.Parse(requiresRestartString);
                     GadgetConfigComponentAlignment? nullableAlignment = AlignConfigEntry(keyData.KeyName);
                     if (nullableAlignment == null) continue;
                     alignment = (GadgetConfigComponentAlignment)nullableAlignment;

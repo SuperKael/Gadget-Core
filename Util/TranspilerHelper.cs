@@ -175,9 +175,10 @@ namespace GadgetCore.Util
                 ILIndexes.Add(0, 0);
                 foreach (CodeInstruction insn in Insns)
                 {
-                    if (insn == null || insn.labels == null) continue;
+                    if (insn == null) continue;
                     ILAddresses.Add(ILAddresses[ILAddresses.Count - 1] + insn.opcode.Size + GetOperandSize(insn));
                     ILIndexes[ILAddresses[ILAddresses.Count - 1]] = ILAddresses.Count - 1;
+                    if (insn.labels == null) continue;
                     foreach (Label label in insn.labels)
                     {
                         LabelIndexes.Add(label, Tuple.Create(++labels, ILAddresses.Count - 2));
@@ -228,7 +229,7 @@ namespace GadgetCore.Util
             {
                 if (insn == null) throw new ArgumentNullException("insn");
                 bool hasToString = insn.operand != null && insn.operand.GetType().GetMethods().Any(m => m.Name == "ToString" && m.GetParameters().Length == 0 && m.DeclaringType != typeof(object));
-                return Insns.Select((x, i) => Tuple.Create(x, i)).Where(x => x.Item1?.opcode == insn.opcode && hasToString ? x.Item1?.operand?.ToString() == insn.operand?.ToString() : x.Item1?.operand == insn.operand).Select(x => GetRefByIndex(x.Item2)).ToArray();
+                return Insns.Select((x, i) => Tuple.Create(x, i)).Where(x => x.Item1?.opcode == insn.opcode && (insn.operand == null || (hasToString ? x.Item1?.operand?.ToString() == insn.operand?.ToString() : x.Item1?.operand == insn.operand))).Select(x => GetRefByIndex(x.Item2)).ToArray();
             }
 
             /// <summary>
@@ -239,7 +240,7 @@ namespace GadgetCore.Util
             {
                 if (insn == null) throw new ArgumentNullException("insn");
                 bool hasToString = insn.operand != null && insn.operand.GetType().GetMethods().Any(m => m.Name == "ToString" && m.GetParameters().Length == 0 && m.DeclaringType != typeof(object));
-                int index = Insns.FindIndex(x => x?.opcode == insn.opcode && hasToString ? x?.operand?.ToString() == insn.operand?.ToString() : x?.operand == insn.operand);
+                int index = Insns.FindIndex(x => x?.opcode == insn.opcode && (insn.operand == null || (hasToString ? x?.operand?.ToString() == insn.operand?.ToString() : x?.operand == insn.operand)));
                 return index >= 0 ? GetRefByIndex(index) : null;
             }
 
@@ -251,7 +252,7 @@ namespace GadgetCore.Util
             {
                 if (insn == null) throw new ArgumentNullException("insn");
                 bool hasToString = insn.operand != null && insn.operand.GetType().GetMethods().Any(m => m.Name == "ToString" && m.GetParameters().Length == 0 && m.DeclaringType != typeof(object));
-                int index = Insns.FindLastIndex(x => x?.opcode == insn.opcode && hasToString ? x?.operand?.ToString() == insn.operand?.ToString() : x?.operand == insn.operand);
+                int index = Insns.FindLastIndex(x => x?.opcode == insn.opcode && (insn.operand == null || (hasToString ? x?.operand?.ToString() == insn.operand?.ToString() : x?.operand == insn.operand)));
                 return index >= 0 ? GetRefByIndex(index) : null;
             }
 
@@ -263,7 +264,7 @@ namespace GadgetCore.Util
             public ILRef[] FindAllRefsByInsns(List<CodeInstruction> searchInsns)
             {
                 if (searchInsns == null) throw new ArgumentNullException("searchInsns");
-                EqualityComparison<CodeInstruction>[] comparers = searchInsns.Select(x => x == null ? (a, b) => true : x?.operand != null && x.operand.GetType().GetMethods().Any(m => m.Name == "ToString" && m.GetParameters().Length == 0 && m.DeclaringType != typeof(object)) ? (a, b) => a?.opcode == b?.opcode && a?.operand?.ToString() == b?.operand?.ToString() : (EqualityComparison<CodeInstruction>)((a, b) => a?.opcode == b?.opcode && a?.operand == b?.operand)).ToArray();
+                EqualityComparison<CodeInstruction>[] comparers = searchInsns.Select(x => x == null ? (a, b) => true : x.operand == null ? (a, b) => a?.opcode == b?.opcode : x.operand.GetType().GetMethods().Any(m => m.Name == "ToString" && m.GetParameters().Length == 0 && m.DeclaringType != typeof(object)) ? (a, b) => a?.opcode == b?.opcode && a?.operand?.ToString() == b?.operand?.ToString() : (EqualityComparison<CodeInstruction>)((a, b) => a?.opcode == b?.opcode && a?.operand == b?.operand)).ToArray();
                 return Insns.AllIndexesOfSublist(searchInsns.ToList(), 0, comparers).Select(x => GetRefByIndex(x)).ToArray();
             }
 
@@ -275,7 +276,7 @@ namespace GadgetCore.Util
             public ILRef FindRefByInsns(CodeInstruction[] searchInsns)
             {
                 if (searchInsns == null) throw new ArgumentNullException("searchInsns");
-                EqualityComparison<CodeInstruction>[] comparers = searchInsns.Select(x => x == null ? (a, b) => true : x?.operand != null && x.operand.GetType().GetMethods().Any(m => m.Name == "ToString" && m.GetParameters().Length == 0 && m.DeclaringType != typeof(object)) ? (a, b) => a?.opcode == b?.opcode && a?.operand?.ToString() == b?.operand?.ToString() : (EqualityComparison<CodeInstruction>)((a, b) => a?.opcode == b?.opcode && a?.operand == b?.operand)).ToArray();
+                EqualityComparison<CodeInstruction>[] comparers = searchInsns.Select(x => x == null ? (a, b) => true : x.operand == null ? (a, b) => a?.opcode == b?.opcode : x.operand.GetType().GetMethods().Any(m => m.Name == "ToString" && m.GetParameters().Length == 0 && m.DeclaringType != typeof(object)) ? (a, b) => a?.opcode == b?.opcode && a?.operand?.ToString() == b?.operand?.ToString() : (EqualityComparison<CodeInstruction>)((a, b) => a?.opcode == b?.opcode && a?.operand == b?.operand)).ToArray();
                 return GetRefByIndex(Insns.IndexOfSublist(searchInsns.ToList(), 0, comparers));
             }
 
@@ -287,7 +288,7 @@ namespace GadgetCore.Util
             public ILRef FindLastRefByInsns(CodeInstruction[] searchInsns)
             {
                 if (searchInsns == null) throw new ArgumentNullException("searchInsns");
-                EqualityComparison<CodeInstruction>[] comparers = searchInsns.Select(x => x == null ? (a, b) => true : x?.operand != null && x.operand.GetType().GetMethods().Any(m => m.Name == "ToString" && m.GetParameters().Length == 0 && m.DeclaringType != typeof(object)) ? (a, b) => a?.opcode == b?.opcode && a?.operand?.ToString() == b?.operand?.ToString() : (EqualityComparison<CodeInstruction>)((a, b) => a?.opcode == b?.opcode && a?.operand == b?.operand)).ToArray();
+                EqualityComparison<CodeInstruction>[] comparers = searchInsns.Select(x => x == null ? (a, b) => true : x.operand == null ? (a, b) => a?.opcode == b?.opcode : x.operand.GetType().GetMethods().Any(m => m.Name == "ToString" && m.GetParameters().Length == 0 && m.DeclaringType != typeof(object)) ? (a, b) => a?.opcode == b?.opcode && a?.operand?.ToString() == b?.operand?.ToString() : (EqualityComparison<CodeInstruction>)((a, b) => a?.opcode == b?.opcode && a?.operand == b?.operand)).ToArray();
                 return GetRefByIndex(Insns.LastIndexOfSublist(searchInsns.ToList(), 0, comparers));
             }
 
@@ -349,6 +350,7 @@ namespace GadgetCore.Util
             public string DumpInstructions(int start = 0, int count = int.MaxValue)
             {
                 if (start < 0 || count <= 0) return string.Empty;
+                UpdateMetadata();
                 StringBuilder sb = new StringBuilder();
                 int insnsToSkip = start;
                 int insnsToDump = count;
@@ -373,6 +375,7 @@ namespace GadgetCore.Util
                             insn.operand is Label label ? LabelToString(label) :
                             insn.operand is string ? "\"" + insn.operand + "\"" :
                             insn.operand is Label[] array ? "[" + array.Select(x => LabelToString(x)).Concat() + "]" :
+                            insn.operand is MethodBase method ? method.FullDescription() :
                             insn.operand?.ToString() ?? string.Empty);
                     }
                     else
@@ -418,6 +421,7 @@ namespace GadgetCore.Util
                     conditionalBranch.operand = nonconditionalBranch.operand;
                     RemoveInsn(ifBranch.GetRefByOffset(1));
                 }
+                UpdateMetadata();
                 return ifBranch;
             }
 
@@ -441,10 +445,42 @@ namespace GadgetCore.Util
                 GetInsn(conditionBlock).labels.Add(conditionLabel);
                 InjectInsn(exitRef, conditionInsn, true);
                 codeBlock = InjectInsn(exitRef, new CodeInstruction(OpCodes.Nop), true);
+                UpdateMetadata();
             }
 
             /// <summary>
-            /// Injects a CALL instruction into the given <see cref="ILRef"/>. By default, it will replace the target instruction.
+            /// Injects a LDFLD instruction into the given <see cref="ILRef"/>. Will fail to load a non-static field from a static method.
+            /// If <paramref name="insert"/> is false, it will replace the target instruction.
+            /// If <paramref name="insert"/> is true, then it will insert the new instruction and push forward the instructions at
+            /// and after the given <see cref="ILRef"/>
+            /// </summary>
+            public ILRef InjectLoadField(ILRef target, FieldInfo field, bool insert = true)
+            {
+                if (target == null) throw new ArgumentNullException("target");
+                if (field == null) throw new ArgumentNullException("hook");
+                if (!target.Valid) throw new InvalidOperationException("Cannot use an invalid ILRef!");
+                int targetIndex = target.Index;
+                CodeInstruction targetInsn = GetInsn(target);
+                if (field.IsStatic)
+                {
+                    if (insert) ShiftInsns(target, 1);
+                    Insns[targetIndex] = new CodeInstruction(OpCodes.Ldfld, field);
+                }
+                else
+                {
+                    if (insert) ShiftInsns(target, 2);
+                    else ShiftInsns(target, 1);
+                    Insns[targetIndex] = new CodeInstruction(OpCodes.Ldarg_0);
+                    Insns[targetIndex + 1] = new CodeInstruction(OpCodes.Ldfld, field);
+                }
+                Insns[targetIndex].labels.AddRange(targetInsn.labels);
+                targetInsn.labels.Clear();
+                UpdateMetadata();
+                return insert ? GetRefByIndex(targetIndex) : target;
+            }
+
+            /// <summary>
+            /// Injects a CALL instruction into the given <see cref="ILRef"/>. If <paramref name="insert"/> is false, it will replace the target instruction.
             /// If <paramref name="insert"/> is true, then it will insert the new instruction and push forward the instructions at
             /// and after the given <see cref="ILRef"/>
             /// </summary>
@@ -457,12 +493,14 @@ namespace GadgetCore.Util
                 CodeInstruction targetInsn = GetInsn(target);
                 if (insert) ShiftInsns(target, 1);
                 Insns[targetIndex] = new CodeInstruction(hook.IsVirtual ? OpCodes.Callvirt : OpCodes.Call, hook);
-                Insns[targetIndex].labels?.AddRange(targetInsn.labels);
+                Insns[targetIndex].labels.AddRange(targetInsn.labels);
+                targetInsn.labels.Clear();
+                UpdateMetadata();
                 return insert ? GetRefByIndex(targetIndex) : target;
             }
 
             /// <summary>
-            /// Injects an instruction into the given <see cref="ILRef"/>. By default, it will replace the target instruction.
+            /// Injects an instruction into the given <see cref="ILRef"/>. If <paramref name="insert"/> is false, it will replace the target instruction.
             /// If <paramref name="insert"/> is true, then it will insert the new instruction and push forward the instructions at
             /// and after the given <see cref="ILRef"/>
             /// </summary>
@@ -473,14 +511,16 @@ namespace GadgetCore.Util
                 if (!target.Valid) throw new InvalidOperationException("Cannot use an invalid ILRef!");
                 int targetIndex = target.Index;
                 CodeInstruction targetInsn = GetInsn(target);
-                insn.labels?.AddRange(targetInsn.labels);
+                insn.labels.AddRange(targetInsn.labels);
+                targetInsn.labels.Clear();
                 if (insert) ShiftInsns(target, 1);
-                Insns[target.Index] = new CodeInstruction(insn);
+                Insns[targetIndex] = new CodeInstruction(insn);
+                UpdateMetadata();
                 return insert ? GetRefByIndex(targetIndex) : target;
             }
 
             /// <summary>
-            /// Injects a set of instructions into the block started by the given <see cref="ILRef"/>. By default, it will replace the target instructions.
+            /// Injects a set of instructions into the block started by the given <see cref="ILRef"/>. If <paramref name="insert"/> is false, it will replace the target instructions.
             /// If <paramref name="insert"/> is true, then it will insert the new instructions and push forward the instructions at
             /// and after the given <see cref="ILRef"/>
             /// </summary>
@@ -492,7 +532,11 @@ namespace GadgetCore.Util
                 if (!target.Valid) throw new InvalidOperationException("Cannot use an invalid ILRef!");
                 int targetIndex = target.Index;
                 CodeInstruction targetInsn = GetInsn(target);
-                newInsns[0]?.labels?.AddRange(targetInsn.labels);
+                if (newInsns[0] != null)
+                {
+                    newInsns[0].labels.AddRange(targetInsn.labels);
+                    targetInsn.labels.Clear();
+                }
                 if (targetInsn.opcode == OpCodes.Nop) insert = false;
                 if (insert) ShiftInsns(target, newInsns.Length);
                 if (Insns.Capacity < targetIndex + newInsns.Length) Insns.Capacity = Math.Max(targetIndex + newInsns.Length, (int)Math.Pow(2, Math.Floor(Math.Log(Insns.Capacity, 2) + 1)));
@@ -501,6 +545,7 @@ namespace GadgetCore.Util
                     newInsns[i - targetIndex].labels.AddRange(Insns[i].labels);
                     Insns[i] = newInsns[i - targetIndex];
                 }
+                UpdateMetadata();
                 return insert ? GetRefByIndex(targetIndex) : target;
             }
 

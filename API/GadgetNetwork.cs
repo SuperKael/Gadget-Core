@@ -242,7 +242,7 @@ namespace GadgetCore.API
 
         /// <summary>
         /// Registers a new local SyncVar. The value of this SyncVar can be updated using <see cref="UpdateLocalSyncVar"/>,
-        /// and retrieved using <see cref="GetLocalSyncVar"/>. This value will always be synced across all clients.
+        /// and retrieved using <see cref="GetLocalSyncVar(string, string)"/>. This value will always be synced across all clients.
         /// Each client has their own value for this SyncVar, but any client can retrieve any other client's value.
         /// Must be called in the Initialize method of a Gadget.
         /// </summary>

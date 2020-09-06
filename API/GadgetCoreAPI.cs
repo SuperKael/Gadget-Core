@@ -23,7 +23,7 @@ namespace GadgetCore.API
         /// <summary>
         /// A slightly more informative version. You generally shouldn't access this directly, instead use <see cref="GetFullVersion()"/>
         /// </summary>
-        public const string FULL_VERSION = "2.0.0.0-BETA7";
+        public const string FULL_VERSION = "2.0.0.0-BETA8";
         /// <summary>
         /// Indicates whether this version of GadgetCore is a beta version. You generally shouldn't access this directly, instead use <see cref="GetIsBeta()"/>
         /// </summary>
@@ -762,7 +762,7 @@ namespace GadgetCore.API
         public static EquipStats GetGearStats(Item item)
         {
             ItemInfo itemInfo = ItemRegistry.GetItem(item.id);
-            bool itemLevels = (itemInfo?.Type & ItemType.LEVELING) == ItemType.LEVELING;
+            bool itemLevels = (itemInfo?.Type & ItemType.LEVELING) == ItemType.LEVELING && (itemInfo?.Type & ItemType.BASIC_MASK) != (ItemType.DROID & ItemType.BASIC_MASK);
             int level = itemLevels ? GetGearLevel(item) : 1;
             EquipStats baseStats = GetGearBaseStats(item);
             EquipStats stats = baseStats * level;
