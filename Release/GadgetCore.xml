@@ -1224,6 +1224,11 @@
             Creates a new instance of EquipStats that has the same stats as the given EquipStats.
             </summary>
         </member>
+        <member name="M:GadgetCore.API.EquipStats.op_Explicit(GadgetCore.API.EquipStatsDouble)~GadgetCore.API.EquipStats">
+            <summary>
+            Creates a new instance of EquipStats that has the same stats as the given EquipStatsDouble, with the values truncated to integers.
+            </summary>
+        </member>
         <member name="M:GadgetCore.API.EquipStats.#ctor(System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32)">
             <summary>
             Creates a new instance of EquipStats that has the specified stats.
@@ -1289,6 +1294,26 @@
             Creates a new EquipStats by diving the values of one EquipStats from another.
             </summary>
         </member>
+        <member name="M:GadgetCore.API.EquipStats.op_Addition(GadgetCore.API.EquipStats,GadgetCore.API.EquipStatsDouble)">
+            <summary>
+            Creates a new EquipStats by adding together the values of an EquipStats and an EquipStatsDouble. Truncates excess double values.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.EquipStats.op_Subtraction(GadgetCore.API.EquipStats,GadgetCore.API.EquipStatsDouble)">
+            <summary>
+            Creates a new EquipStats by subtracting the values of an EquipStatsDouble and an EquipStats. Truncates excess double values.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.EquipStats.op_Multiply(GadgetCore.API.EquipStats,GadgetCore.API.EquipStatsDouble)">
+            <summary>
+            Creates a new EquipStats by multiplying together the values of an EquipStats and an EquipStatsDouble.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.EquipStats.op_Division(GadgetCore.API.EquipStats,GadgetCore.API.EquipStatsDouble)">
+            <summary>
+            Creates a new EquipStats by diving the values of an EquipStatsDouble from an EquipStats.
+            </summary>
+        </member>
         <member name="M:GadgetCore.API.EquipStats.op_Addition(GadgetCore.API.EquipStats,System.Int32)">
             <summary>
             Creates a new EquipStats by adding a value to all stats.
@@ -1299,14 +1324,174 @@
             Creates a new EquipStats by subtracting a value from all stats.
             </summary>
         </member>
-        <member name="M:GadgetCore.API.EquipStats.op_Multiply(GadgetCore.API.EquipStats,System.Single)">
+        <member name="M:GadgetCore.API.EquipStats.op_Multiply(GadgetCore.API.EquipStats,System.Double)">
             <summary>
             Creates a new EquipStats by multiplying all stats by a value.
             </summary>
         </member>
-        <member name="M:GadgetCore.API.EquipStats.op_Division(GadgetCore.API.EquipStats,System.Single)">
+        <member name="M:GadgetCore.API.EquipStats.op_Division(GadgetCore.API.EquipStats,System.Double)">
             <summary>
             Creates a new EquipStats by dividing all stats by a value.
+            </summary>
+        </member>
+        <member name="T:GadgetCore.API.EquipStatsDouble">
+            <summary>
+            Represents a set of all six of the player stats, as double-precision floating-point values.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.EquipStatsDouble.NONE">
+            <summary>
+            EquipStatsDouble where all stats are 0.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.EquipStatsDouble.ONE">
+            <summary>
+            EquipStatsDouble where all stats are 1.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.EquipStatsDouble.VIT">
+            <summary>
+            The VIT stat.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.EquipStatsDouble.STR">
+            <summary>
+            The STR stat.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.EquipStatsDouble.DEX">
+            <summary>
+            The DEX stat.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.EquipStatsDouble.TEC">
+            <summary>
+            The TEC stat.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.EquipStatsDouble.MAG">
+            <summary>
+            The MAG stat.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.EquipStatsDouble.FTH">
+            <summary>
+            The FTH stat.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.EquipStatsDouble.#ctor(GadgetCore.API.EquipStatsDouble)">
+            <summary>
+            Creates a new instance of EquipStatsDouble that has the same stats as the given EquipStatsDouble.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.EquipStatsDouble.op_Implicit(GadgetCore.API.EquipStats)~GadgetCore.API.EquipStatsDouble">
+            <summary>
+            Creates a new instance of EquipStatsDouble that has the same stats as the given EquipStats.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.EquipStatsDouble.#ctor(System.Double,System.Double,System.Double,System.Double,System.Double,System.Double)">
+            <summary>
+            Creates a new instance of EquipStatsDouble that has the specified stats.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.EquipStatsDouble.#ctor(System.Double)">
+            <summary>
+            Creates a new instance of EquipStatsDouble where all stats are the given value.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.EquipStatsDouble.#ctor(System.Double[])">
+            <summary>
+            Creates a new instance of EquipStatsDouble from an array of stat values. The array must be of length 6.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.EquipStatsDouble.GetStatArray">
+            <summary>
+            Returns the stats as an array of values. Will be of length 6.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.EquipStatsDouble.GetByIndex(System.Int32)">
+            <summary>
+            Gets the stat with the specified index. 0 is VIT, 1 is STR, 2 is DEX, 3 is TEC, 4 is MAG, 5 is FTH.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.EquipStatsDouble.SetByIndex(System.Int32,System.Double)">
+            <summary>
+            Sets the stat with the specified index. 0 is VIT, 1 is STR, 2 is DEX, 3 is TEC, 4 is MAG, 5 is FTH.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.EquipStatsDouble.AddByIndex(System.Int32,System.Double)">
+            <summary>
+            Adds to the stat with the specified index. 0 is VIT, 1 is STR, 2 is DEX, 3 is TEC, 4 is MAG, 5 is FTH.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.EquipStatsDouble.AddTo(System.Double[])">
+            <summary>
+            Adds this EquipStat's values to the given stat value array. The array must be of length 6.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.EquipStatsDouble.SubtractFrom(System.Double[])">
+            <summary>
+            Subtracts this EquipStat's values from the given stat value array. The array must be of length 6.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.EquipStatsDouble.op_Addition(GadgetCore.API.EquipStatsDouble,GadgetCore.API.EquipStatsDouble)">
+            <summary>
+            Creates a new EquipStatsDouble by adding together the values of two other EquipStatsDouble.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.EquipStatsDouble.op_Subtraction(GadgetCore.API.EquipStatsDouble,GadgetCore.API.EquipStatsDouble)">
+            <summary>
+            Creates a new EquipStatsDouble by subtracting the values of one EquipStatsDouble from another.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.EquipStatsDouble.op_Multiply(GadgetCore.API.EquipStatsDouble,GadgetCore.API.EquipStatsDouble)">
+            <summary>
+            Creates a new EquipStatsDouble by multiplying together the values of two other EquipStatsDouble.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.EquipStatsDouble.op_Division(GadgetCore.API.EquipStatsDouble,GadgetCore.API.EquipStatsDouble)">
+            <summary>
+            Creates a new EquipStatsDouble by diving the values of one EquipStatsDouble from another.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.EquipStatsDouble.op_Addition(GadgetCore.API.EquipStatsDouble,GadgetCore.API.EquipStats)">
+            <summary>
+            Creates a new EquipStatsDouble by adding together the values of an EquipStatsDouble and an EquipStats.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.EquipStatsDouble.op_Subtraction(GadgetCore.API.EquipStatsDouble,GadgetCore.API.EquipStats)">
+            <summary>
+            Creates a new EquipStatsDouble by subtracting the values of an EquipStats from an EquipStatsDouble.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.EquipStatsDouble.op_Multiply(GadgetCore.API.EquipStatsDouble,GadgetCore.API.EquipStats)">
+            <summary>
+            Creates a new EquipStatsDouble by multiplying together an EquipStatsDouble and an EquipStats.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.EquipStatsDouble.op_Division(GadgetCore.API.EquipStatsDouble,GadgetCore.API.EquipStats)">
+            <summary>
+            Creates a new EquipStatsDouble by diving the values of an EquipStats from an EquipStatsDouble.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.EquipStatsDouble.op_Addition(GadgetCore.API.EquipStatsDouble,System.Double)">
+            <summary>
+            Creates a new EquipStatsDouble by adding a value to all stats.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.EquipStatsDouble.op_Subtraction(GadgetCore.API.EquipStatsDouble,System.Double)">
+            <summary>
+            Creates a new EquipStatsDouble by subtracting a value from all stats.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.EquipStatsDouble.op_Multiply(GadgetCore.API.EquipStatsDouble,System.Double)">
+            <summary>
+            Creates a new EquipStatsDouble by multiplying all stats by a value.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.EquipStatsDouble.op_Division(GadgetCore.API.EquipStatsDouble,System.Double)">
+            <summary>
+            Creates a new EquipStatsDouble by dividing all stats by a value.
             </summary>
         </member>
         <member name="T:GadgetCore.API.Gadget">

@@ -23,7 +23,7 @@ namespace GadgetCore.API
         /// <summary>
         /// A slightly more informative version. You generally shouldn't access this directly, instead use <see cref="GetFullVersion()"/>
         /// </summary>
-        public const string FULL_VERSION = "2.0.0.0-BETA9";
+        public const string FULL_VERSION = "2.0.0.0-BETA10";
         /// <summary>
         /// Indicates whether this version of GadgetCore is a beta version. You generally shouldn't access this directly, instead use <see cref="GetIsBeta()"/>
         /// </summary>
@@ -776,10 +776,10 @@ namespace GadgetCore.API
             for (int i = 0; i < item.aspect.Length; i++)
             {
                 ItemInfo gearMod = ItemRegistry.GetSingleton().GetEntry(item.aspect[i]);
-                if (gearMod == null) continue;
+                if (gearMod == null && (item.aspect[i] < 201 || item.aspect[i] > 206)) continue;
                 for (int j = 0; j < 6; j++)
                 {
-                    if (gearMod != null)
+                    if (gearMod != null && !(gearMod is VanillaItemInfo))
                     {
                         stats.AddByIndex(j, gearMod.Stats.GetByIndex(j));
                     }
@@ -830,7 +830,7 @@ namespace GadgetCore.API
                 {
                     foreach (Tuple<StatModifier, int> modifier in statModifiers[StatModifierType.LevelExpMult])
                     {
-                        EquipStats multiplier = modifier.Item1(item);
+                        EquipStatsDouble multiplier = modifier.Item1(item);
                         for (int i = 0;i < level;i++) stats *= multiplier;
                     }
                 }
@@ -885,7 +885,7 @@ namespace GadgetCore.API
         /// Delegate used for stat modifiers.
         /// </summary>
         /// <param name="item">The item who's stats are being modified.</param>
-        public delegate EquipStats StatModifier(Item item);
+        public delegate EquipStatsDouble StatModifier(Item item);
 
         /// <summary>
         /// Use to check if there is a resource registered at the specified path. This includes resources registered by the base game.
