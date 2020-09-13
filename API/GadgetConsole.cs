@@ -206,7 +206,7 @@ namespace GadgetCore
                 textComponent.resizeTextForBestFit = false;
                 textComponent.alignment = TextAnchor.LowerLeft;
                 string messageText = message.GetDisplayedText();
-                if (messageText.All(x => SceneInjector.ModMenuPanel.descText.font.HasCharacter(x)))
+                if (messageText.All(x => x == '\n' || SceneInjector.ModMenuPanel.descText.font.HasCharacter(x)))
                 {
                     textComponent.font = SceneInjector.ModMenuPanel.descText.font;
                 }
@@ -285,7 +285,7 @@ namespace GadgetCore
                 textComponent.resizeTextForBestFit = false;
                 textComponent.alignment = TextAnchor.LowerLeft;
                 string messageText = message.GetDisplayedText();
-                if (messageText.All(x => SceneInjector.ModMenuPanel.descText.font.HasCharacter(x)))
+                if (messageText.All(x => x == '\n' || SceneInjector.ModMenuPanel.descText.font.HasCharacter(x)))
                 {
                     textComponent.font = SceneInjector.ModMenuPanel.descText.font;
                 }
@@ -586,11 +586,11 @@ namespace GadgetCore
                 "gc");
             RegisterCommand("reloadmod", true, CoreCommands.ReloadMod,
                 "Reloads the specified mod.",
-                "Relodas the specified mod. Will ask for confirmation, and lists other mods that will be reloaded as a consequence.\nUses the syntax: /reloadmod <mod>",
+                "Reloads the specified mod. Will ask for confirmation, and lists other mods that will be reloaded as a consequence.\nUses the syntax: /reloadmod <mod>",
                 "rlm");
             RegisterCommand("reloadgadget", true, CoreCommands.ReloadGadget,
                 "Reloads the specified Gadget.",
-                "Relodas the specified Gadget. Will ask for confirmation, and lists other Gadgets that will be reloaded as a consequence.\nUses the syntax: /reloadgadget <gadget>",
+                "Reloads the specified Gadget. Will ask for confirmation, and lists other Gadgets that will be reloaded as a consequence.\nUses the syntax: /reloadgadget <gadget>",
                 "rlg");
         }
 

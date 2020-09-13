@@ -356,6 +356,9 @@ namespace GadgetCore
 
             GadgetCoreAPI.MissingTexSprite = GadgetCoreAPI.AddTextureToSheet(GadgetCoreAPI.LoadTexture2D("missing_tex"));
 
+            GameObject expCustom = Instantiate(Resources.Load<GameObject>("exp/exp7"));
+            GadgetCoreAPI.AddCustomResource("exp/expCustom", expCustom);
+
             Registry.registeringVanilla = false;
         }
 

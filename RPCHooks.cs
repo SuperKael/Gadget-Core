@@ -14,7 +14,7 @@ namespace GadgetCore
         public static RPCHooks Singleton { get; private set; }
         private static NetworkView view;
 
-        internal void Start()
+        internal void Awake()
         {
             if (Singleton != null && Singleton != this) Destroy(Singleton);
             Singleton = this;

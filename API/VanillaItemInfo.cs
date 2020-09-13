@@ -25,7 +25,7 @@ namespace GadgetCore.API
         protected VanillaItemInfo(int ID, bool WrapForTile) : base(ItemRegistry.GetDefaultTypeByID(ID), GadgetCoreAPI.GetItemName(ID), GadgetCoreAPI.GetItemDesc(ID), GadgetCoreAPI.GetItemMaterial(ID), -1, GadgetCoreAPI.GetTrueGearBaseStats(ID), GadgetCoreAPI.GetWeaponMaterial(ID), ID >= 1000 && ID < 2000 ? GadgetCoreAPI.GetDroidHeadMaterial(ID) : GadgetCoreAPI.GetHeadMaterial(ID), ID >= 1000 && ID < 2000 ? GadgetCoreAPI.GetDroidBodyMaterial(ID) : GadgetCoreAPI.GetBodyMaterial(ID), GadgetCoreAPI.GetArmMaterial(ID))
         {
             this.ID = ID;
-            if (Type == ItemType.WEAPON)
+            if ((Type & ItemType.BASIC_MASK) == (ItemType.WEAPON & ItemType.BASIC_MASK))
             {
                 SetWeaponInfo(ItemRegistry.GetDefaultWeaponScalingByID(ID), GadgetCoreAPI.GetAttackSound(ID), ItemRegistry.GetDefaultCritChanceBonus(ID), ItemRegistry.GetDefaultCritPowerBonus(ID), ID);
                 OnAttack += (script) => { Attacking = true; IEnumerator ie = AttackMethod.Invoke(script, new object[] { }) as IEnumerator; Attacking = false; return ie; };

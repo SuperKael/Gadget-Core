@@ -114,7 +114,6 @@ namespace GadgetCore.Patches
         [HarmonyTranspiler]
         public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator generator)
         {
-            GadgetCore.CoreLogger.Log(OpCodes.Call.StackBehaviourPop);
             CodeInstruction[] codes = instructions.ToArray();
             List<CodeInstruction> newCodes = new List<CodeInstruction>();
             for (int i = 0; i < 11;i++) newCodes.Add(codes[i]);

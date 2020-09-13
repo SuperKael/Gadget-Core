@@ -23,7 +23,7 @@ namespace GadgetCore.API
         /// <summary>
         /// A slightly more informative version. You generally shouldn't access this directly, instead use <see cref="GetFullVersion()"/>
         /// </summary>
-        public const string FULL_VERSION = "2.0.0.0-BETA10";
+        public const string FULL_VERSION = "2.0.0.0-BETA11";
         /// <summary>
         /// Indicates whether this version of GadgetCore is a beta version. You generally shouldn't access this directly, instead use <see cref="GetIsBeta()"/>
         /// </summary>
@@ -457,50 +457,188 @@ namespace GadgetCore.API
         /// </summary>
         /// <param name="pos">The position to spawn the item at. Note that despite being a 2D game, Roguelands uses 3D space. That being said, the z-coordinate should nearly always be 0.</param>
         /// <param name="exp">The amount of exp points to spawn.</param>
-        public static void SpawnExp(Vector3 pos, int exp)
+        /// <param name="delay">The optional amount of time to wait between spawning each exp orb.</param>
+        public static void SpawnExp(Vector3 pos, int exp, float delay = 0)
         {
-            while (exp > 0)
+            if (delay > 0)
             {
-                if (exp - 1000 > 0)
+                InstanceTracker.GameScript.StartCoroutine(SpawnEXPRoutine(pos, exp, delay));
+                return;
+            }
+            if (exp >= 10000)
+            {
+                int rem = exp % 20;
+                if (rem > 0)
                 {
-                    exp -= 1000;
-                    UnityEngine.Object.Instantiate(Resources.Load("exp/exp7"), pos, Quaternion.identity);
+                    exp -= rem;
+                    while (rem > 0)
+                    {
+                        if (rem - 15 > 0)
+                        {
+                            rem -= 15;
+                            UnityEngine.Object.Instantiate(Resources.Load("exp/exp3"), pos, Quaternion.identity);
+                        }
+                        else if (rem - 10 > 0)
+                        {
+                            rem -= 10;
+                            UnityEngine.Object.Instantiate(Resources.Load("exp/exp2"), pos, Quaternion.identity);
+                        }
+                        else if (rem - 5 > 0)
+                        {
+                            rem -= 5;
+                            UnityEngine.Object.Instantiate(Resources.Load("exp/exp1"), pos, Quaternion.identity);
+                        }
+                        else
+                        {
+                            rem--;
+                            UnityEngine.Object.Instantiate(Resources.Load("exp/exp0"), pos, Quaternion.identity);
+                        }
+                    }
                 }
-                else if (exp - 250 > 0)
+                for (int i = 0;i < 20; i++)
                 {
-                    exp -= 250;
-                    UnityEngine.Object.Instantiate(Resources.Load("exp/exp6"), pos, Quaternion.identity);
+                    ((GameObject)UnityEngine.Object.Instantiate(Resources.Load("exp/expCustom"), pos, Quaternion.identity)).GetComponentInChildren<EXPScript>().exp = exp / 20;
                 }
-                else if (exp - 60 > 0)
+            }
+            else
+            {
+                while (exp > 0)
                 {
-                    exp -= 60;
-                    UnityEngine.Object.Instantiate(Resources.Load("exp/exp5"), pos, Quaternion.identity);
+                    if (exp - 1000 > 0)
+                    {
+                        exp -= 1000;
+                        UnityEngine.Object.Instantiate(Resources.Load("exp/exp7"), pos, Quaternion.identity);
+                    }
+                    else if (exp - 250 > 0)
+                    {
+                        exp -= 250;
+                        UnityEngine.Object.Instantiate(Resources.Load("exp/exp6"), pos, Quaternion.identity);
+                    }
+                    else if (exp - 60 > 0)
+                    {
+                        exp -= 60;
+                        UnityEngine.Object.Instantiate(Resources.Load("exp/exp5"), pos, Quaternion.identity);
+                    }
+                    else if (exp - 20 > 0)
+                    {
+                        exp -= 20;
+                        UnityEngine.Object.Instantiate(Resources.Load("exp/exp4"), pos, Quaternion.identity);
+                    }
+                    else if (exp - 15 > 0)
+                    {
+                        exp -= 15;
+                        UnityEngine.Object.Instantiate(Resources.Load("exp/exp3"), pos, Quaternion.identity);
+                    }
+                    else if (exp - 10 > 0)
+                    {
+                        exp -= 10;
+                        UnityEngine.Object.Instantiate(Resources.Load("exp/exp2"), pos, Quaternion.identity);
+                    }
+                    else if (exp - 5 > 0)
+                    {
+                        exp -= 5;
+                        UnityEngine.Object.Instantiate(Resources.Load("exp/exp1"), pos, Quaternion.identity);
+                    }
+                    else
+                    {
+                        exp--;
+                        UnityEngine.Object.Instantiate(Resources.Load("exp/exp0"), pos, Quaternion.identity);
+                    }
                 }
-                else if (exp - 20 > 0)
+            }
+        }
+        
+        private static IEnumerator SpawnEXPRoutine(Vector3 pos, int exp, float delay)
+        {
+            GadgetCore.CoreLogger.LogConsole("Exp: " + exp);
+            if (exp >= 10000)
+            {
+                int rem = exp % 20;
+                if (rem > 0)
                 {
-                    exp -= 20;
-                    UnityEngine.Object.Instantiate(Resources.Load("exp/exp4"), pos, Quaternion.identity);
+                    exp -= rem;
+                    while (rem > 0)
+                    {
+                        if (rem - 15 > 0)
+                        {
+                            rem -= 15;
+                            GadgetCore.CoreLogger.LogConsole("15");
+                            UnityEngine.Object.Instantiate(Resources.Load("exp/exp3"), pos, Quaternion.identity);
+                        }
+                        else if (rem - 10 > 0)
+                        {
+                            rem -= 10;
+                            GadgetCore.CoreLogger.LogConsole("10");
+                            UnityEngine.Object.Instantiate(Resources.Load("exp/exp2"), pos, Quaternion.identity);
+                        }
+                        else if (rem - 5 > 0)
+                        {
+                            rem -= 5;
+                            GadgetCore.CoreLogger.LogConsole("5");
+                            UnityEngine.Object.Instantiate(Resources.Load("exp/exp1"), pos, Quaternion.identity);
+                        }
+                        else
+                        {
+                            rem--;
+                            GadgetCore.CoreLogger.LogConsole("1");
+                            UnityEngine.Object.Instantiate(Resources.Load("exp/exp0"), pos, Quaternion.identity);
+                        }
+                        yield return new WaitForSeconds(delay);
+                    }
                 }
-                else if (exp - 15 > 0)
+                for (int i = 0; i < 20; i++)
                 {
-                    exp -= 15;
-                    UnityEngine.Object.Instantiate(Resources.Load("exp/exp3"), pos, Quaternion.identity);
+                    ((GameObject)UnityEngine.Object.Instantiate(Resources.Load("exp/expCustom"), pos, Quaternion.identity)).GetComponentInChildren<EXPScript>().exp = exp / 20;
+                    GadgetCore.CoreLogger.LogConsole(exp / 20);
+                    yield return new WaitForSeconds(delay);
                 }
-                else if (exp - 10 > 0)
+            }
+            else
+            {
+                while (exp > 0)
                 {
-                    exp -= 10;
-                    UnityEngine.Object.Instantiate(Resources.Load("exp/exp2"), pos, Quaternion.identity);
+                    if (exp - 1000 > 0)
+                    {
+                        exp -= 1000;
+                        UnityEngine.Object.Instantiate(Resources.Load("exp/exp7"), pos, Quaternion.identity);
+                    }
+                    else if (exp - 250 > 0)
+                    {
+                        exp -= 250;
+                        UnityEngine.Object.Instantiate(Resources.Load("exp/exp6"), pos, Quaternion.identity);
+                    }
+                    else if (exp - 60 > 0)
+                    {
+                        exp -= 60;
+                        UnityEngine.Object.Instantiate(Resources.Load("exp/exp5"), pos, Quaternion.identity);
+                    }
+                    else if (exp - 20 > 0)
+                    {
+                        exp -= 20;
+                        UnityEngine.Object.Instantiate(Resources.Load("exp/exp4"), pos, Quaternion.identity);
+                    }
+                    else if (exp - 15 > 0)
+                    {
+                        exp -= 15;
+                        UnityEngine.Object.Instantiate(Resources.Load("exp/exp3"), pos, Quaternion.identity);
+                    }
+                    else if (exp - 10 > 0)
+                    {
+                        exp -= 10;
+                        UnityEngine.Object.Instantiate(Resources.Load("exp/exp2"), pos, Quaternion.identity);
+                    }
+                    else if (exp - 5 > 0)
+                    {
+                        exp -= 5;
+                        UnityEngine.Object.Instantiate(Resources.Load("exp/exp1"), pos, Quaternion.identity);
+                    }
+                    else
+                    {
+                        exp--;
+                        UnityEngine.Object.Instantiate(Resources.Load("exp/exp0"), pos, Quaternion.identity);
+                    }
                 }
-                else if (exp - 5 > 0)
-                {
-                    exp -= 5;
-                    UnityEngine.Object.Instantiate(Resources.Load("exp/exp1"), pos, Quaternion.identity);
-                }
-                else
-                {
-                    exp--;
-                    UnityEngine.Object.Instantiate(Resources.Load("exp/exp0"), pos, Quaternion.identity);
-                }
+                yield return new WaitForSeconds(delay);
             }
         }
 
@@ -576,6 +714,8 @@ namespace GadgetCore.API
         public static void RegisterCustomRPC(string name, Action<object[]> rpc)
         {
             if (!Registry.registeringVanilla && Registry.modRegistering < 0) throw new InvalidOperationException("Data registration may only be performed by the Initialize method of a Gadget!");
+            if (name == null) throw new ArgumentNullException("name");
+            if (rpc == null) throw new ArgumentNullException("rpc");
             customRPCs.Add(name, rpc);
         }
 
@@ -607,7 +747,7 @@ namespace GadgetCore.API
             resource.hideFlags |= HideFlags.HideAndDontSave;
             if (resource is GameObject)
             {
-                if (!(resource as GameObject).active)
+                if (!(resource as GameObject).activeSelf)
                 {
                     resource.hideFlags |= HideFlags.HideInInspector;
                 }
@@ -779,7 +919,7 @@ namespace GadgetCore.API
                 if (gearMod == null && (item.aspect[i] < 201 || item.aspect[i] > 206)) continue;
                 for (int j = 0; j < 6; j++)
                 {
-                    if (gearMod != null && !(gearMod is VanillaItemInfo))
+                    if (gearMod != null && gearMod.Stats != EquipStats.NONE)
                     {
                         stats.AddByIndex(j, gearMod.Stats.GetByIndex(j));
                     }

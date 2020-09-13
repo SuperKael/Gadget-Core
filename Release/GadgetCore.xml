@@ -1274,6 +1274,26 @@
             Subtracts this EquipStat's values from the given stat value array. The array must be of length 6.
             </summary>
         </member>
+        <member name="M:GadgetCore.API.EquipStats.Equals(System.Object)">
+            <summary>
+            Determines if this EquipStats and the given EquipStats have the same stat values.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.EquipStats.GetHashCode">
+            <summary>
+            Gets a hash code for this EquipStats.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.EquipStats.op_Equality(GadgetCore.API.EquipStats,GadgetCore.API.EquipStats)">
+            <summary>
+            Determines if the two given EquipStats have the same stat values.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.EquipStats.op_Inequality(GadgetCore.API.EquipStats,GadgetCore.API.EquipStats)">
+            <summary>
+            Determines if the two given EquipStats do not have the same stat values.
+            </summary>
+        </member>
         <member name="M:GadgetCore.API.EquipStats.op_Addition(GadgetCore.API.EquipStats,GadgetCore.API.EquipStats)">
             <summary>
             Creates a new EquipStats by adding together the values of two other EquipStats.
@@ -1426,12 +1446,32 @@
         </member>
         <member name="M:GadgetCore.API.EquipStatsDouble.AddTo(System.Double[])">
             <summary>
-            Adds this EquipStat's values to the given stat value array. The array must be of length 6.
+            Adds this EquipStatsDouble's values to the given stat value array. The array must be of length 6.
             </summary>
         </member>
         <member name="M:GadgetCore.API.EquipStatsDouble.SubtractFrom(System.Double[])">
             <summary>
-            Subtracts this EquipStat's values from the given stat value array. The array must be of length 6.
+            Subtracts this EquipStatsDouble's values from the given stat value array. The array must be of length 6.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.EquipStatsDouble.Equals(System.Object)">
+            <summary>
+            Determines if this EquipStatsDouble and the given EquipStatsDouble have the same stat values.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.EquipStatsDouble.GetHashCode">
+            <summary>
+            Gets a hash code for this EquipStatsDouble.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.EquipStatsDouble.op_Equality(GadgetCore.API.EquipStatsDouble,GadgetCore.API.EquipStatsDouble)">
+            <summary>
+            Determines if the two given EquipStatsDouble have the same stat values.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.EquipStatsDouble.op_Inequality(GadgetCore.API.EquipStatsDouble,GadgetCore.API.EquipStatsDouble)">
+            <summary>
+            Determines if the two given EquipStatsDouble do not have the same stat values.
             </summary>
         </member>
         <member name="M:GadgetCore.API.EquipStatsDouble.op_Addition(GadgetCore.API.EquipStatsDouble,GadgetCore.API.EquipStatsDouble)">
@@ -2036,13 +2076,14 @@
             <param name="item">The item to spawn.</param>
             <param name="isChip">True to drop a chip instead of a normal item.</param>
         </member>
-        <member name="M:GadgetCore.API.GadgetCoreAPI.SpawnExp(UnityEngine.Vector3,System.Int32)">
+        <member name="M:GadgetCore.API.GadgetCoreAPI.SpawnExp(UnityEngine.Vector3,System.Int32,System.Single)">
             <summary>
             Use to spawn exp into the world.
             You may notice that the vanilla game's source-code uses Resources.Load to spawn exp. You should not use that.
             </summary>
             <param name="pos">The position to spawn the item at. Note that despite being a 2D game, Roguelands uses 3D space. That being said, the z-coordinate should nearly always be 0.</param>
             <param name="exp">The amount of exp points to spawn.</param>
+            <param name="delay">The optional amount of time to wait between spawning each exp orb.</param>
         </member>
         <member name="M:GadgetCore.API.GadgetCoreAPI.DropItem(UnityEngine.Vector3,Item,System.Boolean)">
             <summary>
@@ -2954,11 +2995,6 @@
         <member name="M:GadgetCore.API.ItemInfo.#ctor(GadgetCore.API.ItemType,System.String,System.String,UnityEngine.Material,System.Int32,GadgetCore.API.EquipStats,UnityEngine.Material,UnityEngine.Material,UnityEngine.Material,UnityEngine.Material)">
             <summary>
             Use to create a new ItemInfo. Make sure to call Register on it to register your Item.
-            </summary>
-        </member>
-        <member name="M:GadgetCore.API.ItemInfo.SetWeaponInfo(System.Single[],UnityEngine.AudioClip,System.Int32,System.Int32,System.Int32)">
-            <summary>
-            Sets the special info unique to weapons. This must be called before Register. If this is item is a weapon and you are using one of the provided OnAttack routines, you must call this.
             </summary>
         </member>
         <member name="M:GadgetCore.API.ItemInfo.SetWeaponInfo(System.Single[],UnityEngine.AudioClip,System.Single,System.Single,System.Int32)">

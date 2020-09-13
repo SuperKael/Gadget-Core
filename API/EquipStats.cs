@@ -159,6 +159,46 @@ namespace GadgetCore.API
         }
 
         /// <summary>
+        /// Determines if this EquipStats and the given EquipStats have the same stat values.
+        /// </summary>
+        public override bool Equals(object obj)
+        {
+            return obj is EquipStats stats ? this == stats : base.Equals(obj);
+        }
+
+        /// <summary>
+        /// Gets a hash code for this EquipStats.
+        /// </summary>
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                int hash = VIT.GetHashCode();
+                hash = 31 * hash + STR.GetHashCode();
+                hash = 31 * hash + DEX.GetHashCode();
+                hash = 31 * hash + TEC.GetHashCode();
+                hash = 31 * hash + MAG.GetHashCode();
+                return 31 * hash + FTH.GetHashCode();
+            }
+        }
+
+        /// <summary>
+        /// Determines if the two given EquipStats have the same stat values.
+        /// </summary>
+        public static bool operator ==(EquipStats a, EquipStats b)
+        {
+            return a.VIT == b.VIT && a.STR == b.STR && a.DEX == b.DEX && a.TEC == b.TEC && a.MAG == b.MAG && a.FTH == b.FTH;
+        }
+
+        /// <summary>
+        /// Determines if the two given EquipStats do not have the same stat values.
+        /// </summary>
+        public static bool operator !=(EquipStats a, EquipStats b)
+        {
+            return a.VIT != b.VIT || a.STR != b.STR || a.DEX != b.DEX || a.TEC != b.TEC || a.MAG != b.MAG || a.FTH != b.FTH;
+        }
+
+        /// <summary>
         /// Creates a new EquipStats by adding together the values of two other EquipStats.
         /// </summary>
         public static EquipStats operator +(EquipStats a, EquipStats b)
@@ -381,7 +421,7 @@ namespace GadgetCore.API
         }
 
         /// <summary>
-        /// Adds this EquipStat's values to the given stat value array. The array must be of length 6.
+        /// Adds this EquipStatsDouble's values to the given stat value array. The array must be of length 6.
         /// </summary>
         public double[] AddTo(double[] statArray)
         {
@@ -396,7 +436,7 @@ namespace GadgetCore.API
         }
 
         /// <summary>
-        /// Subtracts this EquipStat's values from the given stat value array. The array must be of length 6.
+        /// Subtracts this EquipStatsDouble's values from the given stat value array. The array must be of length 6.
         /// </summary>
         public double[] SubtractFrom(double[] statArray)
         {
@@ -408,6 +448,46 @@ namespace GadgetCore.API
             statArray[4] -= MAG;
             statArray[5] -= FTH;
             return statArray;
+        }
+
+        /// <summary>
+        /// Determines if this EquipStatsDouble and the given EquipStatsDouble have the same stat values.
+        /// </summary>
+        public override bool Equals(object obj)
+        {
+            return obj is EquipStatsDouble stats ? this == stats : base.Equals(obj);
+        }
+
+        /// <summary>
+        /// Gets a hash code for this EquipStatsDouble.
+        /// </summary>
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                int hash = VIT.GetHashCode();
+                hash = 31 * hash + STR.GetHashCode();
+                hash = 31 * hash + DEX.GetHashCode();
+                hash = 31 * hash + TEC.GetHashCode();
+                hash = 31 * hash + MAG.GetHashCode();
+                return 31 * hash + FTH.GetHashCode();
+            }
+        }
+
+        /// <summary>
+        /// Determines if the two given EquipStatsDouble have the same stat values.
+        /// </summary>
+        public static bool operator ==(EquipStatsDouble a, EquipStatsDouble b)
+        {
+            return a.VIT == b.VIT && a.STR == b.STR && a.DEX == b.DEX && a.TEC == b.TEC && a.MAG == b.MAG && a.FTH == b.FTH;
+        }
+
+        /// <summary>
+        /// Determines if the two given EquipStatsDouble do not have the same stat values.
+        /// </summary>
+        public static bool operator !=(EquipStatsDouble a, EquipStatsDouble b)
+        {
+            return a.VIT != b.VIT || a.STR != b.STR || a.DEX != b.DEX || a.TEC != b.TEC || a.MAG != b.MAG || a.FTH != b.FTH;
         }
 
         /// <summary>
