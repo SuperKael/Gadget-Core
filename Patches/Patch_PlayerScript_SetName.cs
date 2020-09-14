@@ -54,6 +54,10 @@ namespace GadgetCore.Patches
                 while (GadgetCoreAPI.GetPlayerByName(n + "-" + num) != null) num++;
                 n = n + "-" + num;
             }
+            else
+            {
+                existingPlayer = __instance;
+            }
             foreach (KeyValuePair<string, PlayerScript> entry in GadgetCoreAPI.playersByName.Where(x => x.Value == __instance).ToList())
             {
                 GadgetCoreAPI.playersByName.Remove(entry.Key);

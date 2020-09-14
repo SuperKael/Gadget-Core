@@ -23,7 +23,7 @@ namespace GadgetCore.API
         /// <summary>
         /// A slightly more informative version. You generally shouldn't access this directly, instead use <see cref="GetFullVersion()"/>
         /// </summary>
-        public const string FULL_VERSION = "2.0.0.0-BETA11";
+        public const string FULL_VERSION = "2.0.0.0-BETA12";
         /// <summary>
         /// Indicates whether this version of GadgetCore is a beta version. You generally shouldn't access this directly, instead use <see cref="GetIsBeta()"/>
         /// </summary>
@@ -408,7 +408,7 @@ namespace GadgetCore.API
                 if (Network.isServer)
                 {
                     ItemScript itemScript = ((GameObject)Network.Instantiate(Resources.Load("i"), pos, Quaternion.identity, 0)).GetComponent<ItemScript>();
-                    itemScript.SendMessage("Init", st);
+                    itemScript.gameObject.GetComponent<NetworkView>().RPC("Init", RPCMode.AllBuffered, st);
                 }
                 else
                 {
@@ -422,7 +422,7 @@ namespace GadgetCore.API
             else
             {
                 ItemScript itemScript = ((GameObject)Network.Instantiate(Resources.Load("i"), pos, Quaternion.identity, 0)).GetComponent<ItemScript>();
-                itemScript.SendMessage("Chip", item.id);
+                itemScript.gameObject.GetComponent<NetworkView>().RPC("Chip", RPCMode.AllBuffered, item.id);
             }
         }
 
@@ -655,14 +655,14 @@ namespace GadgetCore.API
             {
                 int[] st = ConstructIntArrayFromItem(item);
                 ItemScript itemScript = ((GameObject)Network.Instantiate(Resources.Load("i2"), pos, Quaternion.identity, 0)).GetComponent<ItemScript>();
-                itemScript.SendMessage("Init", st);
+                itemScript.gameObject.GetComponent<NetworkView>().RPC("Init", RPCMode.AllBuffered, st);
                 if (ItemRegistry.GetSingleton().HasEntry(item.id) && (ItemRegistry.GetSingleton().GetEntry(item.id).Type & ItemType.EQUIPABLE) == ItemType.EQUIPABLE) itemScript.back.SetActive(true);
                 return itemScript;
             }
             else
             {
                 ItemScript itemScript = ((GameObject)Network.Instantiate(Resources.Load("i2"), pos, Quaternion.identity, 0)).GetComponent<ItemScript>();
-                itemScript.SendMessage("Chip", item.id);
+                itemScript.gameObject.GetComponent<NetworkView>().RPC("Chip", RPCMode.AllBuffered, item.id);
                 return itemScript;
             }
         }
