@@ -14,9 +14,9 @@ namespace GadgetCore.Patches
         [HarmonyPrefix]
         public static bool Prefix(ChunkWorld __instance, int[] msg, ref GameObject[,] ___gridSpecialObj)
         {
-            if (TileRegistry.GetSingleton().HasEntry(msg[2]))
+            if (TileRegistry.Singleton.HasEntry(msg[2]))
             {
-                TileInfo tile = TileRegistry.GetSingleton().GetEntry(msg[2]);
+                TileInfo tile = TileRegistry.Singleton.GetEntry(msg[2]);
                 int num = msg[0];
                 int num2 = msg[1];
                 int num3 = (num + 62) / 4;

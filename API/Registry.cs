@@ -1,5 +1,6 @@
 ﻿using GadgetCore.Loader;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -11,9 +12,13 @@ namespace GadgetCore.API
     /// <typeparam name="R">Registry Type</typeparam>
     /// <typeparam name="E">Entry Type</typeparam>
     /// <typeparam name="T">Entry Type Enum</typeparam>
-    public abstract class Registry<R, E, T> : Registry<E, T> where R : Registry<R, E, T>, new() where E : RegistryEntry<E, T> where T : Enum
+    public abstract class Registry<R, E, T> : Registry<E, T>, IEnumerable<E> where R : Registry<R, E, T>, new() where E : RegistryEntry<E, T> where T : Enum
     {
-        private static Registry<R, E, T> Singleton { get; } = new R();
+        /// <summary>
+        /// Represents this Registry's singleton.
+        /// </summary>
+        public static Registry<R, E, T> Singleton { get; } = new R();
+
         private static Dictionary<T, int> lastUsedIDs = new Dictionary<T, int>();
         private readonly Dictionary<int, E> IDRegistry = new Dictionary<int, E>();
         private readonly Dictionary<string, E> NameRegistry = new Dictionary<string, E>();
@@ -28,9 +33,16 @@ namespace GadgetCore.API
             {
                 throw new InvalidOperationException("This registry entry is not yet ready to be registered, or has already been registered!");
             }
-            if (name != null && !name.All(x => char.IsLetterOrDigit(x) || x == ' ')) throw new InvalidOperationException("Registry name must be alphanumeric!");
-            if (name == null && preferredID >= 0) name = preferredID.ToString();
-            string registryName = Gadgets.GetGadgetInfo(modRegistering).Attribute.Name + ":" + name;
+            string modNamePrefix = Gadgets.GetGadgetInfo(modRegistering).Attribute.Name + ":";
+            bool hasPrefix = false;
+            if (name != null)
+            {
+                hasPrefix = name.StartsWith(modNamePrefix);
+                if (!(hasPrefix ? name.Substring(modNamePrefix.Length) : name).All(x => char.IsLetterOrDigit(x) || x == ' ')) throw new InvalidOperationException("Registry name must be alphanumeric!");
+            }
+            if (name == null) name = overrideExisting && Singleton.HasEntry(preferredID) ? Singleton[preferredID].RegistryName.Substring(Singleton[preferredID].RegistryName.IndexOf(':') + 1) : Singleton.GenerateDefaultRegistryName(preferredID);
+            if (name == null) throw new InvalidOperationException("Must provide a registry name!");
+            string registryName = hasPrefix ? name : modNamePrefix + name;
             int reservedID = Singleton.GetReservedID(registryName);
             if (reservedID >= 0 && preferredID < 0)
             {
@@ -74,6 +86,14 @@ namespace GadgetCore.API
         }
 
         /// <summary>
+        /// Used to provide a default name if a registry entry is registered without a registry name.
+        /// </summary>
+        protected virtual string GenerateDefaultRegistryName(int ID)
+        {
+            return ID >= 0 ? ID.ToString() : null;
+        }
+
+        /// <summary>
         /// Called after the specified Registry Entry has been registered. You should never call this yourself. Note that this is called before <see cref="RegistryEntry{E, T}.PostRegister"/>
         /// </summary>
         protected virtual void PostRegistration(E entry) { }
@@ -98,7 +118,9 @@ namespace GadgetCore.API
 
         /// <summary>
         /// Gets the singleton for this registry.
+        /// Deprecated: Use the Singleton property instead.
         /// </summary>
+        [Obsolete("GetSingleton has been deprecated, use the Singleton property instead.")]
         public static Registry<R, E, T> GetSingleton()
         {
             return Singleton;
@@ -137,11 +159,64 @@ namespace GadgetCore.API
         }
 
         /// <summary>
+        /// Equivalent to calling <see cref="GetEntry(int)"/>
+        /// </summary>
+        public E this[int id]
+        {
+            get
+            {
+                return GetEntry(id);
+            }
+
+            set
+            {
+                Register(value, null, id);
+            }
+        }
+
+        /// <summary>
+        /// Equivalent to calling <see cref="GetEntry(string)"/>
+        /// </summary>
+        public E this[string name]
+        {
+            get
+            {
+                return GetEntry(name);
+            }
+
+            set
+            {
+                Register(value, name);
+            }
+        }
+
+        /// <summary>
         /// Returns the Registry Entry's Type. Not to be confused with <see cref="RegistryEntry{E, T}.GetEntryType"/>, which returns an enum value.
         /// </summary>
         public sealed override Type GetEntryType()
         {
             return typeof(E);
+        }
+
+        /// <summary>
+        /// Returns an array of every entry in this Registry
+        /// </summary>
+        public E[] GetAllEntries()
+        {
+            return IDRegistry.Values.ToArray();
+        }
+
+        /// <summary>
+        /// Returns an enumerator for the entries in this Registry
+        /// </summary>
+        public IEnumerator<E> GetEnumerator()
+        {
+            return IDRegistry.Values.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
         }
     }
 

@@ -431,11 +431,18 @@ namespace GadgetCore.Loader
                 {
                     gadget.Mod.Assembly.GetExportedTypes().Do(delegate (Type type)
                     {
-                        object[] attributes = type.GetCustomAttributes(true);
-                        if ((attributes.FirstOrDefault(x => x.GetType() == typeof(HarmonyGadgetAttribute)) as HarmonyGadgetAttribute)?.Gadget == gadget.Attribute.Name)
+                        HarmonyGadgetAttribute attribute = type.GetCustomAttributes(true).FirstOrDefault(x => x.GetType() == typeof(HarmonyGadgetAttribute)) as HarmonyGadgetAttribute;
+                        if (attribute?.Gadget == gadget.Attribute.Name && attribute.RequiredGadgets.All(x => Gadgets.GetGadget(x) != null))
                         {
-                            gadget.Gadget.HarmonyInstance.CreateClassProcessor(type).Patch();
-                            patches++;
+                            try
+                            {
+                                gadget.Gadget.HarmonyInstance.CreateClassProcessor(type).Patch();
+                                patches++;
+                            }
+                            catch (Exception e)
+                            {
+                                Logger.LogError("Exception running patch '" + type.Name + "' for Gadget '" + gadget.Attribute.Name + "': " + Environment.NewLine + e.ToString());
+                            }
                         }
                     });
                     Logger.Log("Performed " + patches + " patches for " + gadget.Attribute.Name);
@@ -446,7 +453,7 @@ namespace GadgetCore.Loader
                     GadgetCoreConfig.enabledGadgets[gadget.Attribute.Name] = false;
                     Gadgets.UnregisterGadget(gadget);
                     QueuedGadgets.Remove(gadget);
-                    Logger.LogError("Exception Patching Gadget '" + gadget.Attribute.Name + "':" + Environment.NewLine + e.ToString());
+                    Logger.LogError("Exception patching Gadget '" + gadget.Attribute.Name + "':" + Environment.NewLine + e.ToString());
                 }
             }
             Logger.Log("Done patching Gadgets.");
@@ -498,6 +505,7 @@ namespace GadgetCore.Loader
                 GadgetCoreAPI.RemoveModResources(gadget.Gadget.ModID);
                 GadgetCoreAPI.UnregisterStatModifiers(gadget.Gadget.ModID);
                 GadgetNetwork.UnregisterSyncVars(gadget.Gadget.ModID);
+                PlanetRegistry.UnregisterGadget(gadget.Gadget.ModID);
                 foreach (Registry reg in GameRegistry.ListAllRegistries())
                 {
                     reg.UnregisterGadget(gadget);

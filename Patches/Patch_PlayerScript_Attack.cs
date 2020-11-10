@@ -11,9 +11,9 @@ namespace GadgetCore.Patches
         [HarmonyPrefix]
         public static bool Prefix(PlayerScript __instance, ref bool ___attacking, ref bool ___canAttack, ref GameScript ___gameScript, ref IEnumerator __result)
         {
-            if (ItemRegistry.GetSingleton().HasEntry(GameScript.equippedIDs[0]) && !___attacking && ___canAttack && !___gameScript.combatSwitching && !PlayerScript.beaming && !VanillaItemInfo.Attacking)
+            if (ItemRegistry.Singleton.HasEntry(GameScript.equippedIDs[0]) && !___attacking && ___canAttack && !___gameScript.combatSwitching && !PlayerScript.beaming && !VanillaItemInfo.Attacking)
             {
-                ItemRegistry.GetSingleton().GetEntry(GameScript.equippedIDs[0]).InvokeOnAttack(__instance);
+                ItemRegistry.Singleton.GetEntry(GameScript.equippedIDs[0]).InvokeOnAttack(__instance);
                 __result = GadgetCoreAPI.EmptyEnumerator();
                 return false;
             }

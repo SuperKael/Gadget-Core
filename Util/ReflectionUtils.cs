@@ -13,6 +13,15 @@ namespace GadgetCore.Util
         private static Dictionary<MethodInfoData, MethodInfo> cachedMethods = new Dictionary<MethodInfoData, MethodInfo>();
 
         /// <summary>
+        /// Gets the value of this <see cref="FieldInfo"/>
+        /// </summary>
+        public static T GetValue<T>(this FieldInfo field, object obj)
+        {
+            if (!typeof(T).IsAssignableFrom(field.FieldType)) throw new InvalidCastException("Cannot cast from " + field.FieldType + " to " + typeof(T));
+            return field.GetValue(obj) is T value ? value : default;
+        }
+
+        /// <summary>
         /// Invokes the method with the specified name and parameters.
         /// </summary>
         /// <param name="type">The object instance to invoke upon.</param>
@@ -21,7 +30,7 @@ namespace GadgetCore.Util
         /// <returns>The value returned by the invoked method.</returns>
         public static T InvokeMethod<T>(this object type, string methodName, params object[] parameters)
         {
-            return (T)InvokeMethod(type, methodName, null, parameters);
+            return InvokeMethod(type, methodName, null, parameters) is T value ? value : default;
         }
 
         /// <summary>
@@ -34,7 +43,7 @@ namespace GadgetCore.Util
         /// <returns>The value returned by the invoked method.</returns>
         public static T InvokeMethod<T>(this object type, string methodName, Type[] generics, params object[] parameters)
         {
-            return (T)InvokeMethod(type, methodName, generics, parameters);
+            return InvokeMethod(type, methodName, generics, parameters) is T value ? value : default;
         }
 
         /// <summary>

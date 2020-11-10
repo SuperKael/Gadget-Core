@@ -21,14 +21,14 @@ namespace GadgetCore.Patches
         [HarmonyPrefix]
         public static bool Prefix(GameScript __instance, int slot, ref Item ___holdingItem, ref Item[] ___inventory, bool ___emblemAgain)
         {
-            ItemInfo itemInfo = ItemRegistry.GetSingleton().GetEntry(___holdingItem.id);
-            ItemType holdingItemType = itemInfo != null ? (itemInfo.Type & (ItemType.BASIC_MASK | ItemType.TYPE_MASK)) : ItemRegistry.GetDefaultTypeByID(___holdingItem.id);
+            ItemInfo itemInfo = ItemRegistry.Singleton.GetEntry(___holdingItem.id);
+            ItemType holdingItemType = itemInfo != null ? (itemInfo.Type & (ItemType.EQUIP_MASK | ItemType.TYPE_MASK)) : ItemRegistry.GetDefaultTypeByID(___holdingItem.id);
             if ((holdingItemType & ItemType.NONSTACKING) == ItemType.NONSTACKING)
             {
                 SwapItem.Invoke(__instance, new object[] { slot });
                 return false;
             }
-            if ((slot == 36 && (holdingItemType & ItemType.BASIC_MASK) != ItemType.WEAPON) || (slot == 37 && ((holdingItemType & ItemType.BASIC_MASK) != ItemType.OFFHAND)) || (slot == 38 && ((holdingItemType & ItemType.BASIC_MASK) != ItemType.HELMET)) || (slot == 39 && ((holdingItemType & ItemType.BASIC_MASK) != ItemType.ARMOR)) || ((slot == 40 || slot == 41) && ((holdingItemType & ItemType.BASIC_MASK) != ItemType.RING)) || (slot > 41 && ((holdingItemType & ItemType.BASIC_MASK) != ItemType.DROID)))
+            if ((slot == 36 && (holdingItemType & ItemType.EQUIP_MASK) != ItemType.WEAPON) || (slot == 37 && ((holdingItemType & ItemType.EQUIP_MASK) != ItemType.OFFHAND)) || (slot == 38 && ((holdingItemType & ItemType.EQUIP_MASK) != ItemType.HELMET)) || (slot == 39 && ((holdingItemType & ItemType.EQUIP_MASK) != ItemType.ARMOR)) || ((slot == 40 || slot == 41) && ((holdingItemType & ItemType.EQUIP_MASK) != ItemType.RING)) || (slot > 41 && ((holdingItemType & ItemType.EQUIP_MASK) != ItemType.DROID)))
             {
                 MonoBehaviour.print("CANNOT PUT THAT THERE!");
             }

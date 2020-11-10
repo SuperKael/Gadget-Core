@@ -14,7 +14,7 @@ namespace GadgetCore.API
         /// </summary>
         /// <param name="ID">The vanilla ID to be wrapped.</param>
         /// <param name="registerItem">Whether the VanillaItemInfo that matches this Tile ID should be wrapped into the ItemRegistry.</param>
-        protected VanillaTileInfo(int ID, bool registerItem = false) : base(TileRegistry.GetDefaultTypeByID(ID), GadgetCoreAPI.GetTileMaterial(ID), TileRegistry.GetDefaultTypeByID(ID) == TileType.INTERACTIVE ? GadgetCoreAPI.GetPlaceableNPCResource(ID) : GadgetCoreAPI.GetPropResource(ID), ItemRegistry.GetSingleton().HasEntry(ID) ? ItemRegistry.GetSingleton().GetEntry(ID) : VanillaItemInfo.WrapForTile(ID, registerItem))
+        protected VanillaTileInfo(int ID, bool registerItem = false) : base(TileRegistry.GetDefaultTypeByID(ID), GadgetCoreAPI.GetTileMaterial(ID), TileRegistry.GetDefaultTypeByID(ID) == TileType.INTERACTIVE ? GadgetCoreAPI.GetPlaceableNPCResource(ID) : GadgetCoreAPI.GetPropResource(ID), ItemRegistry.Singleton.HasEntry(ID) ? ItemRegistry.Singleton.GetEntry(ID) : VanillaItemInfo.WrapForTile(ID, registerItem))
         {
             this.ID = ID;
         }

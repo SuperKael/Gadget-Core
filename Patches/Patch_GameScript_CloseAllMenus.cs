@@ -11,13 +11,9 @@ namespace GadgetCore.Patches
         [HarmonyPrefix]
         public static void Prefix(GameScript __instance)
         {
-            if (GadgetCoreAPI.menus != null)
+            foreach (MenuInfo menu in MenuRegistry.Singleton)
             {
-                foreach (GameObject menu in GadgetCoreAPI.menus)
-                {
-                    menu.SendMessage("OnMenuClosed", options: SendMessageOptions.DontRequireReceiver);
-                    menu.SetActive(false);
-                }
+                menu.CloseMenu();
             }
         }
     }

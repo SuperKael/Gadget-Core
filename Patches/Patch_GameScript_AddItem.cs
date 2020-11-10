@@ -40,7 +40,7 @@ namespace GadgetCore.Patches
             {
                 for (int i = 0; i < 36; i++)
                 {
-                    if (inventory[i].id == package.item.id && inventory[i].corrupted == package.item.corrupted && inventory[i].q < 9999)
+                    if (GadgetCoreAPI.CanItemsStack(inventory[i], package.item) && inventory[i].q < 9999)
                     {
                         inventory[i].q += package.item.q;
                         if (inventory[i].q > 9999)
@@ -59,7 +59,7 @@ namespace GadgetCore.Patches
             }
             if (!flag)
             {
-                for (int i = (type & ItemType.BASIC_MASK) == ItemType.DROID ? 6 : 0; i < 36; i++)
+                for (int i = (type & ItemType.EQUIP_MASK) == ItemType.DROID ? 6 : 0; i < 36; i++)
                 {
                     if (inventory[i].id == 0)
                     {

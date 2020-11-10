@@ -9,7 +9,7 @@ namespace GadgetCore.Util
     /// <summary>
     /// Implementation of <see cref="IComparer{T}"/> that uses a <see cref="Comparison{T}"/>
     /// </summary>
-    public class ComparisonComparer<T> : Comparer<T>
+    public class ComparisonComparer<T> : Comparer<T>, IEqualityComparer<T>
     {
         private Comparison<T> comparison;
 
@@ -27,6 +27,22 @@ namespace GadgetCore.Util
         public override int Compare(T x, T y)
         {
             return comparison(x, y);
+        }
+
+        /// <summary>
+        /// Performs comparison of two objects of the same type and determines if they can be considered equal by the comparison.
+        /// </summary>
+        public bool Equals(T x, T y)
+        {
+            return comparison(x, y) == 0;
+        }
+
+        /// <summary>
+        /// Calls T's GetHashCode.
+        /// </summary>
+        public int GetHashCode(T obj)
+        {
+            return obj.GetHashCode();
         }
     }
 }

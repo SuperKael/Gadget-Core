@@ -14,14 +14,14 @@ namespace GadgetCore.Patches
         public static bool Prefix(GameScript __instance, int slot, Item[] ___inventory, Item ___holdingItem)
         {
             Item item = ___inventory[slot];
-            if (item.corrupted != ___holdingItem.corrupted)
+            if (!GadgetCoreAPI.CanItemsStack(item, ___holdingItem))
             {
                 SwapItem.Invoke(__instance, new object[] { slot });
                 return false;
             }
-            if (ItemRegistry.GetSingleton().HasEntry(item.id))
+            if (ItemRegistry.Singleton.HasEntry(item.id))
             {
-                ItemInfo info = ItemRegistry.GetSingleton().GetEntry(item.id);
+                ItemInfo info = ItemRegistry.Singleton.GetEntry(item.id);
                 if ((info.Type & ItemType.NONSTACKING) == ItemType.NONSTACKING)
                 {
                     SwapItem.Invoke(__instance, new object[] { slot });

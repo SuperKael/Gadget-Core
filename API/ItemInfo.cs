@@ -158,7 +158,7 @@ namespace GadgetCore.API
         }
 
         /// <summary>
-        /// Sets the special info unique to weapons. This must be called before Register. If this is item is a weapon and you are using one of the provided OnAttack routines, you must call this. When setting the crit bonuses, explicitly pass the values as floats to avoid ambiguity with the obsolete version.
+        /// Sets the special info unique to weapons. This must be called before Register. If this is item is a weapon and you are using one of the provided OnAttack routines, you must call this.
         /// </summary>
         public ItemInfo SetWeaponInfo(float[] WeaponScaling, AudioClip AttackSound, float CritChanceBonus = 0, float CritPowerBonus = 0, int ProjectileID = -1)
         {
@@ -195,7 +195,7 @@ namespace GadgetCore.API
         /// </summary>
         protected internal override void PostRegister()
         {
-            if ((Type & ItemType.BASIC_MASK) == (ItemType.WEAPON & ItemType.BASIC_MASK) && WeaponScaling == null) throw new ArgumentException("WeaponScaling must be set on weapons!");
+            if ((Type & ItemType.EQUIP_MASK) == (ItemType.WEAPON & ItemType.EQUIP_MASK) && WeaponScaling == null) throw new ArgumentException("WeaponScaling must be set on weapons!");
             if (ProjectileID < 0) ProjectileID = ID;
             if (Mat == null)
             {
@@ -222,8 +222,8 @@ namespace GadgetCore.API
                 {
                     HeldTex = HeldMat.mainTexture;
                 }
-                if ((Type & (ItemType.BASIC_MASK | ItemType.TYPE_MASK)) == ItemType.WEAPON) GadgetCoreAPI.AddCustomResource("ie/ie" + ID, HeldMat);
-                if ((Type & (ItemType.BASIC_MASK | ItemType.TYPE_MASK)) == ItemType.OFFHAND) GadgetCoreAPI.AddCustomResource("o/o" + ID, HeldMat);
+                if ((Type & (ItemType.EQUIP_MASK | ItemType.TYPE_MASK)) == ItemType.WEAPON) GadgetCoreAPI.AddCustomResource("ie/ie" + ID, HeldMat);
+                if ((Type & (ItemType.EQUIP_MASK | ItemType.TYPE_MASK)) == ItemType.OFFHAND) GadgetCoreAPI.AddCustomResource("o/o" + ID, HeldMat);
             }
             if (HeadTex != null || HeadMat != null)
             {
@@ -238,7 +238,7 @@ namespace GadgetCore.API
                 {
                     HeadTex = HeadMat.mainTexture;
                 }
-                GadgetCoreAPI.AddCustomResource((Type & (ItemType.BASIC_MASK | ItemType.TYPE_MASK)) == ItemType.DROID ? ("droid/d" + ID + "h") : "h/h" + ID, HeadMat);
+                GadgetCoreAPI.AddCustomResource((Type & (ItemType.EQUIP_MASK | ItemType.TYPE_MASK)) == ItemType.DROID ? ("droid/d" + ID + "h") : "h/h" + ID, HeadMat);
             }
             if (BodyTex != null || BodyMat != null)
             {
@@ -253,7 +253,7 @@ namespace GadgetCore.API
                 {
                     BodyTex = BodyMat.mainTexture;
                 }
-                GadgetCoreAPI.AddCustomResource((Type & (ItemType.BASIC_MASK | ItemType.TYPE_MASK)) == ItemType.DROID ? ("droid/d" + ID + "b") : "b/b" + ID, BodyMat);
+                GadgetCoreAPI.AddCustomResource((Type & (ItemType.EQUIP_MASK | ItemType.TYPE_MASK)) == ItemType.DROID ? ("droid/d" + ID + "b") : "b/b" + ID, BodyMat);
             }
             if (ArmTex != null || ArmMat != null)
             {
@@ -281,11 +281,11 @@ namespace GadgetCore.API
                 {
                     Value = 9999;
                 }
-                else if ((Type & (ItemType.BASIC_MASK | ItemType.TYPE_MASK)) == ItemType.LOOT)
+                else if ((Type & (ItemType.EQUIP_MASK | ItemType.TYPE_MASK)) == ItemType.LOOT)
                 {
                     Value = 2;
                 }
-                else if ((Type & (ItemType.BASIC_MASK | ItemType.TYPE_MASK)) == ItemType.EMBLEM)
+                else if ((Type & (ItemType.EQUIP_MASK | ItemType.TYPE_MASK)) == ItemType.EMBLEM)
                 {
                     Value = 15;
                 }
@@ -477,7 +477,7 @@ namespace GadgetCore.API
         /// </summary>
         public override Registry<ItemInfo, ItemType> GetRegistry()
         {
-            return Registry<ItemRegistry, ItemInfo, ItemType>.GetSingleton();
+            return ItemRegistry.Singleton;
         }
 
         /// <summary>
@@ -524,7 +524,7 @@ namespace GadgetCore.API
         /// </summary>
         public override bool ReadyToRegister()
         {
-            return base.ReadyToRegister() && !((Type & ItemType.BASIC_MASK) == (ItemType.WEAPON & ItemType.BASIC_MASK) && WeaponScaling == null);
+            return base.ReadyToRegister() && !((Type & ItemType.EQUIP_MASK) == (ItemType.WEAPON & ItemType.EQUIP_MASK) && WeaponScaling == null);
         }
 
         /// <summary>

@@ -12,9 +12,9 @@ namespace GadgetCore.Patches
         [HarmonyPrefix]
         public static bool Prefix(ChunkWorld __instance, byte brick, Vector3 corner, Vector3 up, Vector3 right, bool reversed, List<Vector3> verts, List<Vector2> uvs, List<int> tris, int id, int face)
         {
-            if (TileRegistry.GetSingleton().HasEntry(id))
+            if (TileRegistry.Singleton.HasEntry(id))
             {
-                TileInfo tile = TileRegistry.GetSingleton().GetEntry(id);
+                TileInfo tile = TileRegistry.Singleton.GetEntry(id);
                 if (tile.Type == TileType.SOLID || tile.Type == TileType.WALL)
                 {
                     verts.Add(corner);

@@ -3,6 +3,7 @@ using GadgetCore.API;
 using UnityEngine;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace GadgetCore.Patches
 {
@@ -22,6 +23,31 @@ namespace GadgetCore.Patches
             foreach (GadgetInfo mod in Gadgets.ListAllGadgetInfos())
             {
                 gadgetHookScriptHolder.AddComponent<GadgetHookScript>().Mod = mod;
+            }
+        }
+
+        [HarmonyPostfix]
+        public static void Postfix(GameScript __instance)
+        {
+            foreach (MenuInfo menu in MenuRegistry.Singleton)
+            {
+                if (menu is CraftMenuInfo craftMenu)
+                {
+                    craftMenu.unlockedRecipes = new HashSet<int>(PlayerPrefs.GetString("craftMenu" + craftMenu.ID + "unlocks")?.Split(',').Select(x => int.TryParse(x, out int val) ? (int?)val : null).Where(x => x.HasValue).Select(x => x.Value)) ?? new HashSet<int>();
+                }
+            }
+            foreach (PlanetInfo planet in PlanetRegistry.Singleton)
+            {
+                planet.Relics = PreviewLabs.PlayerPrefs.GetInt("planetRelics" + planet.ID);
+                if (planet.Relics > 99)
+                {
+                    planet.Relics = 99;
+                    planet.PortalUses = -1;
+                }
+                else
+                {
+                    planet.PortalUses = PreviewLabs.PlayerPrefs.GetInt("portalUses" + planet.ID);
+                }
             }
         }
     }

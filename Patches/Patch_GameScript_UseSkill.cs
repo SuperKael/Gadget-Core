@@ -18,9 +18,9 @@ namespace GadgetCore.Patches
         {
             if (GadgetCoreAPI.IsInputFrozen()) return false;
             int chipID = ___combatChips[slot];
-            if (ChipRegistry.GetSingleton().HasEntry(chipID))
+            if (ChipRegistry.Singleton.HasEntry(chipID))
             {
-                ChipInfo chip = ChipRegistry.GetSingleton().GetEntry(chipID);
+                ChipInfo chip = ChipRegistry.Singleton.GetEntry(chipID);
                 if (!___skilling && !___skillUsin[slot])
                 {
 

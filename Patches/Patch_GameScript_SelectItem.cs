@@ -20,8 +20,8 @@ namespace GadgetCore.Patches
         [HarmonyPrefix]
         public static bool Prefix(GameScript __instance, int slot, ref Item ___holdingItem, ref Item[] ___inventory, ref int ___droidCount)
         {
-            ItemInfo itemInfo = ItemRegistry.GetSingleton().GetEntry(___inventory[slot].id);
-            ItemType slotItemType = itemInfo != null ? (itemInfo.Type & (ItemType.BASIC_MASK | ItemType.TYPE_MASK)) : ItemRegistry.GetDefaultTypeByID(___inventory[slot].id);
+            ItemInfo itemInfo = ItemRegistry.Singleton.GetEntry(___inventory[slot].id);
+            ItemType slotItemType = itemInfo != null ? (itemInfo.Type & (ItemType.EQUIP_MASK | ItemType.TYPE_MASK)) : ItemRegistry.GetDefaultTypeByID(___inventory[slot].id);
             __instance.GetComponent<AudioSource>().PlayOneShot((AudioClip)Resources.Load("Au/CLICK1"), Menuu.soundLevel / 10f);
             ___holdingItem = ___inventory[slot];
             ___inventory[slot] = new Item(0, 0, 0, 0, 0, new int[3], new int[3]);

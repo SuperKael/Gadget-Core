@@ -1,5 +1,6 @@
 ﻿using GadgetCore.API;
 using HarmonyLib;
+using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -472,7 +473,7 @@ namespace GadgetCore.Util
                 if (field.IsStatic)
                 {
                     if (insert) ShiftInsns(target, 1);
-                    Insns[targetIndex] = new CodeInstruction(OpCodes.Ldfld, field);
+                    Insns[targetIndex] = new CodeInstruction(OpCodes.Ldsfld, field);
                 }
                 else
                 {
@@ -674,6 +675,22 @@ namespace GadgetCore.Util
                 public ILRef GetRefByOffset(int offset)
                 {
                     return processor.GetRefByOffset(this, offset);
+                }
+
+                /// <summary>
+                /// Returns an <see cref="ILRef"/> for the instruction with its index offset from the given <see cref="ILRef"/>
+                /// </summary>
+                public static ILRef operator +(ILRef ilRef, int offset)
+                {
+                    return ilRef.GetRefByOffset(offset);
+                }
+
+                /// <summary>
+                /// Returns an <see cref="ILRef"/> for the instruction with its index offset from the given <see cref="ILRef"/>
+                /// </summary>
+                public static ILRef operator -(ILRef ilRef, int offset)
+                {
+                    return ilRef.GetRefByOffset(-offset);
                 }
             }
         }

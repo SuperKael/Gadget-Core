@@ -592,6 +592,10 @@ namespace GadgetCore
                 "Reloads the specified Gadget.",
                 "Reloads the specified Gadget. Will ask for confirmation, and lists other Gadgets that will be reloaded as a consequence.\nUses the syntax: /reloadgadget <gadget>",
                 "rlg");
+            RegisterCommand("debugmode", true, CoreCommands.DebugMode,
+                "Toggles debug mode.",
+                "Toggles the game's built-in debug mode. Use with caution.\nUses the syntax: /debugmode",
+                "debug");
         }
 
         /// <summary>
@@ -792,28 +796,28 @@ namespace GadgetCore
                                     return new GadgetConsoleMessage("`" + splitProperty[1] + "` is not a valid number!", null, MessageSeverity.ERROR);
                                 }
                                 break;
-                            case "aspect1Lvl":
-                            case "mod1Lvl":
-                            case "aspect1Count":
-                            case "mod1Count":
+                            case "aspect1lvl":
+                            case "mod1lvl":
+                            case "aspect1count":
+                            case "mod1count":
                                 if (!int.TryParse(splitProperty[1], out aspectLvl[0]))
                                 {
                                     return new GadgetConsoleMessage("`" + splitProperty[1] + "` is not a valid number!", null, MessageSeverity.ERROR);
                                 }
                                 break;
-                            case "aspect2Lvl":
-                            case "mod2Lvl":
-                            case "aspect2Count":
-                            case "mod2Count":
+                            case "aspect2lvl":
+                            case "mod2lvl":
+                            case "aspect2count":
+                            case "mod2count":
                                 if (!int.TryParse(splitProperty[1], out aspectLvl[1]))
                                 {
                                     return new GadgetConsoleMessage("`" + splitProperty[1] + "` is not a valid number!", null, MessageSeverity.ERROR);
                                 }
                                 break;
-                            case "aspect3Lvl":
-                            case "mod3Lvl":
-                            case "aspect3Count":
-                            case "mod3Count":
+                            case "aspect3lvl":
+                            case "mod3lvl":
+                            case "aspect3count":
+                            case "mod3count":
                                 if (!int.TryParse(splitProperty[1], out aspectLvl[2]))
                                 {
                                     return new GadgetConsoleMessage("`" + splitProperty[1] + "` is not a valid number!", null, MessageSeverity.ERROR);
@@ -911,7 +915,7 @@ namespace GadgetCore
                 }
                 if (int.TryParse(itemName, out int id))
                 {
-                    if (!ChipRegistry.GetSingleton().HasEntry(id))
+                    if (string.IsNullOrEmpty(GadgetCoreAPI.GetChipName(id)))
                     {
                         return new GadgetConsoleMessage("There is no chip with the ID `" + id + "`", null, MessageSeverity.ERROR);
                     }
@@ -955,6 +959,15 @@ namespace GadgetCore
                     Gadgets.ReloadGadget(gadget);
                 });
                 return null;
+            }
+
+            /// <summary>
+            /// The /debugmode command.
+            /// </summary>
+            public static GadgetConsoleMessage DebugMode(string sender, params string[] args)
+            {
+                GameScript.debugMode = !GameScript.debugMode;
+                return new GadgetConsoleMessage("Debug Mode is now " + (GameScript.debugMode ? "ON" : "OFF"));
             }
         }
 

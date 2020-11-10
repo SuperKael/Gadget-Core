@@ -13,7 +13,7 @@ namespace GadgetCore.Patches
             for (int i = 0; i < 6; i++)
             {
                 int chipID = ___combatChips[i];
-                if (ChipRegistry.GetSingleton().HasEntry(chipID))
+                if (ChipRegistry.Singleton.HasEntry(chipID))
                 {
                     switch (chipID)
                     {
@@ -72,7 +72,7 @@ namespace GadgetCore.Patches
                             ___CHIPSTAT[5] -= 15;
                             break;
                     }
-                    ChipRegistry.GetSingleton().GetEntry(chipID).Stats.AddTo(___CHIPSTAT);
+                    ChipRegistry.Singleton.GetEntry(chipID).Stats.AddTo(___CHIPSTAT);
                 }
             }
         }

@@ -18,8 +18,8 @@ namespace GadgetCore.Patches
             if (!___shiftclicking)
             {
                 itemInSlot = ___inventory[slot];
-                ItemInfo slotInfo = ItemRegistry.GetSingleton().GetEntry(itemInSlot.id);
-                ItemType slotItemType = slotInfo != null ? (slotInfo.Type & (ItemType.BASIC_MASK | ItemType.TYPE_MASK)) : ItemRegistry.GetDefaultTypeByID(itemInSlot.id);
+                ItemInfo slotInfo = ItemRegistry.Singleton.GetEntry(itemInSlot.id);
+                ItemType slotItemType = slotInfo != null ? (slotInfo.Type & (ItemType.EQUIP_MASK | ItemType.TYPE_MASK)) : ItemRegistry.GetDefaultTypeByID(itemInSlot.id);
                 int num = 0;
                 int num2 = ___curStoragePage * 30;
                 int num3 = num2 + 30;
@@ -28,7 +28,7 @@ namespace GadgetCore.Patches
                     bool flag1 = false, flag2 = false;
                     for (int i = num2; i < num3; i++)
                     {
-                        if (___storage[i].id == itemInSlot.id && ___storage[i].corrupted == itemInSlot.corrupted && ___storage[i].q < 9999)
+                        if (GadgetCoreAPI.CanItemsStack(___storage[i], itemInSlot) && ___storage[i].q < 9999)
                         {
                             if (___storage[i].q + ___inventory[slot].q <= 9999)
                             {
@@ -62,7 +62,7 @@ namespace GadgetCore.Patches
                                 ___inventory[slot] = new Item(0, 0, 0, 0, 0, new int[3], new int[3]);
                                 break;
                             }
-                            else if (___storage[i].id == itemInSlot.id && ___storage[i].corrupted == itemInSlot.corrupted && ___storage[i].q < 9999)
+                            else if (GadgetCoreAPI.CanItemsStack(___storage[i], itemInSlot) && ___storage[i].q < 9999)
                             {
                                 if (___storage[i].q + ___inventory[slot].q <= 9999)
                                 {

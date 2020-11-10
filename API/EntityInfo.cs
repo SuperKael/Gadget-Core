@@ -79,7 +79,7 @@ namespace GadgetCore.API
         /// </summary>
         public override Registry<EntityInfo, EntityType> GetRegistry()
         {
-            return Registry<EntityRegistry, EntityInfo, EntityType>.GetSingleton();
+            return EntityRegistry.Singleton;
         }
 
         /// <summary>

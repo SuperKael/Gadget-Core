@@ -13,8 +13,8 @@ namespace GadgetCore.Patches
         [HarmonyPrefix]
         public static bool Prefix(GameScript __instance, int slot, ref Item ___holdingItem)
         {
-            ItemInfo itemInfo = ItemRegistry.GetSingleton().GetEntry(___holdingItem.id);
-            ItemType holdingItemType = itemInfo != null ? (itemInfo.Type & (ItemType.BASIC_MASK | ItemType.TYPE_MASK)) : ItemRegistry.GetDefaultTypeByID(___holdingItem.id);
+            ItemInfo itemInfo = ItemRegistry.Singleton.GetEntry(___holdingItem.id);
+            ItemType holdingItemType = itemInfo != null ? (itemInfo.Type & (ItemType.EQUIP_MASK | ItemType.TYPE_MASK)) : ItemRegistry.GetDefaultTypeByID(___holdingItem.id);
             if ((holdingItemType & ItemType.NONSTACKING) == ItemType.NONSTACKING)
             {
                 SelectItemCraft.Invoke(__instance, new object[] { slot });

@@ -930,135 +930,343 @@
             Called whenever the config menu's contents are updated in some way. This will be called whenever a default component's value is changed.
             </summary>
         </member>
-        <member name="T:GadgetCore.API.CustomCraftMenu">
+        <member name="T:GadgetCore.API.CraftMenuInfo">
             <summary>
             Represents a craft menu, such as the emblem forge or the alchemy station. Also includes custom craft menus.
             </summary>
         </member>
-        <member name="F:GadgetCore.API.CustomCraftMenu.ModID">
-            <summary>
-            The numerical ID of the mod that created this menu. Will be -1 in the case of vanilla menus.
-            </summary>
-        </member>
-        <member name="F:GadgetCore.API.CustomCraftMenu.CraftMenuID">
-            <summary>
-            The craft type ID for this menu.
-            </summary>
-        </member>
-        <member name="F:GadgetCore.API.CustomCraftMenu.Title">
+        <member name="F:GadgetCore.API.CraftMenuInfo.Title">
             <summary>
             The title to be displayed when this craft menu is open.
             </summary>
         </member>
-        <member name="F:GadgetCore.API.CustomCraftMenu.Desc">
+        <member name="F:GadgetCore.API.CraftMenuInfo.Desc">
             <summary>
             The description to be displayed when this craft menu is open.
             </summary>
         </member>
-        <member name="F:GadgetCore.API.CustomCraftMenu.MenuMat">
+        <member name="P:GadgetCore.API.CraftMenuInfo.MenuTex">
             <summary>
-            The material to be used to display this craft menu.
+            The Texture to be used to display this craft menu.
             </summary>
         </member>
-        <member name="F:GadgetCore.API.CustomCraftMenu.ProgressBarMat">
+        <member name="P:GadgetCore.API.CraftMenuInfo.ProgressBarTex">
             <summary>
-            The material to be used to display the craft progress bar.
+            The Texture to be used to display the craft progress bar.
             </summary>
         </member>
-        <member name="F:GadgetCore.API.CustomCraftMenu.SlotValidators">
+        <member name="P:GadgetCore.API.CraftMenuInfo.ButtonInactiveTex">
+            <summary>
+            The Texture to be used to display the inactive craft button.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.CraftMenuInfo.ButtonActiveTex">
+            <summary>
+            The Texture to be used to display the active craft button.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.CraftMenuInfo.ButtonSelectTex">
+            <summary>
+            The Texture to be used to display the selected craft button.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.CraftMenuInfo.MenuMat">
+            <summary>
+            The Material to be used to display this craft menu.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.CraftMenuInfo.ProgressBarMat">
+            <summary>
+            The Material to be used to display the craft progress bar.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.CraftMenuInfo.ButtonInactiveMat">
+            <summary>
+            The Material to be used to display the inactive craft button.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.CraftMenuInfo.ButtonActiveMat">
+            <summary>
+            The Material to be used to display the active craft button.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.CraftMenuInfo.ButtonSelectMat">
+            <summary>
+            The Material to be used to display the selected craft button.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.CraftMenuInfo.CraftSound">
+            <summary>
+            The sound effect that plays every time the craft button is pressed.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.CraftMenuInfo.SlotValidators">
             <summary>
             The list of validators for determining if an item fits a slot. If any of the validators return true for a slot, then it should be considered valid.
             </summary>
         </member>
-        <member name="F:GadgetCore.API.CustomCraftMenu.CraftValidators">
+        <member name="F:GadgetCore.API.CraftMenuInfo.CraftValidators">
             <summary>
-            The list of validators for determining if the current items in the craft menu form a valid recipe. The validators should be checked in reverse order, and then if one of the validators returns true, then the <see cref="T:GadgetCore.API.CraftPerformer"/> in the <see cref="F:GadgetCore.API.CustomCraftMenu.CraftPerformers"/> list at the same index as the succesful validator should be used.
+            The list of validators for determining if the current items in the craft menu form a valid recipe. The validators should be checked in reverse order, and then if one of the validators returns true, then the <see cref="T:GadgetCore.API.CraftMenuInfo.CraftPerformer"/> in the <see cref="F:GadgetCore.API.CraftMenuInfo.CraftPerformers"/> list at the same index as the succesful validator should be used.
             </summary>
         </member>
-        <member name="F:GadgetCore.API.CustomCraftMenu.CraftPerformers">
+        <member name="F:GadgetCore.API.CraftMenuInfo.CraftPerformers">
             <summary>
             The list of performers used for performing a crafting recipe, only after the matching validator passes.
             </summary>
         </member>
-        <member name="F:GadgetCore.API.CustomCraftMenu.CraftPerformerModIDs">
+        <member name="F:GadgetCore.API.CraftMenuInfo.CraftFinalizers">
             <summary>
-            The list of Mod IDs that match the registered craft performers. These values will change when <see cref="M:GadgetCore.API.CustomCraftMenu.ReplaceCraftPerformer(GadgetCore.API.SlotValidator,GadgetCore.API.CraftValidator,GadgetCore.API.CraftPerformer,System.Int32)"/> is called. May be the same as the entry in <see cref="F:GadgetCore.API.CustomCraftMenu.CraftPerformerInitModIDs"/>
+            The list of finalizers used when completing a crafting recipe, after the matching validator executes.
             </summary>
         </member>
-        <member name="F:GadgetCore.API.CustomCraftMenu.CraftPerformerInitModIDs">
+        <member name="F:GadgetCore.API.CraftMenuInfo.CraftPerformerModIDs">
             <summary>
-            The list of Mod IDs that match the registered craft performers when they were first registered. May be the same as the entry in <see cref="F:GadgetCore.API.CustomCraftMenu.CraftPerformerModIDs"/>
+            The list of Mod IDs that match the registered craft performers. These values will change when ReplaceCraftPerformer is called. May be the same as the entry in <see cref="F:GadgetCore.API.CraftMenuInfo.CraftPerformerInitModIDs"/>
             </summary>
         </member>
-        <member name="M:GadgetCore.API.CustomCraftMenu.AddCraftPerformer(GadgetCore.API.SlotValidator,GadgetCore.API.CraftValidator,GadgetCore.API.CraftPerformer)">
+        <member name="F:GadgetCore.API.CraftMenuInfo.CraftPerformerInitModIDs">
             <summary>
-            Registers another CraftPerformer to this CraftMenu. Returns the index that the performer was registered to.
-            </summary>
-            <param name="SlotValidator">Used to check if an item is valid for a slot.</param>
-            <param name="CraftValidator">Used to check if the items currently in the slots are valid for a recipe. The Item array is of length 4, where the first three Items are the inputs, and the fourth Item is the output.</param>
-            <param name="CraftPerformer">Used to perform a crafting operation by modifying the contents of the Item array. The Item array is of length 4, where the first three Items are the inputs, and the fourth Item is the output. Should decrement the inputs, and set the output, possibly respecting whatever is already in the output.</param>
-        </member>
-        <member name="M:GadgetCore.API.CustomCraftMenu.ReplaceCraftPerformer(GadgetCore.API.SlotValidator,GadgetCore.API.CraftValidator,GadgetCore.API.CraftPerformer,System.Int32)">
-            <summary>
-            Replaces an existing CraftPerformer on this CraftMenu.
-            </summary>
-            <param name="SlotValidator">A Func that is used to check if an item is valid for a slot.</param>
-            <param name="CraftValidator">A Func that is used to check if the items currently in the slots are valid for a recipe. The Item array is of length 4, where the first three Items are the inputs, and the fourth Item is the output.</param>
-            <param name="CraftPerformer">An Action that is used to perform a crafting operation by modifying the contents of the Item array. The Item array is of length 4, where the first three Items are the inputs, and the fourth Item is the output. Should decrement the inputs, and set the output, possibly respecting whatever is already in the output.</param>
-            <param name="index">The index of the CraftPerformer to replace</param>
-        </member>
-        <member name="M:GadgetCore.API.CustomCraftMenu.RemoveCraftPerformer(System.Int32)">
-            <summary>
-            Removes a CraftPerformer from this CraftMenu, given its index. 
+            The list of Mod IDs that match the registered craft performers when they were first registered. May be the same as the entry in <see cref="F:GadgetCore.API.CraftMenuInfo.CraftPerformerModIDs"/>
             </summary>
         </member>
-        <member name="M:GadgetCore.API.CustomCraftMenu.ValidateSlot(Item,System.Int32)">
+        <member name="F:GadgetCore.API.CraftMenuInfo.craftResult">
             <summary>
-            Validates an Item for insertion into a specified slot. Returns true if validation was succesful and the Item should fit in the given slot, or false otherwise.
+            Stores what the state of the recipe will be after it is complete.
             </summary>
         </member>
-        <member name="T:GadgetCore.API.CraftMenus">
+        <member name="F:GadgetCore.API.CraftMenuInfo.unlockedRecipes">
             <summary>
-            Static class used for tracking custom crafting recipes and menus.
+            List of IDs representing the outputs of recipes that have been crafted before.
             </summary>
         </member>
-        <member name="M:GadgetCore.API.CraftMenus.RegisterCustomCraftMenu(System.String,System.String,UnityEngine.Material,UnityEngine.Material,GadgetCore.API.SlotValidator,GadgetCore.API.CraftValidator,GadgetCore.API.CraftPerformer,GadgetCore.API.TileInfo)">
+        <member name="F:GadgetCore.API.CraftMenuInfo.activePerformer">
+            <summary>
+            The performer index for the recipe currently being crafted.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CraftMenuInfo.#ctor(System.String,System.String,UnityEngine.Texture,UnityEngine.Texture,UnityEngine.Texture,UnityEngine.Texture,UnityEngine.Texture,UnityEngine.AudioClip,GadgetCore.API.CraftMenuInfo.SlotValidator,GadgetCore.API.CraftMenuInfo.CraftValidator,GadgetCore.API.CraftMenuInfo.CraftPerformer,GadgetCore.API.CraftMenuInfo.CraftFinalizer,GadgetCore.API.TileInfo)">
             <summary>
             Use to register a custom crafting menu. Using RegisterMenu is unnecessary for crafting menus. Note that all crafting menus must have, at most, 3 ingredient slots. Use OpenCraftMenu to open the menu.
             </summary>
             <param name="Title">The text to display as the title of the crafting window.</param>
             <param name="Desc">The text to display as the description of the crafting window.</param>
-            <param name="MenuMat">The material to use for the crafting window.</param>
-            <param name="ProgressBarMat">The material to use for the crafting progress bar.</param>
+            <param name="MenuTex">The Texture to use for the crafting window.</param>
+            <param name="ProgressBarTex">The Texture to use for the crafting progress bar.</param>
+            <param name="ButtonInactiveTex">The Texture to be used to display the inactive craft button.</param>
+            <param name="ButtonActiveTex">The Texture to be used to display the active craft button.</param>
+            <param name="ButtonSelectTex">The Texture to be used to display the selected craft button.</param>
+            <param name="CraftSound">The sound effect that plays every time the craft button is pressed.</param>
             <param name="SlotValidator">Used to check if an item is valid for a slot.</param>
             <param name="CraftValidator">Used to check if the items currently in the slots are valid for a recipe. The Item array is of length 4, where the first three Items are the inputs, and the fourth Item is the output.</param>
             <param name="CraftPerformer">Used to perform a crafting operation by modifying the contents of the Item array. The Item array is of length 4, where the first three Items are the inputs, and the fourth Item is the output. Should decrement the inputs, and set the output, possibly respecting whatever is already in the output.</param>
-            <param name="Tile">An optional parameter that specifies what Interactive tile should open the menu when interacted with. Shortcut for adding OpenCraftMenuRoutine to the tile's OnInteract event.</param>
-            <returns></returns>
+            <param name="CraftFinalizer">Optionally used to perform any final behavior after the craft is complete. The Item array is of length 4, where the first three Items are the inputs, and the fourth Item is the output.</param>
+            <param name="Tile">An optional parameter that specifies what Interactive tile should open the menu when interacted with.</param>
         </member>
-        <member name="M:GadgetCore.API.CraftMenus.GetCraftMenuByID(System.Int32)">
+        <member name="M:GadgetCore.API.CraftMenuInfo.#ctor(System.String,System.String,UnityEngine.Texture,UnityEngine.Texture,UnityEngine.Texture,UnityEngine.Texture,UnityEngine.Texture,UnityEngine.AudioClip,GadgetCore.Util.Tuple{GadgetCore.API.CraftMenuInfo.SlotValidator,GadgetCore.API.CraftMenuInfo.CraftValidator,GadgetCore.API.CraftMenuInfo.CraftPerformer},GadgetCore.API.CraftMenuInfo.CraftFinalizer,GadgetCore.API.TileInfo)">
             <summary>
-            Returns the registered <see cref="T:GadgetCore.API.CustomCraftMenu"/> with the given ID. Returns null if there is no registered menu with the given ID.
+            Use to register a custom crafting menu. Using RegisterMenu is unnecessary for crafting menus. Note that all crafting menus must have, at most, 3 ingredient slots. Use OpenCraftMenu to open the menu.
+            </summary>
+            <param name="Title">The text to display as the title of the crafting window.</param>
+            <param name="Desc">The text to display as the description of the crafting window.</param>
+            <param name="MenuTex">The Texture to use for the crafting window.</param>
+            <param name="ProgressBarTex">The Texture to use for the crafting progress bar.</param>
+            <param name="ButtonInactiveTex">The Texture to be used to display the inactive craft button.</param>
+            <param name="ButtonActiveTex">The Texture to be used to display the active craft button.</param>
+            <param name="ButtonSelectTex">The Texture to be used to display the selected craft button.</param>
+            <param name="CraftSound">The sound effect that plays every time the craft button is pressed.</param>
+            <param name="PerformerTuple">A <see cref="T:GadgetCore.Util.Tuple`3"/> containing the SlotValidator, CraftValidator, and CraftPerformer.</param>
+            <param name="CraftFinalizer">Optionally used to perform any final behavior after the craft is complete. The Item array is of length 4, where the first three Items are the inputs, and the fourth Item is the output.</param>
+            <param name="Tile">An optional parameter that specifies what Interactive tile should open the menu when interacted with.</param>
+        </member>
+        <member name="M:GadgetCore.API.CraftMenuInfo.#ctor(System.String,System.String,UnityEngine.Texture,UnityEngine.Texture,UnityEngine.Texture,UnityEngine.Texture,UnityEngine.Texture,UnityEngine.AudioClip,GadgetCore.Util.Tuple{GadgetCore.API.CraftMenuInfo.SlotValidator,GadgetCore.API.CraftMenuInfo.CraftValidator,GadgetCore.API.CraftMenuInfo.CraftPerformer,GadgetCore.API.CraftMenuInfo.CraftFinalizer},GadgetCore.API.TileInfo)">
+            <summary>
+            Use to register a custom crafting menu. Using RegisterMenu is unnecessary for crafting menus. Note that all crafting menus must have, at most, 3 ingredient slots. Use OpenCraftMenu to open the menu.
+            </summary>
+            <param name="Title">The text to display as the title of the crafting window.</param>
+            <param name="Desc">The text to display as the description of the crafting window.</param>
+            <param name="MenuTex">The Texture to use for the crafting window.</param>
+            <param name="ProgressBarTex">The Texture to use for the crafting progress bar.</param>
+            <param name="ButtonInactiveTex">The Texture to be used to display the inactive craft button.</param>
+            <param name="ButtonActiveTex">The Texture to be used to display the active craft button.</param>
+            <param name="ButtonSelectTex">The Texture to be used to display the selected craft button.</param>
+            <param name="CraftSound">The sound effect that plays every time the craft button is pressed.</param>
+            <param name="PerformerTuple">A <see cref="T:GadgetCore.Util.Tuple`4"/> containing the SlotValidator, CraftValidator, CraftPerformer, and CraftFinalizer.</param>
+            <param name="Tile">An optional parameter that specifies what Interactive tile should open the menu when interacted with.</param>
+        </member>
+        <member name="M:GadgetCore.API.CraftMenuInfo.#ctor(System.String,System.String,UnityEngine.Material,UnityEngine.Material,UnityEngine.Material,UnityEngine.Material,UnityEngine.Material,UnityEngine.AudioClip,GadgetCore.API.CraftMenuInfo.SlotValidator,GadgetCore.API.CraftMenuInfo.CraftValidator,GadgetCore.API.CraftMenuInfo.CraftPerformer,GadgetCore.API.CraftMenuInfo.CraftFinalizer,GadgetCore.API.TileInfo)">
+            <summary>
+            Use to register a custom crafting menu. Using RegisterMenu is unnecessary for crafting menus. Note that all crafting menus must have, at most, 3 ingredient slots. Use OpenCraftMenu to open the menu.
+            </summary>
+            <param name="Title">The text to display as the title of the crafting window.</param>
+            <param name="Desc">The text to display as the description of the crafting window.</param>
+            <param name="MenuMat">The Material to use for the crafting window.</param>
+            <param name="ProgressBarMat">The Material to use for the crafting progress bar.</param>
+            <param name="ButtonInactiveMat">The Material to be used to display the inactive craft button.</param>
+            <param name="ButtonActiveMat">The Material to be used to display the active craft button.</param>
+            <param name="ButtonSelectMat">The Material to be used to display the selected craft button.</param>
+            <param name="CraftSound">The sound effect that plays every time the craft button is pressed.</param>
+            <param name="SlotValidator">Used to check if an item is valid for a slot.</param>
+            <param name="CraftValidator">Used to check if the items currently in the slots are valid for a recipe. The Item array is of length 4, where the first three Items are the inputs, and the fourth Item is the output.</param>
+            <param name="CraftPerformer">Used to perform a crafting operation by modifying the contents of the Item array. The Item array is of length 4, where the first three Items are the inputs, and the fourth Item is the output. Should decrement the inputs, and set the output, possibly respecting whatever is already in the output.</param>
+            <param name="CraftFinalizer">Optionally used to perform any final behavior after the craft is complete. The Item array is of length 4, where the first three Items are the inputs, and the fourth Item is the output.</param>
+            <param name="Tile">An optional parameter that specifies what Interactive tile should open the menu when interacted with.</param>
+        </member>
+        <member name="M:GadgetCore.API.CraftMenuInfo.#ctor(System.String,System.String,UnityEngine.Material,UnityEngine.Material,UnityEngine.Material,UnityEngine.Material,UnityEngine.Material,UnityEngine.AudioClip,GadgetCore.Util.Tuple{GadgetCore.API.CraftMenuInfo.SlotValidator,GadgetCore.API.CraftMenuInfo.CraftValidator,GadgetCore.API.CraftMenuInfo.CraftPerformer},GadgetCore.API.CraftMenuInfo.CraftFinalizer,GadgetCore.API.TileInfo)">
+            <summary>
+            Use to register a custom crafting menu. Using RegisterMenu is unnecessary for crafting menus. Note that all crafting menus must have, at most, 3 ingredient slots. Use OpenCraftMenu to open the menu.
+            </summary>
+            <param name="Title">The text to display as the title of the crafting window.</param>
+            <param name="Desc">The text to display as the description of the crafting window.</param>
+            <param name="MenuMat">The Material to use for the crafting window.</param>
+            <param name="ProgressBarMat">The Material to use for the crafting progress bar.</param>
+            <param name="ButtonInactiveMat">The Material to be used to display the inactive craft button.</param>
+            <param name="ButtonActiveMat">The Material to be used to display the active craft button.</param>
+            <param name="ButtonSelectMat">The Material to be used to display the selected craft button.</param>
+            <param name="CraftSound">The sound effect that plays every time the craft button is pressed.</param>
+            <param name="PerformerTuple">A <see cref="T:GadgetCore.Util.Tuple`3"/> containing the SlotValidator, CraftValidator, and CraftPerformer.</param>
+            <param name="CraftFinalizer">Optionally used to perform any final behavior after the craft is complete. The Item array is of length 4, where the first three Items are the inputs, and the fourth Item is the output.</param>
+            <param name="Tile">An optional parameter that specifies what Interactive tile should open the menu when interacted with.</param>
+        </member>
+        <member name="M:GadgetCore.API.CraftMenuInfo.#ctor(System.String,System.String,UnityEngine.Material,UnityEngine.Material,UnityEngine.Material,UnityEngine.Material,UnityEngine.Material,UnityEngine.AudioClip,GadgetCore.Util.Tuple{GadgetCore.API.CraftMenuInfo.SlotValidator,GadgetCore.API.CraftMenuInfo.CraftValidator,GadgetCore.API.CraftMenuInfo.CraftPerformer,GadgetCore.API.CraftMenuInfo.CraftFinalizer},GadgetCore.API.TileInfo)">
+            <summary>
+            Use to register a custom crafting menu. Using RegisterMenu is unnecessary for crafting menus. Note that all crafting menus must have, at most, 3 ingredient slots. Use OpenCraftMenu to open the menu.
+            </summary>
+            <param name="Title">The text to display as the title of the crafting window.</param>
+            <param name="Desc">The text to display as the description of the crafting window.</param>
+            <param name="MenuMat">The Material to use for the crafting window.</param>
+            <param name="ProgressBarMat">The Material to use for the crafting progress bar.</param>
+            <param name="ButtonInactiveMat">The Material to be used to display the inactive craft button.</param>
+            <param name="ButtonActiveMat">The Material to be used to display the active craft button.</param>
+            <param name="ButtonSelectMat">The Material to be used to display the selected craft button.</param>
+            <param name="CraftSound">The sound effect that plays every time the craft button is pressed.</param>
+            <param name="PerformerTuple">A <see cref="T:GadgetCore.Util.Tuple`4"/> containing the SlotValidator, CraftValidator, CraftPerformer, and CraftFinalizer.</param>
+            <param name="Tile">An optional parameter that specifies what Interactive tile should open the menu when interacted with.</param>
+        </member>
+        <member name="M:GadgetCore.API.CraftMenuInfo.PostRegister">
+            <summary>
+            Called after this Registry Entry has been registered to its Registry. You should never call this yourself.
             </summary>
         </member>
-        <member name="M:GadgetCore.API.CraftMenus.SimpleCraftPerformer(GadgetCore.Util.Tuple{System.Int32[],Item,System.Int32}[])">
+        <member name="M:GadgetCore.API.CraftMenuInfo.UnlockRecipe(System.Int32)">
             <summary>
-            Creates a SlotValidator, CraftValidator, and CraftPerformer that fulfil a simple array of recipes based upon the IDs of the inputs, the Item for the output, and an int representing the possible bonus output. The bonus output is used for recipes with a random amount of output - the actual output will be the quantity of the output item, plus randomly up to the bonus output.
+            Adds the given ID to the list of recipes that have been crafted before.
             </summary>
         </member>
-        <member name="T:GadgetCore.API.SlotValidator">
+        <member name="M:GadgetCore.API.CraftMenuInfo.IsRecipeUnlocked(System.Int32)">
+            <summary>
+            Returns whether the given recipe is unlocked.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CraftMenuInfo.GetCraftValue(System.Int32)">
+            <summary>
+            Returns the progress made on the craft bar per hit of the craft button (from 1-100).
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CraftMenuInfo.AllowQuickCrafting">
+            <summary>
+            Indicates whether the quick-crafting menu is enabled for this <see cref="T:GadgetCore.API.CraftMenuInfo"/>.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CraftMenuInfo.OpenMenuRoutine">
+            <summary>
+            Opens this CraftMenu
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CraftMenuInfo.CloseMenuRoutine">
+            <summary>
+            Closes this CraftMenu
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CraftMenuInfo.AddCraftPerformer(GadgetCore.Util.Tuple{GadgetCore.API.CraftMenuInfo.SlotValidator,GadgetCore.API.CraftMenuInfo.CraftValidator,GadgetCore.API.CraftMenuInfo.CraftPerformer})">
+            <summary>
+            Registers another CraftPerformer to this CraftMenuInfo. Returns the index that the performer was registered to.
+            </summary>
+            <param name="PerformerTuple">The Tuple containing the SlotValidator, CraftValidator, and CraftPerformer for this performer.</param>
+        </member>
+        <member name="M:GadgetCore.API.CraftMenuInfo.AddCraftPerformer(GadgetCore.Util.Tuple{GadgetCore.API.CraftMenuInfo.SlotValidator,GadgetCore.API.CraftMenuInfo.CraftValidator,GadgetCore.API.CraftMenuInfo.CraftPerformer,GadgetCore.API.CraftMenuInfo.CraftFinalizer})">
+            <summary>
+            Registers another CraftPerformer to this CraftMenuInfo. Returns the index that the performer was registered to.
+            </summary>
+            <param name="PerformerTuple">The Tuple containing the SlotValidator, CraftValidator, CraftPerformer, and CraftFinalizer for this performer.</param>
+        </member>
+        <member name="M:GadgetCore.API.CraftMenuInfo.AddCraftPerformer(GadgetCore.API.CraftMenuInfo.SlotValidator,GadgetCore.API.CraftMenuInfo.CraftValidator,GadgetCore.API.CraftMenuInfo.CraftPerformer,GadgetCore.API.CraftMenuInfo.CraftFinalizer)">
+            <summary>
+            Registers another CraftPerformer to this CraftMenuInfo. Returns the index that the performer was registered to.
+            </summary>
+            <param name="SlotValidator">Used to check if an item is valid for a slot.</param>
+            <param name="CraftValidator">Used to check if the items currently in the slots are valid for a recipe. The Item array is of length 4, where the first three Items are the inputs, and the fourth Item is the output.</param>
+            <param name="CraftPerformer">Used to perform a crafting operation by modifying the contents of the Item array. The Item array is of length 4, where the first three Items are the inputs, and the fourth Item is the output. Should decrement the inputs, and set the output, possibly respecting whatever is already in the output.</param>
+            <param name="CraftFinalizer">Optionally used to perform any final behavior after the craft is complete. The Item array is of length 4, where the first three Items are the inputs, and the fourth Item is the output.</param>
+        </member>
+        <member name="M:GadgetCore.API.CraftMenuInfo.ReplaceCraftPerformer(System.Int32,GadgetCore.Util.Tuple{GadgetCore.API.CraftMenuInfo.SlotValidator,GadgetCore.API.CraftMenuInfo.CraftValidator,GadgetCore.API.CraftMenuInfo.CraftPerformer})">
+            <summary>
+            Replaces an existing CraftPerformer on this CraftMenuInfo.
+            </summary>
+            <param name="index">The index of the CraftPerformer to replace</param>
+            <param name="PerformerTuple">The Tuple containing the SlotValidator, CraftValidator, and CraftPerformer for this performer.</param>
+        </member>
+        <member name="M:GadgetCore.API.CraftMenuInfo.ReplaceCraftPerformer(System.Int32,GadgetCore.Util.Tuple{GadgetCore.API.CraftMenuInfo.SlotValidator,GadgetCore.API.CraftMenuInfo.CraftValidator,GadgetCore.API.CraftMenuInfo.CraftPerformer,GadgetCore.API.CraftMenuInfo.CraftFinalizer})">
+            <summary>
+            Replaces an existing CraftPerformer on this CraftMenuInfo.
+            </summary>
+            <param name="index">The index of the CraftPerformer to replace</param>
+            <param name="PerformerTuple">The Tuple containing the SlotValidator, CraftValidator, CraftPerformer, and CraftFinalizer for this performer.</param>
+        </member>
+        <member name="M:GadgetCore.API.CraftMenuInfo.ReplaceCraftPerformer(System.Int32,GadgetCore.API.CraftMenuInfo.SlotValidator,GadgetCore.API.CraftMenuInfo.CraftValidator,GadgetCore.API.CraftMenuInfo.CraftPerformer,GadgetCore.API.CraftMenuInfo.CraftFinalizer)">
+            <summary>
+            Replaces an existing CraftPerformer on this CraftMenuInfo.
+            </summary>
+            <param name="index">The index of the CraftPerformer to replace</param>
+            <param name="SlotValidator">A Func that is used to check if an item is valid for a slot.</param>
+            <param name="CraftValidator">A Func that is used to check if the items currently in the slots are valid for a recipe. The Item array is of length 4, where the first three Items are the inputs, and the fourth Item is the output.</param>
+            <param name="CraftPerformer">An Action that is used to perform a crafting operation by modifying the contents of the Item array. The Item array is of length 4, where the first three Items are the inputs, and the fourth Item is the output. Should decrement the inputs, and set the output, possibly respecting whatever is already in the output.</param>
+            <param name="CraftFinalizer">Used to perform any final behavior after the craft is complete. The Item array is of length 4, where the first three Items are the inputs, and the fourth Item is the output.</param>
+        </member>
+        <member name="M:GadgetCore.API.CraftMenuInfo.RemoveCraftPerformer(System.Int32)">
+            <summary>
+            Removes a CraftPerformer from this CraftMenuInfo, given its index. 
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CraftMenuInfo.RemoveModCraftPerformers(System.Int32)">
+            <summary>
+            Removes all CraftPerformers that were added by the given mod
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CraftMenuInfo.ValidateSlot(Item,Item[],System.Int32)">
+            <summary>
+            Validates an Item for insertion into a specified slot. Returns true if validation was successful and the Item should fit in the given slot, or false otherwise.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CraftMenuInfo.CreateSimpleCraftPerformer(GadgetCore.Util.Tuple{System.Int32[],Item,System.Int32}[])">
+            <summary>
+            Generates a standard SlotValidator/CraftValidator/CraftPerformer trio using a simple set of input IDs and an output Item
+            </summary>
+            <param name="recipes">A list of recipes consisting of the ingredient IDs, the item output, and the amount of possible random extra output.</param>
+        </member>
+        <member name="E:GadgetCore.API.CraftMenuInfo.OnCraftButton">
+            <summary>
+            Given the ID of the recipe being crafted, returns the progress to be added to the craft bar (from 1-100) in a click.
+            </summary>
+        </member>
+        <member name="T:GadgetCore.API.CraftMenuInfo.SlotValidator">
             <summary>
             A delegate used for determining if an item is valid for a slot.
             </summary>
         </member>
-        <member name="T:GadgetCore.API.CraftValidator">
+        <member name="T:GadgetCore.API.CraftMenuInfo.CraftValidator">
             <summary>
             A delegate used for validating crafting recipes.
             </summary>
         </member>
-        <member name="T:GadgetCore.API.CraftPerformer">
+        <member name="T:GadgetCore.API.CraftMenuInfo.CraftPerformer">
             <summary>
             A delegate used for performing crafting recipes.
+            </summary>
+        </member>
+        <member name="T:GadgetCore.API.CraftMenuInfo.CraftFinalizer">
+            <summary>
+            A delegate used for finalizing crafting recipes.
             </summary>
         </member>
         <member name="T:GadgetCore.API.EntityInfo">
@@ -1986,32 +2194,21 @@
             Unregisters the given key up listener for the given key.
             </summary>
         </member>
-        <member name="M:GadgetCore.API.GadgetCoreAPI.RegisterMenu(UnityEngine.GameObject,GadgetCore.API.TileInfo)">
+        <member name="M:GadgetCore.API.GadgetCoreAPI.CanItemsStack(Item,Item)">
             <summary>
-            Registers a non-crafting menu to the game. Use OpenMenu to open the menu. Components on the Menu may have methods named OnMenuOpened and/or OnMenuClosed that will get automatically invoked when the menu is opened or closed, respectively.
-            </summary>
-            <param name="Menu">The menu prefab.</param>
-            <param name="Tile">An optional parameter that specifies what Interactive tile should open the menu when interacted with. Shortcut for adding OpenMenuRoutine to the tile's OnInteract event.</param>
-        </member>
-        <member name="M:GadgetCore.API.GadgetCoreAPI.OpenCraftMenuRoutine(System.Int32)">
-            <summary>
-            Opens the custom crafting menu with the specified ID. Functions as a Coroutine, to facilitate use in TileInfo's OnInteract.
+            Determines if two <see cref="T:Item"/>s are able to stack together. Ignores matters of quantity.
             </summary>
         </member>
-        <member name="M:GadgetCore.API.GadgetCoreAPI.OpenMenuRoutine(System.Int32)">
+        <member name="M:GadgetCore.API.GadgetCoreAPI.CreateMarketStand(GadgetCore.API.ItemInfo,UnityEngine.Vector2,System.Int32,System.Boolean,System.Boolean,System.Boolean)">
             <summary>
-            Opens the custom menu with the specified ID. Not for use with crafting menus. Functions as a Coroutine, to facilitate use in TileInfo's OnInteract.
+            Creates a market stand.
             </summary>
-        </member>
-        <member name="M:GadgetCore.API.GadgetCoreAPI.OpenCraftMenu(System.Int32)">
-            <summary>
-            Opens the custom crafting menu with the specified ID.
-            </summary>
-        </member>
-        <member name="M:GadgetCore.API.GadgetCoreAPI.OpenMenu(System.Int32)">
-            <summary>
-            Opens the custom menu with the specified ID. Not for use with crafting menus.
-            </summary>
+            <param name="item">The item to sell</param>
+            <param name="pos">The position to put the stand at</param>
+            <param name="cost">The cost to buy the item</param>
+            <param name="isBuild">If true, costs scrap metal. If false, costs world frags.</param>
+            <param name="isCredits">If isBuild and isCredits are true, costs credits instead of scrap metal.</param>
+            <param name="isTrophies">If isBuild, isCredits, and isTrophies are true, costs wealth trophies instead of credits.</param>
         </member>
         <member name="M:GadgetCore.API.GadgetCoreAPI.DisplayYesNoDialog(System.String,System.Action,System.Action)">
             <summary>
@@ -2122,6 +2319,13 @@
             <summary>
             Calls a custom RPC that was previously registered with <see cref="M:GadgetCore.API.GadgetCoreAPI.RegisterCustomRPC(System.String,System.Action{System.Object[]})"/>
             </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.ReplaceMatResourceTex(System.String,UnityEngine.Texture2D)">
+            <summary>
+            Convenience method to override a Material resource's main texture. May only be called from the Initialize method of a Gadget.
+            </summary>
+            <param name="materialPath">The pseudo-file-path to the material to override.</param>
+            <param name="tex">The new texture to use for the Material override.</param>
         </member>
         <member name="M:GadgetCore.API.GadgetCoreAPI.AddCustomResource(System.String,UnityEngine.Object)">
             <summary>
@@ -2778,14 +2982,26 @@
         </member>
         <member name="F:GadgetCore.API.HarmonyGadgetAttribute.Gadget">
             <summary>
-            The name of the <see cref="F:GadgetCore.API.HarmonyGadgetAttribute.Gadget"/> that owns this patch.
+            The name of the <see cref="T:GadgetCore.API.Gadget"/> that owns this patch.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.HarmonyGadgetAttribute.RequiredGadgets">
+            <summary>
+            Other <see cref="T:GadgetCore.API.Gadget"/>s that must be present for this patch to run.
             </summary>
         </member>
         <member name="M:GadgetCore.API.HarmonyGadgetAttribute.#ctor(System.String)">
             <summary>
             Indicates what Gadget owns this patch. Required for use of GadgetCore's automatic Harmony patching.
             </summary>
-            <param name="Gadget">The name of the <see cref="F:GadgetCore.API.HarmonyGadgetAttribute.Gadget"/> that owns this patch.</param>
+            <param name="Gadget">The name of the <see cref="T:GadgetCore.API.Gadget"/> that owns this patch.</param>
+        </member>
+        <member name="M:GadgetCore.API.HarmonyGadgetAttribute.#ctor(System.String,System.String[])">
+            <summary>
+            Indicates what Gadget owns this patch. Required for use of GadgetCore's automatic Harmony patching.
+            </summary>
+            <param name="Gadget">The name of the <see cref="T:GadgetCore.API.Gadget"/> that owns this patch.</param>
+            <param name="RequiredGadgets">Other <see cref="T:GadgetCore.API.Gadget"/>s that must be present for this patch to run.</param>
         </member>
         <member name="T:GadgetCore.API.InstanceTracker">
             <summary>
@@ -2999,7 +3215,7 @@
         </member>
         <member name="M:GadgetCore.API.ItemInfo.SetWeaponInfo(System.Single[],UnityEngine.AudioClip,System.Single,System.Single,System.Int32)">
             <summary>
-            Sets the special info unique to weapons. This must be called before Register. If this is item is a weapon and you are using one of the provided OnAttack routines, you must call this. When setting the crit bonuses, explicitly pass the values as floats to avoid ambiguity with the obsolete version.
+            Sets the special info unique to weapons. This must be called before Register. If this is item is a weapon and you are using one of the provided OnAttack routines, you must call this.
             </summary>
         </member>
         <member name="M:GadgetCore.API.ItemInfo.Register(System.String,System.Int32,System.Boolean)">
@@ -3255,6 +3471,31 @@
             This item can be equipped. Note that this alone does not actually make it equipable, since no equip slot will take it. Incompatible with LOOT, EMBLEM, USABLE, and CONSUMABLE.
             </summary>
         </member>
+        <member name="F:GadgetCore.API.ItemType.STACKING">
+            <summary>
+            This item can stack. Note that this flag is meaningless to set, and is only intended to be used for querying as such: ({Item Type} &amp; ItemType.NONSTACKING) == ItemType.STACKING
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ItemType.NONSTACKING">
+            <summary>
+            This item cannot stack. If an equipable item does not have this flag set, unexpected behavior may occur.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ItemType.LEVELING">
+            <summary>
+            This item is able to level up. Also causes the item to show the background that displays the item's rarity tier. If a leveling item is able to stack, unexpected behavior may occur.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ItemType.MODABLE">
+            <summary>
+            This item is able to have mods installed into it. Note that this is non-functional in this version of Gadget Core.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ItemType.MOD">
+            <summary>
+            This item is a gear mod, and as such can be installed into weapons, offhands, helmets, armors, and rings. Note that this is non-functional in this version of Gadget Core.
+            </summary>
+        </member>
         <member name="F:GadgetCore.API.ItemType.WEAPON">
             <summary>
             This item is a weapon, and can as such can be equipped to the weapon slot. Implies EQUIPABLE, NONSTACKING, LEVELING, and MODABLE. Use BASIC_MASK to strip all but the EQUIPABLE implication.
@@ -3283,31 +3524,6 @@
         <member name="F:GadgetCore.API.ItemType.DROID">
             <summary>
             This item is a droid, and can as such can be equipped to a droid slot. Implies EQUIPABLE, NONSTACKING, and LEVELING. Use BASIC_MASK to strip all but the EQUIPABLE implication.
-            </summary>
-        </member>
-        <member name="F:GadgetCore.API.ItemType.MOD">
-            <summary>
-            This item is a gear mod, and as such can be installed into weapons, offhands, helmets, armors, and rings. Note that this is non-functional in this version of Gadget Core.
-            </summary>
-        </member>
-        <member name="F:GadgetCore.API.ItemType.STACKING">
-            <summary>
-            This item can stack. Note that this flag is meaningless to set, and is only intended to be used for querying as such: ({Item Type} &amp; ItemType.NONSTACKING) == ItemType.STACKING
-            </summary>
-        </member>
-        <member name="F:GadgetCore.API.ItemType.NONSTACKING">
-            <summary>
-            This item cannot stack. If an equipable item does not have this flag set, unexpected behavior may occur.
-            </summary>
-        </member>
-        <member name="F:GadgetCore.API.ItemType.LEVELING">
-            <summary>
-            This item is able to level up. Also causes the item to show the background that displays the item's rarity tier. If a leveling item is able to stack, unexpected behavior may occur.
-            </summary>
-        </member>
-        <member name="F:GadgetCore.API.ItemType.MODABLE">
-            <summary>
-            This item is able to have mods installed into it. If a modable item is able to stack, unexpected behavoir may occur. Note that this is non-functional in this version of Gadget Core.
             </summary>
         </member>
         <member name="F:GadgetCore.API.ItemType.TIER1">
@@ -3472,12 +3688,17 @@
         </member>
         <member name="F:GadgetCore.API.ItemType.BASIC_MASK">
             <summary>
+            A bitmask that filters out the LOOT, EMBLEM, USABLE, CONSUMABLE flags.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ItemType.EQUIP_MASK">
+            <summary>
             A bitmask that filters out the LOOT, EMBLEM, USABLE, CONSUMABLE, and EQUIPABLE flags.
             </summary>
         </member>
         <member name="F:GadgetCore.API.ItemType.TYPE_MASK">
             <summary>
-            A bitmask that filters out the NONSTACKING, LEVELING, MODABLE, and MOD flags.
+            A bitmask that filters out the EQUIPABLE, NONSTACKING, LEVELING, MODABLE, and MOD flags.
             </summary>
         </member>
         <member name="F:GadgetCore.API.ItemType.TIER_MASK">
@@ -3664,6 +3885,490 @@
             Returns the smallest perfect square that is at least value. If value is already a perfect square, returns value.
             </summary>
         </member>
+        <member name="T:GadgetCore.API.MenuInfo">
+            <summary>
+            Represents a craft menu, such as the emblem forge or the alchemy station. Also includes custom craft menus.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.MenuInfo.Type">
+            <summary>
+            The MenuType of this Menu
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.MenuInfo.MenuPrefab">
+            <summary>
+            The Prefab that is injected into the game scene.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.MenuInfo.Tile">
+            <summary>
+            The Material associated with this item. May be null.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.MenuInfo.IsOpen">
+            <summary>
+            Indicates whether this menu is currently open.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.MenuInfo.MenuObj">
+            <summary>
+            The GameObject that represents this menu in the scene. Not to be confused with MenuPrefab.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.MenuInfo.#ctor(GadgetCore.API.MenuType,UnityEngine.GameObject,GadgetCore.API.TileInfo)">
+            <summary>
+            Use to create a new MenuInfo. Make sure to call Register on it to register your Menu.\
+            </summary>
+            <param name="Type">The MenuType of this Menu</param>
+            <param name="MenuPrefab">The Prefab that is injected into the game scene.</param>
+            <param name="Tile">An optional parameter that specifies what Interactive tile should open the menu when interacted with.</param>
+        </member>
+        <member name="M:GadgetCore.API.MenuInfo.Register(System.String,System.Int32,System.Boolean)">
+            <summary>
+            Registers this MenuInfo to the MenuRegistry.
+            </summary>
+            <param name="name">The registry name to use.</param>
+            <param name="preferredID">If specified, will use this registry ID.</param>
+            <param name="overrideExisting">If false, will not register if the preferred ID is already used. Ignored if no preferred ID is specified.</param>
+        </member>
+        <member name="M:GadgetCore.API.MenuInfo.PostRegister">
+            <summary>
+            Called after this Registry Entry has been registered to its Registry. You should never call this yourself.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.MenuInfo.CanOpenMenu">
+            <summary>
+            Override to add special conditions under which the menu may not be opened.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.MenuInfo.OpenMenu">
+            <summary>
+            Opens this Menu
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.MenuInfo.CloseMenu">
+            <summary>
+            Closes this Menu
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.MenuInfo.OpenMenuRoutine">
+            <summary>
+            Opens this Menu
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.MenuInfo.CloseMenuRoutine">
+            <summary>
+            Closes this Menu
+            </summary>
+        </member>
+        <member name="E:GadgetCore.API.MenuInfo.OnMenuOpened">
+            <summary>
+            Called immediately <em>before</em> the menu is opened. (Before it is enabled)
+            </summary>
+        </member>
+        <member name="E:GadgetCore.API.MenuInfo.OnMenuClosed">
+            <summary>
+            Called immediately <em>after</em> the menu is closed. (After it is disabled)
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.MenuInfo.InvokeOnMenuOpened">
+            <summary>
+            Triggers the OnMenuOpened event. Should only be used by overrides of <see cref="M:GadgetCore.API.MenuInfo.OpenMenuRoutine"/>
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.MenuInfo.InvokeOnMenuClosed">
+            <summary>
+            Triggers the OnMenuClosed event. Should only be used by overrides of <see cref="M:GadgetCore.API.MenuInfo.CloseMenuRoutine"/>
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.MenuInfo.GetEntryType">
+            <summary>
+            Returns the Registry Entry's Type enum. Used in the registration process, although it is safe to check this yourself by directly accessing the <see cref="F:GadgetCore.API.MenuInfo.Type"/> property.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.MenuInfo.GetRegistry">
+            <summary>
+            Returns the singleton of the registry used for storing this type of Registry Entry.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.MenuInfo.IsValidIDForType(System.Int32)">
+            <summary>
+            Returns whether the specified ID is valid for this Registry Entry's Type.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.MenuInfo.GetNextIDForType(System.Int32)">
+            <summary>
+            Returns the next valid ID for this Registry Entry's Type, after the provided lastValidID. Should skip the vanilla ID range.
+            </summary>
+        </member>
+        <member name="T:GadgetCore.API.MenuRegistry">
+            <summary>
+            This registry is filled with MenuInfos, and is used for registering custom menus to the game.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.MenuRegistry.REGISTRY_NAME">
+            <summary>
+            The name of this registry.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.MenuRegistry.GetRegistryName">
+            <summary>
+            Gets the name of this registry. Must be constant. Returns <see cref="F:GadgetCore.API.MenuRegistry.REGISTRY_NAME"/>.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.MenuRegistry.GetIDStart">
+            <summary>
+            Gets the ID that modded IDs should start at for this registry. <see cref="T:GadgetCore.API.MenuRegistry"/> always returns 10000.
+            </summary>
+        </member>
+        <member name="T:GadgetCore.API.MenuType">
+            <summary>
+            Specifies what type of menu this is.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.MenuType.SIMPLE">
+            <summary>
+            Simple menu. Opens alongside the player's inventory.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.MenuType.CRAFTING">
+            <summary>
+            Used for crafting. Opens alongside the player's inventory.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.MenuType.CHIP">
+            <summary>
+            Contains chip slots. Causes the chip bar to become visible.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.MenuType.EXCLUSIVE">
+            <summary>
+            Does not contain item slots. Cannot be open alongside the player's inventory.
+            </summary>
+        </member>
+        <member name="T:GadgetCore.API.PlanetInfo">
+            <summary>
+            Represents a craft menu, such as the emblem forge or the alchemy station. Also includes custom craft menus.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.PlanetInfo.Type">
+            <summary>
+            The PlanetType of this Planet
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.PlanetInfo.Name">
+            <summary>
+            The name of this Planet
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.PlanetInfo.WeightedExitPortalIDs">
+            <summary>
+            The list of possible exit portal destinations.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.PlanetInfo.EntranceTex">
+            <summary>
+            The Texture associated with this planet's entrance. May be null.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.PlanetInfo.ZoneTex">
+            <summary>
+            The Texture associated with this planet's zones. May be null.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.PlanetInfo.MidChunk0Tex">
+            <summary>
+            The Texture associated with this planet's solid mid-chunks. May be null.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.PlanetInfo.MidChunk1Tex">
+            <summary>
+            The Texture associated with this planet's hollow mid-chunks. May be null.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.PlanetInfo.SideHTex">
+            <summary>
+            The Texture associated with this planet's horizontal side walls. May be null.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.PlanetInfo.SideVTex">
+            <summary>
+            The Texture associated with this planet's vertical side walls. May be null.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.PlanetInfo.PortalSignTex">
+            <summary>
+            The Texture associated with this planet's portal sign. May be null.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.PlanetInfo.SelectorButtonTex">
+            <summary>
+            The Texture associated with this planet's button in the planet selector. May be null.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.PlanetInfo.SelectorIconTex">
+            <summary>
+            The Texture associated with this planet's icon in the planet selector. May be null.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.PlanetInfo.BackgroundParallaxTex">
+            <summary>
+            The Texture associated with this planet's background parallax. May be null.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.PlanetInfo.BackgroundImageTexes">
+            <summary>
+            The Textures associated with this planet's background images. There should be 4. May be null.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.PlanetInfo.EntranceMat">
+            <summary>
+            The Material associated with this planet's entrance. May be null.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.PlanetInfo.ZoneMat">
+            <summary>
+            The Material associated with this planet's zones. May be null.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.PlanetInfo.MidChunk0Mat">
+            <summary>
+            The Material associated with this planet's solid mid-chunks. May be null.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.PlanetInfo.MidChunk1Mat">
+            <summary>
+            The Material associated with this planet's hollow mid-chunks. May be null.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.PlanetInfo.SideHMat">
+            <summary>
+            The Material associated with this planet's horizontal side walls. May be null.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.PlanetInfo.SideVMat">
+            <summary>
+            The Material associated with this planet's vertical side walls. May be null.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.PlanetInfo.PortalSignMat">
+            <summary>
+            The Material associated with this planet's portal sign. May be null.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.PlanetInfo.SelectorButtonMat">
+            <summary>
+            The Material associated with this planet's button in the planet selector. May be null.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.PlanetInfo.SelectorIconMat">
+            <summary>
+            The Material associated with this planet's icon in the planet selector. May be null.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.PlanetInfo.BackgroundParallaxMat">
+            <summary>
+            The Material associated with this planet's background parallax. May be null.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.PlanetInfo.BackgroundImageMats">
+            <summary>
+            The Materials associated with this planet's background images. There should be 4. May be null.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.PlanetInfo.PortalUses">
+            <summary>
+            The number of portal uses the player has for this planet.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.PlanetInfo.Relics">
+            <summary>
+            The number of relics the player has collected for this planet.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.PlanetInfo.weightedWorldSlotSpawns">
+            <summary>
+            Weighted list of possible spawns (by resources paths) in world spawn slots.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.PlanetInfo.weightedTownSlotSpawns">
+            <summary>
+            Weighted list of possible spawns (by resources paths) in town spawn slots.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.PlanetInfo.#ctor(GadgetCore.API.PlanetType,System.String,GadgetCore.Util.Tuple{System.Int32,System.Int32}[])">
+            <summary>
+            Use to create a new PlanetInfo. Make sure to call Register on it to register your Planet.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.PlanetInfo.SetPortalInfo(UnityEngine.Texture,UnityEngine.Texture,UnityEngine.Texture)">
+            <summary>
+            Sets information related to this planet's portal. If <paramref name="SelectorButtonTex"/> is null, the planet will not appear in the planet selector. This must be called before Register.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.PlanetInfo.SetPortalInfo(UnityEngine.Material,UnityEngine.Material,UnityEngine.Material)">
+            <summary>
+            Sets information related to this planet's portal. If <paramref name="SelectorButtonMat"/> is null, the planet will not appear in the planet selector. This must be called before Register.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.PlanetInfo.SetTerrainInfo(UnityEngine.Texture,UnityEngine.Texture,UnityEngine.Texture,UnityEngine.Texture,UnityEngine.Texture,UnityEngine.Texture)">
+            <summary>
+            Sets information related to this planet's terrain. This must be called before Register.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.PlanetInfo.SetTerrainInfo(UnityEngine.Material,UnityEngine.Material,UnityEngine.Material,UnityEngine.Material,UnityEngine.Material,UnityEngine.Material)">
+            <summary>
+            Sets information related to this planet's terrain. This must be called before Register.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.PlanetInfo.SetBackgroundInfo(UnityEngine.Texture,UnityEngine.Texture,UnityEngine.Texture,UnityEngine.Texture,UnityEngine.Texture)">
+            <summary>
+            Sets information related to this planet's background. This must be called before Register.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.PlanetInfo.SetBackgroundInfo(UnityEngine.Material,UnityEngine.Material,UnityEngine.Material,UnityEngine.Material,UnityEngine.Material)">
+            <summary>
+            Sets information related to this planet's background. This must be called before Register.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.PlanetInfo.Register(System.String,System.Int32,System.Boolean)">
+            <summary>
+            Registers this PlanetInfo to the PlanetRegistry.
+            </summary>
+            <param name="name">The registry name to use.</param>
+            <param name="preferredID">If specified, will use this registry ID.</param>
+            <param name="overrideExisting">If false, will not register if the preferred ID is already used. Ignored if no preferred ID is specified.</param>
+        </member>
+        <member name="M:GadgetCore.API.PlanetInfo.PostRegister">
+            <summary>
+            Called after this Registry Entry has been registered to its Registry. You should never call this yourself.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.PlanetInfo.AddWeightedWorldSpawn(System.String,System.Int32)">
+            <summary>
+            Adds a weighted spawn to the world spawn slots.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.PlanetInfo.AddWeightedTownSpawn(System.String,System.Int32)">
+            <summary>
+            Adds a weighted spawn to the town spawn slots.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.PlanetInfo.GetEntryType">
+            <summary>
+            Returns the Registry Entry's Type enum. Used in the registration process, although it is safe to check this yourself by directly accessing the <see cref="F:GadgetCore.API.PlanetInfo.Type"/> property.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.PlanetInfo.GetRegistry">
+            <summary>
+            Returns the singleton of the registry used for storing this type of Registry Entry.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.PlanetInfo.IsValidIDForType(System.Int32)">
+            <summary>
+            Returns whether the specified ID is valid for this Registry Entry's Type.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.PlanetInfo.GetNextIDForType(System.Int32)">
+            <summary>
+            Returns the next valid ID for this Registry Entry's Type, after the provided lastValidID. Should skip the vanilla ID range.
+            </summary>
+        </member>
+        <member name="E:GadgetCore.API.PlanetInfo.OnGenerateWorld">
+            <summary>
+            This event is invoked when it is time for this planet to generate a world.
+            </summary>
+        </member>
+        <member name="E:GadgetCore.API.PlanetInfo.OnGenerateTown">
+            <summary>
+            This event is invoked when it is time for this planet to generate a town.
+            </summary>
+        </member>
+        <member name="E:GadgetCore.API.PlanetInfo.OnGenerateInside">
+            <summary>
+            This event is invoked when it is time for this planet to generate a world chunk. Returns any and all networked objects that are spawned.
+            </summary>
+        </member>
+        <member name="E:GadgetCore.API.PlanetInfo.OnGenerateInsideTown">
+            <summary>
+            This event is invoked when it is time for this planet to generate a town chunk. Returns any and all networked objects that are spawned.
+            </summary>
+        </member>
+        <member name="E:GadgetCore.API.PlanetInfo.OnSpawnBiomeSlot">
+            <summary>
+            This event is invoked when it is time for this planet to generate a world chunk spawn slot. Returns any and all networked objects that are spawned.
+            </summary>
+        </member>
+        <member name="E:GadgetCore.API.PlanetInfo.OnSpawnTownSlot">
+            <summary>
+            This event is invoked when it is time for this planet to generate a town chunk spawn slot. Returns any and all networked objects that are spawned.
+            </summary>
+        </member>
+        <member name="T:GadgetCore.API.PlanetRegistry">
+            <summary>
+            This registry is filled with MenuInfos, and is used for registering custom menus to the game.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.PlanetRegistry.PlanetSelectorPages">
+            <summary>
+            The number of pages that the planet selector has thanks to added planets.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.PlanetRegistry.PlanetSelectorPage">
+            <summary>
+            The current page of the planet selector.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.PlanetRegistry.SetVanillaExitPortalWeight(System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Sets the weight for a planet of ID <paramref name="portalID"/> to appear in an exit portal on the vanilla planet of ID <paramref name="planetID"/>
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.PlanetRegistry.GetVanillaExitPortalWeights(System.Int32)">
+            <summary>
+            Gets the weights of the possible exit portal plenets for the given vanilla planet ID
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.PlanetRegistry.REGISTRY_NAME">
+            <summary>
+            The name of this registry.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.PlanetRegistry.GetRegistryName">
+            <summary>
+            Gets the name of this registry. Must be constant. Returns <see cref="F:GadgetCore.API.PlanetRegistry.REGISTRY_NAME"/>.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.PlanetRegistry.GetIDStart">
+            <summary>
+            Gets the ID that modded IDs should start at for this registry. <see cref="T:GadgetCore.API.MenuRegistry"/> always returns 10000.
+            </summary>
+        </member>
+        <member name="T:GadgetCore.API.PlanetType">
+            <summary>
+            Specifies what type of planet this is.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.PlanetType.NORMAL">
+            <summary>
+            A standard planet with alternating worlds and towns.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.PlanetType.TOWNS">
+            <summary>
+            A planet consisting only of towns, like Old Earth.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.PlanetType.SINGLE">
+            <summary>
+            A planet with only a single town, like Mech City.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.PlanetType.SPECIAL">
+            <summary>
+            Some special sort of planet with unique world generation.
+            </summary>
+        </member>
         <member name="T:GadgetCore.API.PlayerGearModsTracker">
             <summary>
             Tracks what gear mods each player has, since for some reason the base game does not do this.
@@ -3682,6 +4387,11 @@
             <typeparam name="E">Entry Type</typeparam>
             <typeparam name="T">Entry Type Enum</typeparam>
         </member>
+        <member name="P:GadgetCore.API.Registry`3.Singleton">
+            <summary>
+            Represents this Registry's singleton.
+            </summary>
+        </member>
         <member name="M:GadgetCore.API.Registry`3.Register(`1,System.String,System.Int32,System.Boolean)">
             <summary>
             Used to register a registry entry to this registry. You should probably use the Register method on that registry entry instead.
@@ -3690,6 +4400,11 @@
             <param name="name">The registry name to use.</param>
             <param name="preferredID">If specified, will use this registry ID.</param>
             <param name="overrideExisting">If false, will not register if the preferred ID is already used. Ignored if no preferred ID is specified.</param>
+        </member>
+        <member name="M:GadgetCore.API.Registry`3.GenerateDefaultRegistryName(System.Int32)">
+            <summary>
+            Used to provide a default name if a registry entry is registered without a registry name.
+            </summary>
         </member>
         <member name="M:GadgetCore.API.Registry`3.PostRegistration(`1)">
             <summary>
@@ -3704,6 +4419,7 @@
         <member name="M:GadgetCore.API.Registry`3.GetSingleton">
             <summary>
             Gets the singleton for this registry.
+            Deprecated: Use the Singleton property instead.
             </summary>
         </member>
         <member name="M:GadgetCore.API.Registry`3.HasEntry(System.Int32)">
@@ -3726,9 +4442,29 @@
             Gets the registry entry with the given RegistryName
             </summary>
         </member>
+        <member name="P:GadgetCore.API.Registry`3.Item(System.Int32)">
+            <summary>
+            Equivalent to calling <see cref="M:GadgetCore.API.Registry`3.GetEntry(System.Int32)"/>
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.Registry`3.Item(System.String)">
+            <summary>
+            Equivalent to calling <see cref="M:GadgetCore.API.Registry`3.GetEntry(System.String)"/>
+            </summary>
+        </member>
         <member name="M:GadgetCore.API.Registry`3.GetEntryType">
             <summary>
             Returns the Registry Entry's Type. Not to be confused with <see cref="M:GadgetCore.API.RegistryEntry`2.GetEntryType"/>, which returns an enum value.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.Registry`3.GetAllEntries">
+            <summary>
+            Returns an array of every entry in this Registry
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.Registry`3.GetEnumerator">
+            <summary>
+            Returns an enumerator for the entries in this Registry
             </summary>
         </member>
         <member name="T:GadgetCore.API.Registry`2">
@@ -3782,8 +4518,8 @@
             <summary>
             Abstract classed used for Registry Entries. Extend to create Registry Entries for your own custom Registry.
             </summary>
-            <typeparam name="E"></typeparam>
-            <typeparam name="T"></typeparam>
+            <typeparam name="E">Entry Type</typeparam>
+            <typeparam name="T">Entry Type Enum</typeparam>
         </member>
         <member name="M:GadgetCore.API.RegistryEntry`2.GetMod">
             <summary>
@@ -4375,6 +5111,11 @@
             The /reloadgadget command.
             </summary>
         </member>
+        <member name="M:GadgetCore.GadgetConsole.CoreCommands.DebugMode(System.String,System.String[])">
+            <summary>
+            The /debugmode command.
+            </summary>
+        </member>
         <member name="T:GadgetCore.GadgetConsole.MessageSeverity">
             <summary>
             Used to indicate the severity of a GadgetConsole message.
@@ -4877,6 +5618,11 @@
             Completely recalculates GameScript.GEARSTAT from your equipped gear.
             </summary>
         </member>
+        <member name="M:GadgetCore.PatchMethods.PlanetIsTownOnly(System.Int32)">
+            <summary>
+            Returns whether the given planet consists entirely of town zone(s)
+            </summary>
+        </member>
         <member name="T:GadgetCore.Util.ComparisonComparer`1">
             <summary>
             Implementation of <see cref="T:System.Collections.Generic.IComparer`1"/> that uses a <see cref="T:System.Comparison`1"/>
@@ -4890,6 +5636,16 @@
         <member name="M:GadgetCore.Util.ComparisonComparer`1.Compare(`0,`0)">
             <summary>
             Performs a comparison of two objects of the same type and returns a value indicating whether one object is less than, equal to, or greater than the other.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.ComparisonComparer`1.Equals(`0,`0)">
+            <summary>
+            Performs comparison of two objects of the same type and determines if they can be considered equal by the comparison.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.ComparisonComparer`1.GetHashCode(`0)">
+            <summary>
+            Calls T's GetHashCode.
             </summary>
         </member>
         <member name="T:GadgetCore.Util.DelegateTraceListener">
@@ -4920,6 +5676,11 @@
         <member name="M:GadgetCore.Util.ExtensionUtils.Concat(System.Collections.Generic.IEnumerable{System.String},System.String)">
             <summary>
             Concatenates the strings in the given <see cref="T:System.Collections.Generic.IEnumerable`1"/> together. Uses ", " as the seperator if one is not explicitly specified.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.ExtensionUtils.IndexOf``1(System.Collections.Generic.IEnumerable{``0},System.Func{``0,System.Boolean})">
+            <summary>
+            Finds the index of the given predicate, returns -1 if it is not found.
             </summary>
         </member>
         <member name="M:GadgetCore.Util.ExtensionUtils.IsSublist``1(System.Collections.Generic.List{``0},System.Collections.Generic.List{``0},System.Int32,GadgetCore.Util.EqualityComparison{``0})">
@@ -5165,6 +5926,11 @@
         <member name="T:GadgetCore.Util.ReflectionUtils">
             <summary>
             Provides the extension method 'InvokeMethod' for easily invoking methods with Reflection.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.ReflectionUtils.GetValue``1(System.Reflection.FieldInfo,System.Object)">
+            <summary>
+            Gets the value of this <see cref="T:System.Reflection.FieldInfo"/>
             </summary>
         </member>
         <member name="M:GadgetCore.Util.ReflectionUtils.InvokeMethod``1(System.Object,System.String,System.Object[])">
@@ -5455,6 +6221,16 @@
             </summary>
         </member>
         <member name="M:GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef.GetRefByOffset(System.Int32)">
+            <summary>
+            Returns an <see cref="T:GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef"/> for the instruction with its index offset from the given <see cref="T:GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef"/>
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef.op_Addition(GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef,System.Int32)">
+            <summary>
+            Returns an <see cref="T:GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef"/> for the instruction with its index offset from the given <see cref="T:GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef"/>
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef.op_Subtraction(GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef,System.Int32)">
             <summary>
             Returns an <see cref="T:GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef"/> for the instruction with its index offset from the given <see cref="T:GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef"/>
             </summary>

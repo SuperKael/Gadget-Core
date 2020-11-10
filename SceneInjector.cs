@@ -1,5 +1,6 @@
 ﻿using GadgetCore.API;
 using GadgetCore.API.ConfigMenu;
+using GadgetCore.CoreMod;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -31,6 +32,13 @@ namespace GadgetCore
         public static GameObject ModMenuBackButtonHolder { get; internal set; }
         public static GameObject ModConfigMenuText { get; internal set; }
         public static ScrollRect ModMenuDescPanel { get; internal set; }
+
+        public static GameObject BuildStand { get; internal set; }
+
+        public static Material LeftArrow { get; private set; } = new Material(Shader.Find("Unlit/Transparent"));
+        public static Material RightArrow { get; private set; } = new Material(Shader.Find("Unlit/Transparent"));
+        public static Material LeftArrow2 { get; private set; } = new Material(Shader.Find("Unlit/Transparent"));
+        public static Material RightArrow2 { get; private set; } = new Material(Shader.Find("Unlit/Transparent"));
 
         public static Sprite BoxSprite { get; internal set; }
         public static Sprite BoxMask { get; internal set; }
@@ -80,13 +88,101 @@ namespace GadgetCore
 
         internal static void InjectIngame()
         {
-            GadgetCoreAPI.menus = new List<GameObject>();
-            for (int i = 0;i < GadgetCoreAPI.menuPaths.Count;i++)
+            foreach (MenuInfo menu in MenuRegistry.Singleton)
             {
-                GameObject menu = Resources.Load(GadgetCoreAPI.menuPaths[i]) as GameObject;
-                menu.transform.SetParent(InstanceTracker.MainCamera.transform);
-                menu.SetActive(false);
-                GadgetCoreAPI.menus.Add(menu);
+                if (menu.MenuPrefab != null)
+                {
+                    menu.MenuObj = menu.MenuPrefab;
+                    menu.MenuObj.transform.SetParent(InstanceTracker.MainCamera.transform);
+                    menu.MenuObj.SetActive(false);
+                }
+            }
+
+            BuildStand = GameObject.Find("Ship").transform.Find("SHIPPLACES").Find("buildStand").gameObject;
+
+            if (MenuRegistry.Singleton["Gadget Core:Crafter Menu"] is CraftMenuInfo craftMenu && craftMenu.CraftPerformers.Count > 0)
+            {
+                GadgetCoreAPI.CreateMarketStand(ItemRegistry.Singleton["Gadget Core:Crafter Block"], new Vector2(-138f, -7.49f), 10);
+            }
+
+            PlanetRegistry.PlanetSelectorPage = 1;
+            int totalPages = PlanetRegistry.PlanetSelectorPages;
+
+            if (totalPages > 1)
+            {
+                LeftArrow.mainTexture = GadgetCoreAPI.LoadTexture2D("left_arrow.png");
+                RightArrow.mainTexture = GadgetCoreAPI.LoadTexture2D("right_arrow.png");
+                LeftArrow2.mainTexture = GadgetCoreAPI.LoadTexture2D("left_arrow2.png");
+                RightArrow2.mainTexture = GadgetCoreAPI.LoadTexture2D("right_arrow2.png");
+
+                Transform bPlanetPageBack = UnityEngine.Object.Instantiate(InstanceTracker.GameScript.menuPlanets.transform.Find("bChallenge")).GetComponent<Transform>();
+                List<GameObject> children = new List<GameObject>();
+                foreach (Transform child in bPlanetPageBack) children.Add(child.gameObject);
+                foreach (GameObject child in children) UnityEngine.Object.DestroyImmediate(child);
+                bPlanetPageBack.GetComponent<BoxCollider>().center = new Vector3(0f, 0f, 0f);
+                bPlanetPageBack.GetComponent<BoxCollider>().size = new Vector3(0.1625f, 0.1625f, 0f);
+                bPlanetPageBack.gameObject.tag = "Untagged";
+                bPlanetPageBack.name = "bPlanetPageBack";
+                bPlanetPageBack.SetParent(InstanceTracker.GameScript.menuPlanets.transform, false);
+                bPlanetPageBack.localPosition = new Vector3(0.015f, -0.07f, 0.25f);
+                bPlanetPageBack.GetComponent<MeshRenderer>().material = LeftArrow;
+                bPlanetPageBack.GetComponent<ButtonMenu>().button = LeftArrow;
+                bPlanetPageBack.GetComponent<ButtonMenu>().buttonSelect = LeftArrow2;
+                Transform bPlanetPageForward = UnityEngine.Object.Instantiate(bPlanetPageBack.gameObject).GetComponent<Transform>();
+                bPlanetPageForward.name = "bPlanetPageForward";
+                bPlanetPageForward.SetParent(InstanceTracker.GameScript.menuPlanets.transform, false);
+                bPlanetPageForward.localPosition = new Vector3(0.34375f, -0.07f, 0.25f);
+                bPlanetPageForward.GetComponent<MeshRenderer>().material = RightArrow;
+                bPlanetPageForward.GetComponent<ButtonMenu>().button = RightArrow;
+                bPlanetPageForward.GetComponent<ButtonMenu>().buttonSelect = RightArrow2;
+
+                PlanetRegistry.planetPageText = UnityEngine.Object.Instantiate(InstanceTracker.GameScript.menuPlanets.transform.Find("txtPortals")).GetComponent<TextMesh>();
+                PlanetRegistry.planetPageText.transform.SetParent(InstanceTracker.GameScript.menuPlanets.transform, false);
+                PlanetRegistry.planetPageText.transform.localPosition = new Vector3(0.179375f, 0.039075f, 0.5f);
+                foreach (TextMesh text in PlanetRegistry.planetPageText.GetComponentsInChildren<TextMesh>())
+                {
+                    text.text = "Page 1/" + totalPages;
+                }
+
+                Texture2D emptyTex = new Texture2D(12, 12, TextureFormat.RGBA32, false)
+                {
+                    filterMode = FilterMode.Point
+                };
+                emptyTex.SetPixels32(Enumerable.Repeat(new Color32(30, 30, 30, 255), emptyTex.width * emptyTex.height).ToArray());
+                emptyTex.Apply();
+                Material emptyIcon = new Material(Shader.Find("Unlit/Transparent"))
+                {
+                    mainTexture = emptyTex
+                };
+
+                PlanetRegistry.selectorPlanets = PlanetRegistry.Singleton.ToArray();
+                PlanetRegistry.planetButtonIcons = new GameObject[totalPages - 1][];
+                for (int i = 0; i < 14; i++)
+                {
+                    MeshFilter planetButton = InstanceTracker.GameScript.menuPlanets.transform.Find(i.ToString()).GetComponent<MeshFilter>();
+                    for (int p = 2; p <= totalPages; p++)
+                    {
+                        if (i == 0) PlanetRegistry.planetButtonIcons[p - 2] = new GameObject[14];
+                        int planetIndex = (p - 2) * 14 + i;
+                        PlanetRegistry.planetButtonIcons[p - 2][i] = new GameObject("Page " + p + " Icon", typeof(MeshFilter), typeof(MeshRenderer));
+                        PlanetRegistry.planetButtonIcons[p - 2][i].SetActive(false);
+                        PlanetRegistry.planetButtonIcons[p - 2][i].transform.SetParent(planetButton.transform, false);
+                        PlanetRegistry.planetButtonIcons[p - 2][i].GetComponent<MeshFilter>().mesh = planetButton.mesh;
+                        Material planetMat;
+                        if (planetIndex < PlanetRegistry.selectorPlanets.Length && (planetMat = (Material)Resources.Load("mat/planetIcon" + PlanetRegistry.selectorPlanets[planetIndex].ID)) != null)
+                        {
+                            PlanetRegistry.planetButtonIcons[p - 2][i].GetComponent<MeshRenderer>().material = planetMat;
+                            PlanetRegistry.planetButtonIcons[p - 2][i].transform.localScale *= 0.625f;
+                        }
+                        else
+                        {
+                            PlanetRegistry.planetButtonIcons[p - 2][i].GetComponent<MeshRenderer>().material = emptyIcon;
+                        }
+                    }
+                }
+
+                Transform buggedPlanetButton = InstanceTracker.GameScript.menuPlanets.transform.Find("14"); // Fixes problem with The Cathedral button.
+                buggedPlanetButton.position = new Vector3(InstanceTracker.GameScript.menuPlanets.transform.Find("0").position.x, buggedPlanetButton.position.y, buggedPlanetButton.position.z);
             }
         }
 

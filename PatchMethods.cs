@@ -220,5 +220,13 @@ namespace GadgetCore
                 GadgetCoreAPI.equipedGearStats[i - 36] = gearStats;
             }
         }
+
+        /// <summary>
+        /// Returns whether the given planet consists entirely of town zone(s)
+        /// </summary>
+        public static bool PlanetIsTownOnly(int planetID)
+        {
+            return PlanetRegistry.Singleton[planetID] is PlanetInfo planet ? planet.Type == PlanetType.TOWNS || planet.Type == PlanetType.SINGLE : (planetID == 8 || planetID == 11);
+        }
     }
 }

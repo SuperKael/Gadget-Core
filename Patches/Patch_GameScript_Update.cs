@@ -7,6 +7,7 @@ using System.Linq;
 using System.Reflection;
 using GadgetCore.Util;
 using System.IO;
+using System.Collections;
 
 namespace GadgetCore.Patches
 {
@@ -16,10 +17,16 @@ namespace GadgetCore.Patches
     {
         public static readonly MethodInfo RefreshSlot = typeof(GameScript).GetMethod("RefreshSlot", BindingFlags.NonPublic | BindingFlags.Instance);
 
-        [HarmonyPostfix]
-        public static void Postfix(GameScript __instance, ref Item[] ___inventory, ref int ___curBlockSlot, ref ChunkWorld ___chunkWorld, ref ChunkWorld ___chunkWorldWall)
+        [HarmonyPrefix]
+        public static void Prefix(ref Item ___holdingItem, ref bool __state)
         {
-            if (!GameScript.pausing && !GameScript.inventoryOpen && GameScript.buildMode && Input.GetMouseButtonDown(0) && ___inventory[___curBlockSlot].q > 0 && ItemRegistry.GetSingleton().HasEntry(___inventory[___curBlockSlot].id))
+            __state = ___holdingItem.id != 0;
+        }
+
+        [HarmonyPostfix]
+        public static void Postfix(GameScript __instance, ref RaycastHit ___hit, ref int ___craftType, ref int ___slotID, ref bool ___shifting, ref Item ___holdingItem, ref Item[] ___inventory, ref Item[] ___craft, ref int ___curBlockSlot, ref ChunkWorld ___chunkWorld, ref ChunkWorld ___chunkWorldWall, ref bool __state)
+        {
+            if (!GameScript.pausing && !GameScript.inventoryOpen && GameScript.buildMode && Input.GetMouseButtonDown(0) && ___inventory[___curBlockSlot].q > 0 && ItemRegistry.Singleton.HasEntry(___inventory[___curBlockSlot].id))
             {
                 int num4 = (int)__instance.hoverBuild.transform.position.x;
                 int num5 = (int)__instance.hoverBuild.transform.position.y;
@@ -27,7 +34,7 @@ namespace GadgetCore.Patches
                 int num7 = (num5 + 62) / 4;
                 if (num6 < 64 && num6 >= 0 && num7 < 64 && num7 >= 0)
                 {
-                    ItemInfo item = ItemRegistry.GetSingleton().GetEntry(___inventory[___curBlockSlot].id);
+                    ItemInfo item = ItemRegistry.Singleton.GetEntry(___inventory[___curBlockSlot].id);
                     if (item.Tile != null && item.Tile.TryPlaceTile())
                     {
                         if (item.Tile.Type == TileType.WALL)
@@ -109,6 +116,131 @@ namespace GadgetCore.Patches
                     }
                 }
             }
+            else if (MenuScript.player && !GameScript.pausing)
+            {
+                if (Input.GetMouseButtonDown(0) && GameScript.inventoryOpen && Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out ___hit, 7f))
+                {
+                    if (___hit.transform.gameObject.layer == 16)
+                    {
+                        if (___hit.transform.gameObject.tag == "craft" && MenuRegistry.Singleton[___craftType] is CraftMenuInfo craftMenu)
+                        {
+                            ___slotID = int.Parse(___hit.transform.gameObject.name);
+                            if (__state)
+                            {
+                                Item holdingItem = ___holdingItem;
+                                Item[] craftItems = ___craft;
+                                int slotID = ___slotID;
+                                if (craftMenu.SlotValidators.Any(x => x(holdingItem, craftItems, slotID)))
+                                {
+                                    if (___craft[___slotID].id == ___holdingItem.id)
+                                    {
+                                        __instance.InvokeMethod("CombineItemCraft", ___slotID);
+                                    }
+                                    else if (___craft[___slotID].id == 0)
+                                    {
+                                        __instance.InvokeMethod("PlaceItemCraft", ___slotID);
+                                    }
+                                }
+                            }
+                            else if (___craft[___slotID].id != 0)
+                            {
+                                if (!___shifting)
+                                {
+                                    __instance.InvokeMethod("SelectItemCraft", ___slotID);
+                                }
+                                else if (___shifting && __instance.menuCraft.activeSelf)
+                                {
+                                    __instance.StartCoroutine(__instance.InvokeMethod<IEnumerator>("ShiftClickCraft", ___slotID));
+                                }
+                            }
+                        }
+                        else if (___hit.transform.gameObject.tag == "planet")
+                        {
+                            ___slotID = int.Parse(___hit.transform.gameObject.name);
+                            int planetIndex = (PlanetRegistry.PlanetSelectorPage - 2) * 14 + ___slotID;
+                            if (planetIndex >= 0 && planetIndex < PlanetRegistry.selectorPlanets.Length && PlanetRegistry.selectorPlanets[planetIndex] is PlanetInfo planet)
+                            {
+                                if (planet.PortalUses > 0 || planet.PortalUses == -1)
+                                {
+                                    InstanceTracker.GameScript.GetComponent<AudioSource>().PlayOneShot((AudioClip)Resources.Load("Au/confirm"), Menuu.soundLevel / 10f);
+                                    InstanceTracker.GameScript.planetSelector.transform.position = new Vector3(InstanceTracker.GameScript.planetGuard[___slotID].transform.position.x, InstanceTracker.GameScript.planetGuard[___slotID].transform.position.y, InstanceTracker.GameScript.planetSelector.transform.position.z);
+                                    GameScript.curPlanet = ___slotID;
+                                    InstanceTracker.GameScript.planetObj.GetComponent<Renderer>().material = (Material)Resources.Load("mat/planet" + planet.ID);
+                                    InstanceTracker.GameScript.planetObj.GetComponent<Animation>().Play();
+                                    InstanceTracker.GameScript.txtPlanetName[0].text = planet.Name;
+                                    InstanceTracker.GameScript.txtPlanetName[1].text = InstanceTracker.GameScript.txtPlanetName[0].text;
+                                    InstanceTracker.GameScript.txtHostile[0].text = "Hostile Lv." + InstanceTracker.GameScript.InvokeMethod("GetPlanetHostile", planet.ID);
+                                    InstanceTracker.GameScript.txtHostile[1].text = InstanceTracker.GameScript.txtHostile[0].text;
+                                    if (planet.PortalUses > 0)
+                                    {
+                                        InstanceTracker.GameScript.txtPortalUses[0].text = "Portal Uses: " + planet.PortalUses;
+                                        InstanceTracker.GameScript.txtPortalUses[1].text = InstanceTracker.GameScript.txtPortalUses[0].text;
+                                    }
+                                    else if (planet.PortalUses == -1)
+                                    {
+                                        InstanceTracker.GameScript.txtPortalUses[0].text = "Portal Uses: Infinite";
+                                        InstanceTracker.GameScript.txtPortalUses[1].text = InstanceTracker.GameScript.txtPortalUses[0].text;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    else if (___hit.transform.gameObject.layer != 17)
+                    {
+                        switch (___hit.transform.gameObject.name)
+                        {
+                            case "bPlanetPageBack":
+                                __instance.GetComponent<AudioSource>().PlayOneShot((AudioClip)Resources.Load("Au/confirm"), Menuu.soundLevel / 10f);
+                                if (PlanetRegistry.PlanetSelectorPage <= 1)
+                                {
+                                    PlanetRegistry.PlanetSelectorPage = PlanetRegistry.PlanetSelectorPages;
+                                }
+                                else
+                                {
+                                    PlanetRegistry.PlanetSelectorPage--;
+                                }
+                                PlanetRegistry.UpdatePlanetSelector();
+                                break;
+                            case "bPlanetPageForward":
+                                __instance.GetComponent<AudioSource>().PlayOneShot((AudioClip)Resources.Load("Au/confirm"), Menuu.soundLevel / 10f);
+                                if (PlanetRegistry.PlanetSelectorPage >= PlanetRegistry.PlanetSelectorPages)
+                                {
+                                    PlanetRegistry.PlanetSelectorPage = 1;
+                                }
+                                else
+                                {
+                                    PlanetRegistry.PlanetSelectorPage++;
+                                }
+                                PlanetRegistry.UpdatePlanetSelector();
+                                break;
+                        }
+                    }
+                }
+                else if (Input.GetMouseButtonDown(1) && GameScript.inventoryOpen && Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out ___hit, 7f))
+                {
+                    if (___hit.transform.gameObject.layer == 16 && ___hit.transform.gameObject.tag == "craft" && MenuRegistry.Singleton.GetEntry(___craftType) is CraftMenuInfo craftMenu)
+                    {
+                        ___slotID = int.Parse(___hit.transform.gameObject.name);
+                        if (__state)
+                        {
+                            Item holdingItem = ___holdingItem;
+                            Item[] craftItems = ___craft;
+                            int slotID = ___slotID;
+                            if (craftMenu.SlotValidators.Any(x => x(holdingItem, craftItems, slotID)))
+                            {
+                                if (___craft[___slotID].id == 0 || (GadgetCoreAPI.CanItemsStack(___craft[___slotID], ___holdingItem) && ___craft[___slotID].q < 9999))
+                                {
+                                    __instance.InvokeMethod("PlaceOneItemCraft", ___slotID);
+                                }
+                                else
+                                {
+                                    __instance.InvokeMethod("SwapItemCraft", ___slotID);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         [HarmonyTranspiler]
@@ -116,9 +248,9 @@ namespace GadgetCore.Patches
         {
             CodeInstruction[] codes = instructions.ToArray();
             List<CodeInstruction> newCodes = new List<CodeInstruction>();
-            for (int i = 0; i < 11;i++) newCodes.Add(codes[i]);
+            for (int i = 0; i < 11; i++) newCodes.Add(codes[i]);
             for (int i = 11; i < codes.Length; i++)
-            {   
+            {
                 newCodes.Add(codes[i]);
                 if ((codes[i - 1] != null && codes[i - 1].opcode == OpCodes.Ldsfld && codes[i - 1].operand.ToString().Equals("System.Boolean pausing")
                  && codes[i] != null && codes[i].opcode == OpCodes.Brtrue) ||
@@ -145,7 +277,7 @@ namespace GadgetCore.Patches
                     if (codes.Length > i + 1 && codes[i + 1].opcode == OpCodes.Ldsfld)
                     {
                         newCodes.Add(new CodeInstruction(OpCodes.Ldsfld, codes[i + 1].operand));
-                        newCodes.Add(new CodeInstruction(OpCodes.Ldc_I4, TileRegistry.GetSingleton().GetIDStart()));
+                        newCodes.Add(new CodeInstruction(OpCodes.Ldc_I4, TileRegistry.Singleton.GetIDStart()));
                         newCodes.Add(new CodeInstruction(OpCodes.Bge, codes[i].operand));
                     }
                 }

@@ -11,9 +11,9 @@ namespace GadgetCore.Patches
         [HarmonyPrefix]
         public static bool Prefix(AttackCube __instance, Collider c)
         {
-            if (ItemRegistry.GetSingleton().HasEntry(GameScript.equippedIDs[0]))
+            if (ItemRegistry.Singleton.HasEntry(GameScript.equippedIDs[0]))
             {
-                ItemInfo weapon = ItemRegistry.GetSingleton().GetEntry(GameScript.equippedIDs[0]);
+                ItemInfo weapon = ItemRegistry.Singleton[GameScript.equippedIDs[0]];
                 PlayerScript player = __instance.gameObject.GetComponentInParent<PlayerScript>();
                 int num = 0;
                 if (PlayerScript.berserkBool)

@@ -5,8 +5,8 @@ namespace GadgetCore.API
     /// <summary>
     /// Abstract classed used for Registry Entries. Extend to create Registry Entries for your own custom Registry.
     /// </summary>
-    /// <typeparam name="E"></typeparam>
-    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="E">Entry Type</typeparam>
+    /// <typeparam name="T">Entry Type Enum</typeparam>
     public abstract class RegistryEntry<E, T> where E : RegistryEntry<E, T> where T : Enum
     {
         internal int ModID = -1;

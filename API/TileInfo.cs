@@ -154,7 +154,7 @@ namespace GadgetCore.API
         /// </summary>
         public override Registry<TileInfo, TileType> GetRegistry()
         {
-            return Registry<TileRegistry, TileInfo, TileType>.GetSingleton();
+            return TileRegistry.Singleton;
         }
 
         /// <summary>

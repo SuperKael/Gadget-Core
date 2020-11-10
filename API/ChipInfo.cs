@@ -113,7 +113,7 @@ namespace GadgetCore.API
         /// </summary>
         public override Registry<ChipInfo, ChipType> GetRegistry()
         {
-            return Registry<ChipRegistry, ChipInfo, ChipType>.GetSingleton();
+            return ChipRegistry.Singleton;
         }
 
         /// <summary>

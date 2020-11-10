@@ -66,7 +66,8 @@ namespace GadgetCore
             }
             foreach (GadgetMod mod in GadgetLoader.EmptyMods)
             {
-                if (mod.HasModFile("ModInfo.txt")) using (GadgetModFile infoFile = mod.GetModFile("ModInfo.txt")) modInfo = infoFile.ReadAllText();
+                if (mod.Name == "GadgetCore") modInfo = CoreMod.GadgetCoreMod.GetDesc();
+                else if (mod.HasModFile("ModInfo.txt")) using (GadgetModFile infoFile = mod.GetModFile("ModInfo.txt")) modInfo = infoFile.ReadAllText();
                 if (string.IsNullOrEmpty(modInfo) || modInfo == "Insert the description for your mod here!") modInfo = "This Gadget mod does not have a ModInfo file.";
                 Dictionary<string, string> info = new Dictionary<string, string>
                 {
@@ -83,7 +84,8 @@ namespace GadgetCore
             }
             foreach (GadgetMod mod in GadgetLoader.IncompatibleMods)
             {
-                if (mod.HasModFile("ModInfo.txt")) using (GadgetModFile infoFile = mod.GetModFile("ModInfo.txt")) modInfo = infoFile.ReadAllText();
+                if (mod.Name == "GadgetCore") modInfo = CoreMod.GadgetCoreMod.GetDesc();
+                else if (mod.HasModFile("ModInfo.txt")) using (GadgetModFile infoFile = mod.GetModFile("ModInfo.txt")) modInfo = infoFile.ReadAllText();
                 if (string.IsNullOrEmpty(modInfo) || modInfo == "Insert the description for your mod here!") modInfo = "This Gadget mod does not have a ModInfo file.";
                 Dictionary<string, string> info = new Dictionary<string, string>
                 {
@@ -96,7 +98,8 @@ namespace GadgetCore
             }
             foreach (GadgetMod mod in GadgetMods.ListAllMods().Where(x => x.LoadedGadgets.Count == 0))
             {
-                if (mod.HasModFile("ModInfo.txt")) using (GadgetModFile infoFile = mod.GetModFile("ModInfo.txt")) modInfo = infoFile.ReadAllText();
+                if (mod.Name == "GadgetCore") modInfo = CoreMod.GadgetCoreMod.GetDesc();
+                else if (mod.HasModFile("ModInfo.txt")) using (GadgetModFile infoFile = mod.GetModFile("ModInfo.txt")) modInfo = infoFile.ReadAllText();
                 if (string.IsNullOrEmpty(modInfo) || modInfo == "Insert the description for your mod here!") modInfo = "This Gadget mod does not have a ModInfo file.";
                 Dictionary<string, string> info = new Dictionary<string, string>
                 {
@@ -113,6 +116,7 @@ namespace GadgetCore
             }
             foreach (Tuple<string, string> mod in GadgetLoader.ErroredMods)
             {
+                if (mod.Item1 == "GadgetCore") modInfo = CoreMod.GadgetCoreMod.GetDesc();
                 modInfo = "As there was an error loading this mod, its description could not be loaded.\nThe error that prevented this mod from loading should be in the log.\nYou should report this to the mod author.";
                 Dictionary<string, string> info = new Dictionary<string, string>
                 {

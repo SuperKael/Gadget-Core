@@ -23,11 +23,11 @@ namespace GadgetCore.API
         /// <summary>
         /// A slightly more informative version. You generally shouldn't access this directly, instead use <see cref="GetFullVersion()"/>
         /// </summary>
-        public const string FULL_VERSION = "2.0.0.0-BETA12";
+        public const string FULL_VERSION = "2.0.0.0";
         /// <summary>
         /// Indicates whether this version of GadgetCore is a beta version. You generally shouldn't access this directly, instead use <see cref="GetIsBeta()"/>
         /// </summary>
-        public const bool IS_BETA = true;
+        public const bool IS_BETA = false;
 
         internal static readonly int[] currentVersionNums = RAW_VERSION.Split('.').Select(x => int.Parse(x)).ToArray();
 
@@ -36,17 +36,11 @@ namespace GadgetCore.API
         /// </summary>
         public static SpriteSheetEntry MissingTexSprite { get; internal set; }
 
-        private static readonly MethodInfo RefreshExpBar = typeof(GameScript).GetMethod("RefreshExpBar", BindingFlags.NonPublic | BindingFlags.Instance);
-        private static readonly MethodInfo Crafting = typeof(GameScript).GetMethod("Crafting", BindingFlags.NonPublic | BindingFlags.Instance);
-        private static readonly MethodInfo CraftCheck = typeof(GameScript).GetMethod("CraftCheck", BindingFlags.NonPublic | BindingFlags.Instance);
         private static readonly MethodInfo GetItemNameMethod = typeof(GameScript).GetMethod("GetItemName", BindingFlags.NonPublic | BindingFlags.Instance);
         private static readonly MethodInfo GetItemDescMethod = typeof(GameScript).GetMethod("GetItemDesc", BindingFlags.NonPublic | BindingFlags.Instance);
         private static readonly MethodInfo GetChipNameMethod = typeof(GameScript).GetMethod("GetChipName", BindingFlags.NonPublic | BindingFlags.Instance);
         private static readonly MethodInfo GetChipDescMethod = typeof(GameScript).GetMethod("GetChipDesc", BindingFlags.NonPublic | BindingFlags.Instance);
         private static readonly MethodInfo GetGearBaseStatsMethod = typeof(GameScript).GetMethod("GetGearBaseStats", BindingFlags.NonPublic | BindingFlags.Instance);
-        private static readonly FieldInfo craftType = typeof(GameScript).GetField("craftType", BindingFlags.NonPublic | BindingFlags.Instance);
-        private static readonly FieldInfo craftValue = typeof(GameScript).GetField("craftValue", BindingFlags.NonPublic | BindingFlags.Instance);
-        private static readonly FieldInfo crafting = typeof(GameScript).GetField("crafting", BindingFlags.NonPublic | BindingFlags.Instance);
 
         internal static Dictionary<string, UnityEngine.Object> resources = new Dictionary<string, UnityEngine.Object>();
         internal static Dictionary<int, string> resourcePaths = new Dictionary<int, string>();
@@ -64,8 +58,6 @@ namespace GadgetCore.API
         internal static List<SpriteSheetEntry> spriteSheetSprites = new List<SpriteSheetEntry>();
         internal static int spriteSheetSize = -1;
         internal static Texture2D spriteSheet;
-        internal static List<string> menuPaths = new List<string>();
-        internal static List<GameObject> menus;
         internal static int[][] equipedGearStats = new int[9][];
         private static List<string> frozenInput = new List<string>();
 
@@ -195,73 +187,44 @@ namespace GadgetCore.API
         }
 
         /// <summary>
-        /// Registers a non-crafting menu to the game. Use OpenMenu to open the menu. Components on the Menu may have methods named OnMenuOpened and/or OnMenuClosed that will get automatically invoked when the menu is opened or closed, respectively.
+        /// Determines if two <see cref="Item"/>s are able to stack together. Ignores matters of quantity.
         /// </summary>
-        /// <param name="Menu">The menu prefab.</param>
-        /// <param name="Tile">An optional parameter that specifies what Interactive tile should open the menu when interacted with. Shortcut for adding OpenMenuRoutine to the tile's OnInteract event.</param>
-        public static int RegisterMenu(GameObject Menu, TileInfo Tile = null)
+        public static bool CanItemsStack(Item item1, Item item2)
         {
-            Menu.SetActive(false);
-            AddCustomResource("menu/" + Menu.name, Menu);
-            menuPaths.Add("menu/" + Menu.name);
-            if (Tile != null) Tile.OnInteract += () => OpenMenuRoutine(menuPaths.Count - 1);
-            return menuPaths.Count - 1;
+            return (ItemRegistry.GetTypeByID(item1.id) & ItemType.NONSTACKING) == ItemType.STACKING &&
+                item1.id == item2.id && item1.corrupted == item2.corrupted &&
+                ((item1.GetAllExtraData() == null && item2.GetAllExtraData() == null) || (item1.GetAllExtraData() != null && item2.GetAllExtraData() != null &&
+                item1.GetAllExtraData().Count == item2.GetAllExtraData().Count &&
+                item1.GetAllExtraData().All(keyValuePair => item2.GetAllExtraData().TryGetValue(keyValuePair.Key, out object value) && value.Equals(keyValuePair.Value))));
         }
 
         /// <summary>
-        /// Opens the custom crafting menu with the specified ID. Functions as a Coroutine, to facilitate use in TileInfo's OnInteract.
+        /// Creates a market stand.
         /// </summary>
-        public static IEnumerator OpenCraftMenuRoutine(int ID)
+        /// <param name="item">The item to sell</param>
+        /// <param name="pos">The position to put the stand at</param>
+        /// <param name="cost">The cost to buy the item</param>
+        /// <param name="isBuild">If true, costs scrap metal. If false, costs world frags.</param>
+        /// <param name="isCredits">If isBuild and isCredits are true, costs credits instead of scrap metal.</param>
+        /// <param name="isTrophies">If isBuild, isCredits, and isTrophies are true, costs wealth trophies instead of credits.</param>
+        public static GameObject CreateMarketStand(ItemInfo item, Vector2 pos, int cost, bool isBuild = true, bool isCredits = false, bool isTrophies = false)
         {
-            OpenCraftMenu(ID);
-            yield break;
-        }
-
-        /// <summary>
-        /// Opens the custom menu with the specified ID. Not for use with crafting menus. Functions as a Coroutine, to facilitate use in TileInfo's OnInteract.
-        /// </summary>
-        public static IEnumerator OpenMenuRoutine(int ID)
-        {
-            OpenMenu(ID);
-            yield break;
-        }
-
-        /// <summary>
-        /// Opens the custom crafting menu with the specified ID.
-        /// </summary>
-        public static void OpenCraftMenu(int ID)
-        {
-            CustomCraftMenu craftMenu = CraftMenus.customCraftMenus[ID];
-            InstanceTracker.GameScript.StartCoroutine(RefreshExpBar.Invoke(InstanceTracker.GameScript, new object[] { }) as IEnumerator);
-            InstanceTracker.GameScript.txtCraftName[0].text = craftMenu.Title;
-            InstanceTracker.GameScript.txtCraftName[1].text = InstanceTracker.GameScript.txtCraftName[0].text;
-            InstanceTracker.GameScript.txtCraftTip[0].text = craftMenu.Desc;
-            InstanceTracker.GameScript.txtCraftTip[1].text = InstanceTracker.GameScript.txtCraftTip[0].text;
-            InstanceTracker.GameScript.barCraft.GetComponent<Renderer>().material = craftMenu.ProgressBarMat;
-            craftType.SetValue(InstanceTracker.GameScript, ID);
-            craftValue.SetValue(InstanceTracker.GameScript, 0);
-            InstanceTracker.GameScript.barCraft.transform.localScale = new Vector3(0f, 0.6f, 1f);
-            crafting.SetValue(InstanceTracker.GameScript, true);
-            InstanceTracker.GameScript.bRecipe.SetActive(true);
-            InstanceTracker.GameScript.StartCoroutine(Crafting.Invoke(InstanceTracker.GameScript, new object[] { }) as IEnumerator);
-            InstanceTracker.GameScript.menuCraftObj.GetComponent<Renderer>().material = craftMenu.MenuMat;
-            InstanceTracker.GameScript.menuCraft.SetActive(true);
-            CraftCheck.Invoke(InstanceTracker.GameScript, new object[] { });
-            InstanceTracker.GameScript.GetComponent<AudioSource>().PlayOneShot((AudioClip)Resources.Load("Au/invOpen"), Menuu.soundLevel / 10f);
-            InstanceTracker.GameScript.inventoryMain.SetActive(true);
-            GameScript.inventoryOpen = true;
-        }
-
-        /// <summary>
-        /// Opens the custom menu with the specified ID. Not for use with crafting menus.
-        /// </summary>
-        public static void OpenMenu(int ID)
-        {
-            if (menus != null)
-            {
-                menus[ID].SetActive(true);
-                menus[ID].SendMessage("OnMenuOpened", options: SendMessageOptions.DontRequireReceiver);
-            }
+            GameObject shopStand = UnityEngine.Object.Instantiate(SceneInjector.BuildStand, SceneInjector.BuildStand.transform.parent);
+            shopStand.transform.localPosition = new Vector3(pos.x, pos.y, SceneInjector.BuildStand.transform.position.z);
+            shopStand.name = isBuild ? "buildStand" : "kylockeStand";
+            KylockeStand standScript = shopStand.GetComponent<KylockeStand>();
+            standScript.isTrophies = isTrophies;
+            standScript.isCredits = isCredits;
+            standScript.isBuild = isBuild;
+            standScript.itemID = item.ID;
+            standScript.cost = cost;
+            standScript.currency.GetComponent<MeshRenderer>().material = isBuild ? isCredits ? isTrophies ? GetItemMaterial(59) : GetItemMaterial(52) : GetItemMaterial(57) : GetItemMaterial(51);
+            standScript.icon.GetComponent<MeshRenderer>().material = item.Mat;
+            standScript.txtName[0].text = item.GetName();
+            standScript.txtName[1].text = standScript.txtName[0].text;
+            standScript.txtCost[0].text = string.Empty + standScript.cost;
+            standScript.txtCost[1].text = standScript.txtCost[0].text;
+            return shopStand;
         }
 
         /// <summary>
@@ -440,7 +403,7 @@ namespace GadgetCore.API
                 int[] st = ConstructIntArrayFromItem(item);
                 ItemScript itemScript = ((GameObject)UnityEngine.Object.Instantiate(Resources.Load("i3"), pos, Quaternion.identity)).GetComponent<ItemScript>();
                 itemScript.SendMessage("InitL", st);
-                if (ItemRegistry.GetSingleton().HasEntry(item.id) && (ItemRegistry.GetSingleton().GetEntry(item.id).Type & ItemType.EQUIPABLE) == ItemType.EQUIPABLE) itemScript.back.SetActive(true);
+                if ((ItemRegistry.GetItem(item.id)?.Type & ItemType.LEVELING) == ItemType.LEVELING) itemScript.back.SetActive(true);
                 return itemScript;
             }
             else
@@ -550,7 +513,6 @@ namespace GadgetCore.API
         
         private static IEnumerator SpawnEXPRoutine(Vector3 pos, int exp, float delay)
         {
-            GadgetCore.CoreLogger.LogConsole("Exp: " + exp);
             if (exp >= 10000)
             {
                 int rem = exp % 20;
@@ -656,7 +618,7 @@ namespace GadgetCore.API
                 int[] st = ConstructIntArrayFromItem(item);
                 ItemScript itemScript = ((GameObject)Network.Instantiate(Resources.Load("i2"), pos, Quaternion.identity, 0)).GetComponent<ItemScript>();
                 itemScript.gameObject.GetComponent<NetworkView>().RPC("Init", RPCMode.AllBuffered, st);
-                if (ItemRegistry.GetSingleton().HasEntry(item.id) && (ItemRegistry.GetSingleton().GetEntry(item.id).Type & ItemType.EQUIPABLE) == ItemType.EQUIPABLE) itemScript.back.SetActive(true);
+                if ((ItemRegistry.GetItem(item.id)?.Type & ItemType.LEVELING) == ItemType.LEVELING) itemScript.back.SetActive(true);
                 return itemScript;
             }
             else
@@ -681,7 +643,7 @@ namespace GadgetCore.API
                 int[] st = ConstructIntArrayFromItem(item);
                 ItemScript itemScript = ((GameObject)UnityEngine.Object.Instantiate(Resources.Load("i2"), pos, Quaternion.identity)).GetComponent<ItemScript>();
                 itemScript.SendMessage("InitL", st);
-                if (ItemRegistry.GetSingleton().HasEntry(item.id) && (ItemRegistry.GetSingleton().GetEntry(item.id).Type & ItemType.EQUIPABLE) == ItemType.EQUIPABLE) itemScript.back.SetActive(true);
+                if ((ItemRegistry.GetItem(item.id)?.Type & ItemType.LEVELING) == ItemType.LEVELING) itemScript.back.SetActive(true);
                 return itemScript;
             }
             else
@@ -733,6 +695,18 @@ namespace GadgetCore.API
         public static void CallCustomRPC(string name, NetworkPlayer target, params object[] args)
         {
             RPCHooks.Singleton.CallGeneral(name, target, args);
+        }
+
+        /// <summary>
+        /// Convenience method to override a Material resource's main texture. May only be called from the Initialize method of a Gadget.
+        /// </summary>
+        /// <param name="materialPath">The pseudo-file-path to the material to override.</param>
+        /// <param name="tex">The new texture to use for the Material override.</param>
+        public static void ReplaceMatResourceTex(string materialPath, Texture2D tex)
+        {
+            Material mat = GetResource(materialPath) as Material;
+            mat.mainTexture = tex;
+            AddCustomResource(materialPath, mat);
         }
 
         /// <summary>
@@ -858,9 +832,9 @@ namespace GadgetCore.API
         /// </summary>
         public static EquipStats GetTrueGearBaseStats(int ID)
         {
-            if (ItemRegistry.GetSingleton().HasEntry(ID))
+            if (ItemRegistry.Singleton.HasEntry(ID))
             {
-                return ItemRegistry.GetSingleton().GetEntry(ID).Stats;
+                return ItemRegistry.Singleton.GetEntry(ID).Stats;
             }
             return new EquipStats(GetGearBaseStatsMethod.Invoke(InstanceTracker.GameScript, new object[] { ID }) as int[]);
         }
@@ -902,11 +876,11 @@ namespace GadgetCore.API
         public static EquipStats GetGearStats(Item item)
         {
             ItemInfo itemInfo = ItemRegistry.GetItem(item.id);
-            bool itemLevels = (itemInfo?.Type & ItemType.LEVELING) == ItemType.LEVELING && (itemInfo?.Type & ItemType.BASIC_MASK) != (ItemType.DROID & ItemType.BASIC_MASK);
+            bool itemLevels = (itemInfo?.Type & ItemType.LEVELING) == ItemType.LEVELING && (itemInfo?.Type & ItemType.EQUIP_MASK) != (ItemType.DROID & ItemType.EQUIP_MASK);
             int level = itemLevels ? GetGearLevel(item) : 1;
             EquipStats baseStats = GetGearBaseStats(item);
             EquipStats stats = baseStats * level;
-            if ((itemInfo?.Type & ItemType.BASIC_MASK) != (ItemType.DROID & ItemType.BASIC_MASK)) for (int j = 0; j < 6; j++)
+            if ((itemInfo?.Type & ItemType.EQUIP_MASK) != (ItemType.DROID & ItemType.EQUIP_MASK)) for (int j = 0; j < 6; j++)
             {
                 if (stats.GetByIndex(j) > 0)
                 {
@@ -915,7 +889,7 @@ namespace GadgetCore.API
             }
             for (int i = 0; i < item.aspect.Length; i++)
             {
-                ItemInfo gearMod = ItemRegistry.GetSingleton().GetEntry(item.aspect[i]);
+                ItemInfo gearMod = ItemRegistry.Singleton.GetEntry(item.aspect[i]);
                 if (gearMod == null && (item.aspect[i] < 201 || item.aspect[i] > 206)) continue;
                 for (int j = 0; j < 6; j++)
                 {
@@ -1164,7 +1138,7 @@ namespace GadgetCore.API
         /// </summary>
         public static Material GetTerrainSideMaterial(int ID, bool vertical)
         {
-            return (Material)Resources.Load("side/side" + (vertical ? "v" : "h") + ID);
+            return (Material)Resources.Load("side/side" + (vertical ? "V" : "H") + ID);
         }
 
         /// <summary>

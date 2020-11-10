@@ -93,6 +93,7 @@ namespace GadgetCore.API
                 if (ID <= 140) return ItemType.EMBLEM | ItemType.BUG;
                 return ItemType.EMBLEM | ItemType.OTHER;
             }
+            if (ID > 200 && ID < 230) return ItemType.MOD;
             if (ID >= 300 && ID < 600) return ItemType.WEAPON;
             if (ID >= 600 && ID < 700) return ItemType.OFFHAND;
             if (ID >= 700 && ID < 800) return ItemType.HELMET;
@@ -457,7 +458,7 @@ namespace GadgetCore.API
         /// </summary>
         public static ItemType GetTypeByID(int ID)
         {
-            ItemInfo itemInfo = GetSingleton().GetEntry(ID);
+            ItemInfo itemInfo = Singleton.GetEntry(ID);
             return itemInfo != null ? itemInfo.Type : GetDefaultTypeByID(ID);
         }
 
@@ -474,7 +475,7 @@ namespace GadgetCore.API
         /// </summary>
         public static ItemInfo GetItem(int ID)
         {
-            return GetSingleton().HasEntry(ID) ? GetSingleton().GetEntry(ID) : ID > 0 && ID < GetSingleton().GetIDStart() ? VanillaItemInfo.Wrap(ID) : null;
+            return Singleton.HasEntry(ID) ? Singleton.GetEntry(ID) : ID > 0 && ID < Singleton.GetIDStart() ? VanillaItemInfo.Wrap(ID) : null;
         }
 
         private static void InitializeVanillaItemIDNames()
@@ -1083,40 +1084,12 @@ namespace GadgetCore.API
         /// <summary>
         /// When this item is used, one of it should be consumed. Implies USABLE.
         /// </summary>
-        CONSUMABLE  = 0b0000000000000101,
+        CONSUMABLE  = 0b0000000000001100,
+
         /// <summary>
         /// This item can be equipped. Note that this alone does not actually make it equipable, since no equip slot will take it. Incompatible with LOOT, EMBLEM, USABLE, and CONSUMABLE.
         /// </summary>
-        EQUIPABLE   = 0b0000000000001000,
-        /// <summary>
-        /// This item is a weapon, and can as such can be equipped to the weapon slot. Implies EQUIPABLE, NONSTACKING, LEVELING, and MODABLE. Use BASIC_MASK to strip all but the EQUIPABLE implication.
-        /// </summary>
-        WEAPON      = 0b0000000001111000,
-        /// <summary>
-        /// This item is an offhand, and can as such can be equipped to the offhand slot. Implies EQUIPABLE, NONSTACKING, LEVELING, and MODABLE. Use BASIC_MASK to strip all but the EQUIPABLE implication.
-        /// </summary>
-        OFFHAND     = 0b0000000001111001,
-        /// <summary>
-        /// This item is a helmet, and can as such can be equipped to the helmet slot. Implies EQUIPABLE, NONSTACKING, LEVELING, and MODABLE. Use BASIC_MASK to strip all but the EQUIPABLE implication.
-        /// </summary>
-        HELMET      = 0b0000000001111010,
-        /// <summary>
-        /// This item is an armor, and can as such can be equipped to the armor slot. Implies EQUIPABLE, NONSTACKING, LEVELING, and MODABLE. Use BASIC_MASK to strip all but the EQUIPABLE implication.
-        /// </summary>
-        ARMOR       = 0b0000000001111011,
-        /// <summary>
-        /// This item is a ring, and can as such can be equipped to a ring slot. Implies EQUIPABLE, NONSTACKING, LEVELING, and MODABLE. Use BASIC_MASK to strip all but the EQUIPABLE implication.
-        /// </summary>
-        RING        = 0b0000000001111100,
-        /// <summary>
-        /// This item is a droid, and can as such can be equipped to a droid slot. Implies EQUIPABLE, NONSTACKING, and LEVELING. Use BASIC_MASK to strip all but the EQUIPABLE implication.
-        /// </summary>
-        DROID       = 0b0000000000111101,
-        /// <summary>
-        /// This item is a gear mod, and as such can be installed into weapons, offhands, helmets, armors, and rings. Note that this is non-functional in this version of Gadget Core.
-        /// </summary>
-        MOD         = 0b0000000010000000,
-
+        EQUIPABLE   = 0b0000000000010000,
         /// <summary>
         /// This item can stack. Note that this flag is meaningless to set, and is only intended to be used for querying as such: ({Item Type} &amp; ItemType.NONSTACKING) == ItemType.STACKING
         /// </summary>
@@ -1124,15 +1097,43 @@ namespace GadgetCore.API
         /// <summary>
         /// This item cannot stack. If an equipable item does not have this flag set, unexpected behavior may occur.
         /// </summary>
-        NONSTACKING = 0b0000000000010000,
+        NONSTACKING = 0b0000000000100000,
         /// <summary>
         /// This item is able to level up. Also causes the item to show the background that displays the item's rarity tier. If a leveling item is able to stack, unexpected behavior may occur.
         /// </summary>
-        LEVELING    = 0b0000000000100000,
+        LEVELING    = 0b0000000001000000,
         /// <summary>
-        /// This item is able to have mods installed into it. If a modable item is able to stack, unexpected behavoir may occur. Note that this is non-functional in this version of Gadget Core.
+        /// This item is able to have mods installed into it. Note that this is non-functional in this version of Gadget Core.
         /// </summary>
-        MODABLE     = 0b0000000001000000,
+        MODABLE     = 0b0000000010100000,
+        /// <summary>
+        /// This item is a gear mod, and as such can be installed into weapons, offhands, helmets, armors, and rings. Note that this is non-functional in this version of Gadget Core.
+        /// </summary>
+        MOD         = 0b0000000010000000,
+        /// <summary>
+        /// This item is a weapon, and can as such can be equipped to the weapon slot. Implies EQUIPABLE, NONSTACKING, LEVELING, and MODABLE. Use BASIC_MASK to strip all but the EQUIPABLE implication.
+        /// </summary>
+        WEAPON      = 0b0000000011110000,
+        /// <summary>
+        /// This item is an offhand, and can as such can be equipped to the offhand slot. Implies EQUIPABLE, NONSTACKING, LEVELING, and MODABLE. Use BASIC_MASK to strip all but the EQUIPABLE implication.
+        /// </summary>
+        OFFHAND     = 0b0000000011110001,
+        /// <summary>
+        /// This item is a helmet, and can as such can be equipped to the helmet slot. Implies EQUIPABLE, NONSTACKING, LEVELING, and MODABLE. Use BASIC_MASK to strip all but the EQUIPABLE implication.
+        /// </summary>
+        HELMET      = 0b0000000011110010,
+        /// <summary>
+        /// This item is an armor, and can as such can be equipped to the armor slot. Implies EQUIPABLE, NONSTACKING, LEVELING, and MODABLE. Use BASIC_MASK to strip all but the EQUIPABLE implication.
+        /// </summary>
+        ARMOR       = 0b0000000011110011,
+        /// <summary>
+        /// This item is a ring, and can as such can be equipped to a ring slot. Implies EQUIPABLE, NONSTACKING, LEVELING, and MODABLE. Use BASIC_MASK to strip all but the EQUIPABLE implication.
+        /// </summary>
+        RING        = 0b0000000011110100,
+        /// <summary>
+        /// This item is a droid, and can as such can be equipped to a droid slot. Implies EQUIPABLE, NONSTACKING, and LEVELING. Use BASIC_MASK to strip all but the EQUIPABLE implication.
+        /// </summary>
+        DROID       = 0b0000000001110101,
 
         /// <summary>
         /// This item is tier 1. This is meaningless if the item is not either a LOOT or an EMBLEM.
@@ -1267,11 +1268,15 @@ namespace GadgetCore.API
         FLAG16      = 0b10000000000000000000000000000000,
 
         /// <summary>
-        /// A bitmask that filters out the LOOT, EMBLEM, USABLE, CONSUMABLE, and EQUIPABLE flags.
+        /// A bitmask that filters out the LOOT, EMBLEM, USABLE, CONSUMABLE flags.
         /// </summary>
         BASIC_MASK  = 0b0000000000001111,
         /// <summary>
-        /// A bitmask that filters out the NONSTACKING, LEVELING, MODABLE, and MOD flags.
+        /// A bitmask that filters out the LOOT, EMBLEM, USABLE, CONSUMABLE, and EQUIPABLE flags.
+        /// </summary>
+        EQUIP_MASK  = 0b0000000000011111,
+        /// <summary>
+        /// A bitmask that filters out the EQUIPABLE, NONSTACKING, LEVELING, MODABLE, and MOD flags.
         /// </summary>
         TYPE_MASK   = 0b0000000011110000,
         /// <summary>

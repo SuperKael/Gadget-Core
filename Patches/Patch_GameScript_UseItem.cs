@@ -19,7 +19,7 @@ namespace GadgetCore.Patches
         public static bool Prefix(GameScript __instance, int slot, ref Item[] ___inventory, bool ___exitingcombatmode, ref bool ___usingItem)
         {
             if (GadgetCoreAPI.IsInputFrozen()) return false;
-            ItemInfo item = ItemRegistry.GetSingleton().GetEntry(___inventory[slot].id);
+            ItemInfo item = ItemRegistry.Singleton.GetEntry(___inventory[slot].id);
             if (item != null && !GameScript.dead && !___exitingcombatmode && !___usingItem)
             {
                 if ((item.Type & ItemType.USABLE) == ItemType.USABLE)

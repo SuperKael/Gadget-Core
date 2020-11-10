@@ -26,6 +26,24 @@ namespace GadgetCore.Patches
         public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator gen)
         {
             TranspilerHelper.CILProcessor p = TranspilerHelper.CreateProcessor(instructions, gen);
+
+            TranspilerHelper.CILProcessor.ILRef recordRef = p.FindRefByInsns(new CodeInstruction[] {
+                new CodeInstruction(OpCodes.Ldsfld, "System.Int32[] record"),
+                new CodeInstruction(OpCodes.Ldsfld, "System.Int32 curBiome"),
+                new CodeInstruction(OpCodes.Ldelema, "System.Int32"),
+                new CodeInstruction(OpCodes.Dup),
+                new CodeInstruction(OpCodes.Ldind_I4),
+                new CodeInstruction(OpCodes.Ldc_I4_1),
+                new CodeInstruction(OpCodes.Add),
+                new CodeInstruction(OpCodes.Stind_I4)
+                });
+
+            Label label = gen.DefineLabel();
+            p.GetInsn(recordRef.GetRefByOffset(8)).labels.Add(label);
+            p.InjectInsn(recordRef, p.GetInsn(recordRef.GetRefByOffset(1)));
+            p.InjectInsn(recordRef, new CodeInstruction(OpCodes.Ldc_I4_8));
+            p.InjectInsn(recordRef, new CodeInstruction(OpCodes.Bge, label));
+
             TranspilerHelper.CILProcessor.ILRef loopRef = p.FindRefByInsns(new CodeInstruction[] {
                 new CodeInstruction(OpCodes.Ldarg_0),
                 new CodeInstruction(OpCodes.Ldfld, "System.Int32 exp"),

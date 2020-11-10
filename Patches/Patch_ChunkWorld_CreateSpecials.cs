@@ -19,16 +19,23 @@ namespace GadgetCore.Patches
                     {
                         if (___gridSpecialObj[i, j] == null)
                         {
-                            if (TileRegistry.GetSingleton().HasEntry(__instance.gridSpecial[i, j]))
+                            if (TileRegistry.Singleton.HasEntry(__instance.gridSpecial[i, j]))
                             {
-                                TileInfo tile = TileRegistry.GetSingleton().GetEntry(__instance.gridSpecial[i, j]);
-                                if (tile.Type == TileType.INTERACTIVE)
+                                TileInfo tile = TileRegistry.Singleton.GetEntry(__instance.gridSpecial[i, j]);
+                                try
                                 {
-                                    ___gridSpecialObj[i, j] = (GameObject)Object.Instantiate(Resources.Load("npc/npc" + __instance.gridSpecial[i, j]), new Vector3((float)(i * 4 - 62), (float)(j * 4 - 62), 0.9f), Quaternion.identity);
+                                    if (tile.Type == TileType.INTERACTIVE)
+                                    {
+                                        ___gridSpecialObj[i, j] = (GameObject)Object.Instantiate(Resources.Load("npc/npc" + __instance.gridSpecial[i, j]), new Vector3((float)(i * 4 - 62), (float)(j * 4 - 62), 0.9f), Quaternion.identity);
+                                    }
+                                    else
+                                    {
+                                        ___gridSpecialObj[i, j] = (GameObject)Object.Instantiate(Resources.Load("prop/" + __instance.gridSpecial[i, j]), new Vector3((float)(i * 4 - 62), (float)(j * 4 - 62), 0.9f), Quaternion.identity);
+                                    }
                                 }
-                                else
+                                catch (System.ArgumentException)
                                 {
-                                    ___gridSpecialObj[i, j] = (GameObject)Object.Instantiate(Resources.Load("prop/" + __instance.gridSpecial[i, j]), new Vector3((float)(i * 4 - 62), (float)(j * 4 - 62), 0.9f), Quaternion.identity);
+                                    GadgetCore.CoreLogger.LogError("Error: The Tile '" + tile.RegistryName + "' has an invalid prop!");
                                 }
                             }
                             else

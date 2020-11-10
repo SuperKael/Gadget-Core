@@ -226,9 +226,9 @@ namespace GadgetCore
                 GadgetMod coreMod = new GadgetMod(GadgetPaths.GadgetCorePath, coreManifest, Assembly.GetExecutingAssembly());
                 GadgetMods.RegisterMod(coreMod);
                 VanillaRegistration();
-                GadgetLoader.LoadAllMods();
-                SceneInjector.InjectMainMenu();
                 SceneManager.sceneLoaded += OnSceneLoaded;
+                SceneInjector.InjectMainMenu();
+                GadgetLoader.LoadAllMods();
                 DontDestroyOnLoad(new GameObject("GadgetCore", typeof(GadgetCore)));
                 CoreLogger.LogConsole("GadgetCore v" + GadgetCoreAPI.FULL_VERSION + " Initialized!");
                 if (GadgetCoreAPI.IS_BETA) CoreLogger.LogWarning("You are currently running a beta version of GadgetCore! Be prepared for bugs!");
@@ -349,10 +349,12 @@ namespace GadgetCore
             Registry.modRegistering = -1;
             Registry.registeringVanilla = true;
 
-            GameRegistry.RegisterRegistry(ItemRegistry.GetSingleton());
-            GameRegistry.RegisterRegistry(ChipRegistry.GetSingleton());
-            GameRegistry.RegisterRegistry(TileRegistry.GetSingleton());
-            GameRegistry.RegisterRegistry(EntityRegistry.GetSingleton());
+            GameRegistry.RegisterRegistry(ItemRegistry.Singleton);
+            GameRegistry.RegisterRegistry(ChipRegistry.Singleton);
+            GameRegistry.RegisterRegistry(TileRegistry.Singleton);
+            GameRegistry.RegisterRegistry(EntityRegistry.Singleton);
+            GameRegistry.RegisterRegistry(MenuRegistry.Singleton);
+            GameRegistry.RegisterRegistry(PlanetRegistry.Singleton);
 
             GadgetCoreAPI.MissingTexSprite = GadgetCoreAPI.AddTextureToSheet(GadgetCoreAPI.LoadTexture2D("missing_tex"));
 

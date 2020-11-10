@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Policy;
 using System.Text;
+using UnityEngine.AI;
 
 namespace GadgetCore.Util
 {
@@ -18,6 +19,24 @@ namespace GadgetCore.Util
         {
             return list.Aggregate(new StringBuilder(), (a, b) => { if (a.Length > 0 && seperator != null) a.Append(seperator); a.Append(b); return a; }).ToString();
         }
+
+        /// <summary>
+        /// Finds the index of the given predicate, returns -1 if it is not found.
+        /// </summary>
+        public static int IndexOf<TSource>(this IEnumerable<TSource> source, Func<TSource, bool> predicate)
+        {
+            int index = 0;
+            foreach (TSource item in source)
+            {
+                if (predicate.Invoke(item))
+                {
+                    return index;
+                }
+                index++;
+            }
+            return -1;
+        }
+
 
         /// <summary>
         /// Checks if the list has the given sublist at the specified index.

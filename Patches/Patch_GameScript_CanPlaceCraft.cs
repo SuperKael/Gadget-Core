@@ -1,6 +1,8 @@
 using HarmonyLib;
 using System.Reflection;
 using GadgetCore.API;
+using System.Linq;
+using UnityEngine;
 
 namespace GadgetCore.Patches
 {
@@ -11,14 +13,19 @@ namespace GadgetCore.Patches
         [HarmonyPrefix]
         public static bool Prefix(GameScript __instance, ref Item[] ___craft, ref int ___craftType, int a, ref bool __result)
         {
+            if (MenuRegistry.Singleton[___craftType] is CraftMenuInfo && Input.GetMouseButtonDown(1))
+            {
+                __result = false;
+                return false;
+            }
             if (___craftType == 3)
             {
                 __result = (bool)typeof(GameScript).GetMethod("CanPlaceCraft2", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(__instance, new object[] { a });
                 return false;
             }
-            if (ItemRegistry.GetSingleton().HasEntry(a))
+            if (ItemRegistry.Singleton.HasEntry(a))
             {
-                ItemInfo item = ItemRegistry.GetSingleton().GetEntry(a);
+                ItemInfo item = ItemRegistry.Singleton.GetEntry(a);
                 __result = true;
                 for (int i = 0; i < 3; i++)
                 {
@@ -30,7 +37,7 @@ namespace GadgetCore.Patches
                     }
                     if (___craft[i].id > 0)
                     {
-                        if ((ItemRegistry.GetSingleton().HasEntry(___craft[i].id) ? (int)(ItemRegistry.GetSingleton().GetEntry(a).Type & ItemType.TIER_MASK) >> 8 : ___craft[i].id % 10) != (int)(item.Type & ItemType.TIER_MASK) >> 8)
+                        if ((ItemRegistry.Singleton.HasEntry(___craft[i].id) ? (int)(ItemRegistry.Singleton.GetEntry(a).Type & ItemType.TIER_MASK) >> 8 : ___craft[i].id % 10) != (int)(item.Type & ItemType.TIER_MASK) >> 8)
                         {
                             __result = false;
                             __instance.Error(5);
