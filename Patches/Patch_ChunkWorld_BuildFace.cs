@@ -1,8 +1,6 @@
 using HarmonyLib;
 using GadgetCore.API;
-using GadgetCore;
 using UnityEngine;
-using System.Reflection;
 using System.Collections.Generic;
 
 namespace GadgetCore.Patches
@@ -14,10 +12,9 @@ namespace GadgetCore.Patches
         [HarmonyPrefix]
         public static bool Prefix(ChunkWorld __instance, byte brick, Vector3 corner, Vector3 up, Vector3 right, bool reversed, List<Vector3> verts, List<Vector2> uvs, List<int> tris, int id, int face)
         {
-            if (TileRegistry.GetSingleton().HasEntry(id))
+            if (TileRegistry.Singleton.HasEntry(id))
             {
-                TileInfo tile = TileRegistry.GetSingleton().GetEntry(id);
-                int count = verts.Count;
+                TileInfo tile = TileRegistry.Singleton.GetEntry(id);
                 if (tile.Type == TileType.SOLID || tile.Type == TileType.WALL)
                 {
                     verts.Add(corner);
@@ -56,31 +53,76 @@ namespace GadgetCore.Patches
                         verts.Add(corner + right);
                     }
                 }
-                uvs.Add(new Vector2(tile.Sprite.coords.x, tile.Sprite.coords.y));
-                uvs.Add(new Vector2(tile.Sprite.coords.x, tile.Sprite.coords.y + 1));
-                uvs.Add(new Vector2(tile.Sprite.coords.x + 1, tile.Sprite.coords.y + 1));
-                uvs.Add(new Vector2(tile.Sprite.coords.x + 1, tile.Sprite.coords.y));
-                if (reversed)
+                if (tile.Sprite != null)
                 {
-                    tris.Add(count);
-                    tris.Add(count + 1);
-                    tris.Add(count + 2);
-                    tris.Add(count + 2);
-                    tris.Add(count + 3);
-                    tris.Add(count);
+                    uvs.Add(new Vector2(tile.Sprite.coords.x, tile.Sprite.coords.y));
+                    uvs.Add(new Vector2(tile.Sprite.coords.x, tile.Sprite.coords.y + 1));
+                    uvs.Add(new Vector2(tile.Sprite.coords.x + 1, tile.Sprite.coords.y + 1));
+                    uvs.Add(new Vector2(tile.Sprite.coords.x + 1, tile.Sprite.coords.y));
                 }
                 else
                 {
-                    tris.Add(count + 1);
-                    tris.Add(count);
-                    tris.Add(count + 2);
-                    tris.Add(count + 3);
-                    tris.Add(count + 2);
-                    tris.Add(count);
+                    uvs.Add(new Vector2(GadgetCoreAPI.MissingTexSprite.coords.x, GadgetCoreAPI.MissingTexSprite.coords.y));
+                    uvs.Add(new Vector2(GadgetCoreAPI.MissingTexSprite.coords.x, GadgetCoreAPI.MissingTexSprite.coords.y + 1));
+                    uvs.Add(new Vector2(GadgetCoreAPI.MissingTexSprite.coords.x + 1, GadgetCoreAPI.MissingTexSprite.coords.y + 1));
+                    uvs.Add(new Vector2(GadgetCoreAPI.MissingTexSprite.coords.x + 1, GadgetCoreAPI.MissingTexSprite.coords.y));
+                }
+                if (reversed)
+                {
+                    tris.Add(verts.Count);
+                    tris.Add(verts.Count + 1);
+                    tris.Add(verts.Count + 2);
+                    tris.Add(verts.Count + 2);
+                    tris.Add(verts.Count + 3);
+                    tris.Add(verts.Count);
+                }
+                else
+                {
+                    tris.Add(verts.Count + 1);
+                    tris.Add(verts.Count);
+                    tris.Add(verts.Count + 2);
+                    tris.Add(verts.Count + 3);
+                    tris.Add(verts.Count + 2);
+                    tris.Add(verts.Count);
                 }
                 return false;
             }
-            return true;
+            if (id == 2000 || id == 2001 || id == 2002 || id == 2200 || id == 2300)
+            {
+                return true;
+            }
+            else
+            {
+                verts.Add(corner);
+                verts.Add(corner + up);
+                verts.Add(corner + up + right);
+                verts.Add(corner + right);
+
+                uvs.Add(new Vector2(GadgetCoreAPI.MissingTexSprite.coords.x, GadgetCoreAPI.MissingTexSprite.coords.y));
+                uvs.Add(new Vector2(GadgetCoreAPI.MissingTexSprite.coords.x, GadgetCoreAPI.MissingTexSprite.coords.y + 1));
+                uvs.Add(new Vector2(GadgetCoreAPI.MissingTexSprite.coords.x + 1, GadgetCoreAPI.MissingTexSprite.coords.y + 1));
+                uvs.Add(new Vector2(GadgetCoreAPI.MissingTexSprite.coords.x + 1, GadgetCoreAPI.MissingTexSprite.coords.y));
+
+                if (reversed)
+                {
+                    tris.Add(verts.Count);
+                    tris.Add(verts.Count + 1);
+                    tris.Add(verts.Count + 2);
+                    tris.Add(verts.Count + 2);
+                    tris.Add(verts.Count + 3);
+                    tris.Add(verts.Count);
+                }
+                else
+                {
+                    tris.Add(verts.Count + 1);
+                    tris.Add(verts.Count);
+                    tris.Add(verts.Count + 2);
+                    tris.Add(verts.Count + 3);
+                    tris.Add(verts.Count + 2);
+                    tris.Add(verts.Count);
+                }
+                return false;
+            }
         }
     }
 }

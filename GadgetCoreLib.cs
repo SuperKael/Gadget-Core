@@ -1,10 +1,5 @@
 ﻿using Ionic.Zip;
-using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using UModFramework.API;
 
 namespace GadgetCore
 {
@@ -14,9 +9,9 @@ namespace GadgetCore
     public interface IGadgetCoreLib
     {
         /// <summary>
-        /// Used to give a UMFLog instance to GadgetCoreLib. Used by Gadget Core to provide access to its logger.
+        /// Used to give a GadgetLogger instance to GadgetCoreLib. Used by Gadget Core to provide access to its logger.
         /// </summary>
-        void ProvideLogger(UMFLog logger);
+        void ProvideLogger(GadgetLogger logger);
 
         /// <summary>
         /// Attempts to forward the given port using UPnP. Is a coroutine, so should be treated as such.

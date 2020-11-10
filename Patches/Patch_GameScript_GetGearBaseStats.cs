@@ -1,6 +1,5 @@
 using HarmonyLib;
 using GadgetCore.API;
-using GadgetCore;
 
 namespace GadgetCore.Patches
 {
@@ -11,9 +10,9 @@ namespace GadgetCore.Patches
         [HarmonyPrefix]
         public static bool Prefix(GameScript __instance, int id, ref int[] __result)
         {
-            if (ItemRegistry.GetSingleton().HasEntry(id))
+            if (ItemRegistry.Singleton.HasEntry(id))
             {
-                __result = ItemRegistry.GetSingleton().GetEntry(id).Stats.GetStatArray();
+                __result = ItemRegistry.Singleton.GetEntry(id).Stats.GetStatArray();
                 return false;
             }
             return true;

@@ -1,6 +1,5 @@
 using HarmonyLib;
 using GadgetCore.API;
-using GadgetCore;
 
 namespace GadgetCore.Patches
 {
@@ -12,9 +11,9 @@ namespace GadgetCore.Patches
         public static void Prefix(GameScript __instance, int slot, int[] ___combatChips)
         {
             int chipID = ___combatChips[slot];
-            if (ChipRegistry.GetSingleton().HasEntry(chipID))
+            if (ChipRegistry.Singleton.HasEntry(chipID))
             {
-                ChipRegistry.GetSingleton().GetEntry(chipID).InvokeOnDequip(slot);
+                ChipRegistry.Singleton.GetEntry(chipID).InvokeOnDequip(slot);
             }
         }
 
@@ -22,9 +21,9 @@ namespace GadgetCore.Patches
         public static void Postfix(GameScript __instance, int slot, int[] ___combatChips)
         {
             int chipID = ___combatChips[slot];
-            if (ChipRegistry.GetSingleton().HasEntry(chipID))
+            if (ChipRegistry.Singleton.HasEntry(chipID))
             {
-                ChipRegistry.GetSingleton().GetEntry(chipID).InvokeOnEquip(slot);
+                ChipRegistry.Singleton.GetEntry(chipID).InvokeOnEquip(slot);
             }
         }
     }

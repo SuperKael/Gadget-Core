@@ -1,8 +1,6 @@
 using HarmonyLib;
 using GadgetCore.API;
-using GadgetCore;
 using UnityEngine;
-using System.Collections;
 using System.Reflection;
 
 namespace GadgetCore.Patches
@@ -15,7 +13,6 @@ namespace GadgetCore.Patches
         public static readonly MethodInfo RefreshSlot = typeof(GameScript).GetMethod("RefreshSlot", BindingFlags.NonPublic | BindingFlags.Instance);
         public static readonly MethodInfo RefreshHoldingSlot = typeof(GameScript).GetMethod("RefreshHoldingSlot", BindingFlags.NonPublic | BindingFlags.Instance);
         public static readonly MethodInfo UpdateDroids = typeof(GameScript).GetMethod("UpdateDroids", BindingFlags.NonPublic | BindingFlags.Instance);
-        public static readonly MethodInfo GetGearBaseStats = typeof(GameScript).GetMethod("GetGearBaseStats", BindingFlags.NonPublic | BindingFlags.Instance);
         public static readonly MethodInfo GetItemLevel = typeof(GameScript).GetMethod("GetItemLevel", BindingFlags.NonPublic | BindingFlags.Instance);
         public static readonly MethodInfo RefreshStats = typeof(GameScript).GetMethod("RefreshStats", BindingFlags.NonPublic | BindingFlags.Instance);
         public static readonly MethodInfo RefreshMODS = typeof(GameScript).GetMethod("RefreshMODS", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -24,14 +21,14 @@ namespace GadgetCore.Patches
         [HarmonyPrefix]
         public static bool Prefix(GameScript __instance, int slot, ref Item ___holdingItem, ref Item[] ___inventory, bool ___emblemAgain)
         {
-            ItemInfo itemInfo = ItemRegistry.GetSingleton().GetEntry(___holdingItem.id);
-            ItemType holdingItemType = itemInfo != null ? (itemInfo.Type & (ItemType.BASIC_MASK | ItemType.TYPE_MASK)) : ItemRegistry.GetDefaultTypeByID(___holdingItem.id);
+            ItemInfo itemInfo = ItemRegistry.Singleton.GetEntry(___holdingItem.id);
+            ItemType holdingItemType = itemInfo != null ? (itemInfo.Type & (ItemType.EQUIP_MASK | ItemType.TYPE_MASK)) : ItemRegistry.GetDefaultTypeByID(___holdingItem.id);
             if ((holdingItemType & ItemType.NONSTACKING) == ItemType.NONSTACKING)
             {
                 SwapItem.Invoke(__instance, new object[] { slot });
                 return false;
             }
-            if ((slot == 36 && (holdingItemType & ItemType.BASIC_MASK) != ItemType.WEAPON) || (slot == 37 && ((holdingItemType & ItemType.BASIC_MASK) != ItemType.OFFHAND)) || (slot == 38 && ((holdingItemType & ItemType.BASIC_MASK) != ItemType.HELMET)) || (slot == 39 && ((holdingItemType & ItemType.BASIC_MASK) != ItemType.ARMOR)) || ((slot == 40 || slot == 41) && ((holdingItemType & ItemType.BASIC_MASK) != ItemType.RING)) || (slot > 41 && ((holdingItemType & ItemType.BASIC_MASK) != ItemType.DROID)))
+            if ((slot == 36 && (holdingItemType & ItemType.EQUIP_MASK) != ItemType.WEAPON) || (slot == 37 && ((holdingItemType & ItemType.EQUIP_MASK) != ItemType.OFFHAND)) || (slot == 38 && ((holdingItemType & ItemType.EQUIP_MASK) != ItemType.HELMET)) || (slot == 39 && ((holdingItemType & ItemType.EQUIP_MASK) != ItemType.ARMOR)) || ((slot == 40 || slot == 41) && ((holdingItemType & ItemType.EQUIP_MASK) != ItemType.RING)) || (slot > 41 && ((holdingItemType & ItemType.EQUIP_MASK) != ItemType.DROID)))
             {
                 MonoBehaviour.print("CANNOT PUT THAT THERE!");
             }
@@ -91,52 +88,23 @@ namespace GadgetCore.Patches
                         {
                             GameScript.equippedIDs[3] = ___inventory[slot].id;
                         }
-                        int[] gearBaseStats = (int[])GetGearBaseStats.Invoke(__instance, new object[] { ___inventory[slot].id });
-                        int num = (int)GetItemLevel.Invoke(__instance, new object[] { ___inventory[slot].exp });
-                        if (slot > 41)
+                        int[] gearStats = GadgetCoreAPI.GetGearStats(___inventory[slot]).GetStatArray();
+                        for (int i = 0; i < 6; i++)
                         {
-                            for (int i = 0; i < 6; i++)
+                            if (gearStats[i] > 0)
                             {
-                                if (gearBaseStats[i] > 0)
-                                {
-                                    GameScript.GEARSTAT[i] += gearBaseStats[i];
-                                    __instance.txtPlayerStat[i].GetComponent<Animation>().Play();
-                                }
+                                GameScript.GEARSTAT[i] += gearStats[i];
+                                __instance.txtPlayerStat[i].GetComponent<Animation>().Play();
                             }
                         }
-                        else
-                        {
-                            for (int i = 0; i < 6; i++)
-                            {
-                                if (gearBaseStats[i] > 0)
-                                {
-                                    GameScript.GEARSTAT[i] += ___inventory[slot].tier * 3 + gearBaseStats[i] * num;
-                                    __instance.txtPlayerStat[i].GetComponent<Animation>().Play();
-                                }
-                            }
-                            for (int j = 0; j < 3; j++)
-                            {
-                                ItemInfo slotAspect = ItemRegistry.GetSingleton().GetEntry(___inventory[slot].aspect[j]);
-                                for (int i = 0; i < 6; i++)
-                                {
-                                    if (slotAspect != null)
-                                    {
-                                        GameScript.GEARSTAT[i] += slotAspect.Stats.GetByIndex(i);
-                                    }
-                                    else if (___inventory[slot].aspect[j] - 200 == i + 1)
-                                    {
-                                        GameScript.GEARSTAT[i] += ___inventory[slot].aspectLvl[j];
-                                    }
-                                }
-                            }
-                        }
+                        GadgetCoreAPI.equipedGearStats[slot - 36] = gearStats;
                         RefreshStats.Invoke(__instance, new object[] { });
                         Network.RemoveRPCs(MenuScript.playerAppearance.GetComponent<NetworkView>().viewID);
                         MenuScript.playerAppearance.GetComponent<NetworkView>().RPC("UA", RPCMode.AllBuffered, new object[]
                         {
-                GameScript.equippedIDs,
-                0,
-                GameScript.dead
+                            GameScript.equippedIDs,
+                            0,
+                            GameScript.dead
                         });
                         RefreshMODS.Invoke(__instance, new object[] { });
                         __instance.UpdateHP();

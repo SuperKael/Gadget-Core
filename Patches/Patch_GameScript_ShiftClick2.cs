@@ -3,6 +3,12 @@ using HarmonyLib;
 using System.Reflection;
 using System.Collections;
 using GadgetCore.API;
+using System.Web.UI.WebControls;
+using System.Linq;
+using System.Collections.Generic;
+using GadgetCore.Util;
+using System;
+using System.Text;
 
 namespace GadgetCore.Patches
 {
@@ -18,18 +24,18 @@ namespace GadgetCore.Patches
             itemInSlot = ___inventory[slot];
             if (!___shiftclicking)
             {
-                ItemInfo slotInfo = ItemRegistry.GetSingleton().GetEntry(itemInSlot.id);
-                ItemType slotItemType = slotInfo != null ? (slotInfo.Type & (ItemType.BASIC_MASK | ItemType.TYPE_MASK)) : ItemRegistry.GetDefaultTypeByID(itemInSlot.id);
-                ItemType slotItemTypeUnfiltered = slotInfo != null ? slotInfo.Type : ItemRegistry.GetDefaultTypeByID(itemInSlot.id);
+                ItemInfo slotInfo = ItemRegistry.GetItem(itemInSlot.id);
+                ItemType slotItemTypeUnfiltered = slotInfo.Type;
+                ItemType slotItemType = slotItemTypeUnfiltered & (ItemType.EQUIP_MASK | ItemType.TYPE_MASK);
                 bool flag = false;
                 int num = 0;
                 if (___craftType == 0)
                 {
-                    if (slotItemType == ItemType.EMBLEM)
+                    if ((slotItemType & ItemType.EQUIP_MASK) == ItemType.EMBLEM)
                     {
                         for (int i = 0; i < 3; i++)
                         {
-                            if (___craft[i].id == itemInSlot.id && ___craft[i].q + ___inventory[slot].q <= 9999)
+                            if (GadgetCoreAPI.CanItemsStack(___craft[i], itemInSlot) && ___craft[i].q + ___inventory[slot].q <= 9999)
                             {
                                 flag = true;
                                 num = i;
@@ -65,7 +71,7 @@ namespace GadgetCore.Patches
                 {
                     for (int i = 0; i < 3; i++)
                     {
-                        if (___craft[i].id == itemInSlot.id && ___craft[i].q + ___inventory[slot].q <= 9999)
+                        if (GadgetCoreAPI.CanItemsStack(___craft[i], itemInSlot) && ___craft[i].q + ___inventory[slot].q <= 9999)
                         {
                             __instance.GetComponent<AudioSource>().PlayOneShot((AudioClip)Resources.Load("Au/CLICK3"), Menuu.soundLevel / 10f);
                             flag = true;
@@ -97,8 +103,53 @@ namespace GadgetCore.Patches
                         }
                     }
                 }
+                else if (MenuRegistry.Singleton.GetEntry(___craftType) is CraftMenuInfo craftMenu)
+                {
+                    Item[] craftItems = ___craft;
+                    HashSet<int> acceptableSlots = new HashSet<int>(Enumerable.Range(0, ___craft.Length).Where(x => craftMenu.SlotValidators.Any(v => v(___inventory[slot], craftItems, x))));
+                    foreach (int i in acceptableSlots)
+                    {
+                        if (GadgetCoreAPI.CanItemsStack(___craft[i], itemInSlot) && ___craft[i].q < 9999)
+                        {
+                            flag = true;
+                            num = i;
+                            break;
+                        }
+                    }
+                    if (flag)
+                    {
+                        __instance.GetComponent<AudioSource>().PlayOneShot((AudioClip)Resources.Load("Au/CLICK3"), Menuu.soundLevel / 10f);
+                        ___craft[num].q += ___inventory[slot].q;
+                        if (___craft[num].q > 9999)
+                        {
+                            ___inventory[slot].q = ___craft[num].q - 9999;
+                            ___craft[num].q = 9999;
+                        }
+                        else
+                        {
+                            ___inventory[slot] = new Item(0, 0, 0, 0, 0, new int[3], new int[3]);
+                        }
+                        typeof(GameScript).GetMethod("RefreshSlot", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(__instance, new object[] { slot });
+                        typeof(GameScript).GetMethod("RefreshSlotCraft", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(__instance, new object[] { num });
+                    }
+                    else
+                    {
+                        foreach (int i in acceptableSlots)
+                        {
+                            if (___craft[i].id == 0)
+                            {
+                                __instance.GetComponent<AudioSource>().PlayOneShot((AudioClip)Resources.Load("Au/CLICK3"), Menuu.soundLevel / 10f);
+                                ___craft[i] = ___inventory[slot];
+                                ___inventory[slot] = new Item(0, 0, 0, 0, 0, new int[3], new int[3]);
+                                typeof(GameScript).GetMethod("RefreshSlot", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(__instance, new object[] { slot });
+                                typeof(GameScript).GetMethod("RefreshSlotCraft", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(__instance, new object[] { i });
+                                break;
+                            }
+                        }
+                    }
+                }
                 ___shiftclicking = false;
-                typeof(GameScript).GetMethod("CraftCheck", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(__instance, new object[] { });
+                __instance.InvokeMethod("CraftCheck");
                 __result = FakeRoutine();
                 return false;
             }

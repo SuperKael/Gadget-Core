@@ -2,9 +2,9 @@ using GadgetCore.API;
 using PreviewLabs;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
-using UModFramework.API;
 
 namespace GadgetCore
 {
@@ -16,10 +16,15 @@ namespace GadgetCore
         /// <summary>
         /// The current version of Gadget Core's config.
         /// </summary>
-        public static readonly string configVersion = "1.2";
+        public static readonly string configVersion = "2.2";
 
         internal static Dictionary<string, bool> enabledMods = new Dictionary<string, bool>();
+        internal static Dictionary<string, bool> enabledGadgets = new Dictionary<string, bool>();
 
+        /// <summary>
+        /// Whether to use the standard hover box for droids, rather than the text-based description.
+        /// </summary>
+        public static bool BetterDroidHover { get; private set; } = true;
         /// <summary>
         /// The maximum connections allowed when hosting a game. This value is irrelevant if we are the client, not the host.
         /// </summary>
@@ -28,6 +33,16 @@ namespace GadgetCore
         /// Whether to use UPnP to bypass the need for port-forwarding to play over the internet. Not all routers support this. This value is irrelevant if we are the client, not the host.
         /// </summary>
         public static bool UseUPnP { get; private set; } = false;
+        /// <summary>
+        /// The key used to open the console.
+        /// </summary>
+        public static UnityEngine.KeyCode ConsoleKey { get; private set; } = UnityEngine.KeyCode.BackQuote;
+        /// <summary>
+        /// The maximum number of save backups to have at any one time.
+        /// </summary>
+        public static int MaxBackups { get; private set; } = 30;
+
+        private static GadgetConfig cfg = new GadgetConfig(Path.Combine(GadgetPaths.ConfigsPath, "GadgetCore.ini"), "GadgetCore");
 
         //Add your config vars here.
 
@@ -35,71 +50,52 @@ namespace GadgetCore
         {
             try
             {
-                using (UMFConfig cfg = new UMFConfig())
+                GadgetCoreAPI.UnregisterKeyDownListener(ConsoleKey, GadgetConsole.ShowConsole);
+
+                cfg.Load();
+
+                string fileVersion = cfg.ReadString("ConfigVersion", configVersion, comments: "The Config Version (not to be confused with mod version)");
+
+                if (fileVersion != configVersion)
                 {
-                    string cfgVer = cfg.Read("ConfigVersion", new UMFConfigString());
-                    if (cfgVer != string.Empty && cfgVer != configVersion)
-                    {
-                        cfg.DeleteConfig(false);
-                        GadgetCore.Log("The config file was outdated and has been deleted. A new config will be generated.");
-                    }
+                    cfg.Reset();
+                    cfg.WriteString("ConfigVersion", configVersion, comments: "The Config Version (not to be confused with mod version)");
+                }
 
-                    //cfg.Write("SupportsHotLoading", new UMFConfigBool(false)); //Uncomment if your mod can't be loaded once the game has started.
-                    //cfg.Write("ModDependencies", new UMFConfigStringArray(new string[] { "" })); //A comma separated list of mod names that this mod requires to function.
-                    //cfg.Write("ModDependenciesVersions", new UMFConfigStringArray(new string[] { "" })); //A comma separated list of mod versions matching the ModDependencies setting.
-                    cfg.Read("LoadPriority", new UMFConfigString("AboveNormal"));
-                    cfg.Write("MinVersion", new UMFConfigString("0.52.1"));
-                    //cfg.Write("MaxVersion", new UMFConfigString("0.54.99999.99999")); //Uncomment if you think your mod may break with the next major UMF release.
-                    cfg.Write("UpdateURL", new UMFConfigString(""));
-                    cfg.Write("ConfigVersion", new UMFConfigString(configVersion));
+                BetterDroidHover = cfg.ReadBool("BetterDroidHover", true, false, false, "Whether to use the standard hover box for droids, rather than the text-based description.");
+                MaxConnections = cfg.ReadInt("MaxConnections", 4, 4, false, 1, int.MaxValue, "The maximum number of connections allowed when using host-and-play. This setting only matters on the host.");
+                UseUPnP = cfg.ReadBool("UseUPnP", false, false, false, "If True, will attempt to use UPnP to bypass the need to port-forward to host-and-play over the internet. Not all routers support this. Disabled by default due to severe unresolved bugs that prevent the game from working at all sometimes.");
+                GadgetNetwork.MatrixTimeout = cfg.ReadFloat("NetworkTimeout", 2.5f, comments: "How long to wait for the host's game to respond to Gadget Core's ID synchronization. If the host's game does not respond in time, it will be assumed that the host does not have Gadget Core installed.");
+                ConsoleKey = cfg.ReadKeyCode("ConsoleKey", UnityEngine.KeyCode.BackQuote, comments: "The key to open the console.");
+                GadgetConsole.Debug = cfg.ReadBool("ConsoleDebug", false, comments: "If true, shows debug messages in the console.");
+                MaxBackups = cfg.ReadInt("MaxBackups", 30, 0, false, 0, int.MaxValue, "The maximum number of save backups to have at any one time. Disables backups if set to 0");
 
-                    GadgetCore.Log("Finished UMF Settings.");
+                cfg.Save();
 
-                    MaxConnections = cfg.Read("MaxConnections", new UMFConfigInt(4, 1, int.MaxValue, 4), "The maximum number of connections allowed when using host-and-play. This setting only matters on the host.");
-                    UseUPnP = cfg.Read("UseUPnP", new UMFConfigBool(false), "If True, will attempt to use UPnP to bypass the need to port-forward to host-and-play over the internet. Not all routers support this. Disabled by default due to severe unresolved bugs that prevent the game from working at all sometimes.");
-                    GadgetNetwork.MatrixTimeout = cfg.Read("NetworkTimeout", new UMFConfigFloat(2.5f), "How long to wait for the host's game to respond to Gadget Core's ID synchronization. If the host's game does not respond in time, it will be assumed that the host does not have Gadget Core installed.");
+                GadgetCoreAPI.RegisterKeyDownListener(ConsoleKey, GadgetConsole.ShowConsole);
 
-                    string enabledModsString = PlayerPrefs.GetString("EnabledMods", "");
-                    try
-                    {
-                        enabledMods = enabledModsString.Split(',').Select(x => x.Split(':')).ToDictionary(x => x[0], x => bool.Parse(x[1]));
-                    }
-                    catch (IndexOutOfRangeException)
-                    {
-                        enabledMods = new Dictionary<string, bool>();
-                    }
-                    foreach (GadgetModInfo mod in GadgetMods.ListAllModInfos())
-                    {
-                        mod.Mod.Enabled = enabledMods.ContainsKey(mod.Attribute.Name) ? enabledMods[mod.Attribute.Name] : (enabledMods[mod.Attribute.Name] = mod.Attribute.EnableByDefault);
-                    }
-                    GadgetCore.Log("Finished loading settings.");
+                string enabledModsString = PlayerPrefs.GetString("EnabledMods", "");
+                try
+                {
+                    enabledMods = enabledModsString.Split(',').Select(x => x.Split(':')).ToDictionary(x => x[0], x => bool.Parse(x[1]));
+                }
+                catch (IndexOutOfRangeException)
+                {
+                    enabledMods = new Dictionary<string, bool>();
+                }
+                string enabledGadgetsString = PlayerPrefs.GetString("EnabledGadgets", "");
+                try
+                {
+                    enabledGadgets = enabledGadgetsString.Split(',').Select(x => x.Split(':')).ToDictionary(x => x[0], x => bool.Parse(x[1]));
+                }
+                catch (IndexOutOfRangeException)
+                {
+                    enabledGadgets = new Dictionary<string, bool>();
                 }
             }
             catch (Exception e)
             {
-                GadgetCore.Log("Error loading mod settings: " + e.ToString());
-            }
-        }
-
-        internal static void LoadRegistries()
-        {
-            try
-            {
-                foreach (Registry reg in GameRegistry.ListAllRegistries())
-                {
-                    try
-                    {
-                        reg.reservedIDs = PlayerPrefs.GetString("Reserved" + reg.GetRegistryName() + "IDs", "").Split(',').Select(x => x.Split('=')).ToDictionary(x => x[0], x => int.Parse(x[1]));
-                    }
-                    catch (IndexOutOfRangeException)
-                    {
-                        reg.reservedIDs = new Dictionary<string, int>();
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                GadgetCore.Log("Error loading registry settings: " + e.ToString());
+                GadgetCore.CoreLogger.LogError("Error loading config: " + e.ToString());
             }
         }
 
@@ -107,7 +103,7 @@ namespace GadgetCore
         {
             try
             {
-                PlayerPrefs.SetString("EnabledMods", enabledMods.Select(x => x.Key + ":" + x.Value).Aggregate(new StringBuilder(), (a, b) => { if (a.Length > 0) a.Append(","); a.Append(b); return a; }).ToString());
+                PlayerPrefs.SetString("EnabledGadgets", enabledGadgets.Select(x => x.Key + ":" + x.Value).Aggregate(new StringBuilder(), (a, b) => { if (a.Length > 0) a.Append(","); a.Append(b); return a; }).ToString());
                 foreach (Registry reg in GameRegistry.ListAllRegistries())
                 {
                     PlayerPrefs.SetString("Reserved" + reg.GetRegistryName() + "IDs", reg.reservedIDs.Select(x => x.Key + "=" + x.Value).Aggregate(new StringBuilder(), (a, b) => { if (a.Length > 0) a.Append(","); a.Append(b); return a; }).ToString());
@@ -116,7 +112,7 @@ namespace GadgetCore
             }
             catch (Exception e)
             {
-                GadgetCore.Log("Error updating mod settings: " + e.Message + "(" + e.InnerException?.Message + ")");
+                GadgetCore.CoreLogger.LogError("Error updating config: " + e.Message + "(" + e.InnerException?.Message + ")");
             }
         }
     }

@@ -1,9 +1,6 @@
 using HarmonyLib;
 using GadgetCore.API;
-using GadgetCore;
 using UnityEngine;
-using System.Collections;
-using System.Reflection;
 
 namespace GadgetCore.Patches
 {
@@ -14,9 +11,9 @@ namespace GadgetCore.Patches
         [HarmonyPrefix]
         public static bool Prefix(AttackCube __instance, Collider c)
         {
-            if (ItemRegistry.GetSingleton().HasEntry(GameScript.equippedIDs[0]))
+            if (ItemRegistry.Singleton.HasEntry(GameScript.equippedIDs[0]))
             {
-                ItemInfo weapon = ItemRegistry.GetSingleton().GetEntry(GameScript.equippedIDs[0]);
+                ItemInfo weapon = ItemRegistry.Singleton[GameScript.equippedIDs[0]];
                 PlayerScript player = __instance.gameObject.GetComponentInParent<PlayerScript>();
                 int num = 0;
                 if (PlayerScript.berserkBool)
@@ -40,7 +37,7 @@ namespace GadgetCore.Patches
                         InstanceTracker.GameScript.UpdateMana();
                     }
                     __instance.GetComponent<AudioSource>().PlayOneShot(__instance.critSound, Menuu.soundLevel / 10f);
-                    UnityEngine.Object.Instantiate<GameObject>(__instance.crit, __instance.transform.position, Quaternion.identity);
+                    Object.Instantiate<GameObject>(__instance.crit, __instance.transform.position, Quaternion.identity);
                     array[0] = weapon.MultiplyCrit(player, (int)array[0]);
                 }
                 if (GameScript.debugMode)

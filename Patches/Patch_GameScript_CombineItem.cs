@@ -1,8 +1,5 @@
 using HarmonyLib;
 using GadgetCore.API;
-using GadgetCore;
-using UnityEngine;
-using System.Collections;
 using System.Reflection;
 
 namespace GadgetCore.Patches
@@ -14,12 +11,17 @@ namespace GadgetCore.Patches
         public static readonly MethodInfo SwapItem = typeof(GameScript).GetMethod("SwapItem", BindingFlags.NonPublic | BindingFlags.Instance);
 
         [HarmonyPrefix]
-        public static bool Prefix(GameScript __instance, int slot, Item[] ___inventory)
+        public static bool Prefix(GameScript __instance, int slot, Item[] ___inventory, Item ___holdingItem)
         {
             Item item = ___inventory[slot];
-            if (ItemRegistry.GetSingleton().HasEntry(item.id))
+            if (!GadgetCoreAPI.CanItemsStack(item, ___holdingItem))
             {
-                ItemInfo info = ItemRegistry.GetSingleton().GetEntry(item.id);
+                SwapItem.Invoke(__instance, new object[] { slot });
+                return false;
+            }
+            if (ItemRegistry.Singleton.HasEntry(item.id))
+            {
+                ItemInfo info = ItemRegistry.Singleton.GetEntry(item.id);
                 if ((info.Type & ItemType.NONSTACKING) == ItemType.NONSTACKING)
                 {
                     SwapItem.Invoke(__instance, new object[] { slot });

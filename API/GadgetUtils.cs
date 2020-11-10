@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections;
-using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Reflection;
-using System.Text;
 using UnityEngine;
 
 namespace GadgetCore.API
@@ -54,7 +51,6 @@ namespace GadgetCore.API
                         RenderTexture previous = RenderTexture.active;
                         RenderTexture.active = renderTex;
                         dst.ReadPixels(new Rect(srcX, srcY, srcWidth, srcHeight), dstX, dstY);
-                        dst.Apply();
                         RenderTexture.active = previous;
                         RenderTexture.ReleaseTemporary(renderTex);
                     }
@@ -63,6 +59,7 @@ namespace GadgetCore.API
                         throw e;
                     }
                 }
+                dst.Apply();
             }
         }
 

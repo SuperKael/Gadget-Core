@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using UnityEngine;
 
 namespace GadgetCore.API
@@ -87,7 +84,7 @@ namespace GadgetCore.API
         /// <summary>
         /// Called after this Registry Entry has been registered to its Registry. You should never call this yourself.
         /// </summary>
-        public override void PostRegister()
+        protected internal override void PostRegister()
         {
             if (Mat == null)
             {
@@ -116,7 +113,7 @@ namespace GadgetCore.API
         /// </summary>
         public override Registry<ChipInfo, ChipType> GetRegistry()
         {
-            return Registry<ChipRegistry, ChipInfo, ChipType>.GetSingleton();
+            return ChipRegistry.Singleton;
         }
 
         /// <summary>

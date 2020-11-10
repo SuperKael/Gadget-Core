@@ -1,6 +1,5 @@
 using HarmonyLib;
 using GadgetCore.API;
-using GadgetCore;
 
 namespace GadgetCore.Patches
 {
@@ -14,9 +13,9 @@ namespace GadgetCore.Patches
             if (!___exitingcombatmode)
             {
                 int chipID = ___combatChips[slot];
-                if (ChipRegistry.GetSingleton().HasEntry(chipID))
+                if (ChipRegistry.Singleton.HasEntry(chipID))
                 {
-                    ChipRegistry.GetSingleton().GetEntry(chipID).InvokeOnDequip(slot);
+                    ChipRegistry.Singleton.GetEntry(chipID).InvokeOnDequip(slot);
                 }
             }
         }

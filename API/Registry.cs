@@ -1,37 +1,48 @@
-﻿using System;
+﻿using GadgetCore.Loader;
+using System;
+using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Reflection;
-using System.Text;
 
 namespace GadgetCore.API
 {
     /// <summary>
-    /// Represents a registry filled with <see cref="RegistryEntry{E, T}"/>s. You can extend this to create your own registries, and then you should return their singletons in <see cref="GadgetMod.CreateRegistries"/>
+    /// Represents a registry filled with <see cref="RegistryEntry{E, T}"/>s. You can extend this to create your own registries, and then you should return their singletons in <see cref="Gadget.CreateRegistries"/>
     /// </summary>
     /// <typeparam name="R">Registry Type</typeparam>
     /// <typeparam name="E">Entry Type</typeparam>
     /// <typeparam name="T">Entry Type Enum</typeparam>
-    public abstract class Registry<R, E, T> : Registry<E, T> where R : Registry<R, E, T>, new() where E : RegistryEntry<E, T> where T : Enum
+    public abstract class Registry<R, E, T> : Registry<E, T>, IEnumerable<E> where R : Registry<R, E, T>, new() where E : RegistryEntry<E, T> where T : Enum
     {
-        private static Registry<R, E, T> Singleton { get; } = new R();
+        /// <summary>
+        /// Represents this Registry's singleton.
+        /// </summary>
+        public static Registry<R, E, T> Singleton { get; } = new R();
+
         private static Dictionary<T, int> lastUsedIDs = new Dictionary<T, int>();
-        private readonly Dictionary<int, E> registry = new Dictionary<int, E>();
+        private readonly Dictionary<int, E> IDRegistry = new Dictionary<int, E>();
+        private readonly Dictionary<string, E> NameRegistry = new Dictionary<string, E>();
 
         internal static int RegisterStatic(E entry, string name, int preferredID = -1, bool overrideExisting = true)
         {
             if (!registeringVanilla && modRegistering < 0)
             {
-                throw new InvalidOperationException("Data registration may only be performed by the Initialize method of a GadgetMod!");
+                throw new InvalidOperationException("Data registration may only be performed by the Initialize method of a Gadget!");
             }
             if (!entry.ReadyToRegister())
             {
                 throw new InvalidOperationException("This registry entry is not yet ready to be registered, or has already been registered!");
             }
-            if (name != null && !name.All(x => char.IsLetterOrDigit(x) || x == ' ')) throw new InvalidOperationException("Registry name must be alphanumeric!");
-            if (name == null && preferredID >= 0) name = preferredID.ToString();
-            string registryName = GadgetMods.GetModInfo(modRegistering).Attribute.Name + ":" + name;
+            string modNamePrefix = Gadgets.GetGadgetInfo(modRegistering).Attribute.Name + ":";
+            bool hasPrefix = false;
+            if (name != null)
+            {
+                hasPrefix = name.StartsWith(modNamePrefix);
+                if (!(hasPrefix ? name.Substring(modNamePrefix.Length) : name).All(x => char.IsLetterOrDigit(x) || x == ' ')) throw new InvalidOperationException("Registry name must be alphanumeric!");
+            }
+            if (name == null) name = overrideExisting && Singleton.HasEntry(preferredID) ? Singleton[preferredID].RegistryName.Substring(Singleton[preferredID].RegistryName.IndexOf(':') + 1) : Singleton.GenerateDefaultRegistryName(preferredID);
+            if (name == null) throw new InvalidOperationException("Must provide a registry name!");
+            string registryName = hasPrefix ? name : modNamePrefix + name;
             int reservedID = Singleton.GetReservedID(registryName);
             if (reservedID >= 0 && preferredID < 0)
             {
@@ -52,8 +63,9 @@ namespace GadgetCore.API
             entry.ModID = modRegistering;
             entry.ID = id;
             if (name == preferredID.ToString()) name = id.ToString();
-            entry.RegistryName = (registeringVanilla ? "Vanilla" : GadgetMods.GetModInfo(modRegistering).Attribute.Name) + ":" + name;
-            Singleton.registry[id] = entry;
+            entry.RegistryName = (registeringVanilla ? "Roguelands" : Gadgets.GetGadgetInfo(modRegistering).Attribute.Name) + ":" + name;
+            Singleton.IDRegistry[entry.ID] = entry;
+            Singleton.NameRegistry[entry.RegistryName] = entry;
             if (!registeringVanilla) Singleton.reservedIDs[entry.RegistryName] = id;
             lastUsedIDs[typeEnum] = id;
             Singleton.PostRegistration(entry);
@@ -74,20 +86,41 @@ namespace GadgetCore.API
         }
 
         /// <summary>
+        /// Used to provide a default name if a registry entry is registered without a registry name.
+        /// </summary>
+        protected virtual string GenerateDefaultRegistryName(int ID)
+        {
+            return ID >= 0 ? ID.ToString() : null;
+        }
+
+        /// <summary>
         /// Called after the specified Registry Entry has been registered. You should never call this yourself. Note that this is called before <see cref="RegistryEntry{E, T}.PostRegister"/>
         /// </summary>
         protected virtual void PostRegistration(E entry) { }
 
-        internal static void RegisterVanilla(E entry, int id)
+        internal sealed override void UnregisterGadget(GadgetInfo gadget)
         {
-            T typeEnum = entry.GetEntryType();
-            Singleton.registry.Add(id, entry);
-            lastUsedIDs[typeEnum] = id;
+            foreach (KeyValuePair<int, E> entry in Singleton.IDRegistry.Where(x => x.Value.RegistryName.Split(':')[0] == gadget.Attribute.Name).ToList())
+            {
+                OnUnregister(entry.Value);
+                Singleton.IDRegistry.Remove(entry.Key);
+            }
+            foreach (KeyValuePair<string, E> entry in Singleton.NameRegistry.Where(x => x.Value.RegistryName.Split(':')[0] == gadget.Attribute.Name).ToList())
+            {
+                Singleton.NameRegistry.Remove(entry.Key);
+            }
         }
 
         /// <summary>
-        /// Gets the singleton for this registry.
+        /// Called just before an entry is removed from the registry by <see cref="Registry.UnregisterGadget(GadgetInfo)"/>
         /// </summary>
+        protected virtual void OnUnregister(E entry) { }
+
+        /// <summary>
+        /// Gets the singleton for this registry.
+        /// Deprecated: Use the Singleton property instead.
+        /// </summary>
+        [Obsolete("GetSingleton has been deprecated, use the Singleton property instead.")]
         public static Registry<R, E, T> GetSingleton()
         {
             return Singleton;
@@ -98,7 +131,15 @@ namespace GadgetCore.API
         /// </summary>
         public bool HasEntry(int id)
         {
-            return registry.ContainsKey(id);
+            return IDRegistry.ContainsKey(id);
+        }
+
+        /// <summary>
+        /// Checks if the given RegistryName is used in this registry.
+        /// </summary>
+        public bool HasEntry(string name)
+        {
+            return NameRegistry.ContainsKey(name);
         }
 
         /// <summary>
@@ -106,7 +147,47 @@ namespace GadgetCore.API
         /// </summary>
         public E GetEntry(int id)
         {
-            return HasEntry(id) ? registry[id] : null;
+            return HasEntry(id) ? IDRegistry[id] : null;
+        }
+
+        /// <summary>
+        /// Gets the registry entry with the given RegistryName
+        /// </summary>
+        public E GetEntry(string name)
+        {
+            return HasEntry(name) ? NameRegistry[name] : null;
+        }
+
+        /// <summary>
+        /// Equivalent to calling <see cref="GetEntry(int)"/>
+        /// </summary>
+        public E this[int id]
+        {
+            get
+            {
+                return GetEntry(id);
+            }
+
+            set
+            {
+                Register(value, null, id);
+            }
+        }
+
+        /// <summary>
+        /// Equivalent to calling <see cref="GetEntry(string)"/>
+        /// </summary>
+        public E this[string name]
+        {
+            get
+            {
+                return GetEntry(name);
+            }
+
+            set
+            {
+                Register(value, name);
+            }
         }
 
         /// <summary>
@@ -115,6 +196,27 @@ namespace GadgetCore.API
         public sealed override Type GetEntryType()
         {
             return typeof(E);
+        }
+
+        /// <summary>
+        /// Returns an array of every entry in this Registry
+        /// </summary>
+        public E[] GetAllEntries()
+        {
+            return IDRegistry.Values.ToArray();
+        }
+
+        /// <summary>
+        /// Returns an enumerator for the entries in this Registry
+        /// </summary>
+        public IEnumerator<E> GetEnumerator()
+        {
+            return IDRegistry.Values.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
         }
     }
 
@@ -140,7 +242,7 @@ namespace GadgetCore.API
     /// </summary>
     public abstract class Registry
     {
-        internal Dictionary<string, int> reservedIDs = new Dictionary<string, int>();
+        internal Dictionary<string, int> reservedIDs;
 
         internal static bool registeringVanilla = false;
         internal static int modRegistering = -1;
@@ -177,5 +279,7 @@ namespace GadgetCore.API
         {
             return 10000;
         }
+
+        internal abstract void UnregisterGadget(GadgetInfo gadget);
     }
 }

@@ -1,6 +1,5 @@
 using HarmonyLib;
 using GadgetCore.API;
-using GadgetCore;
 using UnityEngine;
 using System.Collections;
 using System.Reflection;
@@ -17,10 +16,11 @@ namespace GadgetCore.Patches
         [HarmonyPrefix]
         public static bool Prefix(GameScript __instance, int slot, ref int[] ___combatChips, ref bool ___skilling, ref bool[] ___skillUsin)
         {
+            if (GadgetCoreAPI.IsInputFrozen()) return false;
             int chipID = ___combatChips[slot];
-            if (ChipRegistry.GetSingleton().HasEntry(chipID))
+            if (ChipRegistry.Singleton.HasEntry(chipID))
             {
-                ChipInfo chip = ChipRegistry.GetSingleton().GetEntry(chipID);
+                ChipInfo chip = ChipRegistry.Singleton.GetEntry(chipID);
                 if (!___skilling && !___skillUsin[slot])
                 {
 
@@ -32,7 +32,7 @@ namespace GadgetCore.Patches
                     {
                         return false;
                     }
-                    int cost = chip.Cost;
+                    int cost = chip.Cost; // TODO: Make chip cost cancelable.
                     if (Menuu.curAugment == 18)
                     {
                         cost /= 2;
@@ -45,7 +45,7 @@ namespace GadgetCore.Patches
                             (chip.CostType == ChipInfo.ChipCostType.HEALTH_SAFE && GameScript.hp > cost) ||
                             chip.CostType == ChipInfo.ChipCostType.HEALTH_LETHAL || chip.CostType == ChipInfo.ChipCostType.HEALTH_LETHAL_POSTMORTEM)
                         {
-                            GameObject gameObject = (GameObject)UnityEngine.Object.Instantiate(Resources.Load("txtSkill"), new Vector3(0f, 0f, 0f), Quaternion.identity);
+                            GameObject gameObject = (GameObject)Object.Instantiate(Resources.Load("txtSkill"), new Vector3(0f, 0f, 0f), Quaternion.identity);
                             gameObject.transform.parent = Camera.main.transform;
                             gameObject.transform.localPosition = new Vector3(-14f, 7f, 0.35f);
                             gameObject.SendMessage("InitSkill", chip.Name);

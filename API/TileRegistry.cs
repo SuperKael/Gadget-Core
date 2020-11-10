@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace GadgetCore.API
 {
@@ -10,14 +7,19 @@ namespace GadgetCore.API
     /// </summary>
     public class TileRegistry : Registry<TileRegistry, TileInfo, TileType>
     {
+        /// <summary>
+        /// The name of this registry.
+        /// </summary>
+        public const string REGISTRY_NAME = "Tile";
+
         private static Dictionary<string, int> IDsByPropName = new Dictionary<string, int>();
 
         /// <summary>
-        /// Gets the name of this registry. Must be constant.
+        /// Gets the name of this registry. Must be constant. Returns <see cref="REGISTRY_NAME"/>.
         /// </summary>
         public override string GetRegistryName()
         {
-            return "Tile";
+            return REGISTRY_NAME;
         }
 
         /// <summary>
@@ -61,11 +63,19 @@ namespace GadgetCore.API
         }
 
         /// <summary>
-        /// Gets the ID that modded IDs should start at for this registry. May be 0 if the vanilla game does not use IDs for this type of thing.
+        /// Gets the ID that modded IDs should start at for this registry. <see cref="TileRegistry"/> always returns 10000.
         /// </summary>
         public override int GetIDStart()
         {
             return 10000;
+        }
+
+        /// <summary>
+        /// Gets the <see cref="TileInfo"/> for the given ID. Will return a <see cref="VanillaTileInfo"/> if the given ID is not in the registry, but is within the vanilla ID range. Otherwise, returns null.
+        /// </summary>
+        public static TileInfo GetTile(int ID)
+        {
+            return GetSingleton().HasEntry(ID) ? GetSingleton().GetEntry(ID) : ID > 0 && ID < GetSingleton().GetIDStart() ? VanillaTileInfo.Wrap(ID) : null;
         }
     }
 

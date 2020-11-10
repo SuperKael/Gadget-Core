@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace GadgetCore.API
 {
@@ -18,7 +13,8 @@ namespace GadgetCore.API
         /// Constructs a new VanillaItemInfo based upon the given ID. Do not try to call this yourself - use <see cref="Wrap"/>
         /// </summary>
         /// <param name="ID">The vanilla ID to be wrapped.</param>
-        protected VanillaTileInfo(int ID) : base(TileRegistry.GetDefaultTypeByID(ID), GadgetCoreAPI.GetTileMaterial(ID), TileRegistry.GetDefaultTypeByID(ID) == TileType.INTERACTIVE ? GadgetCoreAPI.GetPlaceableNPCResource(ID) : GadgetCoreAPI.GetPropResource(ID), ItemRegistry.GetSingleton().HasEntry(ID) ? ItemRegistry.GetSingleton().GetEntry(ID) : VanillaItemInfo.WrapForTile(ID, false))
+        /// <param name="registerItem">Whether the VanillaItemInfo that matches this Tile ID should be wrapped into the ItemRegistry.</param>
+        protected VanillaTileInfo(int ID, bool registerItem = false) : base(TileRegistry.GetDefaultTypeByID(ID), GadgetCoreAPI.GetTileMaterial(ID), TileRegistry.GetDefaultTypeByID(ID) == TileType.INTERACTIVE ? GadgetCoreAPI.GetPlaceableNPCResource(ID) : GadgetCoreAPI.GetPropResource(ID), ItemRegistry.Singleton.HasEntry(ID) ? ItemRegistry.Singleton.GetEntry(ID) : VanillaItemInfo.WrapForTile(ID, registerItem))
         {
             this.ID = ID;
         }
@@ -26,9 +22,9 @@ namespace GadgetCore.API
         /// <summary>
         /// Provides a wrapper for the given vanilla ID. If the given ID has already been wrapped before, it will return the same wrapper instance as was returned before. If register is true, then the wrapper will be registered to its ID in the appropriate registry.
         /// </summary>
-        public static VanillaTileInfo Wrap(int ID, bool register)
+        public static VanillaTileInfo Wrap(int ID, bool register = false)
         {
-            VanillaTileInfo tileInfo = Wrappers.ContainsKey(ID) ? Wrappers[ID] : (Wrappers[ID] = new VanillaTileInfo(ID));
+            VanillaTileInfo tileInfo = Wrappers.ContainsKey(ID) ? Wrappers[ID] : (Wrappers[ID] = new VanillaTileInfo(ID, register));
             if (register && tileInfo.RegistryName == null) tileInfo.Register(tileInfo.Item.Name, ID, true);
             return tileInfo;
         }

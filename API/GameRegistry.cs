@@ -1,7 +1,7 @@
-﻿using System;
+﻿using PreviewLabs;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace GadgetCore.API
 {
@@ -15,9 +15,25 @@ namespace GadgetCore.API
 
         internal static void RegisterRegistry(Registry registry)
         {
-            GadgetCore.Log("Initializing " + registry.GetRegistryName() + " Registry");
+            if (registries.Any(x => x.Value.GetRegistryName() == registry.GetRegistryName()))
+            {
+                GadgetCore.CoreLogger.Log("Skipping " + registry.GetRegistryName() + " Registry as a registry with that name is already registered.");
+                return;
+            }
+            GadgetCore.CoreLogger.Log("Initializing " + registry.GetRegistryName() + " Registry");
             registries.Add(registry.GetEntryType(), registry);
             registriesByName.Add(registry.GetRegistryName(), registry);
+            if (registry.reservedIDs == null)
+            {
+                try
+                {
+                    registry.reservedIDs = PlayerPrefs.GetString("Reserved" + registry.GetRegistryName() + "IDs", "").Split(',').Select(x => x.Split('=')).ToDictionary(x => x[0], x => int.Parse(x[1]));
+                }
+                catch (IndexOutOfRangeException)
+                {
+                    registry.reservedIDs = new Dictionary<string, int>();
+                }
+            }
         }
 
         /// <summary>

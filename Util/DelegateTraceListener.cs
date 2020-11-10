@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
 
 namespace GadgetCore.Util
 {
     /// <summary>
-    /// A trace listener that routes messages to a given Action&lt;string&gt;.
+    /// A trace listener that routes messages to a given <see cref="Action"/>&lt;<see cref="string"/>&gt;.
     /// </summary>
     public class DelegateTraceListener : TraceListener
     {
@@ -34,7 +31,7 @@ namespace GadgetCore.Util
         /// </summary>
         public override void WriteLine(string message)
         {
-            action(message);
+            action(message + Environment.NewLine);
         }
     }
 }

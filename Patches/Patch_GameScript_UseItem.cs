@@ -1,6 +1,5 @@
 using HarmonyLib;
 using GadgetCore.API;
-using GadgetCore;
 using UnityEngine;
 using System.Collections;
 using System.Reflection;
@@ -19,7 +18,8 @@ namespace GadgetCore.Patches
         [HarmonyPrefix]
         public static bool Prefix(GameScript __instance, int slot, ref Item[] ___inventory, bool ___exitingcombatmode, ref bool ___usingItem)
         {
-            ItemInfo item = ItemRegistry.GetSingleton().GetEntry(___inventory[slot].id);
+            if (GadgetCoreAPI.IsInputFrozen()) return false;
+            ItemInfo item = ItemRegistry.Singleton.GetEntry(___inventory[slot].id);
             if (item != null && !GameScript.dead && !___exitingcombatmode && !___usingItem)
             {
                 if ((item.Type & ItemType.USABLE) == ItemType.USABLE)

@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using UnityEngine;
 
 namespace GadgetCore.API
@@ -123,6 +122,18 @@ namespace GadgetCore.API
             lootTables[tableID].Add(new LootTableEntry(new Item(chip, 1, 0, 0, 0, new int[3], new int[3]), dropChance, minDropQuantity, maxDropQuantity > minDropQuantity ? maxDropQuantity : minDropQuantity, CheckValidToDrop, CustomDropBehavior, true));
         }
 
+        internal static void RemoveModEntries(int modID)
+        {
+            foreach (string tableID in lootTables.Keys.ToArray())
+            {
+                foreach (LootTableEntry entry in lootTables[tableID].Where(x => x.modID == modID).ToArray())
+                {
+                    lootTables[tableID].Remove(entry);
+                    if (lootTables[tableID].Count < 1) lootTables.Remove(tableID);
+                }
+            }
+        }
+
         private struct LootTableEntry
         {
             public readonly Item itemToDrop;
@@ -131,9 +142,11 @@ namespace GadgetCore.API
             public readonly Func<Vector3, bool> CheckValidToDrop;
             public readonly Func<Item, Vector3, bool> CustomDropBehavior;
             public readonly bool isChip;
+            public readonly int modID;
 
             public LootTableEntry(Item itemToDrop, float dropChance, int minDropQuantity, int maxDropQuantity, Func<Vector3, bool> CheckValidToDrop, Func<Item, Vector3, bool> CustomDropBehavior, bool isChip = false)
             {
+                if (!Registry.registeringVanilla && Registry.modRegistering < 0) throw new InvalidOperationException("Loot table entries can only be added during Gadget initialization!");
                 this.itemToDrop = itemToDrop;
                 this.dropChance = dropChance;
                 this.minDropQuantity = minDropQuantity;
@@ -141,6 +154,7 @@ namespace GadgetCore.API
                 this.CheckValidToDrop = CheckValidToDrop;
                 this.CustomDropBehavior = CustomDropBehavior;
                 this.isChip = isChip;
+                modID = Registry.modRegistering;
             }
 
             public bool TryDrop(Vector3 pos)

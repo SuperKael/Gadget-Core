@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
 
 namespace GadgetCore.API
 {
@@ -25,10 +22,10 @@ namespace GadgetCore.API
         /// </summary>
         /// <param name="ID">The vanilla ID to be wrapped.</param>
         /// <param name="WrapForTile">If true, the Tile property should not be set by this constructor, as it will be set later as part of a TileInfo's constructor.</param>
-        protected VanillaItemInfo(int ID, bool WrapForTile) : base(ItemRegistry.GetDefaultTypeByID(ID), GadgetCoreAPI.GetItemName(ID), GadgetCoreAPI.GetItemDesc(ID), GadgetCoreAPI.GetItemMaterial(ID), -1, GadgetCoreAPI.GetGearBaseStats(ID), GadgetCoreAPI.GetWeaponMaterial(ID), ID >= 1000 && ID < 2000 ? GadgetCoreAPI.GetDroidHeadMaterial(ID) : GadgetCoreAPI.GetHeadMaterial(ID), ID >= 1000 && ID < 2000 ? GadgetCoreAPI.GetDroidBodyMaterial(ID) : GadgetCoreAPI.GetBodyMaterial(ID), GadgetCoreAPI.GetArmMaterial(ID))
+        protected VanillaItemInfo(int ID, bool WrapForTile) : base(ItemRegistry.GetDefaultTypeByID(ID), GadgetCoreAPI.GetItemName(ID), GadgetCoreAPI.GetItemDesc(ID), GadgetCoreAPI.GetItemMaterial(ID), -1, GadgetCoreAPI.GetTrueGearBaseStats(ID), GadgetCoreAPI.GetWeaponMaterial(ID), ID >= 1000 && ID < 2000 ? GadgetCoreAPI.GetDroidHeadMaterial(ID) : GadgetCoreAPI.GetHeadMaterial(ID), ID >= 1000 && ID < 2000 ? GadgetCoreAPI.GetDroidBodyMaterial(ID) : GadgetCoreAPI.GetBodyMaterial(ID), GadgetCoreAPI.GetArmMaterial(ID))
         {
             this.ID = ID;
-            if (Type == ItemType.WEAPON)
+            if ((Type & ItemType.EQUIP_MASK) == (ItemType.WEAPON & ItemType.EQUIP_MASK))
             {
                 SetWeaponInfo(ItemRegistry.GetDefaultWeaponScalingByID(ID), GadgetCoreAPI.GetAttackSound(ID), ItemRegistry.GetDefaultCritChanceBonus(ID), ItemRegistry.GetDefaultCritPowerBonus(ID), ID);
                 OnAttack += (script) => { Attacking = true; IEnumerator ie = AttackMethod.Invoke(script, new object[] { }) as IEnumerator; Attacking = false; return ie; };
@@ -39,7 +36,7 @@ namespace GadgetCore.API
             }
             if (!WrapForTile)
             {
-                if (TileRegistry.GetSingleton().HasEntry(ID)) SetTile(TileRegistry.GetSingleton().GetEntry(ID));
+                if (TileRegistry.Singleton.HasEntry(ID)) SetTile(TileRegistry.Singleton.GetEntry(ID));
                 else SetTile(VanillaTileInfo.Wrap(ID, false));
             }
         }
@@ -47,14 +44,14 @@ namespace GadgetCore.API
         /// <summary>
         /// Provides a wrapper for the given vanilla ID. If the given ID has already been wrapped before, it will return the same wrapper instance as was returned before. If register is true, then the wrapper will be registered to its ID in the appropriate registry.
         /// </summary>
-        public static VanillaItemInfo Wrap(int ID, bool register)
+        public static VanillaItemInfo Wrap(int ID, bool register = false)
         {
             VanillaItemInfo itemInfo = Wrappers.ContainsKey(ID) ? Wrappers[ID] : (Wrappers[ID] = new VanillaItemInfo(ID, false));
             if (register && itemInfo.RegistryName == null) itemInfo.Register(itemInfo.Name, ID, true);
             return itemInfo;
         }
 
-        internal static VanillaItemInfo WrapForTile(int ID, bool register)
+        internal static VanillaItemInfo WrapForTile(int ID, bool register = false)
         {
             VanillaItemInfo itemInfo = Wrappers.ContainsKey(ID) ? Wrappers[ID] : (Wrappers[ID] = new VanillaItemInfo(ID, true));
             if (register && itemInfo.RegistryName == null) itemInfo.Register(itemInfo.Name, ID, true);

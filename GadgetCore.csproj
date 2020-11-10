@@ -1,27 +1,25 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
-  <ImportGroup>
-    <Import Project="../GamePaths.xml" />
-  </ImportGroup>
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Release</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
     <ProjectGuid>{5FB088ED-0A70-493E-A084-599018BFA16A}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>GadgetCore</RootNamespace>
     <AssemblyName>GadgetCore</AssemblyName>
     <FileAlignment>512</FileAlignment>
-	<TargetFrameworks>net35</TargetFrameworks>
+	  <TargetFrameworks>net35</TargetFrameworks>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <Configurations>Release</Configurations>
     <Authors>HaneyDev</Authors>
     <ApplicationIcon />
     <StartupObject />
     <AutoGenerateBindingRedirects></AutoGenerateBindingRedirects>
-	<DisableImplicitFrameworkReferences>true</DisableImplicitFrameworkReferences>
+	  <DisableImplicitFrameworkReferences>true</DisableImplicitFrameworkReferences>
+	  <Platforms>x86</Platforms>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
     <PlatformTarget>x86</PlatformTarget>
     <DebugType>none</DebugType>
     <Optimize>true</Optimize>
@@ -32,17 +30,25 @@
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net35|AnyCPU'">
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net35|x86'">
     <DocumentationFile>Release\GadgetCore.xml</DocumentationFile>
     <NoWarn>1701;1702;IDE0060</NoWarn>
   </PropertyGroup>
+  <ItemGroup>
+    <Compile Remove="TemplateGadgetMod\Patches\Patch_ClassName_MethodName.cs" />
+    <Compile Remove="TemplateGadgetMod\Properties\AssemblyInfo.cs" />
+    <Compile Remove="TemplateGadgetMod\TemplateGadgetMod.cs" />
+  </ItemGroup>
   <ItemGroup>
     <None Remove="Manual Unpacking Instructions.txt" />
     <None Remove="ModInfo.txt" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="DotNetZip" Version="1.12.0" />
+  </ItemGroup>
+  <ItemGroup>
     <Reference Include="0Harmony">
-      <HintPath>D:\Program Files (x86)\Steam\steamapps\common\Roguelands\uModFramework\Lib\net35\0Harmony.dll</HintPath>
+      <HintPath>D:\Program Files (x86)\Steam\steamapps\common\Roguelands\Roguelands_Data\Managed\0Harmony.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="Assembly-CSharp">
@@ -50,11 +56,7 @@
       <Private>false</Private>
     </Reference>
     <Reference Include="INIFileParser">
-      <HintPath>D:\Program Files (x86)\Steam\steamapps\common\Roguelands\uModFramework\Lib\net35\INIFileParser.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="Ionic.Zip.Unity">
-      <HintPath>D:\Program Files (x86)\Steam\steamapps\common\Roguelands\uModFramework\Lib\net35\Ionic.Zip.Unity.dll</HintPath>
+      <HintPath>..\CoreLibs\INIFileParser.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="System">
@@ -64,8 +66,12 @@
     <Reference Include="System.Core">
       <Private>false</Private>
     </Reference>
+    <Reference Include="System.Web">
+      <HintPath>..\CoreLibs\System.Web.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
     <Reference Include="uModFramework">
-      <HintPath>D:\Program Files (x86)\Steam\steamapps\common\Roguelands\Roguelands_Data\Managed\uModFramework.dll</HintPath>
+      <HintPath>..\Libs\uModFramework.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="UnityEngine">
@@ -78,14 +84,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Manual Unpacking Instructions.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="ModInfo.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
     <None Update="Assets\GadgetCore\barsprite.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -95,14 +93,68 @@
     <None Update="Assets\GadgetCore\boxsprite.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="Assets\GadgetCore\Core Mod\Universal Crafter\bar_tex.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\GadgetCore\Core Mod\Universal Crafter\button0_tex.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\GadgetCore\Core Mod\Universal Crafter\button1_tex.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\GadgetCore\Core Mod\Universal Crafter\button2_tex.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\GadgetCore\Core Mod\Universal Crafter\craft_au.wav">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\GadgetCore\Core Mod\Universal Crafter\item_tex.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\GadgetCore\Core Mod\Universal Crafter\menu_tex.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\GadgetCore\Core Mod\Universal Crafter\tile_tex.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\GadgetCore\left_arrow.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\GadgetCore\left_arrow2.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\GadgetCore\missing_tex.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Assets\GadgetCore\modmenu.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Assets\GadgetCore\modmenu.png.meta">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="Assets\GadgetCore\right_arrow.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\GadgetCore\right_arrow2.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Assets\Shared\gadgetcore.assets">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="CoreLibs\0Harmony.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="CoreLibs\DotNetZip.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="CoreLibs\I18N.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="CoreLibs\I18N.West.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="CoreLibs\INIFileParser.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="CoreLibs\System.Configuration.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -119,13 +171,19 @@
     <None Update="CoreLibs\System.Threading.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="CoreLibs\System.Web.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="CoreLibs\System.Xml.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="DependentLibs\GadgetCoreLib.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Libraries\Open.Nat.dll">
+    <None Update="Libs\GadgetCoreLib.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Libs\Open.Nat.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Libraries\System.Configuration.dll">
@@ -154,48 +212,13 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Libraries\" />
-    <Folder Include="CoreLibs\" />
-    <Folder Include="DependentLibs\" />
+    <None Include="TemplateGadgetMod\Patches\Patch_ClassName_MethodName.cs" />
+    <None Include="TemplateGadgetMod\Properties\AssemblyInfo.cs" />
+    <None Include="TemplateGadgetMod\TemplateGadgetMod.cs" />
   </ItemGroup>
-  <UsingTask TaskName="GetFileVersion" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v4.0.dll">
-    <ParameterGroup>
-      <AssemblyPath ParameterType="System.String" Required="true" />
-      <Version ParameterType="System.String" Output="true" />
-      <TrimmedVersion ParameterType="System.String" Output="true" />
-    </ParameterGroup>
-    <Task>
-      <Using Namespace="System.Diagnostics" />
-      <Using Namespace="System.Text" />
-      <Using Namespace="System.Linq" />
-      <Code Type="Fragment" Language="cs">
-        <![CDATA[
-      this.Version = FileVersionInfo.GetVersionInfo(this.AssemblyPath).FileVersion;  
-      this.TrimmedVersion = this.Version.Split('.').TakeWhile(x => !x.Equals("0")).Aggregate(new StringBuilder(), (a, b) => { if (a.Length > 0) a.Append("."); a.Append(b); return a; }).ToString();
-    ]]>
-      </Code>
-    </Task>
-  </UsingTask>
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <GetFileVersion AssemblyPath="$(TargetPath)">
-      <Output TaskParameter="Version" PropertyName="ModFullVersion" />
-      <Output TaskParameter="TrimmedVersion" PropertyName="AssemblyFileVersion" />
-    </GetFileVersion>
-    <Move SourceFiles="$(TargetDir)ModInfo.txt" DestinationFiles="$(TargetDir)ModInfos\$(AssemblyName)_v$(AssemblyFileVersion)_ModInfo.txt" />
-    <ItemGroup>
-      <FilesToDelete Include="$(TargetDir)$(AssemblyName)_v*.zip" />
-      <FilesToDelete Include="$(TargetDir)ModInfos\*$(AssemblyName)*.*" Exclude="$(TargetDir)ModInfos\$(AssemblyName)_v$(AssemblyFileVersion)_ModInfo.txt" />
-      <FilesToDelete Include="$(GamePath)uModFramework\Mods\**\*$(AssemblyName)*.*" Exclude="$(GamePath)uModFramework\Mods\Configs\**\*.*" />
-    </ItemGroup>
-    <Delete Files="@(FilesToDelete)" />
-    <ItemGroup>
-      <FilesToCopy Include="$(TargetDir)**\*.*" Exclude="$(TargetDir)*.zip;$(TargetDir)*.xml;$(TargetDir)CoreLibs\*.*;$(TargetDir)Tools\*.*" />
-      <FilesToManaged Include="$(TargetDir)CoreLibs\*" />
-      <FilesToTools Include="$(TargetDir)Tools\*" />
-    </ItemGroup>
-    <Copy SourceFiles="@(FilesToCopy)" DestinationFolder="$(GamePath)uModFramework\Mods\%(FilesToCopy.RecursiveDir)" SkipUnchangedFiles="true" />
-    <Copy SourceFiles="@(FilesToManaged)" DestinationFolder="$(GamePath)Roguelands_Data\Managed\%(FilesToManaged.RecursiveDir)" SkipUnchangedFiles="true" />
-    <Copy SourceFiles="@(FilesToTools)" DestinationFolder="$(GamePath)uModFramework\Tools\%(FilesToTools.RecursiveDir)" SkipUnchangedFiles="true" />
-    <Exec Command="&quot;C:\Program Files\7-Zip\7z&quot; a -y -tzip &quot;$(TargetDir)$(AssemblyName)_v$(AssemblyFileVersion).zip&quot; &quot;$(TargetDir)*&quot; -mx5 -x!*.xml" />
+	  <Delete Files="$(TargetDir)$(AssemblyName).zip" />
+    <Exec Command="&quot;C:\Program Files\7-Zip\7z&quot; a -y -tzip &quot;$(TargetDir)$(AssemblyName).zip&quot; &quot;$(TargetDir)*&quot; -mx5 -x!*.xml" />
+	  <Copy SourceFiles="$(TargetDir)$(AssemblyName).zip" DestinationFiles="..\Gadget Core Installer\Resources\$(AssemblyName).zip" />
   </Target>
 </Project>

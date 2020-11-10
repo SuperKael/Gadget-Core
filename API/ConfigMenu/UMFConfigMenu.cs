@@ -1,15 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using UModFramework.API;
+﻿using System.IO;
 
 namespace GadgetCore.API.ConfigMenu
 {
-    internal class UMFConfigMenu : UMFGadgetConfigMenu
+    internal class UMFConfigMenu : INIGadgetConfigMenu
     {
-        public UMFConfigMenu() : base("uModFramework", true, Path.Combine(UMFData.ConfigsPath, "uModFramework") + ".ini", "ConfigVersion") { }
+        public UMFConfigMenu() : base("uModFramework", true, Path.Combine(GadgetCoreAPI.GetUMFAPI().GetConfigsPath(), "uModFramework") + ".ini", null, "ConfigVersion") { }
 
         protected override GadgetConfigComponentAlignment? AlignConfigEntry(string name)
         {

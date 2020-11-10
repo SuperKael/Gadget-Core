@@ -1,9 +1,5 @@
 ﻿using GadgetCore.API;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
 using UnityEngine;
 
 namespace GadgetCore
@@ -41,9 +37,27 @@ namespace GadgetCore
                 ItemType type = ItemRegistry.GetTypeByID(id);
                 if ((type & ItemType.EQUIPABLE) == ItemType.EQUIPABLE)
                 {
-                    if ((type & ItemType.MODABLE) == ItemType.MODABLE)
+                    if ((type & ItemType.LEVELING) == ItemType.LEVELING)
                     {
                         InstanceTracker.GameScript.itemexpbar.SetActive(true);
+                        float[] itemLevel = GetItemLevel2.Invoke(InstanceTracker.GameScript, new object[] { item.exp }) as float[];
+                        int num = (int)itemLevel[0];
+                        InstanceTracker.GameScript.itemexpbar.transform.localScale = new Vector3(itemLevel[1], 0.015f, 1f);
+                        if (num < 10)
+                        {
+                            InstanceTracker.GameScript.itemLevel.text = "Lv." + num;
+                        }
+                        else
+                        {
+                            InstanceTracker.GameScript.itemLevel.text = "MAX";
+                        }
+                    }
+                    else
+                    {
+                        InstanceTracker.GameScript.itemexpbar.SetActive(false);
+                    }
+                    if ((type & ItemType.MODABLE) == ItemType.MODABLE)
+                    {
                         if (item.tier == 0)
                         {
                             InstanceTracker.GameScript.itemName.color = Color.white;
@@ -62,17 +76,6 @@ namespace GadgetCore
                         }
                         InstanceTracker.GameScript.hoverItem.GetComponent<Renderer>().material = InstanceTracker.GameScript.hoverItemMat2;
                         InstanceTracker.GameScript.itemDesc.text = string.Empty;
-                        float[] itemLevel2 = GetItemLevel2.Invoke(InstanceTracker.GameScript, new object[] { item.exp }) as float[];
-                        int num2 = (int)itemLevel2[0];
-                        InstanceTracker.GameScript.itemexpbar.transform.localScale = new Vector3(itemLevel2[1], 0.015f, 1f);
-                        if (num2 < 10)
-                        {
-                            InstanceTracker.GameScript.itemLevel.text = "Lv." + num2;
-                        }
-                        else
-                        {
-                            InstanceTracker.GameScript.itemLevel.text = "MAX";
-                        }
                         for (int i = 0; i < 3; i++)
                         {
                             if (item.aspectLvl[i] > 0)
@@ -85,61 +88,94 @@ namespace GadgetCore
                             }
                             InstanceTracker.GameScript.aspectObj[i].SetActive(true);
                         }
-                        int[] gearStats = GadgetCoreAPI.GetGearBaseStats(id).GetStatArray();
+                        int[] gearStats = GadgetCoreAPI.GetGearStats(item).GetStatArray();
                         for (int i = 0; i < 6; i++)
                         {
-                            int num3 = 0;
-                            for (int j = 0; j < 3; j++)
-                            {
-                                if (item.aspect[j] - 200 == i + 1)
-                                {
-                                    num3 += item.aspectLvl[j];
-                                }
-                            }
-                            int num4;
                             if (gearStats[i] > 0)
                             {
-                                num4 = gearStats[i] * num2 + item.tier * 3 + num3;
-                            }
-                            else
-                            {
-                                num4 = num3;
-                            }
-                            if (num4 > 0)
-                            {
-                                InstanceTracker.GameScript.itemStat[i].text = "+" + num4;
+                                InstanceTracker.GameScript.itemStat[i].text = "+" + gearStats[i];
+                                if (InstanceTracker.GameScript.itemStat[i].text.Length > 4)
+                                {
+                                    InstanceTracker.GameScript.itemStat[i].characterSize = 4f / InstanceTracker.GameScript.itemStat[i].text.Length;
+                                }
+                                else
+                                {
+                                    InstanceTracker.GameScript.itemStat[i].characterSize = 1;
+                                }
                             }
                             else
                             {
                                 InstanceTracker.GameScript.itemStat[i].text = string.Empty;
+                                InstanceTracker.GameScript.itemStat[i].characterSize = 1;
                             }
                         }
                         InstanceTracker.GameScript.txtStats.SetActive(true);
                     }
                     else
                     {
-                        InstanceTracker.GameScript.itemexpbar.SetActive(true);
-                        InstanceTracker.GameScript.itemName.color = Color.white;
-                        InstanceTracker.GameScript.hoverItem.GetComponent<Renderer>().material = InstanceTracker.GameScript.hoverItemMat1;
-                        float[] itemLevel = GetItemLevel2.Invoke(InstanceTracker.GameScript, new object[] { item.exp }) as float[];
-                        int num = (int)itemLevel[0];
-                        InstanceTracker.GameScript.itemexpbar.transform.localScale = new Vector3(itemLevel[1], 0.015f, 1f);
-                        if (num < 10)
+                        if (GadgetCoreConfig.BetterDroidHover)
                         {
-                            InstanceTracker.GameScript.itemLevel.text = "Lv." + num;
+                            if (item.tier == 0)
+                            {
+                                InstanceTracker.GameScript.itemName.color = Color.white;
+                            }
+                            else if (item.tier == 1)
+                            {
+                                InstanceTracker.GameScript.itemName.color = Color.cyan;
+                            }
+                            else if (item.tier == 2)
+                            {
+                                InstanceTracker.GameScript.itemName.color = Color.magenta;
+                            }
+                            else if (item.tier == 3)
+                            {
+                                InstanceTracker.GameScript.itemName.color = Color.yellow;
+                            }
+                            InstanceTracker.GameScript.hoverItem.GetComponent<Renderer>().material = InstanceTracker.GameScript.hoverItemMat2;
+                            InstanceTracker.GameScript.itemDesc.text = string.Empty;
+                            for (int i = 0; i < 3; i++)
+                            {
+                                InstanceTracker.GameScript.aspectObj[i].SetActive(false);
+                            }
+                            InstanceTracker.GameScript.itemAspect[0].text = "";
+                            InstanceTracker.GameScript.itemAspect[1].text = "NOT MODABLE";
+                            InstanceTracker.GameScript.itemAspect[2].text = "";
+                            int[] gearStats = GadgetCoreAPI.GetGearStats(item).GetStatArray();
+                            for (int i = 0; i < 6; i++)
+                            {
+                                if (gearStats[i] > 0)
+                                {
+                                    InstanceTracker.GameScript.itemStat[i].text = "+" + gearStats[i];
+                                    if (InstanceTracker.GameScript.itemStat[i].text.Length > 4)
+                                    {
+                                        InstanceTracker.GameScript.itemStat[i].characterSize = 4f / InstanceTracker.GameScript.itemStat[i].text.Length;
+                                    }
+                                    else
+                                    {
+                                        InstanceTracker.GameScript.itemStat[i].characterSize = 1;
+                                    }
+                                }
+                                else
+                                {
+                                    InstanceTracker.GameScript.itemStat[i].text = string.Empty;
+                                    InstanceTracker.GameScript.itemStat[i].characterSize = 1;
+                                }
+                            }
+                            InstanceTracker.GameScript.txtStats.SetActive(true);
                         }
                         else
                         {
-                            InstanceTracker.GameScript.itemLevel.text = "MAX";
+                            InstanceTracker.GameScript.itemName.color = Color.white;
+                            InstanceTracker.GameScript.hoverItem.GetComponent<Renderer>().material = InstanceTracker.GameScript.hoverItemMat1;
+                            InstanceTracker.GameScript.itemAspect[0].text = string.Empty;
+                            InstanceTracker.GameScript.itemAspect[1].text = string.Empty;
+                            InstanceTracker.GameScript.itemAspect[2].text = string.Empty;
+                            InstanceTracker.GameScript.txtStats.SetActive(false);
+                            InstanceTracker.GameScript.aspectObj[0].SetActive(false);
+                            InstanceTracker.GameScript.aspectObj[1].SetActive(false);
+                            InstanceTracker.GameScript.aspectObj[2].SetActive(false);
+                            InstanceTracker.GameScript.itemDesc.text = GadgetCoreAPI.GetItemDesc(id);
                         }
-                        InstanceTracker.GameScript.itemAspect[0].text = string.Empty;
-                        InstanceTracker.GameScript.itemAspect[1].text = string.Empty;
-                        InstanceTracker.GameScript.itemAspect[2].text = string.Empty;
-                        InstanceTracker.GameScript.txtStats.SetActive(false);
-                        InstanceTracker.GameScript.aspectObj[0].SetActive(false);
-                        InstanceTracker.GameScript.aspectObj[1].SetActive(false);
-                        InstanceTracker.GameScript.aspectObj[2].SetActive(false);
-                        InstanceTracker.GameScript.itemDesc.text = GadgetCoreAPI.GetItemDesc(id);
                     }
                 }
                 else
@@ -163,6 +199,34 @@ namespace GadgetCore
             {
                 InstanceTracker.GameScript.hoverItem.SetActive(false);
             }
+        }
+
+        /// <summary>
+        /// Completely recalculates GameScript.GEARSTAT from your equipped gear.
+        /// </summary>
+        public static void RecalculateGearStats(Item[] inventory)
+        {
+            GameScript.GEARSTAT = new int[6];
+            for (int i = 36; i < 45; i++)
+            {
+                int[] gearStats = GadgetCoreAPI.GetGearStats(inventory[i]).GetStatArray();
+                for (int s = 0; s < 6; s++)
+                {
+                    if (gearStats[s] > 0)
+                    {
+                        GameScript.GEARSTAT[s] += gearStats[s];
+                    }
+                }
+                GadgetCoreAPI.equipedGearStats[i - 36] = gearStats;
+            }
+        }
+
+        /// <summary>
+        /// Returns whether the given planet consists entirely of town zone(s)
+        /// </summary>
+        public static bool PlanetIsTownOnly(int planetID)
+        {
+            return PlanetRegistry.Singleton[planetID] is PlanetInfo planet ? planet.Type == PlanetType.TOWNS || planet.Type == PlanetType.SINGLE : (planetID == 8 || planetID == 11);
         }
     }
 }

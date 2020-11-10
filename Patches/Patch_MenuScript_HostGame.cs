@@ -1,9 +1,6 @@
 using HarmonyLib;
-using GadgetCore.API;
-using GadgetCore;
 using UnityEngine;
 using System;
-using System.Threading;
 
 namespace GadgetCore.Patches
 {
@@ -25,23 +22,7 @@ namespace GadgetCore.Patches
                 __instance.txtHostPort[0].text = string.Empty;
                 __instance.txtHostPort[1].text = __instance.txtHostPort[0].text;
             }
-            Network.InitializeServer(GadgetCoreConfig.MaxConnections, ___curHostPort, false);
-            if (GadgetCoreConfig.UseUPnP)
-            {
-                int curHostPort = ___curHostPort;
-                try
-                {
-                    __instance.StartCoroutine(GadgetCore.CoreLib.ForwardPort(curHostPort));
-                }
-                catch (System.IO.FileNotFoundException)
-                {
-                    GadgetCore.Log("Gadget Core was unable to perform UPnP Port Forwarding because Gadget Core's zip file has not been unpacked!");
-                }
-                catch (Exception e)
-                {
-                    GadgetCore.Log("The following error occured while attempting to perform UPnP Port Forwarding:" + Environment.NewLine + e.ToString());
-                }
-            }
+            Network.InitializeServer(GadgetCoreConfig.MaxConnections, ___curHostPort, GadgetCoreConfig.UseUPnP);
             ___playing = false;
             return false;
         }

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace GadgetCore.API
+﻿namespace GadgetCore.API
 {
     /// <summary>
     /// This registry is filled with EntityInfos, and is used for registering custom entities to the game.
@@ -11,15 +6,20 @@ namespace GadgetCore.API
     public class EntityRegistry : Registry<EntityRegistry, EntityInfo, EntityType>
     {
         /// <summary>
-        /// Gets the name of this registry. Must be constant.
+        /// The name of this registry.
+        /// </summary>
+        public const string REGISTRY_NAME = "Entity";
+
+        /// <summary>
+        /// Gets the name of this registry. Must be constant. Returns <see cref="REGISTRY_NAME"/>.
         /// </summary>
         public override string GetRegistryName()
         {
-            return "Entity";
+            return REGISTRY_NAME;
         }
 
         /// <summary>
-        /// Gets the ID that modded IDs should start at for this registry. May be 0 if the vanilla game does not use IDs for this type of thing.
+        /// Gets the ID that modded IDs should start at for this registry. <see cref="EntityRegistry"/> always returns 10000.
         /// </summary>
         public override int GetIDStart()
         {

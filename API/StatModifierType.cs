@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace GadgetCore.API
+﻿namespace GadgetCore.API
 {
     /// <summary>
     /// Indicates the type of stat modifier the modifier being applied is. Note that they are applied in the order Flat -> AddMult -> ExpMult. Also note that the 'AddMult' types are additive multipliers, meaning that, for example, returning EquipStats.ONE will double the base stats.

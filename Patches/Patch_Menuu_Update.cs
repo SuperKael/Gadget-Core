@@ -1,11 +1,7 @@
 using HarmonyLib;
 using GadgetCore.API;
-using GadgetCore;
 using UnityEngine;
 using System.Collections;
-using Ionic.Zip;
-using System.IO;
-using UModFramework.API;
 using GadgetCore.API.ConfigMenu;
 
 namespace GadgetCore.Patches
@@ -25,29 +21,15 @@ namespace GadgetCore.Patches
                     if (___hit.transform.gameObject.name.Equals("bModMenu"))
                     {
                         __instance.GetComponent<AudioSource>().PlayOneShot((AudioClip)Resources.Load("Au/confirm"), Menuu.soundLevel / 10f);
-                        if (GadgetCore.IsUnpacked)
-                        {
-                            __instance.StartCoroutine(ModMenu(__instance));
-                        }
-                        else
-                        {
-                            __instance.StartCoroutine(UnpackGadgetCore());
-                        }
+                        __instance.StartCoroutine(ModMenu(__instance));
                         return false;
                     }
                     else if (___hit.transform.gameObject.name.Equals("bQuit"))
                     {
-                        foreach (System.Diagnostics.Process process in ModDescPanelController.ConfigHandles)
+                        foreach (System.Diagnostics.Process process in ModMenuController.ConfigHandles)
                         {
                             if (process != null && !process.HasExited) process.Kill();
                         }
-                    }
-                    else if (___hit.transform.gameObject.name.Equals("bPlay") && !GadgetCore.IsUnpacked)
-                    {
-                        GadgetCore.Log(GadgetCoreAPI.GetCursorPos().ToString());
-                        GameObject gameObject = (GameObject)UnityEngine.Object.Instantiate(Resources.Load("txtError"), GadgetCoreAPI.GetCursorPos() + new Vector3(0, 0, 9), Quaternion.identity);
-                        gameObject.SendMessage("InitError", "You must unpack Gadget Core before playing!");
-                        return false;
                     }
                 }
             }
@@ -55,6 +37,7 @@ namespace GadgetCore.Patches
         }
         private static IEnumerator ModMenu(Menuu instance)
         {
+            SceneInjector.ModMenuPanel.Rebuild();
             SceneInjector.ModMenuBackButtonBeam.transform.localScale = new Vector3(30f, 0f, 1f);
             SceneInjector.ModMenuBackButtonHolder.transform.position = new Vector3(-40f, 0f, 0f);
             instance.menuMain.SetActive(false);
@@ -74,16 +57,6 @@ namespace GadgetCore.Patches
         {
             yield return new WaitForEndOfFrame();
             GadgetModConfigs.ResetAllConfigMenus();
-            yield break;
-        }
-
-        private static IEnumerator UnpackGadgetCore()
-        {
-            if (ZipUtils.UnpackMod("GadgetCore"))
-            {
-                yield return new WaitForSeconds(0.25f);
-                Application.Quit();
-            }
             yield break;
         }
     }

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace GadgetCore.API
+﻿namespace GadgetCore.API
 {
     /// <summary>
     /// Tracks what gear mods each player has, since for some reason the base game does not do this.
