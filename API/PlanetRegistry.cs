@@ -123,7 +123,7 @@ namespace GadgetCore.API
 
         internal static void UpdatePlanetSelector()
         {
-            int totalPages = planetButtonIcons.Length + 1;
+            int totalPages = (planetButtonIcons?.Length ?? 0) + 1;
             if (planetPageText != null)
             {
                 foreach (TextMesh text in planetPageText.GetComponentsInChildren<TextMesh>())
