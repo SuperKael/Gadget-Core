@@ -17,7 +17,7 @@ namespace GadgetCore.Patches
         public static bool Prefix(GameScript __instance, ref bool ___planetTeleing, ref int[] ___portalUses)
         {
 			int curPlanet = (PlanetRegistry.PlanetSelectorPage - 1) * 14 + GameScript.curPlanet;
-			if (!___planetTeleing && curPlanet >= 0 && curPlanet - 14 < PlanetRegistry.selectorPlanets.Length && GameScript.curPlanetTrue != curPlanet)
+			if (!___planetTeleing && curPlanet >= 0 && curPlanet - 14 < (PlanetRegistry.selectorPlanets?.Length ?? 0) && GameScript.curPlanetTrue != curPlanet)
 			{
 				if (PlanetRegistry.PlanetSelectorPage > 1)
 				{
