@@ -19,7 +19,7 @@ namespace GadgetCore.Patches
         public static bool Prefix(NetworkViewID viewID)
         {
             NetworkView view = NetworkView.Find(viewID);
-            if (Network.isServer && view != null && (view.hideFlags |= (HideFlags)64) != 0)
+            if (Network.isServer && view != null && (view.hideFlags & (HideFlags)64) != 0)
             {
                 view.hideFlags &= ~(HideFlags)64;
                 RPCHooks.Destroy(viewID);
