@@ -11,9 +11,9 @@ namespace GadgetCore.Patches
         public static readonly MethodInfo SwapItemStorage = typeof(GameScript).GetMethod("SwapItemStorage", BindingFlags.NonPublic | BindingFlags.Instance);
 
         [HarmonyPrefix]
-        public static bool Prefix(GameScript __instance, int slot, Item[] ___storage, Item ___holdingItem)
+        public static bool Prefix(GameScript __instance, int slot, Item[] ___storage, Item ___holdingItem, int ___curStoragePage)
         {
-            Item item = ___storage[slot];
+            Item item = ___storage[slot + ___curStoragePage * 30];
             if (!GadgetCoreAPI.CanItemsStack(item, ___holdingItem))
             {
                 SwapItemStorage.Invoke(__instance, new object[] { slot });

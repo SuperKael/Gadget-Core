@@ -18,8 +18,10 @@ namespace GadgetCore.Patches
         [HarmonyPrefix]
         public static bool Prefix(NetworkViewID viewID)
         {
-            if (Network.isServer)
+            NetworkView view = NetworkView.Find(viewID);
+            if (Network.isServer && view != null && (view.hideFlags |= (HideFlags)64) != 0)
             {
+                view.hideFlags &= ~(HideFlags)64;
                 RPCHooks.Destroy(viewID);
                 return false;
             }

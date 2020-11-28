@@ -29,6 +29,7 @@ namespace GadgetCore.Patches
                     (__result as GameObject).SetActive(true);
                 }
                 __result.hideFlags &= ~(HideFlags.HideAndDontSave | HideFlags.HideInInspector);
+                __result.hideFlags |= (HideFlags)64;
             }
         }
     }
