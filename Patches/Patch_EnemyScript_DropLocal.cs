@@ -1,5 +1,6 @@
 using HarmonyLib;
 using GadgetCore.API;
+using GadgetCore.Util;
 using UnityEngine;
 using System.Collections.Generic;
 
@@ -20,7 +21,7 @@ namespace GadgetCore.Patches
         [HarmonyPostfix]
         public static void Postfix(EnemyScript __instance)
         {
-            LootTables.DropLoot("entity:" + __instance.name.Split(' ', '(')[0], pos[__instance]);
+            LootTables.DropLoot("entity:" + __instance.transform.GetHighestParent().name.Split(' ', '(')[0], pos[__instance]);
             pos.Remove(__instance);
         }
     }

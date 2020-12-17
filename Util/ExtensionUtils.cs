@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Policy;
 using System.Text;
+using UnityEngine;
 using UnityEngine.AI;
 
 namespace GadgetCore.Util
@@ -162,6 +163,23 @@ namespace GadgetCore.Util
                     indexes.Add(index);
             }
             return indexes.ToArray();
+        }
+
+        /// <summary>
+        /// Returns the highest parent object for this GameObject
+        /// </summary>
+        public static GameObject GetHighestParent(this GameObject obj)
+        {
+            return GetHighestParent(obj.transform).gameObject;
+        }
+
+        /// <summary>
+        /// Returns the highest parent transform for this Transform
+        /// </summary>
+        public static Transform GetHighestParent(this Transform t)
+        {
+            while (t.parent != null) t = t.parent;
+            return t;
         }
     }
 

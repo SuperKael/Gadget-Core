@@ -19,7 +19,7 @@ namespace GadgetCore.Patches
         [HarmonyPostfix]
         public static void Postfix(DestroyerTrue __instance)
         {
-            LootTables.DropLoot("entity:" + __instance.name.Split(' ', '(')[0], __instance.transform.position);
+            LootTables.DropLoot("entity:" + __instance.transform.GetHighestParent().name.Split(' ', '(')[0], __instance.transform.position);
         }
 
         [HarmonyTranspiler]

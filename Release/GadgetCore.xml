@@ -5723,6 +5723,16 @@
             Finds the indexes of all instances of the sublist within a list.
             </summary>
         </member>
+        <member name="M:GadgetCore.Util.ExtensionUtils.GetHighestParent(UnityEngine.GameObject)">
+            <summary>
+            Returns the highest parent object for this GameObject
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.ExtensionUtils.GetHighestParent(UnityEngine.Transform)">
+            <summary>
+            Returns the highest parent transform for this Transform
+            </summary>
+        </member>
         <member name="T:GadgetCore.Util.EqualityComparison`1">
             <summary>
             A <see cref="T:System.Comparison`1"/> that only checks for equality.
