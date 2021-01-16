@@ -493,6 +493,7 @@ namespace GadgetCore.Loader
             }
             Logger.Log("Done initializing Gadgets.");
             QueuedGadgets.Clear();
+            GadgetCoreConfig.Update();
         }
 
         internal static void DisableQueuedGadgets()

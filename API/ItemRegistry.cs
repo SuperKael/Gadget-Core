@@ -80,20 +80,20 @@ namespace GadgetCore.API
         {
             if (ID > 0 && ID <= 40)
             {
-                if (ID <= 10) return ItemType.LOOT | ItemType.ROCK;
+                if (ID <= 10) return ItemType.LOOT | ItemType.ORE;
                 if (ID <= 20) return ItemType.LOOT | ItemType.PLANT;
                 if (ID <= 30) return ItemType.LOOT | ItemType.MONSTER;
                 return ItemType.LOOT | ItemType.BUG;
             }
             if (ID > 100 && ID <= 200)
             {
-                if (ID <= 110) return ItemType.EMBLEM | ItemType.ROCK;
+                if (ID <= 110) return ItemType.EMBLEM | ItemType.ORE;
                 if (ID <= 120) return ItemType.EMBLEM | ItemType.PLANT;
                 if (ID <= 130) return ItemType.EMBLEM | ItemType.MONSTER;
                 if (ID <= 140) return ItemType.EMBLEM | ItemType.BUG;
                 return ItemType.EMBLEM | ItemType.OTHER;
             }
-            if (ID > 200 && ID < 230) return ItemType.MOD;
+            if (ID > 200 && ID < 300) return ItemType.MOD;
             if (ID >= 300 && ID < 600) return ItemType.WEAPON;
             if (ID >= 600 && ID < 700) return ItemType.OFFHAND;
             if (ID >= 700 && ID < 800) return ItemType.HELMET;
@@ -1179,7 +1179,7 @@ namespace GadgetCore.API
         /// <summary>
         /// This item is a rock material. This is meaningless if the item is not either a LOOT or an EMBLEM.
         /// </summary>
-        ROCK        = 0b0000000000000000,
+        ORE        = 0b0000000000000000,
         /// <summary>
         /// This item is a plant material. This is meaningless if the item is not either a LOOT or an EMBLEM. Implies ORGANIC.
         /// </summary>

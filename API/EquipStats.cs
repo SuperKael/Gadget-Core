@@ -56,7 +56,7 @@ namespace GadgetCore.API
         /// </summary>
         public static explicit operator EquipStats(EquipStatsDouble stats)
         {
-            return new EquipStats(stats.GetStatArray().Select(x => (int)x).ToArray());
+            return new EquipStats((int)stats.VIT, (int)stats.STR, (int)stats.DEX, (int)stats.TEC, (int)stats.MAG, (int)stats.FTH);
         }
 
         /// <summary>
@@ -93,7 +93,7 @@ namespace GadgetCore.API
         public EquipStats(int[] statArray)
         {
             if (statArray == null || statArray.Length != 6) throw new InvalidOperationException("Stat array must be of length 6!");
-            stats = statArray;
+            stats = (int[])statArray.Clone();
         }
 
         /// <summary>
@@ -348,7 +348,7 @@ namespace GadgetCore.API
         /// </summary>
         public static implicit operator EquipStatsDouble(EquipStats stats)
         {
-            return new EquipStatsDouble(stats.GetStatArray().Select(x => (double)x).ToArray());
+            return new EquipStatsDouble(stats.VIT, stats.STR, stats.DEX, stats.TEC, stats.MAG, stats.FTH);
         }
 
         /// <summary>
@@ -382,10 +382,19 @@ namespace GadgetCore.API
         /// <summary>
         /// Creates a new instance of EquipStatsDouble from an array of stat values. The array must be of length 6.
         /// </summary>
+        public EquipStatsDouble(int[] statArray)
+        {
+            if (statArray == null || statArray.Length != 6) throw new InvalidOperationException("Stat array must be of length 6!");
+            stats = statArray.Select(x => (double)x).ToArray();
+        }
+
+        /// <summary>
+        /// Creates a new instance of EquipStatsDouble from an array of stat values. The array must be of length 6.
+        /// </summary>
         public EquipStatsDouble(double[] statArray)
         {
             if (statArray == null || statArray.Length != 6) throw new InvalidOperationException("Stat array must be of length 6!");
-            stats = statArray;
+            stats = (double[])statArray.Clone();
         }
 
         /// <summary>

@@ -217,7 +217,7 @@ namespace GadgetCore
                         GameScript.GEARSTAT[s] += gearStats[s];
                     }
                 }
-                GadgetCoreAPI.equipedGearStats[i - 36] = gearStats;
+                GadgetCoreAPI.equippedGearStats[i - 36] = gearStats;
             }
         }
 

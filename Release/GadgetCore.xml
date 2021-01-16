@@ -1284,6 +1284,11 @@
             The GameObject representing this Entity. This will be registered as a prefab, and as such should be a freshly constructed GameObject.
             </summary>
         </member>
+        <member name="P:GadgetCore.API.EntityInfo.ResourcePath">
+            <summary>
+            The string usable in <see cref="M:UnityEngine.Resources.Load(System.String)"/> to load this object.
+            </summary>
+        </member>
         <member name="F:GadgetCore.API.EntityInfo.WorldIDs">
             <summary>
             The World IDs that this entity will spawn in. Note that the current version of Gadget Core does not actually use these values, although in the future these may be used for natural creature spawning depending on the Entity's Type.
@@ -1625,6 +1630,11 @@
         <member name="M:GadgetCore.API.EquipStatsDouble.#ctor(System.Double)">
             <summary>
             Creates a new instance of EquipStatsDouble where all stats are the given value.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.EquipStatsDouble.#ctor(System.Int32[])">
+            <summary>
+            Creates a new instance of EquipStatsDouble from an array of stat values. The array must be of length 6.
             </summary>
         </member>
         <member name="M:GadgetCore.API.EquipStatsDouble.#ctor(System.Double[])">
@@ -2365,6 +2375,31 @@
             Adds a recipe to the Emblem Forge.
             </summary>
         </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.AddPrismRecipe(System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Adds a recipe to the Prism Forge.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.AddGearForgeRecipe(GadgetCore.Util.Tuple{System.Int32,System.Int32,System.Int32},Item,System.Int32)">
+            <summary>
+            Adds a recipe to the Gear Forge.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.AddAlchemyStationRecipe(GadgetCore.Util.Tuple{System.Int32,System.Int32,System.Int32},Item,System.Int32)">
+            <summary>
+            Adds a recipe to the Alchemy Station.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.AddUltimateForgeRecipe(GadgetCore.Util.Tuple{System.Int32,System.Int32},System.Int32)">
+            <summary>
+            Adds a recipe to the Ultimate Forge.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.AddCreationMachineRecipe(System.Int32,Item,System.Int32)">
+            <summary>
+            Adds a recipe to the Creation Machine.
+            </summary>
+        </member>
         <member name="M:GadgetCore.API.GadgetCoreAPI.GetGearLevel(Item)">
             <summary>
             Gets the level of the given piece of gear.
@@ -2977,7 +3012,7 @@
         </member>
         <member name="T:GadgetCore.API.HarmonyGadgetAttribute">
             <summary>
-            Indicates what Gadget owns this patch. Required for use of GadgetCore's automatic Harmony patching.
+            Indicates what Gadget owns this patch. Required for the use of GadgetCore's automatic Harmony patching.
             </summary>
         </member>
         <member name="F:GadgetCore.API.HarmonyGadgetAttribute.Gadget">
@@ -3217,6 +3252,13 @@
             <summary>
             Sets the special info unique to weapons. This must be called before Register. If this is item is a weapon and you are using one of the provided OnAttack routines, you must call this.
             </summary>
+        </member>
+        <member name="M:GadgetCore.API.ItemInfo.Register(System.Int32,System.Boolean)">
+            <summary>
+            Registers this ItemInfo to the ItemRegistry.
+            </summary>
+            <param name="preferredID">If specified, will use this registry ID.</param>
+            <param name="overrideExisting">If false, will not register if the preferred ID is already used. Ignored if no preferred ID is specified.</param>
         </member>
         <member name="M:GadgetCore.API.ItemInfo.Register(System.String,System.Int32,System.Boolean)">
             <summary>
@@ -3576,7 +3618,7 @@
             This item is tier 10. This is meaningless if the item is not either a LOOT or an EMBLEM.
             </summary>
         </member>
-        <member name="F:GadgetCore.API.ItemType.ROCK">
+        <member name="F:GadgetCore.API.ItemType.ORE">
             <summary>
             This item is a rock material. This is meaningless if the item is not either a LOOT or an EMBLEM.
             </summary>
@@ -4046,6 +4088,169 @@
             Does not contain item slots. Cannot be open alongside the player's inventory.
             </summary>
         </member>
+        <member name="T:GadgetCore.API.ObjectInfo">
+            <summary>
+            Defines a custom Object. Make sure to call Register on it to register your Object.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ObjectInfo.Type">
+            <summary>
+            The ObjectType of this Object.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ObjectInfo.ItemDrop">
+            <summary>
+            The the Item to drop when harvested.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ObjectInfo.RandomDropBonus">
+            <summary>
+            Up to this many extra items may be dropped for each "hit" of the resource.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ObjectInfo.ColliderOffset">
+            <summary>
+            The offset of this Object's harvest collider.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.ObjectInfo.Tex">
+            <summary>
+            The Texture associated with this Object. May be null.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.ObjectInfo.FlyHeadTex">
+            <summary>
+            The Texture associated with this Object's Fly's head. May be null.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.ObjectInfo.FlyWingTex">
+            <summary>
+            The Texture associated with this Object's Fly's wing. May be null.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.ObjectInfo.Mat">
+            <summary>
+            The Material associated with this Object. May be null.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.ObjectInfo.FlyHeadMat">
+            <summary>
+            The Material associated with this Object's Fly's head. May be null.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.ObjectInfo.FlyWingMat">
+            <summary>
+            The Material associated with this Object's Fly's wing. May be null.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.ObjectInfo.Object">
+            <summary>
+            The GameObject representing this Object. This is registered as a prefab.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.ObjectInfo.ResourcePath">
+            <summary>
+            The string usable in <see cref="M:UnityEngine.Resources.Load(System.String)"/> to load this object.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ObjectInfo.#ctor(GadgetCore.API.ObjectType,Item,System.Int32,UnityEngine.Texture,UnityEngine.Texture,UnityEngine.Texture,UnityEngine.Vector2)">
+            <summary>
+            Use to create a new ObjectInfo. Make sure to call Register on it to register your Object.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ObjectInfo.#ctor(GadgetCore.API.ObjectType,Item,System.Int32,UnityEngine.Material,UnityEngine.Material,UnityEngine.Material,UnityEngine.Vector2)">
+            <summary>
+            Use to create a new ObjectInfo. Make sure to call Register on it to register your Object.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ObjectInfo.DropItem(UnityEngine.Vector3)">
+            <summary>
+            Prompts this resource node to drop one hit's worth of items.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ObjectInfo.Register(System.String,System.Int32,System.Boolean)">
+            <summary>
+            Registers this ObjectInfo to the ObjectRegistry.
+            </summary>
+            <param name="name">The registry name to use.</param>
+            <param name="preferredID">If specified, will use this registry ID.</param>
+            <param name="overrideExisting">If false, will not register if the preferred ID is already used. Ignored if no preferred ID is specified.</param>
+        </member>
+        <member name="M:GadgetCore.API.ObjectInfo.PostRegister">
+            <summary>
+            Called after this Registry Entry has been registered to its Registry. You should never call this yourself.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ObjectInfo.GetEntryType">
+            <summary>
+            Returns the Registry Entry's Type enum. Used in the registration process, although it is safe to check this yourself by directly accessing the <see cref="F:GadgetCore.API.ObjectInfo.Type"/> property.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ObjectInfo.GetRegistry">
+            <summary>
+            Returns the singleton of the registry used for storing this type of Registry Entry.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ObjectInfo.IsValidIDForType(System.Int32)">
+            <summary>
+            Returns whether the specified ID is valid for this Registry Entry's Type.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ObjectInfo.GetNextIDForType(System.Int32)">
+            <summary>
+            Returns the next valid ID for this Registry Entry's Type, after the provided lastValidID. Should skip the vanilla ID range.
+            </summary>
+        </member>
+        <member name="T:GadgetCore.API.ObjectRegistry">
+            <summary>
+            This registry is filled with ObjectInfos, and is used for registering custom harvestable objects to the game.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ObjectRegistry.REGISTRY_NAME">
+            <summary>
+            The name of this registry.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ObjectRegistry.GetRegistryName">
+            <summary>
+            Gets the name of this registry. Must be constant. Returns <see cref="F:GadgetCore.API.ObjectRegistry.REGISTRY_NAME"/>.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ObjectRegistry.GetIDStart">
+            <summary>
+            Gets the ID that modded IDs should start at for this registry. <see cref="T:GadgetCore.API.ObjectRegistry"/> always returns 200.
+            </summary>
+        </member>
+        <member name="T:GadgetCore.API.ObjectType">
+            <summary>
+            Specifies what type of object this is.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ObjectType.ORE">
+            <summary>
+            This is functionally an ore node.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ObjectType.TREE">
+            <summary>
+            This is functionally a tree.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ObjectType.PLANT">
+            <summary>
+            This is functionally a plant.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ObjectType.BUGSPOT">
+            <summary>
+            This is functionally a bugspot.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ObjectType.OTHER">
+            <summary>
+            This is some sort of object that does not fall into any of the standard types. By default, will be ignored by droids despite being clickable.
+            </summary>
+        </member>
         <member name="T:GadgetCore.API.PlanetInfo">
             <summary>
             Represents a craft menu, such as the emblem forge or the alchemy station. Also includes custom craft menus.
@@ -4176,6 +4381,11 @@
             The Materials associated with this planet's background images. There should be 4. May be null.
             </summary>
         </member>
+        <member name="P:GadgetCore.API.PlanetInfo.BackgroundMusic">
+            <summary>
+            The background music that plays when at this Planet.
+            </summary>
+        </member>
         <member name="P:GadgetCore.API.PlanetInfo.PortalUses">
             <summary>
             The number of portal uses the player has for this planet.
@@ -4188,15 +4398,20 @@
         </member>
         <member name="F:GadgetCore.API.PlanetInfo.weightedWorldSlotSpawns">
             <summary>
-            Weighted list of possible spawns (by resources paths) in world spawn slots.
+            Weighted list of possible spawn delegates in world spawn slots.
             </summary>
         </member>
         <member name="F:GadgetCore.API.PlanetInfo.weightedTownSlotSpawns">
             <summary>
-            Weighted list of possible spawns (by resources paths) in town spawn slots.
+            Weighted list of possible spawn delegates in town spawn slots.
             </summary>
         </member>
         <member name="M:GadgetCore.API.PlanetInfo.#ctor(GadgetCore.API.PlanetType,System.String,GadgetCore.Util.Tuple{System.Int32,System.Int32}[])">
+            <summary>
+            Use to create a new PlanetInfo. Make sure to call Register on it to register your Planet.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.PlanetInfo.#ctor(GadgetCore.API.PlanetType,System.String,GadgetCore.Util.Tuple{System.Int32,System.Int32}[],UnityEngine.AudioClip)">
             <summary>
             Use to create a new PlanetInfo. Make sure to call Register on it to register your Planet.
             </summary>
@@ -4244,12 +4459,52 @@
             Called after this Registry Entry has been registered to its Registry. You should never call this yourself.
             </summary>
         </member>
+        <member name="M:GadgetCore.API.PlanetInfo.AddWeightedBiomeSpawnEvent">
+            <summary>
+            Adds the weighted spawn event to <see cref="E:GadgetCore.API.PlanetInfo.OnSpawnBiomeSlot"/>
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.PlanetInfo.AddWeightedTownSpawnEvent">
+            <summary>
+            Adds the weighted spawn event to <see cref="E:GadgetCore.API.PlanetInfo.OnSpawnBiomeSlot"/>
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.PlanetInfo.AddWeightedWorldSpawn(GadgetCore.API.EntityInfo,System.Int32)">
+            <summary>
+            Adds a weighted spawn to the world spawn slots.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.PlanetInfo.AddWeightedWorldSpawn(GadgetCore.API.ObjectInfo,System.Int32)">
+            <summary>
+            Adds a weighted spawn to the world spawn slots.
+            </summary>
+        </member>
         <member name="M:GadgetCore.API.PlanetInfo.AddWeightedWorldSpawn(System.String,System.Int32)">
             <summary>
             Adds a weighted spawn to the world spawn slots.
             </summary>
         </member>
+        <member name="M:GadgetCore.API.PlanetInfo.AddWeightedWorldSpawn(System.Func{UnityEngine.Vector3,UnityEngine.GameObject},System.Int32)">
+            <summary>
+            Adds a weighted spawn to the world spawn slots.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.PlanetInfo.AddWeightedWorldSpawn(System.Func{UnityEngine.Vector3,UnityEngine.GameObject[]},System.Int32)">
+            <summary>
+            Adds a weighted spawn to the world spawn slots.
+            </summary>
+        </member>
         <member name="M:GadgetCore.API.PlanetInfo.AddWeightedTownSpawn(System.String,System.Int32)">
+            <summary>
+            Adds a weighted spawn to the town spawn slots.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.PlanetInfo.AddWeightedTownSpawn(System.Func{UnityEngine.Vector3,UnityEngine.GameObject},System.Int32)">
+            <summary>
+            Adds a weighted spawn to the town spawn slots.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.PlanetInfo.AddWeightedTownSpawn(System.Func{UnityEngine.Vector3,UnityEngine.GameObject[]},System.Int32)">
             <summary>
             Adds a weighted spawn to the town spawn slots.
             </summary>
@@ -4440,6 +4695,16 @@
         <member name="M:GadgetCore.API.Registry`3.GetEntry(System.String)">
             <summary>
             Gets the registry entry with the given RegistryName
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.Registry`3.TryGetEntry(System.Int32,`1@)">
+            <summary>
+            Tries to get the registry entry with the given ID
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.Registry`3.TryGetEntry(System.String,`1@)">
+            <summary>
+            Tries to get the registry entry with the given RegistryName
             </summary>
         </member>
         <member name="P:GadgetCore.API.Registry`3.Item(System.Int32)">
@@ -4907,6 +5172,11 @@
             Indicates whether the console should show debug messages.
             </summary>
         </member>
+        <member name="P:GadgetCore.GadgetConsole.Console">
+            <summary>
+            The Console object in the scene
+            </summary>
+        </member>
         <member name="F:GadgetCore.GadgetConsole.InputField">
             <summary>
             The text field where input is entered into the console.
@@ -5005,6 +5275,11 @@
         <member name="M:GadgetCore.GadgetConsole.SendConsoleMessage(System.String,System.String,System.Boolean)">
             <summary>
             Sends a message to the console, as if it were typed by the player. Can trigger commands. If <paramref name="printCommandFeedback"/> is false, then response feedback from commands will be supressed.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.GadgetConsole.IsOperator(System.String)">
+            <summary>
+            Returns whether the given player name is an operator.
             </summary>
         </member>
         <member name="M:GadgetCore.GadgetConsole.ParseArgs(System.String)">
@@ -5174,6 +5449,41 @@
         <member name="M:GadgetCore.CoreMod.GadgetCoreMod.GetDesc">
             <summary>
             Returns GadgetCore's description.
+            </summary>
+        </member>
+        <member name="T:GadgetCore.CoroutineHooker">
+            <summary>
+            A simple object that always persists in the scene, ideal for attaching coroutines to.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.CoroutineHooker.StartCoroutine(System.Collections.IEnumerator)">
+            <summary>
+            Starts a coroutine on the singleton object.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.CoroutineHooker.StartCoroutine(System.String)">
+            <summary>
+            Starts a coroutine on the singleton object.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.CoroutineHooker.StartCoroutine(System.String,System.Object)">
+            <summary>
+            Starts a coroutine on the singleton object.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.CoroutineHooker.StopCoroutine(System.String)">
+            <summary>
+            Stops a coroutine on the singleton object.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.CoroutineHooker.StopCoroutine(System.Collections.IEnumerator)">
+            <summary>
+            Stops a coroutine on the singleton object.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.CoroutineHooker.StopCoroutine(UnityEngine.Coroutine)">
+            <summary>
+            Stops a coroutine on the singleton object.
             </summary>
         </member>
         <member name="T:GadgetCore.GadgetCoreConfig">
@@ -5491,6 +5801,11 @@
         <member name="M:GadgetCore.Loader.GadgetModFile.Dispose">
             <summary>
             Disposes of this temporary file reference.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Loader.GadgetModFile.DisposeOnCondition(System.Func{System.Boolean})">
+            <summary>
+            Disposes of this temporary file reference after a certain condition is fulfilled.
             </summary>
         </member>
         <member name="T:GadgetCore.Loader.GadgetMods">
@@ -5940,8 +6255,42 @@
         </member>
         <member name="M:GadgetCore.Util.ReflectionUtils.GetValue``1(System.Reflection.FieldInfo,System.Object)">
             <summary>
-            Gets the value of this <see cref="T:System.Reflection.FieldInfo"/>
+            Gets the value of this <see cref="T:System.Reflection.FieldInfo"/>. Uses caching with <see cref="M:GadgetCore.Util.ReflectionUtils.CreateGetter(System.Reflection.FieldInfo)"/>
             </summary>
+        </member>
+        <member name="M:GadgetCore.Util.ReflectionUtils.GetValue(System.Reflection.FieldInfo,System.Object)">
+            <summary>
+            Gets the value of this <see cref="T:System.Reflection.FieldInfo"/>. Uses caching with <see cref="M:GadgetCore.Util.ReflectionUtils.CreateGetter(System.Reflection.FieldInfo)"/>
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.ReflectionUtils.SetValue(System.Reflection.FieldInfo,System.Object,System.Object)">
+            <summary>
+            Sets the value of this <see cref="T:System.Reflection.FieldInfo"/>. Uses caching with <see cref="M:GadgetCore.Util.ReflectionUtils.CreateSetter(System.Reflection.FieldInfo)"/>
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.ReflectionUtils.GetFieldValue``1(System.Object,System.String)">
+            <summary>
+            Gets the value of a field with the specified name and parameters.
+            </summary>
+            <param name="type">The object instance to invoke upon.</param>
+            <param name="fieldName">The name of the field to invoke.</param>
+            <returns>The value contained within the field.</returns>
+        </member>
+        <member name="M:GadgetCore.Util.ReflectionUtils.GetFieldValue(System.Object,System.String)">
+            <summary>
+            Gets the value of a field with the specified name and parameters.
+            </summary>
+            <param name="type">The object instance to invoke upon.</param>
+            <param name="fieldName">The name of the field to invoke.</param>
+            <returns>The value contained within the field.</returns>
+        </member>
+        <member name="M:GadgetCore.Util.ReflectionUtils.SetFieldValue(System.Object,System.String,System.Object)">
+            <summary>
+            Gets the value of a field with the specified name and parameters.
+            </summary>
+            <param name="type">The object instance to invoke upon.</param>
+            <param name="fieldName">The name of the field to invoke.</param>
+            <param name="value">The value to set to the field.</param>
         </member>
         <member name="M:GadgetCore.Util.ReflectionUtils.InvokeMethod``1(System.Object,System.String,System.Object[])">
             <summary>
@@ -5980,6 +6329,46 @@
             <param name="generics">The generic types that the target method uses</param>
             <param name="parameters">The parameters to run the method with.</param>
             <returns>The value returned by the invoked method.</returns>
+        </member>
+        <member name="M:GadgetCore.Util.ReflectionUtils.CreateInvoker``1(System.Reflection.MethodInfo,System.Object)">
+            <summary>
+            Creates an invoker delegate for the given MethodInfo, allowing you to repeatedly invoke it without repeated calls to MethodInfo's Invoke method.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.ReflectionUtils.CreateInvoker(System.Reflection.MethodInfo,System.Object)">
+            <summary>
+            Creates an invoker delegate for the given MethodInfo, allowing you to repeatedly invoke it without repeated calls to MethodInfo's Invoke method.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.ReflectionUtils.CreateGetter(System.Reflection.FieldInfo)">
+            <summary>
+            Creates a getter for the given FieldInfo, allowing you to repeatedly get its value without repeated calls to GetValue
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.ReflectionUtils.CreateGetter``1(System.Reflection.FieldInfo)">
+            <summary>
+            Creates a getter for the given FieldInfo, allowing you to repeatedly get its value without repeated calls to GetValue
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.ReflectionUtils.CreateGetter``2(System.Reflection.FieldInfo)">
+            <summary>
+            Creates a getter for the given FieldInfo, allowing you to repeatedly get its value without repeated calls to GetValue
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.ReflectionUtils.CreateSetter(System.Reflection.FieldInfo)">
+            <summary>
+            Creates a setter for the given FieldInfo, allowing you to repeatedly set its value without repeated calls to SetValue
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.ReflectionUtils.CreateSetter``1(System.Reflection.FieldInfo)">
+            <summary>
+            Creates a setter for the given FieldInfo, allowing you to repeatedly set its value without repeated calls to SetValue
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.ReflectionUtils.CreateSetter``2(System.Reflection.FieldInfo)">
+            <summary>
+            Creates a setter for the given FieldInfo, allowing you to repeatedly set its value without repeated calls to SetValue
+            </summary>
         </member>
         <member name="T:GadgetCore.Util.TopoSort">
             <summary>

@@ -72,7 +72,6 @@ namespace GadgetCore
                 }
                 if (isCompatible && modCount != splitModList.Length)
                 {
-                    GadgetCore.CoreLogger.Log(modCount + ":" + splitModList.Length);
                     isCompatible = false;
                 }
                 if (isCompatible)

@@ -4,6 +4,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using GadgetCore.Util;
 
 namespace GadgetCore.Patches
 {
@@ -29,11 +30,15 @@ namespace GadgetCore.Patches
         [HarmonyPostfix]
         public static void Postfix(GameScript __instance)
         {
+            for (int i = 0; i <= 3; i++)
+            {
+                GadgetCoreAPI.unlockedVanillaStationRecipes[i] = new HashSet<int>(PreviewLabs.PlayerPrefs.GetString("craftMenu" + i + "unlocks")?.Split(',').Select(x => int.TryParse(x, out int val) ? (int?)val : null).Where(x => x.HasValue).Select(x => x.Value) ?? new int[0]);
+            }
             foreach (MenuInfo menu in MenuRegistry.Singleton)
             {
                 if (menu is CraftMenuInfo craftMenu)
                 {
-                    craftMenu.unlockedRecipes = new HashSet<int>(PlayerPrefs.GetString("craftMenu" + craftMenu.ID + "unlocks")?.Split(',').Select(x => int.TryParse(x, out int val) ? (int?)val : null).Where(x => x.HasValue).Select(x => x.Value)) ?? new HashSet<int>();
+                    craftMenu.unlockedRecipes = new HashSet<int>(PreviewLabs.PlayerPrefs.GetString("craftMenu" + craftMenu.ID + "unlocks")?.Split(',').Select(x => int.TryParse(x, out int val) ? (int?)val : null).Where(x => x.HasValue).Select(x => x.Value) ?? new int[0]);
                 }
             }
             foreach (PlanetInfo planet in PlanetRegistry.Singleton)

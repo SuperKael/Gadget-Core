@@ -217,8 +217,9 @@
     <None Include="TemplateGadgetMod\TemplateGadgetMod.cs" />
   </ItemGroup>
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-	  <Delete Files="$(TargetDir)$(AssemblyName).zip" />
+	<Delete Files="$(TargetDir)$(AssemblyName).zip" />
+	<MakeDir Directories="$(TargetDir)\Mods\" />
     <Exec Command="&quot;C:\Program Files\7-Zip\7z&quot; a -y -tzip &quot;$(TargetDir)$(AssemblyName).zip&quot; &quot;$(TargetDir)*&quot; -mx5 -x!*.xml" />
-	  <Copy SourceFiles="$(TargetDir)$(AssemblyName).zip" DestinationFiles="..\Gadget Core Installer\Resources\$(AssemblyName).zip" />
+	<Copy SourceFiles="$(TargetDir)$(AssemblyName).zip" DestinationFiles="..\Gadget Core Installer\Resources\$(AssemblyName).zip" />
   </Target>
 </Project>

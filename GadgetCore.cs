@@ -101,6 +101,7 @@ namespace GadgetCore
             {
                 CoreLogger = new GadgetLogger("GadgetCore", "Core");
                 CoreLogger.Log("GadgetCore v" + GadgetCoreAPI.FULL_VERSION + " Initializing!");
+                Debug.Log("GadgetCore v" + GadgetCoreAPI.FULL_VERSION);
             }
             catch (Exception e)
             {
@@ -231,7 +232,9 @@ namespace GadgetCore
                 GadgetLoader.LoadAllMods();
                 DontDestroyOnLoad(new GameObject("GadgetCore", typeof(GadgetCore)));
                 CoreLogger.LogConsole("GadgetCore v" + GadgetCoreAPI.FULL_VERSION + " Initialized!");
+#pragma warning disable CS0162 // Unreachable code detected
                 if (GadgetCoreAPI.IS_BETA) CoreLogger.LogWarning("You are currently running a beta version of GadgetCore! Be prepared for bugs!");
+#pragma warning restore CS0162 // Unreachable code detected
             }
             catch (Exception e)
             {
@@ -354,6 +357,7 @@ namespace GadgetCore
             GameRegistry.RegisterRegistry(TileRegistry.Singleton);
             GameRegistry.RegisterRegistry(EntityRegistry.Singleton);
             GameRegistry.RegisterRegistry(MenuRegistry.Singleton);
+            GameRegistry.RegisterRegistry(ObjectRegistry.Singleton);
             GameRegistry.RegisterRegistry(PlanetRegistry.Singleton);
 
             GadgetCoreAPI.MissingTexSprite = GadgetCoreAPI.AddTextureToSheet(GadgetCoreAPI.LoadTexture2D("missing_tex"));

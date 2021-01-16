@@ -159,6 +159,40 @@ namespace GadgetCore.API
         }
 
         /// <summary>
+        /// Tries to get the registry entry with the given ID
+        /// </summary>
+        public bool TryGetEntry(int id, out E entry)
+        {
+            if (HasEntry(id))
+            {
+                entry = IDRegistry[id];
+                return true;
+            }
+            else
+            {
+                entry = null;
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Tries to get the registry entry with the given RegistryName
+        /// </summary>
+        public bool TryGetEntry(string name, out E entry)
+        {
+            if (HasEntry(name))
+            {
+                entry = NameRegistry[name];
+                return true;
+            }
+            else
+            {
+                entry = null;
+                return false;
+            }
+        }
+
+        /// <summary>
         /// Equivalent to calling <see cref="GetEntry(int)"/>
         /// </summary>
         public E this[int id]

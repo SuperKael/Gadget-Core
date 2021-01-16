@@ -37,7 +37,7 @@ namespace GadgetCore.Patches
                         InstanceTracker.GameScript.UpdateMana();
                     }
                     __instance.GetComponent<AudioSource>().PlayOneShot(__instance.critSound, Menuu.soundLevel / 10f);
-                    Object.Instantiate<GameObject>(__instance.crit, __instance.transform.position, Quaternion.identity);
+                    Object.Instantiate((Object)__instance.crit, __instance.transform.position, Quaternion.identity);
                     array[0] = weapon.MultiplyCrit(player, (int)array[0]);
                 }
                 if (GameScript.debugMode)

@@ -117,6 +117,10 @@ namespace GadgetCore.API
         /// The Materials associated with this planet's background images. There should be 4. May be null.
         /// </summary>
         public virtual Material[] BackgroundImageMats { get; protected set; }
+        /// <summary>
+        /// The background music that plays when at this Planet.
+        /// </summary>
+        public virtual AudioClip BackgroundMusic { get; protected set; }
 
         /// <summary>
         /// The number of portal uses the player has for this planet.
@@ -155,16 +159,16 @@ namespace GadgetCore.API
         internal int m_Relics;
 
         /// <summary>
-        /// Weighted list of possible spawns (by resources paths) in world spawn slots.
+        /// Weighted list of possible spawn delegates in world spawn slots.
         /// </summary>
-        protected List<Tuple<string, int>> weightedWorldSlotSpawns;
+        protected List<Tuple<Func<Vector3, GameObject[]>, int>> weightedWorldSlotSpawns;
         /// <summary>
-        /// Weighted list of possible spawns (by resources paths) in town spawn slots.
+        /// Weighted list of possible spawn delegates in town spawn slots.
         /// </summary>
-        protected List<Tuple<string, int>> weightedTownSlotSpawns;
+        protected List<Tuple<Func<Vector3, GameObject[]>, int>> weightedTownSlotSpawns;
 
-        private string[] weightedWorldSlotSpawnsCache;
-        private string[] weightedTownSlotSpawnsCache;
+        private Func<Vector3, GameObject[]>[] weightedWorldSlotSpawnsCache;
+        private Func<Vector3, GameObject[]>[] weightedTownSlotSpawnsCache;
 
         /// <summary>
         /// Use to create a new PlanetInfo. Make sure to call Register on it to register your Planet.
@@ -174,6 +178,18 @@ namespace GadgetCore.API
             this.Type = Type;
             this.Name = Name;
             this.WeightedExitPortalIDs = WeightedExitPortalIDs?.ToList();
+            BackgroundMusic = null;
+        }
+
+        /// <summary>
+        /// Use to create a new PlanetInfo. Make sure to call Register on it to register your Planet.
+        /// </summary>
+        public PlanetInfo(PlanetType Type, string Name, Tuple<int, int>[] WeightedExitPortalIDs, AudioClip BackgroundMusic)
+        {
+            this.Type = Type;
+            this.Name = Name;
+            this.WeightedExitPortalIDs = WeightedExitPortalIDs?.ToList();
+            this.BackgroundMusic = BackgroundMusic;
         }
 
         /// <summary>
@@ -424,6 +440,11 @@ namespace GadgetCore.API
                 }
             }
 
+            if (BackgroundMusic != null)
+            {
+                GadgetCoreAPI.AddCustomResource("Au/biome" + ID, BackgroundMusic);
+            }
+
             for (int i = 0; i < WeightedExitPortalIDs.Count; i++)
             {
                 if (WeightedExitPortalIDs[i].Item1 == -1) WeightedExitPortalIDs[i] = Tuple.Create(ID, WeightedExitPortalIDs[i].Item2);
@@ -431,28 +452,94 @@ namespace GadgetCore.API
         }
 
         /// <summary>
+        /// Adds the weighted spawn event to <see cref="OnSpawnBiomeSlot"/>
+        /// </summary>
+        protected virtual void AddWeightedBiomeSpawnEvent()
+        {
+            weightedWorldSlotSpawns = new List<Tuple<Func<Vector3, GameObject[]>, int>>();
+            OnSpawnBiomeSlot += (Chunk c, Vector3 pos) =>
+            {
+                if (weightedWorldSlotSpawnsCache == null)
+                {
+                    List<Func<Vector3, GameObject[]>> weightedWorldSlotSpawnsCacheList = new List<Func<Vector3, GameObject[]>>();
+                    foreach (Tuple<Func<Vector3, GameObject[]>, int> spawn in weightedWorldSlotSpawns)
+                    {
+                        weightedWorldSlotSpawnsCacheList.AddRange(Enumerable.Repeat(spawn.Item1, spawn.Item2));
+                    }
+                    weightedWorldSlotSpawnsCache = weightedWorldSlotSpawnsCacheList.ToArray();
+                }
+                return weightedWorldSlotSpawnsCache[UnityEngine.Random.Range(0, weightedWorldSlotSpawnsCache.Length)](pos);
+            };
+        }
+
+        /// <summary>
+        /// Adds the weighted spawn event to <see cref="OnSpawnBiomeSlot"/>
+        /// </summary>
+        protected virtual void AddWeightedTownSpawnEvent()
+        {
+            weightedTownSlotSpawns = new List<Tuple<Func<Vector3, GameObject[]>, int>>();
+            OnSpawnTownSlot += (Chunk c, Vector3 pos) =>
+            {
+                if (weightedTownSlotSpawnsCache == null)
+                {
+                    List<Func<Vector3, GameObject[]>> weightedTownSlotSpawnsCacheList = new List<Func<Vector3, GameObject[]>>();
+                    foreach (Tuple<Func<Vector3, GameObject[]>, int> spawn in weightedTownSlotSpawns)
+                    {
+                        weightedTownSlotSpawnsCacheList.AddRange(Enumerable.Repeat(spawn.Item1, spawn.Item2));
+                    }
+                    weightedTownSlotSpawnsCache = weightedTownSlotSpawnsCacheList.ToArray();
+                }
+                return weightedTownSlotSpawnsCache[UnityEngine.Random.Range(0, weightedTownSlotSpawnsCache.Length)](pos);
+            };
+        }
+
+        /// <summary>
+        /// Adds a weighted spawn to the world spawn slots.
+        /// </summary>
+        public virtual void AddWeightedWorldSpawn(EntityInfo entityInfo, int weight)
+        {
+            if (weightedWorldSlotSpawns == null) AddWeightedBiomeSpawnEvent();
+            weightedWorldSlotSpawns.Add(Tuple.Create<Func<Vector3, GameObject[]>, int>((pos) => new GameObject[] { (GameObject)Network.Instantiate((GameObject)Resources.Load(entityInfo.ResourcePath), pos, Quaternion.identity, 0) }, weight));
+            weightedWorldSlotSpawnsCache = null;
+        }
+
+        /// <summary>
+        /// Adds a weighted spawn to the world spawn slots.
+        /// </summary>
+        public virtual void AddWeightedWorldSpawn(ObjectInfo objectInfo, int weight)
+        {
+            if (weightedWorldSlotSpawns == null) AddWeightedBiomeSpawnEvent();
+            weightedWorldSlotSpawns.Add(Tuple.Create<Func<Vector3, GameObject[]>, int>((pos) => new GameObject[] { (GameObject)Network.Instantiate((GameObject)Resources.Load(objectInfo.ResourcePath), pos, Quaternion.identity, 0) }, weight));
+            weightedWorldSlotSpawnsCache = null;
+        }
+
+        /// <summary>
         /// Adds a weighted spawn to the world spawn slots.
         /// </summary>
         public virtual void AddWeightedWorldSpawn(string resourcePath, int weight)
         {
-            if (weightedWorldSlotSpawns == null)
-            {
-                weightedWorldSlotSpawns = new List<Tuple<string, int>>();
-                OnSpawnBiomeSlot += (Chunk c, Vector3 pos) =>
-                {
-                    if (weightedWorldSlotSpawnsCache == null)
-                    {
-                        List<string> weightedWorldSlotSpawnsCacheList = new List<string>();
-                        foreach (Tuple<string, int> spawn in weightedWorldSlotSpawns)
-                        {
-                            weightedWorldSlotSpawnsCacheList.AddRange(Enumerable.Repeat(spawn.Item1, spawn.Item2));
-                        }
-                        weightedWorldSlotSpawnsCache = weightedWorldSlotSpawnsCacheList.ToArray();
-                    }
-                    return new GameObject[] { (GameObject)Network.Instantiate((GameObject)Resources.Load(weightedWorldSlotSpawnsCache[UnityEngine.Random.Range(0, weightedWorldSlotSpawnsCache.Length)]), pos, Quaternion.identity, 0) };
-                };
-            }
-            weightedWorldSlotSpawns.Add(Tuple.Create(resourcePath, weight));
+            if (weightedWorldSlotSpawns == null) AddWeightedBiomeSpawnEvent();
+            weightedWorldSlotSpawns.Add(Tuple.Create<Func<Vector3, GameObject[]>, int>((pos) => new GameObject[] { (GameObject)Network.Instantiate((GameObject)Resources.Load(resourcePath), pos, Quaternion.identity, 0) }, weight));
+            weightedWorldSlotSpawnsCache = null;
+        }
+
+        /// <summary>
+        /// Adds a weighted spawn to the world spawn slots.
+        /// </summary>
+        public virtual void AddWeightedWorldSpawn(Func<Vector3, GameObject> spawnDelegate, int weight)
+        {
+            if (weightedWorldSlotSpawns == null) AddWeightedBiomeSpawnEvent();
+            weightedWorldSlotSpawns.Add(Tuple.Create<Func<Vector3, GameObject[]>, int>((pos) => new GameObject[] { spawnDelegate(pos) }, weight));
+            weightedWorldSlotSpawnsCache = null;
+        }
+
+        /// <summary>
+        /// Adds a weighted spawn to the world spawn slots.
+        /// </summary>
+        public virtual void AddWeightedWorldSpawn(Func<Vector3, GameObject[]> spawnDelegate, int weight)
+        {
+            if (weightedWorldSlotSpawns == null) AddWeightedBiomeSpawnEvent();
+            weightedWorldSlotSpawns.Add(Tuple.Create(spawnDelegate, weight));
             weightedWorldSlotSpawnsCache = null;
         }
 
@@ -461,24 +548,28 @@ namespace GadgetCore.API
         /// </summary>
         public virtual void AddWeightedTownSpawn(string resourcePath, int weight)
         {
-            if (weightedTownSlotSpawns == null)
-            {
-                weightedTownSlotSpawns = new List<Tuple<string, int>>();
-                OnSpawnTownSlot += (Chunk c, Vector3 pos) =>
-                {
-                    if (weightedTownSlotSpawnsCache == null)
-                    {
-                        List<string> weightedTownSlotSpawnsCacheList = new List<string>();
-                        foreach (Tuple<string, int> spawn in weightedTownSlotSpawns)
-                        {
-                            weightedTownSlotSpawnsCacheList.AddRange(Enumerable.Repeat(spawn.Item1, spawn.Item2));
-                        }
-                        weightedTownSlotSpawnsCache = weightedTownSlotSpawnsCacheList.ToArray();
-                    }
-                    return new GameObject[] { (GameObject)Network.Instantiate((GameObject)Resources.Load(weightedTownSlotSpawnsCache[UnityEngine.Random.Range(0, weightedTownSlotSpawnsCache.Length)]), pos, Quaternion.identity, 0) };
-                };
-            }
-            weightedTownSlotSpawns.Add(Tuple.Create(resourcePath, weight));
+            if (weightedTownSlotSpawns == null) AddWeightedTownSpawnEvent();
+            weightedTownSlotSpawns.Add(Tuple.Create<Func<Vector3, GameObject[]>, int>((pos) => new GameObject[] { (GameObject)Network.Instantiate((GameObject)Resources.Load(resourcePath), pos, Quaternion.identity, 0) }, weight));
+            weightedTownSlotSpawnsCache = null;
+        }
+
+        /// <summary>
+        /// Adds a weighted spawn to the town spawn slots.
+        /// </summary>
+        public virtual void AddWeightedTownSpawn(Func<Vector3, GameObject> spawnDelegate, int weight)
+        {
+            if (weightedTownSlotSpawns == null) AddWeightedTownSpawnEvent();
+            weightedTownSlotSpawns.Add(Tuple.Create<Func<Vector3, GameObject[]>, int>((pos) => new GameObject[] { spawnDelegate(pos) }, weight));
+            weightedTownSlotSpawnsCache = null;
+        }
+
+        /// <summary>
+        /// Adds a weighted spawn to the town spawn slots.
+        /// </summary>
+        public virtual void AddWeightedTownSpawn(Func<Vector3, GameObject[]> spawnDelegate, int weight)
+        {
+            if (weightedTownSlotSpawns == null) AddWeightedTownSpawnEvent();
+            weightedTownSlotSpawns.Add(Tuple.Create(spawnDelegate, weight));
             weightedTownSlotSpawnsCache = null;
         }
 

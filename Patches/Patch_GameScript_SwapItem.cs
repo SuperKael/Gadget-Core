@@ -81,7 +81,7 @@ namespace GadgetCore.Patches
                         GameScript.equippedIDs[3] = ___inventory[slot].id;
                     }
                     int[] gearStats = GadgetCoreAPI.GetGearStats(___inventory[slot]).GetStatArray();
-                    int[] oldStats = GadgetCoreAPI.equipedGearStats[slot - 36];
+                    int[] oldStats = GadgetCoreAPI.equippedGearStats[slot - 36];
                     for (int s = 0; s < 6; s++)
                     {
                         if (oldStats[s] > 0)
@@ -99,7 +99,7 @@ namespace GadgetCore.Patches
                             __instance.txtPlayerStat[s].GetComponent<Animation>().Play();
                         }
                     }
-                    GadgetCoreAPI.equipedGearStats[slot - 36] = gearStats;
+                    GadgetCoreAPI.equippedGearStats[slot - 36] = gearStats;
                     RefreshStats.Invoke(__instance, new object[] { });
                     RefreshMODS.Invoke(__instance, new object[] { });
                     __instance.UpdateHP();

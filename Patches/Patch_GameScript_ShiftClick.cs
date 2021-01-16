@@ -116,7 +116,7 @@ namespace GadgetCore.Patches
                                 {
                                     GameScript.equippedIDs[5] = 0;
                                 }
-                                int[] stats = GadgetCoreAPI.equipedGearStats[slot - 36];
+                                int[] stats = GadgetCoreAPI.equippedGearStats[slot - 36];
                                 for (int s = 0; s < 6; s++)
                                 {
                                     if (stats[s] > 0)
@@ -125,7 +125,7 @@ namespace GadgetCore.Patches
                                         __instance.txtPlayerStat[s].GetComponent<Animation>().Play();
                                     }
                                 }
-                                GadgetCoreAPI.equipedGearStats[slot - 36] = new int[] { 0, 0, 0, 0, 0, 0 };
+                                GadgetCoreAPI.equippedGearStats[slot - 36] = new int[] { 0, 0, 0, 0, 0, 0 };
                                 typeof(GameScript).GetMethod("RefreshStats", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(__instance, new object[] { });
                                 Network.RemoveRPCs(MenuScript.playerAppearance.GetComponent<NetworkView>().viewID);
                                 MenuScript.playerAppearance.GetComponent<NetworkView>().RPC("UA", RPCMode.AllBuffered, new object[]

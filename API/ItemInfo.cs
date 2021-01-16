@@ -127,7 +127,7 @@ namespace GadgetCore.API
         /// </summary>
         public ItemInfo(ItemType Type, string Name, string Desc, Texture Tex, int Value = -1, EquipStats Stats = default, Texture HeldTex = null, Texture HeadTex = null, Texture BodyTex = null, Texture ArmTex = null)
         {
-            Tex.filterMode = FilterMode.Point;
+            if (Tex != null) Tex.filterMode = FilterMode.Point;
             this.Type = Type;
             this.Name = Name;
             this.Desc = Desc;
@@ -168,6 +168,16 @@ namespace GadgetCore.API
             this.CritChanceBonus = CritChanceBonus;
             this.CritPowerBonus = CritPowerBonus;
             return this;
+        }
+
+        /// <summary>
+        /// Registers this ItemInfo to the ItemRegistry.
+        /// </summary>
+        /// <param name="preferredID">If specified, will use this registry ID.</param>
+        /// <param name="overrideExisting">If false, will not register if the preferred ID is already used. Ignored if no preferred ID is specified.</param>
+        public virtual ItemInfo Register(int preferredID = -1, bool overrideExisting = true)
+        {
+            return RegisterInternal(Name, preferredID, overrideExisting) as ItemInfo;
         }
 
         /// <summary>
@@ -281,11 +291,11 @@ namespace GadgetCore.API
                 {
                     Value = 9999;
                 }
-                else if ((Type & (ItemType.EQUIP_MASK | ItemType.TYPE_MASK)) == ItemType.LOOT)
+                else if ((Type & (ItemType.EMBLEM | ItemType.EQUIPABLE)) == ItemType.LOOT)
                 {
                     Value = 2;
                 }
-                else if ((Type & (ItemType.EQUIP_MASK | ItemType.TYPE_MASK)) == ItemType.EMBLEM)
+                else if ((Type & (ItemType.EMBLEM | ItemType.EQUIPABLE)) == ItemType.EMBLEM)
                 {
                     Value = 15;
                 }

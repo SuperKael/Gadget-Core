@@ -26,7 +26,10 @@ namespace GadgetCore
 
         private static GadgetLogger Logger = new GadgetLogger("GadgetCore", "Console");
 
-        private static GadgetConsole console;
+        /// <summary>
+        /// The Console object in the scene
+        /// </summary>
+        public static GadgetConsole Console { get; private set; }
         private static List<GadgetConsoleMessage> messages = new List<GadgetConsoleMessage>();
         private static Dictionary<string, ConsoleCommand> commands = new Dictionary<string, ConsoleCommand>(StringComparer.OrdinalIgnoreCase);
         private static Dictionary<string, bool> isOperatorOnly = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
@@ -63,10 +66,10 @@ namespace GadgetCore
         {
             GadgetCoreAPI.FreezeInput("Gadget Console Open");
             wasOpen = true;
-            console.gameObject.SetActive(true);
-            console.AlwaysActivePanel.gameObject.SetActive(false);
-            console.InputField.ActivateInputField();
-            console.InputField.Select();
+            Console.gameObject.SetActive(true);
+            Console.AlwaysActivePanel.gameObject.SetActive(false);
+            Console.InputField.ActivateInputField();
+            Console.InputField.Select();
             historyIndex = messageHistory.Count;
         }
 
@@ -77,10 +80,10 @@ namespace GadgetCore
         {
             GadgetCoreAPI.DelayUnfreezeInput("Gadget Console Open");
             wasOpen = false;
-            console.gameObject.SetActive(false);
-            console.AlwaysActivePanel.gameObject.SetActive(true);
-            console.InputField.text = "";
-            console.InputField.DeactivateInputField();
+            Console.gameObject.SetActive(false);
+            Console.AlwaysActivePanel.gameObject.SetActive(true);
+            Console.InputField.text = "";
+            Console.InputField.DeactivateInputField();
         }
 
         /// <summary>
@@ -88,22 +91,22 @@ namespace GadgetCore
         /// </summary>
         public static void ToggleConsole()
         {
-            console.gameObject.SetActive(!console.gameObject.activeSelf);
-            console.AlwaysActivePanel.gameObject.SetActive(!console.gameObject.activeSelf);
-            if (console.gameObject.activeSelf)
+            Console.gameObject.SetActive(!Console.gameObject.activeSelf);
+            Console.AlwaysActivePanel.gameObject.SetActive(!Console.gameObject.activeSelf);
+            if (Console.gameObject.activeSelf)
             {
                 GadgetCoreAPI.FreezeInput("Gadget Console Open");
                 wasOpen = true;
-                console.InputField.ActivateInputField();
-                console.InputField.Select();
+                Console.InputField.ActivateInputField();
+                Console.InputField.Select();
                 historyIndex = messageHistory.Count;
             }
             else
             {
                 GadgetCoreAPI.DelayUnfreezeInput("Gadget Console Open");
                 wasOpen = false;
-                console.InputField.text = "";
-                console.InputField.DeactivateInputField();
+                Console.InputField.text = "";
+                Console.InputField.DeactivateInputField();
             }
         }
 
@@ -112,7 +115,7 @@ namespace GadgetCore
         /// </summary>
         public static bool IsOpen()
         {
-            return console.gameObject.activeSelf;
+            return Console.gameObject.activeSelf;
         }
         /// <summary>
         /// Returns a value indicating whether the console is was open one frame ago.
@@ -195,7 +198,7 @@ namespace GadgetCore
                 messages[index] = message;
                 message.SendTime = Time.realtimeSinceStartup;
                 Text textComponent = new GameObject("Message " + messages.IndexOf(message) + ", sent at time: " + message.SendTime, typeof(RectTransform), typeof(CanvasRenderer), typeof(Text)).GetComponent<Text>();
-                textComponent.rectTransform.SetParent(console.TextPanel.transform);
+                textComponent.rectTransform.SetParent(Console.TextPanel.transform);
                 textComponent.rectTransform.anchorMin = new Vector2(0f, 1f);
                 textComponent.rectTransform.anchorMax = new Vector2(0f, 1f);
                 textComponent.rectTransform.offsetMin = new Vector2(0f, 0f);
@@ -260,7 +263,7 @@ namespace GadgetCore
         {
             if (message == null) return -1;
             if (!Debug && message.Severity == MessageSeverity.DEBUG) return -1;
-            if (console == null)
+            if (Console == null)
             {
                 queuedMessages.Add(message);
                 return -1;
@@ -274,7 +277,7 @@ namespace GadgetCore
             {
                 message.SendTime = Time.realtimeSinceStartup;
                 Text textComponent = new GameObject("Message " + messages.IndexOf(message) + ", sent at time: " + message.SendTime, typeof(RectTransform), typeof(CanvasRenderer), typeof(Text)).GetComponent<Text>();
-                textComponent.rectTransform.SetParent(i == 0 ? console.TextPanel.transform : console.AlwaysActivePanel.transform);
+                textComponent.rectTransform.SetParent(i == 0 ? Console.TextPanel.transform : Console.AlwaysActivePanel.transform);
                 textComponent.rectTransform.anchorMin = new Vector2(0f, 1f);
                 textComponent.rectTransform.anchorMax = new Vector2(0f, 1f);
                 textComponent.rectTransform.offsetMin = new Vector2(0f, 0f);
@@ -366,6 +369,14 @@ namespace GadgetCore
         }
 
         /// <summary>
+        /// Returns whether the given player name is an operator.
+        /// </summary>
+        public static bool IsOperator(string name)
+        {
+            return operators.Contains(name);
+        }
+
+        /// <summary>
         /// Parses the given text as a string of command arguments.
         /// </summary>
         public static string[] ParseArgs(string text)
@@ -405,7 +416,7 @@ namespace GadgetCore
         private void LateUpdate()
         {
             wasSelected = InputField.isFocused;
-            wasOpen = console.gameObject.activeSelf;
+            wasOpen = Console.gameObject.activeSelf;
         }
 
         private GadgetConsole()
@@ -444,7 +455,7 @@ namespace GadgetCore
                 }
             };
 
-            console = this;
+            Console = this;
             GadgetCoreAPI.RegisterKeyDownListener(KeyCode.Return, TextSubmitAction);
             GadgetCoreAPI.RegisterKeyDownListener(KeyCode.UpArrow, HistoryUpAction);
             GadgetCoreAPI.RegisterKeyDownListener(KeyCode.DownArrow, HistoryDownAction);
@@ -453,7 +464,7 @@ namespace GadgetCore
         [SuppressMessage("Code Quality", "IDE0051:Remove unused private members", Justification = "Unity Method")]
         private void OnDestroy()
         {
-            console = null;
+            Console = null;
             GadgetCoreAPI.UnregisterKeyDownListener(KeyCode.Return, TextSubmitAction);
             GadgetCoreAPI.UnregisterKeyDownListener(KeyCode.UpArrow, HistoryUpAction);
             GadgetCoreAPI.UnregisterKeyDownListener(KeyCode.DownArrow, HistoryDownAction);

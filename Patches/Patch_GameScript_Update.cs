@@ -8,6 +8,7 @@ using System.Reflection;
 using GadgetCore.Util;
 using System.IO;
 using System.Collections;
+using System;
 
 namespace GadgetCore.Patches
 {
@@ -18,13 +19,13 @@ namespace GadgetCore.Patches
         public static readonly MethodInfo RefreshSlot = typeof(GameScript).GetMethod("RefreshSlot", BindingFlags.NonPublic | BindingFlags.Instance);
 
         [HarmonyPrefix]
-        public static void Prefix(ref Item ___holdingItem, ref bool __state)
+        public static void Prefix(ref Item ___holdingItem, ref Item __state)
         {
-            __state = ___holdingItem.id != 0;
+            __state = GadgetCoreAPI.CopyItem(___holdingItem);
         }
 
         [HarmonyPostfix]
-        public static void Postfix(GameScript __instance, ref RaycastHit ___hit, ref int ___craftType, ref int ___slotID, ref bool ___shifting, ref Item ___holdingItem, ref Item[] ___inventory, ref Item[] ___craft, ref int ___curBlockSlot, ref ChunkWorld ___chunkWorld, ref ChunkWorld ___chunkWorldWall, ref bool __state)
+        public static void Postfix(GameScript __instance, ref RaycastHit ___hit, ref int ___craftType, ref int ___slotID, ref bool ___shifting, ref Item[] ___inventory, ref Item[] ___craft, ref int ___curBlockSlot, ref ChunkWorld ___chunkWorld, ref ChunkWorld ___chunkWorldWall, ref Item __state)
         {
             if (!GameScript.pausing && !GameScript.inventoryOpen && GameScript.buildMode && Input.GetMouseButtonDown(0) && ___inventory[___curBlockSlot].q > 0 && ItemRegistry.Singleton.HasEntry(___inventory[___curBlockSlot].id))
             {
@@ -122,35 +123,147 @@ namespace GadgetCore.Patches
                 {
                     if (___hit.transform.gameObject.layer == 16)
                     {
-                        if (___hit.transform.gameObject.tag == "craft" && MenuRegistry.Singleton[___craftType] is CraftMenuInfo craftMenu)
+                        if (___hit.transform.gameObject.tag == "craft")
                         {
-                            ___slotID = int.Parse(___hit.transform.gameObject.name);
-                            if (__state)
+                            if (MenuRegistry.Singleton[___craftType] is CraftMenuInfo craftMenu)
                             {
-                                Item holdingItem = ___holdingItem;
-                                Item[] craftItems = ___craft;
-                                int slotID = ___slotID;
-                                if (craftMenu.SlotValidators.Any(x => x(holdingItem, craftItems, slotID)))
+                                ___slotID = int.Parse(___hit.transform.gameObject.name);
+                                if (__state.id != 0)
                                 {
-                                    if (___craft[___slotID].id == ___holdingItem.id)
+                                    Item holdingItem = __state;
+                                    Item[] craftItems = ___craft;
+                                    int slotID = ___slotID;
+                                    if (craftMenu.SlotValidators.Any(x => x(holdingItem, craftItems, slotID)))
                                     {
-                                        __instance.InvokeMethod("CombineItemCraft", ___slotID);
+                                        if (___craft[___slotID].id == __state.id)
+                                        {
+                                            __instance.InvokeMethod("CombineItemCraft", ___slotID);
+                                        }
+                                        else if (___craft[___slotID].id == 0)
+                                        {
+                                            __instance.InvokeMethod("PlaceItemCraft", ___slotID);
+                                        }
                                     }
-                                    else if (___craft[___slotID].id == 0)
+                                }
+                                else if (___craft[___slotID].id != 0)
+                                {
+                                    if (!___shifting)
                                     {
-                                        __instance.InvokeMethod("PlaceItemCraft", ___slotID);
+                                        __instance.InvokeMethod("SelectItemCraft", ___slotID);
+                                    }
+                                    else if (___shifting && __instance.menuCraft.activeSelf)
+                                    {
+                                        __instance.StartCoroutine(__instance.InvokeMethod<IEnumerator>("ShiftClickCraft", ___slotID));
                                     }
                                 }
                             }
-                            else if (___craft[___slotID].id != 0)
+                            else if (___craftType == 0)
                             {
-                                if (!___shifting)
+                                ___slotID = int.Parse(___hit.transform.gameObject.name);
+                                if (__state.id != 0 && ___craft[___slotID].id != __state.id)
                                 {
-                                    __instance.InvokeMethod("SelectItemCraft", ___slotID);
+                                    if ((__state.id <= 100 || __state.id >= 200) && __instance.InvokeMethod<bool>("CanPlaceCraft", __state.id))
+                                    {
+                                        ItemType? itemType = ItemRegistry.GetItem(__state.id)?.Type;
+                                        if (itemType.HasValue && (itemType.Value & (ItemType.EMBLEM | ItemType.EQUIPABLE)) == ItemType.EMBLEM)
+                                        {
+                                            if (___craft[___slotID].id == 0)
+                                            {
+                                                __instance.InvokeMethod("PlaceItemCraft", ___slotID);
+                                            }
+                                            else
+                                            {
+                                                __instance.InvokeMethod("SwapItemCraft", ___slotID);
+                                            }
+                                        }
+                                    }
                                 }
-                                else if (___shifting && __instance.menuCraft.activeSelf)
+                            }
+                            else if (___craftType == 1)
+                            {
+                                ___slotID = int.Parse(___hit.transform.gameObject.name);
+                                if (__state.id != 0 && ___craft[___slotID].id != __state.id)
                                 {
-                                    __instance.StartCoroutine(__instance.InvokeMethod<IEnumerator>("ShiftClickCraft", ___slotID));
+                                    if ((__state.id <= 10 || __state.id >= 40) && __instance.InvokeMethod<bool>("CanPlaceCraft", __state.id))
+                                    {
+                                        ItemType? itemType = ItemRegistry.GetItem(__state.id)?.Type;
+                                        if (itemType.HasValue && (itemType.Value & (ItemType.EMBLEM | ItemType.EQUIPABLE)) == ItemType.LOOT && (itemType.Value & ItemType.ORGANIC) == ItemType.ORGANIC)
+                                        {
+                                            if (___craft[___slotID].id == 0)
+                                            {
+                                                __instance.InvokeMethod("PlaceItemCraft", ___slotID);
+                                            }
+                                            else
+                                            {
+                                                __instance.InvokeMethod("SwapItemCraft", ___slotID);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            else if (___craftType == 2)
+                            {
+                                ___slotID = int.Parse(___hit.transform.gameObject.name);
+                                if (__state.id != 0)
+                                {
+                                    if (___slotID == 0 && ___craft[___slotID].id != __state.id)
+                                    {
+                                        if (___craft[0].id == 0 &&
+                                            (__state.id < 1000 || __state.id >= 1006) && (__state.id < 450 || __state.id >= 456) &&
+                                            (__state.id < 500 || __state.id >= 506) && (__state.id < 600 || __state.id >= 612) &&
+                                            (__state.id < 550 || __state.id >= 562) && (__state.id < 350 || __state.id >= 362) &&
+                                            (__state.id < 400 || __state.id >= 412) && (__state.id < 300 || __state.id >= 312) &&
+                                            (__state.id < 700 || __state.id >= 712) && (__state.id < 800 || __state.id >= 812))
+                                        {
+                                            Item holdingItem = __state;
+                                            if (GadgetCoreAPI.ultimateForgeRecipes.Any(x => x.Key.Item1 == holdingItem.id))
+                                            {
+                                                if (__instance.InvokeMethod<int>("GetItemLevel", holdingItem.exp) >= 10)
+                                                {
+                                                    __instance.InvokeMethod("PlaceItemCraft", ___slotID);
+                                                }
+                                                else
+                                                {
+                                                    __instance.InvokeMethod("Error", 12);
+                                                }
+                                            }
+                                        }
+                                    }
+                                    else if (___slotID == 2)
+                                    {
+                                        if (___craft[2].id == 0 && (__state.id < 89 || __state.id >= 92))
+                                        {
+                                            Item holdingItem = __state;
+                                            if (GadgetCoreAPI.ultimateForgeRecipes.Any(x => x.Key.Item2 == holdingItem.id))
+                                            {
+                                                __instance.InvokeMethod("PlaceItemCraft", ___slotID);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            else if (___craftType == 3)
+                            {
+                                ___slotID = int.Parse(___hit.transform.gameObject.name);
+                                if (__state.id != 0 && ___craft[___slotID].id != __state.id)
+                                {
+                                    if (((__state.id <= 103 || __state.id >= 107) && (__state.id <= 113 || __state.id >= 117) &&
+                                        (__state.id <= 123 || __state.id >= 127) && (__state.id <= 133 || __state.id >= 137))
+                                        && __instance.InvokeMethod<bool>("CanPlaceCraft2", __state.id))
+                                    {
+                                        Item holdingItem = __state;
+                                        if (GadgetCoreAPI.creationMachineRecipes.Any(x => x.Key == holdingItem.id))
+                                        {
+                                            if (___craft[___slotID].id == 0)
+                                            {
+                                                __instance.InvokeMethod("PlaceItemCraft", ___slotID);
+                                            }
+                                            else
+                                            {
+                                                __instance.InvokeMethod("SwapItemCraft", ___slotID);
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -218,23 +331,26 @@ namespace GadgetCore.Patches
                 }
                 else if (Input.GetMouseButtonDown(1) && GameScript.inventoryOpen && Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out ___hit, 7f))
                 {
-                    if (___hit.transform.gameObject.layer == 16 && ___hit.transform.gameObject.tag == "craft" && MenuRegistry.Singleton.GetEntry(___craftType) is CraftMenuInfo craftMenu)
+                    if (___hit.transform.gameObject.layer == 16 && ___hit.transform.gameObject.tag == "craft")
                     {
-                        ___slotID = int.Parse(___hit.transform.gameObject.name);
-                        if (__state)
+                        if (MenuRegistry.Singleton.GetEntry(___craftType) is CraftMenuInfo craftMenu)
                         {
-                            Item holdingItem = ___holdingItem;
-                            Item[] craftItems = ___craft;
-                            int slotID = ___slotID;
-                            if (craftMenu.SlotValidators.Any(x => x(holdingItem, craftItems, slotID)))
+                            ___slotID = int.Parse(___hit.transform.gameObject.name);
+                            if (__state.id != 0)
                             {
-                                if (___craft[___slotID].id == 0 || (GadgetCoreAPI.CanItemsStack(___craft[___slotID], ___holdingItem) && ___craft[___slotID].q < 9999))
+                                Item holdingItem = __state;
+                                Item[] craftItems = ___craft;
+                                int slotID = ___slotID;
+                                if (craftMenu.SlotValidators.Any(x => x(holdingItem, craftItems, slotID)))
                                 {
-                                    __instance.InvokeMethod("PlaceOneItemCraft", ___slotID);
-                                }
-                                else
-                                {
-                                    __instance.InvokeMethod("SwapItemCraft", ___slotID);
+                                    if (___craft[___slotID].id == 0 || (GadgetCoreAPI.CanItemsStack(___craft[___slotID], __state) && ___craft[___slotID].q < 9999))
+                                    {
+                                        __instance.InvokeMethod("PlaceOneItemCraft", ___slotID);
+                                    }
+                                    else
+                                    {
+                                        __instance.InvokeMethod("SwapItemCraft", ___slotID);
+                                    }
                                 }
                             }
                         }
@@ -282,11 +398,19 @@ namespace GadgetCore.Patches
                     }
                 }
             }
+
             var p = TranspilerHelper.CreateProcessor(newCodes, generator);
+
             var forgeEmblemBlock = p.FindRefByInsn(new CodeInstruction(OpCodes.Call, "Void ForgeEmblem(Int32)"));
             p.InjectInsn(forgeEmblemBlock.GetRefByOffset(-21), new CodeInstruction(OpCodes.Brtrue, p.GetInsn(forgeEmblemBlock.GetRefByOffset(-20)).operand), false);
             p.RemoveInsns(forgeEmblemBlock.GetRefByOffset(-20), 17);
             p.RemoveInsns(forgeEmblemBlock.GetRefByOffset(1), 6);
+
+            var prismItemBlock = p.FindRefByInsn(new CodeInstruction(OpCodes.Call, "Void PrismItem(Int32)"));
+            p.InjectInsn(prismItemBlock.GetRefByOffset(-21), new CodeInstruction(OpCodes.Brtrue, p.GetInsn(prismItemBlock.GetRefByOffset(-20)).operand), false);
+            p.RemoveInsns(prismItemBlock.GetRefByOffset(-20), 17);
+            p.RemoveInsns(prismItemBlock.GetRefByOffset(1), 6);
+
             return p.GetInstructions();
         }
     }

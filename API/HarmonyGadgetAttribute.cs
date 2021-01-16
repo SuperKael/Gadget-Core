@@ -6,7 +6,7 @@ using System.Text;
 namespace GadgetCore.API
 {
     /// <summary>
-    /// Indicates what Gadget owns this patch. Required for use of GadgetCore's automatic Harmony patching.
+    /// Indicates what Gadget owns this patch. Required for the use of GadgetCore's automatic Harmony patching.
     /// </summary>
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
     public sealed class HarmonyGadgetAttribute : Attribute
@@ -27,7 +27,7 @@ namespace GadgetCore.API
         public HarmonyGadgetAttribute(string Gadget)
         {
             this.Gadget = Gadget;
-            this.RequiredGadgets = new string[0];
+            RequiredGadgets = new string[0];
         }
 
         /// <summary>

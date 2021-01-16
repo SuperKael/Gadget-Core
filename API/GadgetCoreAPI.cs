@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using UnityEngine;
 
 namespace GadgetCore.API
@@ -19,11 +20,11 @@ namespace GadgetCore.API
         /// <summary>
         /// The version numbers for this version of Gadget Core. You generally shouldn't access this directly, instead use <see cref="GetRawVersion()"/>
         /// </summary>
-        public const string RAW_VERSION = "2.0.0.4";
+        public const string RAW_VERSION = "2.0.1.0";
         /// <summary>
         /// A slightly more informative version. You generally shouldn't access this directly, instead use <see cref="GetFullVersion()"/>
         /// </summary>
-        public const string FULL_VERSION = "2.0.0.4";
+        public const string FULL_VERSION = "2.0.1.0";
         /// <summary>
         /// Indicates whether this version of GadgetCore is a beta version. You generally shouldn't access this directly, instead use <see cref="GetIsBeta()"/>
         /// </summary>
@@ -55,10 +56,16 @@ namespace GadgetCore.API
         internal static Dictionary<string, PlayerScript> playersByName = new Dictionary<string, PlayerScript>();
         internal static Dictionary<string, Action<object[]>> customRPCs = new Dictionary<string, Action<object[]>>();
         internal static Dictionary<int, Tuple<int, int>> emblemForgeRecipes = new Dictionary<int, Tuple<int, int>>();
+        internal static Dictionary<int, Tuple<int, int>> prismForgeRecipes = new Dictionary<int, Tuple<int, int>>();
+        internal static Dictionary<Tuple<int, int, int>, Tuple<Item, int>> gearForgeRecipes = new Dictionary<Tuple<int, int, int>, Tuple<Item, int>>();
+        internal static Dictionary<Tuple<int, int, int>, Tuple<Item, int>> alchemyStationRecipes = new Dictionary<Tuple<int, int, int>, Tuple<Item, int>>();
+        internal static Dictionary<Tuple<int, int>, int> ultimateForgeRecipes = new Dictionary<Tuple<int, int>, int>();
+        internal static Dictionary<int, Tuple<Item, int>> creationMachineRecipes = new Dictionary<int, Tuple<Item, int>>();
+        internal static HashSet<int>[] unlockedVanillaStationRecipes = new HashSet<int>[4];
         internal static List<SpriteSheetEntry> spriteSheetSprites = new List<SpriteSheetEntry>();
         internal static int spriteSheetSize = -1;
         internal static Texture2D spriteSheet;
-        internal static int[][] equipedGearStats = new int[9][];
+        internal static int[][] equippedGearStats = new int[9][];
         private static List<string> frozenInput = new List<string>();
 
         static GadgetCoreAPI()
@@ -524,25 +531,21 @@ namespace GadgetCore.API
                         if (rem - 15 > 0)
                         {
                             rem -= 15;
-                            GadgetCore.CoreLogger.LogConsole("15");
                             UnityEngine.Object.Instantiate(Resources.Load("exp/exp3"), pos, Quaternion.identity);
                         }
                         else if (rem - 10 > 0)
                         {
                             rem -= 10;
-                            GadgetCore.CoreLogger.LogConsole("10");
                             UnityEngine.Object.Instantiate(Resources.Load("exp/exp2"), pos, Quaternion.identity);
                         }
                         else if (rem - 5 > 0)
                         {
                             rem -= 5;
-                            GadgetCore.CoreLogger.LogConsole("5");
                             UnityEngine.Object.Instantiate(Resources.Load("exp/exp1"), pos, Quaternion.identity);
                         }
                         else
                         {
                             rem--;
-                            GadgetCore.CoreLogger.LogConsole("1");
                             UnityEngine.Object.Instantiate(Resources.Load("exp/exp0"), pos, Quaternion.identity);
                         }
                         yield return new WaitForSeconds(delay);
@@ -551,7 +554,6 @@ namespace GadgetCore.API
                 for (int i = 0; i < 20; i++)
                 {
                     ((GameObject)UnityEngine.Object.Instantiate(Resources.Load("exp/expCustom"), pos, Quaternion.identity)).GetComponentInChildren<EXPScript>().exp = exp / 20;
-                    GadgetCore.CoreLogger.LogConsole(exp / 20);
                     yield return new WaitForSeconds(delay);
                 }
             }
@@ -798,6 +800,62 @@ namespace GadgetCore.API
         public static void AddEmblemRecipe(int lootID, int emblemID, int lootCount = 10)
         {
             emblemForgeRecipes[lootID] = Tuple.Create(emblemID, lootCount);
+        }
+
+        /// <summary>
+        /// Adds a recipe to the Prism Forge.
+        /// </summary>
+        public static void AddPrismRecipe(int lootID, int prismID, int lootCount = 10)
+        {
+            prismForgeRecipes[lootID] = Tuple.Create(prismID, lootCount);
+        }
+
+        /// <summary>
+        /// Adds a recipe to the Gear Forge.
+        /// </summary>
+        public static void AddGearForgeRecipe(Tuple<int, int, int> ingredients, Item output, int outputQuantityVariation = 0)
+        {
+            if ((ItemRegistry.GetItem(ingredients.Item1).Type & (ItemType.EMBLEM | ItemType.EQUIPABLE)) != ItemType.EMBLEM ||
+                (ItemRegistry.GetItem(ingredients.Item2).Type & (ItemType.EMBLEM | ItemType.EQUIPABLE)) != ItemType.EMBLEM ||
+                (ItemRegistry.GetItem(ingredients.Item3).Type & (ItemType.EMBLEM | ItemType.EQUIPABLE)) != ItemType.EMBLEM ||
+                (ItemRegistry.GetItem(ingredients.Item1).Type & ItemType.TIER_MASK) != (ItemRegistry.GetItem(ingredients.Item2).Type & ItemType.TIER_MASK) ||
+                (ItemRegistry.GetItem(ingredients.Item2).Type & ItemType.TIER_MASK) != (ItemRegistry.GetItem(ingredients.Item3).Type & ItemType.TIER_MASK))
+            {
+                throw new InvalidOperationException("Cannot add a Gear Forge recipe for \"" + ItemRegistry.GetItem(output.id).Name + "\" that includes items that are not emblem items all of the same tier in it!");
+            }
+            gearForgeRecipes[ingredients] = Tuple.Create(output, outputQuantityVariation);
+        }
+
+        /// <summary>
+        /// Adds a recipe to the Alchemy Station.
+        /// </summary>
+        public static void AddAlchemyStationRecipe(Tuple<int, int, int> ingredients, Item output, int outputQuantityVariation = 0)
+        {
+            if ((ItemRegistry.GetItem(ingredients.Item1).Type & (ItemType.EMBLEM | ItemType.EQUIPABLE)) != ItemType.LOOT || (ItemRegistry.GetItem(ingredients.Item1).Type & ItemType.ORGANIC) != ItemType.ORGANIC ||
+                (ItemRegistry.GetItem(ingredients.Item2).Type & (ItemType.EMBLEM | ItemType.EQUIPABLE)) != ItemType.LOOT || (ItemRegistry.GetItem(ingredients.Item2).Type & ItemType.ORGANIC) != ItemType.ORGANIC ||
+                (ItemRegistry.GetItem(ingredients.Item3).Type & (ItemType.EMBLEM | ItemType.EQUIPABLE)) != ItemType.LOOT || (ItemRegistry.GetItem(ingredients.Item3).Type & ItemType.ORGANIC) != ItemType.ORGANIC ||
+                (ItemRegistry.GetItem(ingredients.Item1).Type & ItemType.TIER_MASK) != (ItemRegistry.GetItem(ingredients.Item2).Type & ItemType.TIER_MASK) ||
+                (ItemRegistry.GetItem(ingredients.Item2).Type & ItemType.TIER_MASK) != (ItemRegistry.GetItem(ingredients.Item3).Type & ItemType.TIER_MASK))
+            {
+                throw new InvalidOperationException("Cannot add an Alchemy Station recipe for \"" + ItemRegistry.GetItem(output.id).Name + "\" that includes items that are not organic or loot items all of the same tier in it!");
+            }
+            alchemyStationRecipes[ingredients] = Tuple.Create(output, outputQuantityVariation);
+        }
+
+        /// <summary>
+        /// Adds a recipe to the Ultimate Forge.
+        /// </summary>
+        public static void AddUltimateForgeRecipe(Tuple<int, int> ingredients, int outputID)
+        {
+            ultimateForgeRecipes[ingredients] = outputID;
+        }
+
+        /// <summary>
+        /// Adds a recipe to the Creation Machine.
+        /// </summary>
+        public static void AddCreationMachineRecipe(int emblem, Item output, int outputQuantityVariation = 0)
+        {
+            creationMachineRecipes[emblem] = Tuple.Create(output, outputQuantityVariation);
         }
 
         /// <summary>
@@ -1350,13 +1408,26 @@ namespace GadgetCore.API
             string filePath = Path.Combine("Assets", file);
             if (mod.HasModFile(filePath))
             {
-                using (GadgetModFile modFile = mod.GetModFile(filePath))
+                GadgetModFile modFile = mod.GetModFile(filePath);
+                using (WWW www = new WWW("file:///" + modFile.FilePath))
                 {
-                    using (WWW www = new WWW("file:///" + modFile.FilePath))
+                    AudioClip clip = null;
+                    try
                     {
-                        AudioClip clip = www.GetAudioClip(true, false);
+                        clip = www.GetAudioClip(true, true);
                         cachedAudioClips.Add(mod.Name + ":" + file, clip);
                         return clip;
+                    }
+                    finally
+                    {
+                        if (clip != null)
+                        {
+                            modFile.DisposeOnCondition(() => clip?.loadState != AudioDataLoadState.Loading);
+                        }
+                        else
+                        {
+                            modFile.Dispose();
+                        }
                     }
                 }
             }

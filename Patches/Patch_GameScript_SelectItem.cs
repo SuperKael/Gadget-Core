@@ -52,7 +52,7 @@ namespace GadgetCore.Patches
                 {
                     GameScript.equippedIDs[3] = ___inventory[slot].id;
                 }
-                int[] stats = GadgetCoreAPI.equipedGearStats[slot - 36];
+                int[] stats = GadgetCoreAPI.equippedGearStats[slot - 36];
                 for (int i = 0; i < 6; i++)
                 {
                     if (stats[i] > 0)
@@ -61,7 +61,7 @@ namespace GadgetCore.Patches
                         __instance.txtPlayerStat[i].GetComponent<Animation>().Play();
                     }
                 }
-                GadgetCoreAPI.equipedGearStats[slot - 36] = new int[] { 0, 0, 0, 0, 0, 0 };
+                GadgetCoreAPI.equippedGearStats[slot - 36] = new int[] { 0, 0, 0, 0, 0, 0 };
                 RefreshStats.Invoke(__instance, new object[] { });
                 Network.RemoveRPCs(MenuScript.playerAppearance.GetComponent<NetworkView>().viewID);
                 MenuScript.playerAppearance.GetComponent<NetworkView>().RPC("UA", RPCMode.AllBuffered, new object[]

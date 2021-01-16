@@ -13,9 +13,9 @@ namespace GadgetCore.Patches
         [HarmonyPrefix]
         public static bool Prefix(GameScript __instance, ref Item[] ___craft, ref int ___craftType, int a, ref bool __result)
         {
-            if (MenuRegistry.Singleton[___craftType] is CraftMenuInfo && Input.GetMouseButtonDown(1))
+            if (MenuRegistry.Singleton[___craftType] is CraftMenuInfo)
             {
-                __result = false;
+                __result = !Input.GetMouseButtonDown(1);
                 return false;
             }
             if (___craftType == 3)

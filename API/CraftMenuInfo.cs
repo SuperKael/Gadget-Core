@@ -476,7 +476,7 @@ namespace GadgetCore.API
         public virtual void UnlockRecipe(int recipeID)
         {
             unlockedRecipes.Add(recipeID);
-            PlayerPrefs.SetString("craftMenu" + ID + "unlocks", unlockedRecipes.Select(x => x.ToString()).Concat(","));
+            PreviewLabs.PlayerPrefs.SetString("craftMenu" + ID + "unlocks", unlockedRecipes.Select(x => x.ToString()).Concat(","));
         }
 
         /// <summary>

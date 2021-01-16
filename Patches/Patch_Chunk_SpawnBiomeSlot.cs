@@ -3,6 +3,7 @@ using GadgetCore.API;
 using System.Collections;
 using UnityEngine;
 using System.Collections.Generic;
+using System;
 
 namespace GadgetCore.Patches
 {
@@ -13,6 +14,12 @@ namespace GadgetCore.Patches
         [HarmonyPrefix]
         public static bool Prefix(Chunk __instance, int a, int i, int mid, ref GameObject[] ___networkStuff, ref int ___temp)
         {
+            if (___temp >= ___networkStuff.Length)
+            {
+                GameObject[] newNetworkStuff = new GameObject[___networkStuff.Length * 2];
+                Array.Copy(___networkStuff, newNetworkStuff, ___networkStuff.Length);
+                ___networkStuff = newNetworkStuff;
+            }
             if (PlanetRegistry.Singleton[a] is PlanetInfo planet)
             {
                 Transform transform = __instance.spawnSpot[i].transform;
@@ -26,6 +33,12 @@ namespace GadgetCore.Patches
                     foreach (GameObject obj in objs)
                     {
                         if (obj == null) continue;
+                        if (___temp >= ___networkStuff.Length)
+                        {
+                            GameObject[] newNetworkStuff = new GameObject[___networkStuff.Length * 2];
+                            Array.Copy(___networkStuff, newNetworkStuff, ___networkStuff.Length);
+                            ___networkStuff = newNetworkStuff;
+                        }
                         ___networkStuff[___temp] = obj;
                         ___temp++;
                     }

@@ -1,7 +1,9 @@
 ﻿using GadgetCore.API;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using UnityEngine;
 
 namespace GadgetCore.Loader
 {
@@ -90,6 +92,21 @@ namespace GadgetCore.Loader
                     dir = parent;
                 }
             }
+        }
+
+        /// <summary>
+        /// Disposes of this temporary file reference after a certain condition is fulfilled.
+        /// </summary>
+        public void DisposeOnCondition(Func<bool> condition)
+        {
+            CoroutineHooker.StartCoroutine(DisposeEnumerator(condition));
+        }
+
+        private IEnumerator DisposeEnumerator(Func<bool> condition)
+        {
+            yield return new WaitUntil(condition);
+            Dispose();
+            yield break;
         }
 
         internal static void DisposeAll()

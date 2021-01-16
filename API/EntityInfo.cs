@@ -18,6 +18,10 @@ namespace GadgetCore.API
         /// The GameObject representing this Entity. This will be registered as a prefab, and as such should be a freshly constructed GameObject.
         /// </summary>
         public readonly GameObject Entity;
+        /// <summary>
+        /// The string usable in <see cref="Resources.Load(String)"/> to load this object.
+        /// </summary>
+        public virtual string ResourcePath { get; protected set; }
 
         /// <summary>
         /// The World IDs that this entity will spawn in. Note that the current version of Gadget Core does not actually use these values, although in the future these may be used for natural creature spawning depending on the Entity's Type.
@@ -62,7 +66,7 @@ namespace GadgetCore.API
         {
             if (Entity != null)
             {
-                GadgetCoreAPI.AddCustomResource("e/" + Entity.name, Entity);
+                GadgetCoreAPI.AddCustomResource(ResourcePath = "e/" + Entity.name, Entity);
             }
         }
 
