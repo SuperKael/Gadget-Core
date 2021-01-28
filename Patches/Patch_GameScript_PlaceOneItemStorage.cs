@@ -8,7 +8,7 @@ namespace GadgetCore.Patches
     [HarmonyPatch("PlaceOneItemStorage")]
     static class Patch_GameScript_PlaceOneItemStorage
     {
-        public static readonly MethodInfo SwapItemStorage = typeof(GameScript).GetMethod("SwapItemStorage", BindingFlags.NonPublic | BindingFlags.Instance);
+        public static readonly MethodInfo SwapItemStorage = typeof(GameScript).GetMethod("SwapItemStorage", BindingFlags.Public | BindingFlags.Instance);
 
         [HarmonyPrefix]
         public static bool Prefix(GameScript __instance, int slot, ref Item ___holdingItem)

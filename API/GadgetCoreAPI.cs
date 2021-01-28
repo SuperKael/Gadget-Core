@@ -3,6 +3,7 @@ using GadgetCore.Util;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -20,11 +21,11 @@ namespace GadgetCore.API
         /// <summary>
         /// The version numbers for this version of Gadget Core. You generally shouldn't access this directly, instead use <see cref="GetRawVersion()"/>
         /// </summary>
-        public const string RAW_VERSION = "2.0.1.0";
+        public const string RAW_VERSION = "2.0.2.0";
         /// <summary>
         /// A slightly more informative version. You generally shouldn't access this directly, instead use <see cref="GetFullVersion()"/>
         /// </summary>
-        public const string FULL_VERSION = "2.0.1.0";
+        public const string FULL_VERSION = "2.0.2.0";
         /// <summary>
         /// Indicates whether this version of GadgetCore is a beta version. You generally shouldn't access this directly, instead use <see cref="GetIsBeta()"/>
         /// </summary>
@@ -37,11 +38,11 @@ namespace GadgetCore.API
         /// </summary>
         public static SpriteSheetEntry MissingTexSprite { get; internal set; }
 
-        private static readonly MethodInfo GetItemNameMethod = typeof(GameScript).GetMethod("GetItemName", BindingFlags.NonPublic | BindingFlags.Instance);
-        private static readonly MethodInfo GetItemDescMethod = typeof(GameScript).GetMethod("GetItemDesc", BindingFlags.NonPublic | BindingFlags.Instance);
-        private static readonly MethodInfo GetChipNameMethod = typeof(GameScript).GetMethod("GetChipName", BindingFlags.NonPublic | BindingFlags.Instance);
-        private static readonly MethodInfo GetChipDescMethod = typeof(GameScript).GetMethod("GetChipDesc", BindingFlags.NonPublic | BindingFlags.Instance);
-        private static readonly MethodInfo GetGearBaseStatsMethod = typeof(GameScript).GetMethod("GetGearBaseStats", BindingFlags.NonPublic | BindingFlags.Instance);
+        private static readonly MethodInfo GetItemNameMethod = typeof(GameScript).GetMethod("GetItemName", BindingFlags.Public | BindingFlags.Instance);
+        private static readonly MethodInfo GetItemDescMethod = typeof(GameScript).GetMethod("GetItemDesc", BindingFlags.Public | BindingFlags.Instance);
+        private static readonly MethodInfo GetChipNameMethod = typeof(GameScript).GetMethod("GetChipName", BindingFlags.Public | BindingFlags.Instance);
+        private static readonly MethodInfo GetChipDescMethod = typeof(GameScript).GetMethod("GetChipDesc", BindingFlags.Public | BindingFlags.Instance);
+        private static readonly MethodInfo GetGearBaseStatsMethod = typeof(GameScript).GetMethod("GetGearBaseStats", BindingFlags.Public | BindingFlags.Instance);
 
         internal static Dictionary<string, UnityEngine.Object> resources = new Dictionary<string, UnityEngine.Object>();
         internal static Dictionary<int, string> resourcePaths = new Dictionary<int, string>();
@@ -719,7 +720,7 @@ namespace GadgetCore.API
         public static void AddCustomResource(string path, UnityEngine.Object resource)
         {
             if (!Registry.registeringVanilla && Registry.modRegistering < 0) throw new InvalidOperationException("Data registration may only be performed by the Initialize method of a Gadget!");
-            UnityEngine.Object.DontDestroyOnLoad(resource);
+            if (resource is GameObject go && go.transform.parent == null) UnityEngine.Object.DontDestroyOnLoad(resource);
             resource.hideFlags |= HideFlags.HideAndDontSave;
             if (resource is GameObject)
             {
@@ -1362,7 +1363,7 @@ namespace GadgetCore.API
         /// <summary>
         /// Loads an image file from your Assets folder as a Texture2D. Assumes a file extension of .png if one is not specified. Returns null if no file with the given name was found.
         /// </summary>
-        public static Texture2D LoadTexture2D(string file, bool shared = false)
+        public static Texture2D LoadTexture2D(string file)
         {
             if (file.IndexOf('.') == -1) file += ".png";
             GadgetMod mod = GadgetMods.GetModByAssembly(Assembly.GetCallingAssembly());
@@ -1397,7 +1398,7 @@ namespace GadgetCore.API
         /// <summary>
         /// Loads an audio file from your Assets folder as an AudioClip. Assumes a file extension of .wav if one is not specified. Returns null if no file with the given name was found.
         /// </summary>
-        public static AudioClip LoadAudioClip(string file, bool shared = false)
+        public static AudioClip LoadAudioClip(string file)
         {
             if (file.IndexOf('.') == -1) file += ".wav";
             GadgetMod mod = GadgetMods.GetModByAssembly(Assembly.GetCallingAssembly());
@@ -1412,14 +1413,18 @@ namespace GadgetCore.API
                 using (WWW www = new WWW("file:///" + modFile.FilePath))
                 {
                     AudioClip clip = null;
+                    Stopwatch s = new Stopwatch();
+                    s.Start();
                     try
                     {
+                        for (int i = 0; !www.isDone && s.ElapsedMilliseconds < 1000; i++) Thread.Sleep(5);
                         clip = www.GetAudioClip(true, true);
                         cachedAudioClips.Add(mod.Name + ":" + file, clip);
                         return clip;
                     }
                     finally
                     {
+                        s.Stop();
                         if (clip != null)
                         {
                             modFile.DisposeOnCondition(() => clip?.loadState != AudioDataLoadState.Loading);
@@ -1440,7 +1445,7 @@ namespace GadgetCore.API
         /// <summary>
         /// Loads an obj-format mesh from your Assets folder as a Mesh. Assumes a file extension of .obj if one is not specified. Returns null if no file with the given name was found.
         /// </summary>
-        public static Mesh LoadObjMesh(string file, bool shared = false)
+        public static Mesh LoadObjMesh(string file)
         {
             if (file.IndexOf('.') == -1) file += ".wav";
             GadgetMod mod = GadgetMods.GetModByAssembly(Assembly.GetCallingAssembly());
@@ -1468,7 +1473,7 @@ namespace GadgetCore.API
         /// <summary>
         /// Loads an AssetBundle from your Assets folder. Returns null if no file with the given name was found.
         /// </summary>
-        public static AssetBundle LoadAssetBundle(string file, bool shared = false)
+        public static AssetBundle LoadAssetBundle(string file)
         {
             GadgetMod mod = GadgetMods.GetModByAssembly(Assembly.GetCallingAssembly());
             if (cachedBundles.ContainsKey(mod.Name + ":" + file))
@@ -1490,6 +1495,42 @@ namespace GadgetCore.API
             {
                 return null;
             }
+        }
+
+        /// <summary>
+        /// Obsolete: Use <see cref="LoadTexture2D(string)"/>
+        /// </summary>
+        [Obsolete("The `shared` parameter is nonfunctional, and should not be used.")]
+        public static Texture2D LoadTexture2D(string file, bool shared = false)
+        {
+            return LoadTexture2D(file);
+        }
+
+        /// <summary>
+        /// Obsolete: Use <see cref="LoadAudioClip(string)"/>
+        /// </summary>
+        [Obsolete("The `shared` parameter is nonfunctional, and should not be used.")]
+        public static AudioClip LoadAudioClip(string file, bool shared = false)
+        {
+            return LoadAudioClip(file);
+        }
+
+        /// <summary>
+        /// Obsolete: Use <see cref="LoadObjMesh(string)"/>
+        /// </summary>
+        [Obsolete("The `shared` parameter is nonfunctional, and should not be used.")]
+        public static Mesh LoadObjMesh(string file, bool shared = false)
+        {
+            return LoadObjMesh(file);
+        }
+
+        /// <summary>
+        /// Obsolete: Use <see cref="LoadAssetBundle(string)"/>
+        /// </summary>
+        [Obsolete("The `shared` parameter is nonfunctional, and should not be used.")]
+        public static AssetBundle LoadAssetBundle(string file, bool shared = false)
+        {
+            return LoadAssetBundle(file);
         }
 
         /// <summary>

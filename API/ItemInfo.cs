@@ -11,24 +11,6 @@ namespace GadgetCore.API
     /// </summary>
     public class ItemInfo : RegistryEntry<ItemInfo, ItemType>
     {
-        private static readonly MethodInfo ATKSOUND = typeof(PlayerScript).GetMethod("ATKSOUND", BindingFlags.NonPublic | BindingFlags.Instance);
-        private static readonly MethodInfo MageMash = typeof(PlayerScript).GetMethod("MageMash", BindingFlags.NonPublic | BindingFlags.Instance);
-        private static readonly MethodInfo SwordEffects = typeof(PlayerScript).GetMethod("SwordEffects", BindingFlags.NonPublic | BindingFlags.Instance);
-        private static readonly MethodInfo LanceEffects = typeof(PlayerScript).GetMethod("LanceEffects", BindingFlags.NonPublic | BindingFlags.Instance);
-        private static readonly MethodInfo GunEffects = typeof(PlayerScript).GetMethod("GunEffects", BindingFlags.NonPublic | BindingFlags.Instance);
-        private static readonly MethodInfo HyperBeam = typeof(PlayerScript).GetMethod("HyperBeam", BindingFlags.NonPublic | BindingFlags.Instance);
-        private static readonly MethodInfo Cerberus = typeof(PlayerScript).GetMethod("Cerberus", BindingFlags.NonPublic | BindingFlags.Instance);
-        private static readonly MethodInfo TripleShot = typeof(PlayerScript).GetMethod("TripleShot", BindingFlags.NonPublic | BindingFlags.Instance);
-        private static readonly MethodInfo TurretS = typeof(PlayerScript).GetMethod("TurretS", BindingFlags.NonPublic | BindingFlags.Instance);
-        private static readonly MethodInfo TurretF = typeof(PlayerScript).GetMethod("TurretF", BindingFlags.NonPublic | BindingFlags.Instance);
-        private static readonly MethodInfo Turret = typeof(PlayerScript).GetMethod("Turret", BindingFlags.NonPublic | BindingFlags.Instance);
-        private static readonly MethodInfo SiriusS = typeof(PlayerScript).GetMethod("SiriusS", BindingFlags.NonPublic | BindingFlags.Instance);
-        private static readonly MethodInfo Plasma = typeof(PlayerScript).GetMethod("Plasma", BindingFlags.NonPublic | BindingFlags.Instance);
-        private static readonly MethodInfo Staff = typeof(PlayerScript).GetMethod("Staff", BindingFlags.NonPublic | BindingFlags.Instance);
-        private static readonly MethodInfo SchegI = typeof(PlayerScript).GetMethod("SchegI", BindingFlags.NonPublic | BindingFlags.Instance);
-        private static readonly MethodInfo AirSplit = typeof(PlayerScript).GetMethod("AirSplit", BindingFlags.NonPublic | BindingFlags.Instance);
-        private static readonly MethodInfo Shock = typeof(PlayerScript).GetMethod("Shock", BindingFlags.NonPublic | BindingFlags.Instance);
-        private static readonly MethodInfo CasterSword = typeof(PlayerScript).GetMethod("CasterSword", BindingFlags.NonPublic | BindingFlags.Instance);
         private static readonly FieldInfo canAttack = typeof(PlayerScript).GetField("canAttack", BindingFlags.NonPublic | BindingFlags.Instance);
         private static readonly FieldInfo attacking = typeof(PlayerScript).GetField("attacking", BindingFlags.NonPublic | BindingFlags.Instance);
         private static readonly FieldInfo hyper = typeof(PlayerScript).GetField("hyper", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -597,14 +579,14 @@ namespace GadgetCore.API
         {
             canAttack.SetValue(script, false);
             attacking.SetValue(script, true);
-            script.StartCoroutine(ATKSOUND.Invoke(InstanceTracker.PlayerScript, new object[] { }) as IEnumerator);
-            script.StartCoroutine(SwordEffects.Invoke(script, new object[] { ID }) as IEnumerator);
+            script.StartCoroutine(script.ATKSOUND());
+            script.StartCoroutine(script.SwordEffects(ID));
             script.Animate(3);
             yield return new WaitForSeconds(0.3f);
             script.attackCube.SetActive(true);
             if (PlayerScript.inmagemash > 0)
             {
-                MageMash.Invoke(script, new object[] { });
+                script.MageMash();
             }
             yield return new WaitForSeconds(0.2f);
             script.attackCube.SetActive(false);
@@ -621,14 +603,14 @@ namespace GadgetCore.API
         {
             canAttack.SetValue(script, false);
             attacking.SetValue(script, true);
-            script.StartCoroutine(ATKSOUND.Invoke(script, new object[] { }) as IEnumerator);
-            script.StartCoroutine(SwordEffects.Invoke(script, new object[] { ID }) as IEnumerator);
+            script.StartCoroutine(script.ATKSOUND());
+            script.StartCoroutine(script.SwordEffects(ID));
             script.Animate(3);
             yield return new WaitForSeconds(0.3f);
             script.attackCube2.SetActive(true);
             if (PlayerScript.inmagemash > 0)
             {
-                MageMash.Invoke(script, new object[] { });
+                script.MageMash();
             }
             yield return new WaitForSeconds(0.2f);
             script.attackCube2.SetActive(false);
@@ -645,14 +627,14 @@ namespace GadgetCore.API
         {
             canAttack.SetValue(script, false);
             attacking.SetValue(script, true);
-            script.StartCoroutine(ATKSOUND.Invoke(script, new object[] { }) as IEnumerator);
-            script.StartCoroutine(LanceEffects.Invoke(script, new object[] { ID }) as IEnumerator);
+            script.StartCoroutine(script.ATKSOUND());
+            script.StartCoroutine(script.LanceEffects(ID));
             script.Animate(5);
             yield return new WaitForSeconds(0.3f);
             script.attackCube3.SetActive(true);
             if (PlayerScript.inmagemash > 0)
             {
-                MageMash.Invoke(script, new object[] { });
+                script.MageMash();
             }
             float bonus = 0.2f;
             if (ID == 370)
@@ -674,8 +656,8 @@ namespace GadgetCore.API
         {
             canAttack.SetValue(script, false);
             attacking.SetValue(script, true);
-            script.StartCoroutine(ATKSOUND.Invoke(script, new object[] { }) as IEnumerator);
-            script.StartCoroutine(GunEffects.Invoke(script, new object[] { ID }) as IEnumerator);
+            script.StartCoroutine(script.ATKSOUND());
+            script.StartCoroutine(script.GunEffects(ID));
             script.GetComponent<AudioSource>().PlayOneShot((AudioClip)Resources.Load("Au/shoot"), Menuu.soundLevel / 10f);
             script.Animate(4);
             yield return new WaitForSeconds(0.3f);
@@ -683,23 +665,23 @@ namespace GadgetCore.API
             switch (ID)
             {
                 case 413:
-                    TurretS.Invoke(script, new object[] { InstanceTracker.GameScript.GetFinalStat(3) / 3 });
+                    script.TurretS(InstanceTracker.GameScript.GetFinalStat(3) / 3);
                     break;
                 case 415:
-                    TurretS.Invoke(script, new object[] { InstanceTracker.GameScript.GetFinalStat(4) / 2 });
+                    script.TurretS(InstanceTracker.GameScript.GetFinalStat(4) / 2);
                     break;
                 case 421:
-                    script.StartCoroutine(SiriusS.Invoke(script, new object[] { }) as IEnumerator);
+                    script.StartCoroutine(script.SiriusS());
                     break;
             }
             if ((bool)hyper.GetValue(script))
             {
                 hyper.SetValue(script, false);
-                HyperBeam.Invoke(script, new object[] { });
+                script.HyperBeam();
             }
             if (ID == 428)
             {
-                script.StartCoroutine(Cerberus.Invoke(script, new object[] { }) as IEnumerator);
+                script.StartCoroutine(script.Cerberus());
             }
             else
             {
@@ -721,7 +703,7 @@ namespace GadgetCore.API
                 });
                 if ((bool)triple.GetValue(script))
                 {
-                    script.StartCoroutine(TripleShot.Invoke(script, new object[] { }) as IEnumerator);
+                    script.StartCoroutine(script.TripleShot());script.StartCoroutine(script.TripleShot());
                 }
             }
             yield return new WaitForSeconds(0.3f);
@@ -738,7 +720,7 @@ namespace GadgetCore.API
         {
             canAttack.SetValue(script, false);
             attacking.SetValue(script, true);
-            script.StartCoroutine(ATKSOUND.Invoke(script, new object[] { }) as IEnumerator);
+            script.StartCoroutine(script.ATKSOUND());
             script.GetComponent<AudioSource>().PlayOneShot((AudioClip)Resources.Load("Au/shoot"), Menuu.soundLevel / 10f);
             script.Animate(4);
             yield return new WaitForSeconds(0.3f);
@@ -752,13 +734,13 @@ namespace GadgetCore.API
             if ((bool)hyper.GetValue(script))
             {
                 hyper.SetValue(script, false);
-                HyperBeam.Invoke(script, new object[] { });
+                script.HyperBeam();
             }
             if (TryCrit(script))
             {
                 dmg = MultiplyCrit(script, dmg);
                 script.GetComponent<AudioSource>().PlayOneShot(script.critSound, Menuu.soundLevel / 10f);
-                UnityEngine.Object.Instantiate<GameObject>(script.crit, script.transform.position, Quaternion.identity);
+                UnityEngine.Object.Instantiate(script.crit, script.transform.position, Quaternion.identity);
             }
             if (ID == 472)
             {
@@ -790,7 +772,7 @@ namespace GadgetCore.API
                     });
                     if ((bool)triple.GetValue(script))
                     {
-                        script.StartCoroutine(TripleShot.Invoke(script, new object[] { }) as IEnumerator);
+                        script.StartCoroutine(script.TripleShot());script.StartCoroutine(script.TripleShot());
                     }
                 }
             }
@@ -805,7 +787,7 @@ namespace GadgetCore.API
                     targ,
                     dmg
                 });
-                script.StartCoroutine(TripleShot.Invoke(script, new object[] { }) as IEnumerator);
+                script.StartCoroutine(script.TripleShot());script.StartCoroutine(script.TripleShot());
             }
             else if (ID == 465)
             {
@@ -820,7 +802,7 @@ namespace GadgetCore.API
                 });
                 if ((bool)triple.GetValue(script))
                 {
-                    script.StartCoroutine(TripleShot.Invoke(script, new object[] { }) as IEnumerator);
+                    script.StartCoroutine(script.TripleShot());script.StartCoroutine(script.TripleShot());
                 }
                 Package2 value5 = new Package2(targ, dmg, ProjectileID, PlayerGearModsTracker.GetGearMods(script)[10]);
                 gameObject4 = (GameObject)UnityEngine.Object.Instantiate(Resources.Load("proj/shot" + ProjectileID), new Vector3(script.shot.transform.position.x, script.shot.transform.position.y + 2f, 0f), Quaternion.identity);
@@ -833,7 +815,7 @@ namespace GadgetCore.API
                 });
                 if ((bool)triple.GetValue(script))
                 {
-                    script.StartCoroutine(TripleShot.Invoke(script, new object[] { }) as IEnumerator);
+                    script.StartCoroutine(script.TripleShot());script.StartCoroutine(script.TripleShot());
                 }
                 Package2 value6 = new Package2(targ, dmg, ProjectileID, PlayerGearModsTracker.GetGearMods(script)[10]);
                 gameObject4 = (GameObject)UnityEngine.Object.Instantiate(Resources.Load("proj/shot" + ProjectileID), new Vector3(script.shot.transform.position.x, script.shot.transform.position.y - 2f, 0f), Quaternion.identity);
@@ -846,7 +828,7 @@ namespace GadgetCore.API
                 });
                 if ((bool)triple.GetValue(script))
                 {
-                    script.StartCoroutine(TripleShot.Invoke(script, new object[] { }) as IEnumerator);
+                    script.StartCoroutine(script.TripleShot());script.StartCoroutine(script.TripleShot());
                 }
             }
             else if (ID == 469)
@@ -860,17 +842,17 @@ namespace GadgetCore.API
                     targ,
                     dmg
                 });
-                script.StartCoroutine(TripleShot.Invoke(script, new object[] { }) as IEnumerator);
+                script.StartCoroutine(script.TripleShot());script.StartCoroutine(script.TripleShot());
             }
             else if (ID == 473)
             {
                 if (UnityEngine.Random.Range(0, 3) == 0)
                 {
-                    Turret.Invoke(script, new object[] { InstanceTracker.GameScript.GetFinalStat(3) });
+                    script.Turret(InstanceTracker.GameScript.GetFinalStat(3));
                 }
                 else
                 {
-                    Plasma.Invoke(script, new object[] { });
+                    script.Plasma();
                 }
             }
             else if (ID == 477)
@@ -887,7 +869,7 @@ namespace GadgetCore.API
                 });
                 if ((bool)triple.GetValue(script))
                 {
-                    script.StartCoroutine(TripleShot.Invoke(script, new object[] { }) as IEnumerator);
+                    script.StartCoroutine(script.TripleShot());script.StartCoroutine(script.TripleShot());
                 }
                 targ = GadgetCoreAPI.GetCursorPos() - new Vector3(script.transform.position.x, script.transform.position.y - 5f, 0f);
                 Package2 value9 = new Package2(targ, dmg, ProjectileID, PlayerGearModsTracker.GetGearMods(script)[10]);
@@ -901,14 +883,14 @@ namespace GadgetCore.API
                 });
                 if ((bool)triple.GetValue(script))
                 {
-                    script.StartCoroutine(TripleShot.Invoke(script, new object[] { }) as IEnumerator);
+                    script.StartCoroutine(script.TripleShot());script.StartCoroutine(script.TripleShot());
                 }
             }
             else if (ID == 478)
             {
                 if (Network.isServer)
                 {
-                    Staff.Invoke(script, new object[] { ProjectileID, dmg, Network.player });
+                    script.Staff(ProjectileID, dmg, Network.player);
                 }
                 else
                 {
@@ -950,7 +932,7 @@ namespace GadgetCore.API
                 }
                 else if ((int)curShot.GetValue(script) == 2)
                 {
-                    script.StartCoroutine(SchegI.Invoke(script, new object[] { dmg }) as IEnumerator);
+                    script.StartCoroutine(script.SchegI(dmg));
                 }
                 curShot.SetValue(script, (int)curShot.GetValue(script) + 1);
                 if ((int)curShot.GetValue(script) > 2)
@@ -971,7 +953,7 @@ namespace GadgetCore.API
                 });
                 if ((bool)triple.GetValue(script))
                 {
-                    script.StartCoroutine(TripleShot.Invoke(script, new object[] { }) as IEnumerator);
+                    script.StartCoroutine(script.TripleShot());script.StartCoroutine(script.TripleShot());
                 }
             }
             yield return new WaitForSeconds(0.3f);
@@ -988,7 +970,7 @@ namespace GadgetCore.API
         {
             canAttack.SetValue(script, false);
             attacking.SetValue(script, true);
-            script.StartCoroutine(ATKSOUND.Invoke(script, new object[] { }) as IEnumerator);
+            script.StartCoroutine(script.ATKSOUND());
             script.GetComponent<AudioSource>().PlayOneShot((AudioClip)Resources.Load("Au/shoot"), Menuu.soundLevel / 10f);
             script.Animate(3);
             yield return new WaitForSeconds(0.3f);
@@ -1007,7 +989,7 @@ namespace GadgetCore.API
             {
                 dmg = MultiplyCrit(script, dmg);
                 script.GetComponent<AudioSource>().PlayOneShot(script.critSound, Menuu.soundLevel / 10f);
-                UnityEngine.Object.Instantiate<GameObject>(script.crit, script.transform.position, Quaternion.identity);
+                UnityEngine.Object.Instantiate(script.crit, script.transform.position, Quaternion.identity);
             }
             if (ID == 547)
             {
@@ -1037,7 +1019,7 @@ namespace GadgetCore.API
                 });
                 if ((bool)triple.GetValue(script))
                 {
-                    script.StartCoroutine(TripleShot.Invoke(script, new object[] { }) as IEnumerator);
+                    script.StartCoroutine(script.TripleShot());
                 }
                 Vector3 dir = new Vector3(vector3.x + (float)UnityEngine.Random.Range(-2, 3), vector3.y + (float)UnityEngine.Random.Range(-2, 3), 0f);
                 Package2 value15 = new Package2(dir, dmg, ProjectileID, PlayerGearModsTracker.GetGearMods(script)[10]);
@@ -1051,7 +1033,7 @@ namespace GadgetCore.API
                 });
                 if ((bool)triple.GetValue(script))
                 {
-                    script.StartCoroutine(TripleShot.Invoke(script, new object[] { }) as IEnumerator);
+                    script.StartCoroutine(script.TripleShot());script.StartCoroutine(script.TripleShot());
                 }
             }
             else if (ID == 513)
@@ -1098,7 +1080,7 @@ namespace GadgetCore.API
             }
             else if (ID == 519)
             {
-                TurretF.Invoke(script, new object[] { dmg });
+                script.TurretF(dmg);
             }
             else if (ID == 528)
             {
@@ -1141,7 +1123,7 @@ namespace GadgetCore.API
             }
             else if (ID == 525)
             {
-                script.StartCoroutine(AirSplit.Invoke(script, new object[] { }) as IEnumerator);
+                script.StartCoroutine(script.AirSplit());
             }
             else
             {
@@ -1172,7 +1154,7 @@ namespace GadgetCore.API
         {
             canAttack.SetValue(script, false);
             attacking.SetValue(script, true);
-            script.StartCoroutine(ATKSOUND.Invoke(script, new object[] { }) as IEnumerator);
+            script.StartCoroutine(script.ATKSOUND());
             script.Animate(3);
             yield return new WaitForSeconds(0.3f);
             int dmg = GetDamage(script);
@@ -1215,7 +1197,7 @@ namespace GadgetCore.API
             {
                 dmg = MultiplyCrit(script, dmg);
                 script.GetComponent<AudioSource>().PlayOneShot(script.critSound, Menuu.soundLevel / 10f);
-                UnityEngine.Object.Instantiate<GameObject>(script.crit, script.transform.position, Quaternion.identity);
+                UnityEngine.Object.Instantiate(script.crit, script.transform.position, Quaternion.identity);
             }
             if (ID == 597)
             {
@@ -1231,7 +1213,7 @@ namespace GadgetCore.API
                 });
                 if ((bool)triple.GetValue(script))
                 {
-                    script.StartCoroutine(TripleShot.Invoke(script, new object[] { }) as IEnumerator);
+                    script.StartCoroutine(script.TripleShot());script.StartCoroutine(script.TripleShot());
                 }
             }
             else if (ID == 567)
@@ -1251,17 +1233,17 @@ namespace GadgetCore.API
             }
             else if (ID == 574)
             {
-                Shock.Invoke(script, new object[] { });
+                script.Shock();
             }
             else if (ID == 575)
             {
-                script.StartCoroutine(CasterSword.Invoke(script, new object[] { }) as IEnumerator);
+                script.StartCoroutine(script.CasterSword());
             }
             else
             {
                 if (Network.isServer)
                 {
-                    Staff.Invoke(script, new object[] { ProjectileID, dmg, Network.player });
+                    script.Staff(ProjectileID, dmg, Network.player);
                 }
                 else
                 {

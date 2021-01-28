@@ -46,8 +46,8 @@ namespace GadgetCore.Patches
                         __instance.GetComponent<AudioSource>().PlayOneShot((AudioClip)Resources.Load("Au/CLICK3"), Menuu.soundLevel / 10f);
                         ___craft[num].q += ___inventory[slot].q;
                         ___inventory[slot] = new Item(0, 0, 0, 0, 0, new int[3], new int[3]);
-                        typeof(GameScript).GetMethod("RefreshSlot", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(__instance, new object[] { slot });
-                        typeof(GameScript).GetMethod("RefreshSlotCraft", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(__instance, new object[] { num });
+                        __instance.RefreshSlot(slot);
+                        __instance.RefreshSlotCraft(num);
                     }
                     else
                     {
@@ -58,8 +58,8 @@ namespace GadgetCore.Patches
                                 __instance.GetComponent<AudioSource>().PlayOneShot((AudioClip)Resources.Load("Au/CLICK3"), Menuu.soundLevel / 10f);
                                 ___craft[i] = ___inventory[slot];
                                 ___inventory[slot] = new Item(0, 0, 0, 0, 0, new int[3], new int[3]);
-                                typeof(GameScript).GetMethod("RefreshSlot", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(__instance, new object[] { slot });
-                                typeof(GameScript).GetMethod("RefreshSlotCraft", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(__instance, new object[] { i });
+                                __instance.RefreshSlot(slot);
+                                __instance.RefreshSlotCraft(i);
                                 break;
                             }
                         }
@@ -91,8 +91,8 @@ namespace GadgetCore.Patches
                         {
                             ___inventory[slot] = new Item(0, 0, 0, 0, 0, new int[3], new int[3]);
                         }
-                        typeof(GameScript).GetMethod("RefreshSlot", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(__instance, new object[] { slot });
-                        typeof(GameScript).GetMethod("RefreshSlotCraft", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(__instance, new object[] { num });
+                        __instance.RefreshSlot(slot);
+                        __instance.RefreshSlotCraft(num);
                     }
                     else
                     {
@@ -103,8 +103,8 @@ namespace GadgetCore.Patches
                                 __instance.GetComponent<AudioSource>().PlayOneShot((AudioClip)Resources.Load("Au/CLICK3"), Menuu.soundLevel / 10f);
                                 ___craft[i] = ___inventory[slot];
                                 ___inventory[slot] = new Item(0, 0, 0, 0, 0, new int[3], new int[3]);
-                                typeof(GameScript).GetMethod("RefreshSlot", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(__instance, new object[] { slot });
-                                typeof(GameScript).GetMethod("RefreshSlotCraft", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(__instance, new object[] { i });
+                                __instance.RefreshSlot(slot);
+                                __instance.RefreshSlotCraft(i);
                                 break;
                             }
                         }

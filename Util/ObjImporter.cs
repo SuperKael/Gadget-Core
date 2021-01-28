@@ -3,17 +3,14 @@
  */
 
 using GadgetCore.API;
-using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using UnityEngine;
 
 namespace GadgetCore.Util
 {
     /// <summary>
-    /// Obj format mesh importer. You should probably use <see cref="GadgetCoreAPI.LoadObjMesh"/>.
+    /// Obj format mesh importer. You should probably use <see cref="GadgetCoreAPI.LoadObjMesh(string)"/>.
     /// </summary>
     public static class ObjImporter
     {

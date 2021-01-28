@@ -8,7 +8,7 @@ namespace GadgetCore.Patches
     [HarmonyPatch("RefreshInventory")]
     static class Patch_GameScript_RefreshInventory
     {
-        public static readonly MethodInfo RefreshSlot = typeof(GameScript).GetMethod("RefreshSlot", BindingFlags.NonPublic | BindingFlags.Instance);
+        public static readonly MethodInfo RefreshSlot = typeof(GameScript).GetMethod("RefreshSlot", BindingFlags.Public | BindingFlags.Instance);
 
         [HarmonyPrefix]
         public static bool Prefix(GameScript __instance, ref IEnumerator __result)

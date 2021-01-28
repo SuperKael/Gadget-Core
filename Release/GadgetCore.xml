@@ -468,6 +468,47 @@
             Called when <see cref="M:GadgetCore.API.ConfigMenu.BasicGadgetConfigMenu.Build(UnityEngine.RectTransform)"/> is called on the config menu containing this component.
             </summary>
         </member>
+        <member name="T:GadgetCore.API.ConfigMenu.GadgetConfigDropdownComponent">
+            <summary>
+            This is an implementation of <see cref="T:GadgetCore.API.ConfigMenu.GadgetConfigComponent"/> that serves as a dropdown for selecting from an array of choices.
+            Based on code provided by "Zariteis" on the New Roguelands Discord server.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.ConfigMenu.GadgetConfigDropdownComponent.Value">
+            <summary>
+            The current value of this component.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.ConfigMenu.GadgetConfigDropdownComponent.Values">
+            <summary>
+            The selectable values of this component.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ConfigMenu.GadgetConfigDropdownComponent.DefaultValue">
+            <summary>
+            The default value of this component.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ConfigMenu.GadgetConfigDropdownComponent.VanillaValue">
+            <summary>
+            The vanilla value of this component.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ConfigMenu.GadgetConfigDropdownComponent.ReadOnly">
+            <summary>
+            Whether this component is read-only.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ConfigMenu.GadgetConfigDropdownComponent.#ctor(GadgetCore.API.ConfigMenu.BasicGadgetConfigMenu,System.String,System.String,System.String[],System.Action{System.String},System.Boolean,System.String,System.String,System.Single)">
+            <summary>
+            Constructs a new <see cref="T:GadgetCore.API.ConfigMenu.GadgetConfigDropdownComponent"/> that serves as a dropdown for selecting from an array of choices. The given <paramref name="valueSetter"/> will be called whenever the dropdown's selection is changed.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ConfigMenu.GadgetConfigDropdownComponent.Build(UnityEngine.RectTransform)">
+            <summary>
+            Called when <see cref="M:GadgetCore.API.ConfigMenu.BasicGadgetConfigMenu.Build(UnityEngine.RectTransform)"/> is called on the config menu containing this component.
+            </summary>
+        </member>
         <member name="T:GadgetCore.API.ConfigMenu.GadgetConfigFloatComponent">
             <summary>
             This is an implementation of <see cref="T:GadgetCore.API.ConfigMenu.GadgetConfigComponent"/> that serves as a input field for representing an float-based config value.
@@ -862,6 +903,11 @@
         <member name="T:GadgetCore.API.ConfigMenu.INIGadgetConfigMenu">
             <summary>
             This is an extension of <see cref="T:GadgetCore.API.ConfigMenu.BasicGadgetConfigMenu"/> that auto-generates its contents from an INI-based config file. This will always be used for non-Gadgets, and is also the default if you don't specify your own config menu.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.ConfigMenu.INIGadgetConfigMenu.PASCAL_CASE_SPACING_REGEX">
+            <summary>
+            Regex for inserting spaces into PascalCase strings.
             </summary>
         </member>
         <member name="F:GadgetCore.API.ConfigMenu.INIGadgetConfigMenu.NO_CONFIGURABLE_DATA">
@@ -1852,7 +1898,6 @@
             <summary>
             Returns an <see cref="T:GadgetCore.API.ConfigMenu.IGadgetConfigMenu"/> for this Gadget. By default, returns a <see cref="T:GadgetCore.API.ConfigMenu.INIGadgetConfigMenu"/> for this Gadget's UMF config file. May return null if the Gadget should not have a config menu.
             </summary>
-            <returns></returns>
         </member>
         <member name="T:GadgetCore.API.Gadget`1">
             <summary>
@@ -2622,24 +2667,44 @@
             Gets the attack audio clip with the specified ID. This is the sound played when a weapon is used.
             </summary>
         </member>
-        <member name="M:GadgetCore.API.GadgetCoreAPI.LoadTexture2D(System.String,System.Boolean)">
+        <member name="M:GadgetCore.API.GadgetCoreAPI.LoadTexture2D(System.String)">
             <summary>
             Loads an image file from your Assets folder as a Texture2D. Assumes a file extension of .png if one is not specified. Returns null if no file with the given name was found.
             </summary>
         </member>
-        <member name="M:GadgetCore.API.GadgetCoreAPI.LoadAudioClip(System.String,System.Boolean)">
+        <member name="M:GadgetCore.API.GadgetCoreAPI.LoadAudioClip(System.String)">
             <summary>
             Loads an audio file from your Assets folder as an AudioClip. Assumes a file extension of .wav if one is not specified. Returns null if no file with the given name was found.
             </summary>
         </member>
-        <member name="M:GadgetCore.API.GadgetCoreAPI.LoadObjMesh(System.String,System.Boolean)">
+        <member name="M:GadgetCore.API.GadgetCoreAPI.LoadObjMesh(System.String)">
             <summary>
             Loads an obj-format mesh from your Assets folder as a Mesh. Assumes a file extension of .obj if one is not specified. Returns null if no file with the given name was found.
             </summary>
         </member>
-        <member name="M:GadgetCore.API.GadgetCoreAPI.LoadAssetBundle(System.String,System.Boolean)">
+        <member name="M:GadgetCore.API.GadgetCoreAPI.LoadAssetBundle(System.String)">
             <summary>
             Loads an AssetBundle from your Assets folder. Returns null if no file with the given name was found.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.LoadTexture2D(System.String,System.Boolean)">
+            <summary>
+            Obsolete: Use <see cref="M:GadgetCore.API.GadgetCoreAPI.LoadTexture2D(System.String)"/>
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.LoadAudioClip(System.String,System.Boolean)">
+            <summary>
+            Obsolete: Use <see cref="M:GadgetCore.API.GadgetCoreAPI.LoadAudioClip(System.String)"/>
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.LoadObjMesh(System.String,System.Boolean)">
+            <summary>
+            Obsolete: Use <see cref="M:GadgetCore.API.GadgetCoreAPI.LoadObjMesh(System.String)"/>
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.LoadAssetBundle(System.String,System.Boolean)">
+            <summary>
+            Obsolete: Use <see cref="M:GadgetCore.API.GadgetCoreAPI.LoadAssetBundle(System.String)"/>
             </summary>
         </member>
         <member name="T:GadgetCore.API.GadgetCoreAPI.SpriteSheetEntry">
@@ -4015,12 +4080,12 @@
         </member>
         <member name="M:GadgetCore.API.MenuInfo.InvokeOnMenuOpened">
             <summary>
-            Triggers the OnMenuOpened event. Should only be used by overrides of <see cref="M:GadgetCore.API.MenuInfo.OpenMenuRoutine"/>
+            Triggers the OnMenuOpened event. Should only be used by <see cref="M:GadgetCore.API.MenuInfo.OpenMenuRoutine"/>
             </summary>
         </member>
         <member name="M:GadgetCore.API.MenuInfo.InvokeOnMenuClosed">
             <summary>
-            Triggers the OnMenuClosed event. Should only be used by overrides of <see cref="M:GadgetCore.API.MenuInfo.CloseMenuRoutine"/>
+            Triggers the OnMenuClosed event. Should only be used by <see cref="M:GadgetCore.API.MenuInfo.CloseMenuRoutine"/>
             </summary>
         </member>
         <member name="M:GadgetCore.API.MenuInfo.GetEntryType">
@@ -5918,6 +5983,11 @@
             A UMF mod that didn't load because of an assembly reference that failed to resolve.
             </summary>
         </member>
+        <member name="T:GadgetCore.Patches.Patch_Type_GetMethod">
+            <summary>
+            Dirty hack, nothing to see here...
+            </summary>
+        </member>
         <member name="T:GadgetCore.PatchMethods">
             <summary>
             Provides utility methods used by GadgetCore's patches. You probably shouldn't use these yourself.
@@ -6240,7 +6310,7 @@
         </member>
         <member name="T:GadgetCore.Util.ObjImporter">
             <summary>
-            Obj format mesh importer. You should probably use <see cref="M:GadgetCore.API.GadgetCoreAPI.LoadObjMesh(System.String,System.Boolean)"/>.
+            Obj format mesh importer. You should probably use <see cref="M:GadgetCore.API.GadgetCoreAPI.LoadObjMesh(System.String)"/>.
             </summary>
         </member>
         <member name="M:GadgetCore.Util.ObjImporter.ImportMesh(System.String)">
@@ -6280,16 +6350,16 @@
             <summary>
             Gets the value of a field with the specified name and parameters.
             </summary>
-            <param name="type">The object instance to invoke upon.</param>
-            <param name="fieldName">The name of the field to invoke.</param>
+            <param name="type">The object instance to read from.</param>
+            <param name="fieldName">The name of the field to read from.</param>
             <returns>The value contained within the field.</returns>
         </member>
         <member name="M:GadgetCore.Util.ReflectionUtils.SetFieldValue(System.Object,System.String,System.Object)">
             <summary>
-            Gets the value of a field with the specified name and parameters.
+            Sets the value of a field with the specified name and parameters.
             </summary>
-            <param name="type">The object instance to invoke upon.</param>
-            <param name="fieldName">The name of the field to invoke.</param>
+            <param name="type">The object instance to write to.</param>
+            <param name="fieldName">The name of the field to write to.</param>
             <param name="value">The value to set to the field.</param>
         </member>
         <member name="M:GadgetCore.Util.ReflectionUtils.InvokeMethod``1(System.Object,System.String,System.Object[])">
@@ -6329,16 +6399,6 @@
             <param name="generics">The generic types that the target method uses</param>
             <param name="parameters">The parameters to run the method with.</param>
             <returns>The value returned by the invoked method.</returns>
-        </member>
-        <member name="M:GadgetCore.Util.ReflectionUtils.CreateInvoker``1(System.Reflection.MethodInfo,System.Object)">
-            <summary>
-            Creates an invoker delegate for the given MethodInfo, allowing you to repeatedly invoke it without repeated calls to MethodInfo's Invoke method.
-            </summary>
-        </member>
-        <member name="M:GadgetCore.Util.ReflectionUtils.CreateInvoker(System.Reflection.MethodInfo,System.Object)">
-            <summary>
-            Creates an invoker delegate for the given MethodInfo, allowing you to repeatedly invoke it without repeated calls to MethodInfo's Invoke method.
-            </summary>
         </member>
         <member name="M:GadgetCore.Util.ReflectionUtils.CreateGetter(System.Reflection.FieldInfo)">
             <summary>

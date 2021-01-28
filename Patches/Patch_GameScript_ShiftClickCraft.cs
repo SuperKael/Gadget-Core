@@ -39,7 +39,7 @@ namespace GadgetCore.Patches
                                 if (!flag2) __instance.GetComponent<AudioSource>().PlayOneShot((AudioClip)Resources.Load("Au/CLICK3"), Menuu.soundLevel / 10f);
                                 ___craft[slot].q -= 9999 - ___inventory[i].q;
                                 ___inventory[i].q = 9999;
-                                typeof(GameScript).GetMethod("RefreshSlot", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(__instance, new object[] { i });
+                                __instance.RefreshSlot(i);
                                 flag2 = true;
                             }
                         }
@@ -49,7 +49,7 @@ namespace GadgetCore.Patches
                         __instance.GetComponent<AudioSource>().PlayOneShot((AudioClip)Resources.Load("Au/CLICK3"), Menuu.soundLevel / 10f);
                         ___inventory[num].q += ___craft[slot].q;
                         ___craft[slot] = new Item(0, 0, 0, 0, 0, new int[3], new int[3]);
-                        typeof(GameScript).GetMethod("RefreshSlot", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(__instance, new object[] { num });
+                        __instance.RefreshSlot(num);
                     }
                     else
                     {
@@ -60,7 +60,7 @@ namespace GadgetCore.Patches
                                 if (!flag2) __instance.GetComponent<AudioSource>().PlayOneShot((AudioClip)Resources.Load("Au/CLICK3"), Menuu.soundLevel / 10f);
                                 ___inventory[i] = ___craft[slot];
                                 ___craft[slot] = new Item(0, 0, 0, 0, 0, new int[3], new int[3]);
-                                typeof(GameScript).GetMethod("RefreshSlot", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(__instance, new object[] { i });
+                                __instance.RefreshSlot(i);
                                 break;
                             }
                             else if (GadgetCoreAPI.CanItemsStack(___inventory[i], itemInSlot) && ___inventory[i].q < 9999)
@@ -70,7 +70,7 @@ namespace GadgetCore.Patches
                                     if (!flag2) __instance.GetComponent<AudioSource>().PlayOneShot((AudioClip)Resources.Load("Au/CLICK3"), Menuu.soundLevel / 10f);
                                     ___inventory[i].q += ___craft[slot].q;
                                     ___craft[slot] = new Item(0, 0, 0, 0, 0, new int[3], new int[3]);
-                                    typeof(GameScript).GetMethod("RefreshSlot", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(__instance, new object[] { i });
+                                    __instance.RefreshSlot(i);
                                     break;
                                 }
                                 else
@@ -78,14 +78,14 @@ namespace GadgetCore.Patches
                                     if (!flag2) __instance.GetComponent<AudioSource>().PlayOneShot((AudioClip)Resources.Load("Au/CLICK3"), Menuu.soundLevel / 10f);
                                     ___craft[slot].q -= 9999 - ___inventory[i].q;
                                     ___inventory[i].q = 9999;
-                                    typeof(GameScript).GetMethod("RefreshSlot", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(__instance, new object[] { i });
+                                    __instance.RefreshSlot(i);
                                 }
                                 flag2 = true;
                             }
                         }
                     }
-                    typeof(GameScript).GetMethod("RefreshSlotCraft", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(__instance, new object[] { slot });
-                    typeof(GameScript).GetMethod("CraftCheck", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(__instance, new object[] { });
+                    __instance.RefreshSlotCraft(slot);
+                    __instance.CraftCheck();
                     ___shiftclicking = false;
                     __result = FakeRoutine();
                     return false;
@@ -99,9 +99,9 @@ namespace GadgetCore.Patches
                             __instance.GetComponent<AudioSource>().PlayOneShot((AudioClip)Resources.Load("Au/CLICK3"), Menuu.soundLevel / 10f);
                             ___inventory[i] = ___craft[slot];
                             ___craft[slot] = new Item(0, 0, 0, 0, 0, new int[3], new int[3]);
-                            typeof(GameScript).GetMethod("RefreshSlot", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(__instance, new object[] { i });
-                            typeof(GameScript).GetMethod("RefreshSlotCraft", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(__instance, new object[] { slot });
-                            typeof(GameScript).GetMethod("CraftCheck", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(__instance, new object[] { });
+                            __instance.RefreshSlot(i);
+                            __instance.RefreshSlotCraft(slot);
+                            __instance.CraftCheck();
                             break;
                         }
                     }

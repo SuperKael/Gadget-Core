@@ -10,7 +10,7 @@ namespace GadgetCore.Patches
     [HarmonyPatch("UseSkill")]
     static class Patch_GameScript_UseSkill
     {
-        public static readonly MethodInfo Die = typeof(GameScript).GetMethod("Die", BindingFlags.NonPublic | BindingFlags.Instance);
+        public static readonly MethodInfo Die = typeof(GameScript).GetMethod("Die", BindingFlags.Public | BindingFlags.Instance);
         public static readonly FieldInfo skilling = typeof(GameScript).GetField("skilling", BindingFlags.NonPublic | BindingFlags.Instance);
 
         [HarmonyPrefix]

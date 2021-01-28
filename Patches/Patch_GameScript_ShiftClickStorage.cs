@@ -40,7 +40,7 @@ namespace GadgetCore.Patches
                                 if (!flag2) __instance.GetComponent<AudioSource>().PlayOneShot((AudioClip)Resources.Load("Au/CLICK3"), Menuu.soundLevel / 10f);
                                 ___storage[num].q -= 9999 - ___inventory[i].q;
                                 ___inventory[i].q = 9999;
-                                typeof(GameScript).GetMethod("RefreshSlot", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(__instance, new object[] { i });
+                                __instance.RefreshSlot(i);
                                 flag2 = true;
                             }
                         }
@@ -50,7 +50,7 @@ namespace GadgetCore.Patches
                         __instance.GetComponent<AudioSource>().PlayOneShot((AudioClip)Resources.Load("Au/CLICK3"), Menuu.soundLevel / 10f);
                         ___inventory[num2].q += ___storage[num].q;
                         ___storage[num] = new Item(0, 0, 0, 0, 0, new int[3], new int[3]);
-                        typeof(GameScript).GetMethod("RefreshSlot", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(__instance, new object[] { num2 });
+                        __instance.RefreshSlot(num2);
                     }
                     else
                     {
@@ -61,7 +61,7 @@ namespace GadgetCore.Patches
                                 if (!flag2) __instance.GetComponent<AudioSource>().PlayOneShot((AudioClip)Resources.Load("Au/CLICK3"), Menuu.soundLevel / 10f);
                                 ___inventory[i] = ___storage[num];
                                 ___storage[num] = new Item(0, 0, 0, 0, 0, new int[3], new int[3]);
-                                typeof(GameScript).GetMethod("RefreshSlot", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(__instance, new object[] { i });
+                                __instance.RefreshSlot(i);
                                 break;
                             }
                             else if (GadgetCoreAPI.CanItemsStack(___inventory[i], itemInSlot) && ___inventory[i].q < 9999)
@@ -71,7 +71,7 @@ namespace GadgetCore.Patches
                                     if (!flag2) __instance.GetComponent<AudioSource>().PlayOneShot((AudioClip)Resources.Load("Au/CLICK3"), Menuu.soundLevel / 10f);
                                     ___inventory[i].q += ___storage[num].q;
                                     ___storage[num] = new Item(0, 0, 0, 0, 0, new int[3], new int[3]);
-                                    typeof(GameScript).GetMethod("RefreshSlot", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(__instance, new object[] { i });
+                                    __instance.RefreshSlot(i);
                                     break;
                                 }
                                 else
@@ -79,13 +79,13 @@ namespace GadgetCore.Patches
                                     if (!flag2) __instance.GetComponent<AudioSource>().PlayOneShot((AudioClip)Resources.Load("Au/CLICK3"), Menuu.soundLevel / 10f);
                                     ___storage[num].q -= 9999 - ___inventory[i].q;
                                     ___inventory[i].q = 9999;
-                                    typeof(GameScript).GetMethod("RefreshSlot", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(__instance, new object[] { i });
+                                    __instance.RefreshSlot(i);
                                 }
                                 flag2 = true;
                             }
                         }
                     }
-                    __instance.StartCoroutine((IEnumerator)typeof(GameScript).GetMethod("RefreshStoragePage", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(__instance, new object[] { ___curStoragePage }));
+                    __instance.StartCoroutine(__instance.RefreshStoragePage(___curStoragePage));
                     ___shiftclicking = false;
                     __result = FakeRoutine();
                     return false;
@@ -99,8 +99,8 @@ namespace GadgetCore.Patches
                             __instance.GetComponent<AudioSource>().PlayOneShot((AudioClip)Resources.Load("Au/CLICK3"), Menuu.soundLevel / 10f);
                             ___inventory[i] = ___storage[num];
                             ___storage[num] = new Item(0, 0, 0, 0, 0, new int[3], new int[3]);
-                            typeof(GameScript).GetMethod("RefreshSlot", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(__instance, new object[] { i });
-                            __instance.StartCoroutine((IEnumerator)typeof(GameScript).GetMethod("RefreshStoragePage", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(__instance, new object[] { ___curStoragePage }));
+                            __instance.RefreshSlot(i);
+                            __instance.StartCoroutine(__instance.RefreshStoragePage(___curStoragePage));
                             break;
                         }
                     }

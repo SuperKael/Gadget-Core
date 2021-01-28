@@ -81,8 +81,8 @@ namespace GadgetCore.Patches
                             }
                         }
                     }
-                    typeof(GameScript).GetMethod("RefreshSlot", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(__instance, new object[] { slot });
-                    __instance.StartCoroutine((IEnumerator)typeof(GameScript).GetMethod("RefreshStoragePage", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(__instance, new object[] { ___curStoragePage }));
+                    __instance.RefreshSlot(slot);
+                    __instance.StartCoroutine(__instance.RefreshStoragePage(___curStoragePage));
                 }
                 else
                 {
@@ -126,7 +126,7 @@ namespace GadgetCore.Patches
                                     }
                                 }
                                 GadgetCoreAPI.equippedGearStats[slot - 36] = new int[] { 0, 0, 0, 0, 0, 0 };
-                                typeof(GameScript).GetMethod("RefreshStats", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(__instance, new object[] { });
+                                __instance.RefreshStats();
                                 Network.RemoveRPCs(MenuScript.playerAppearance.GetComponent<NetworkView>().viewID);
                                 MenuScript.playerAppearance.GetComponent<NetworkView>().RPC("UA", RPCMode.AllBuffered, new object[]
                                 {
@@ -141,12 +141,12 @@ namespace GadgetCore.Patches
                             __instance.GetComponent<AudioSource>().PlayOneShot((AudioClip)Resources.Load("Au/CLICK3"), Menuu.soundLevel / 10f);
                             ___storage[i] = ___inventory[slot];
                             ___inventory[slot] = new Item(0, 0, 0, 0, 0, new int[3], new int[3]);
-                            typeof(GameScript).GetMethod("RefreshSlot", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(__instance, new object[] { slot });
-                            __instance.StartCoroutine((IEnumerator)typeof(GameScript).GetMethod("RefreshStoragePage", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(__instance, new object[] { ___curStoragePage }));
+                            __instance.RefreshSlot(slot);
+                            __instance.StartCoroutine(__instance.RefreshStoragePage(___curStoragePage));    
                             if (slotItemType == ItemType.DROID && slot > 41)
                             {
                                 ___droidCount--;
-                                typeof(GameScript).GetMethod("UpdateDroids", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(__instance, new object[] { });
+                                __instance.UpdateDroids();
                             }
                             if (slotInfo != null) slotInfo.InvokeOnDequip(slot);
                             break;

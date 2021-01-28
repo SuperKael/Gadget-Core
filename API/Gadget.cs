@@ -111,12 +111,11 @@ namespace GadgetCore.API
         /// <summary>
         /// Returns an <see cref="IGadgetConfigMenu"/> for this Gadget. By default, returns a <see cref="INIGadgetConfigMenu"/> for this Gadget's UMF config file. May return null if the Gadget should not have a config menu.
         /// </summary>
-        /// <returns></returns>
         public virtual IGadgetConfigMenu GetConfigMenu()
         {
             try
             {
-                return new INIGadgetConfigMenu(Regex.Replace(Gadgets.GetGadgetInfo(ModID).Attribute.Name, @"\s+", ""), false, Path.Combine(GadgetPaths.ConfigsPath, Assembly.GetAssembly(GetType()).GetName().Name) + ".ini", Info.Attribute.AllowConfigReloading ? ModMenuController.modEntries[ModID] : null);
+                return new INIGadgetConfigMenu(Regex.Replace(Info.Attribute.Name, @"\s+", ""), false, Path.Combine(GadgetPaths.ConfigsPath, Assembly.GetAssembly(GetType()).GetName().Name) + ".ini", Info.Attribute.AllowConfigReloading ? ModMenuController.modEntries[ModID] : null);
             }
             catch (InvalidOperationException e)
             {
@@ -124,10 +123,7 @@ namespace GadgetCore.API
                 {
                     return null;
                 }
-                else
-                {
-                    throw;
-                }
+                else throw;
             }
         }
 

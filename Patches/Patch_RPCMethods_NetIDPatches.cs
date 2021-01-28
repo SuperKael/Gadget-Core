@@ -9,7 +9,7 @@ namespace GadgetCore.Patches.NetIDPatches
     [HarmonyPatch("ShootProjectile")]
     static class Patch_TurretScript_ShootProjectile
     {
-        public static readonly MethodInfo RPCMethod = typeof(TurretScript).GetMethod("ShootProjectile", BindingFlags.NonPublic | BindingFlags.Instance);
+        public static readonly MethodInfo RPCMethod = typeof(TurretScript).GetMethod("ShootProjectile", BindingFlags.Public | BindingFlags.Instance);
 
         [HarmonyPrefix]
         public static bool Prefix(TurretScript __instance, ref int id, Vector3 targ, int dmg)
@@ -28,7 +28,7 @@ namespace GadgetCore.Patches.NetIDPatches
     [HarmonyPatch("CreateWorld")]
     static class Patch_SpawnerScript_CreateWorld
     {
-        public static readonly MethodInfo RPCMethod = typeof(SpawnerScript).GetMethod("CreateWorld", BindingFlags.NonPublic | BindingFlags.Instance);
+        public static readonly MethodInfo RPCMethod = typeof(SpawnerScript).GetMethod("CreateWorld", BindingFlags.Public | BindingFlags.Instance);
 
         [HarmonyPrefix]
         public static bool Prefix(SpawnerScript __instance, ref int[] s)
@@ -51,7 +51,7 @@ namespace GadgetCore.Patches.NetIDPatches
     [HarmonyPatch("CreateTown")]
     static class Patch_SpawnerScript_CreateTown
     {
-        public static readonly MethodInfo RPCMethod = typeof(SpawnerScript).GetMethod("CreateTown", BindingFlags.NonPublic | BindingFlags.Instance);
+        public static readonly MethodInfo RPCMethod = typeof(SpawnerScript).GetMethod("CreateTown", BindingFlags.Public | BindingFlags.Instance);
 
         [HarmonyPrefix]
         public static bool Prefix(SpawnerScript __instance, ref int[] s)
@@ -70,7 +70,7 @@ namespace GadgetCore.Patches.NetIDPatches
     [HarmonyPatch("SpawnProjectile")]
     static class Patch_ProjectileMaker_SpawnProjectile
     {
-        public static readonly MethodInfo RPCMethod = typeof(ProjectileMaker).GetMethod("SpawnProjectile", BindingFlags.NonPublic | BindingFlags.Instance);
+        public static readonly MethodInfo RPCMethod = typeof(ProjectileMaker).GetMethod("SpawnProjectile", BindingFlags.Public | BindingFlags.Instance);
 
         [HarmonyPrefix]
         public static bool Prefix(ProjectileMaker __instance, NetworkViewID viewID, ref int id, Vector3 targ, int dmg)
@@ -89,7 +89,7 @@ namespace GadgetCore.Patches.NetIDPatches
     [HarmonyPatch("SetNetworked")]
     static class Patch_Projectile_SetNetworked
     {
-        public static readonly MethodInfo RPCMethod = typeof(Projectile).GetMethod("SetNetworked", BindingFlags.NonPublic | BindingFlags.Instance);
+        public static readonly MethodInfo RPCMethod = typeof(Projectile).GetMethod("SetNetworked", BindingFlags.Public | BindingFlags.Instance);
 
         [HarmonyPrefix]
         public static bool Prefix(Projectile __instance, int dmg, ref int id, Vector3 dir)
@@ -108,7 +108,7 @@ namespace GadgetCore.Patches.NetIDPatches
     [HarmonyPatch("SetName")]
     static class Patch_PortalScript_SetName
     {
-        public static readonly MethodInfo RPCMethod = typeof(PortalScript).GetMethod("SetName", BindingFlags.NonPublic | BindingFlags.Instance);
+        public static readonly MethodInfo RPCMethod = typeof(PortalScript).GetMethod("SetName", BindingFlags.Public | BindingFlags.Instance);
 
         [HarmonyPrefix]
         public static bool Prefix(PortalScript __instance, ref int a)
@@ -127,7 +127,7 @@ namespace GadgetCore.Patches.NetIDPatches
     [HarmonyPatch("Set")]
     static class Patch_PortalAppearance_Set
     {
-        public static readonly MethodInfo RPCMethod = typeof(PortalAppearance).GetMethod("Set", BindingFlags.NonPublic | BindingFlags.Instance);
+        public static readonly MethodInfo RPCMethod = typeof(PortalAppearance).GetMethod("Set", BindingFlags.Public | BindingFlags.Instance);
 
         [HarmonyPrefix]
         public static bool Prefix(PortalAppearance __instance, ref int b, int h, int num)
@@ -146,7 +146,7 @@ namespace GadgetCore.Patches.NetIDPatches
     [HarmonyPatch("Staff")]
     static class Patch_PlayerScript_Staff
     {
-        public static readonly MethodInfo RPCMethod = typeof(PlayerScript).GetMethod("Staff", BindingFlags.NonPublic | BindingFlags.Instance);
+        public static readonly MethodInfo RPCMethod = typeof(PlayerScript).GetMethod("Staff", BindingFlags.Public | BindingFlags.Instance);
 
         [HarmonyPrefix]
         public static bool Prefix(PlayerScript __instance, ref int id, int dmg, NetworkPlayer pp)
@@ -165,7 +165,7 @@ namespace GadgetCore.Patches.NetIDPatches
     [HarmonyPatch("ShootSpecial")]
     static class Patch_PlayerScript_ShootSpecial
     {
-        public static readonly MethodInfo RPCMethod = typeof(PlayerScript).GetMethod("ShootSpecial", BindingFlags.NonPublic | BindingFlags.Instance);
+        public static readonly MethodInfo RPCMethod = typeof(PlayerScript).GetMethod("ShootSpecial", BindingFlags.Public | BindingFlags.Instance);
 
         [HarmonyPrefix]
         public static bool Prefix(PlayerScript __instance, ref int id, Vector3 targ, int dmg)
@@ -184,7 +184,7 @@ namespace GadgetCore.Patches.NetIDPatches
     [HarmonyPatch("ShootProjectile")]
     static class Patch_PlayerScript_ShootProjectile
     {
-        public static readonly MethodInfo RPCMethod = typeof(PlayerScript).GetMethod("ShootProjectile", BindingFlags.NonPublic | BindingFlags.Instance);
+        public static readonly MethodInfo RPCMethod = typeof(PlayerScript).GetMethod("ShootProjectile", BindingFlags.Public | BindingFlags.Instance);
 
         [HarmonyPrefix]
         public static bool Prefix(PlayerScript __instance, ref int id, Vector3 targ, int dmg)
@@ -209,7 +209,7 @@ namespace GadgetCore.Patches.NetIDPatches
     [HarmonyPatch("ShootProjectile2")]
     static class Patch_PlayerScript_ShootProjectile2
     {
-        public static readonly MethodInfo RPCMethod = typeof(PlayerScript).GetMethod("ShootProjectile2", BindingFlags.NonPublic | BindingFlags.Instance);
+        public static readonly MethodInfo RPCMethod = typeof(PlayerScript).GetMethod("ShootProjectile2", BindingFlags.Public | BindingFlags.Instance);
 
         [HarmonyPrefix]
         public static bool Prefix(PlayerScript __instance, ref int id, Vector3 targ, int dmg, Vector3 burst)
@@ -234,7 +234,7 @@ namespace GadgetCore.Patches.NetIDPatches
     [HarmonyPatch("NetworkedProjectile")]
     static class Patch_PlayerScript_NetworkedProjectile
     {
-        public static readonly MethodInfo RPCMethod = typeof(PlayerScript).GetMethod("NetworkedProjectile", BindingFlags.NonPublic | BindingFlags.Instance);
+        public static readonly MethodInfo RPCMethod = typeof(PlayerScript).GetMethod("NetworkedProjectile", BindingFlags.Public | BindingFlags.Instance);
 
         [HarmonyPrefix]
         public static bool Prefix(PlayerScript __instance, ref int id, int dmg, NetworkPlayer pp, Vector3 dir)
@@ -253,7 +253,7 @@ namespace GadgetCore.Patches.NetIDPatches
     [HarmonyPatch("UA")]
     static class Patch_PlayerAppearance_UA
     {
-        public static readonly MethodInfo RPCMethod = typeof(PlayerAppearance).GetMethod("UA", BindingFlags.NonPublic | BindingFlags.Instance);
+        public static readonly MethodInfo RPCMethod = typeof(PlayerAppearance).GetMethod("UA", BindingFlags.Public | BindingFlags.Instance);
 
         [HarmonyPrefix]
         public static bool Prefix(PlayerAppearance __instance, ref int[] ei, int a, bool dead)
@@ -278,7 +278,7 @@ namespace GadgetCore.Patches.NetIDPatches
     [HarmonyPatch("Set")]
     static class Patch_KylockeStand_Set
     {
-        public static readonly MethodInfo RPCMethod = typeof(KylockeStand).GetMethod("Set", BindingFlags.NonPublic | BindingFlags.Instance);
+        public static readonly MethodInfo RPCMethod = typeof(KylockeStand).GetMethod("Set", BindingFlags.Public | BindingFlags.Instance);
 
 
         [HarmonyPrefix]
@@ -298,7 +298,7 @@ namespace GadgetCore.Patches.NetIDPatches
     [HarmonyPatch("Set")]
     static class Patch_ItemStandScript_Set
     {
-        public static readonly MethodInfo RPCMethod = typeof(ItemStandScript).GetMethod("Set", BindingFlags.NonPublic | BindingFlags.Instance);
+        public static readonly MethodInfo RPCMethod = typeof(ItemStandScript).GetMethod("Set", BindingFlags.Public | BindingFlags.Instance);
 
         [HarmonyPrefix]
         public static bool Prefix(ItemStandScript __instance, ref int[] p)
@@ -317,7 +317,7 @@ namespace GadgetCore.Patches.NetIDPatches
     [HarmonyPatch("Init")]
     static class Patch_ItemScript_Init
     {
-        public static readonly MethodInfo RPCMethod = typeof(ItemScript).GetMethod("Init", BindingFlags.NonPublic | BindingFlags.Instance);
+        public static readonly MethodInfo RPCMethod = typeof(ItemScript).GetMethod("Init", BindingFlags.Public | BindingFlags.Instance);
 
         [HarmonyPrefix]
         public static bool Prefix(ItemScript __instance, ref int[] stats)
@@ -339,7 +339,7 @@ namespace GadgetCore.Patches.NetIDPatches
     [HarmonyPatch("Chip")]
     static class Patch_ItemScript_Chip
     {
-        public static readonly MethodInfo RPCMethod = typeof(ItemScript).GetMethod("Chip", BindingFlags.NonPublic | BindingFlags.Instance);
+        public static readonly MethodInfo RPCMethod = typeof(ItemScript).GetMethod("Chip", BindingFlags.Public | BindingFlags.Instance);
 
         [HarmonyPrefix]
         public static bool Prefix(ItemScript __instance, ref int id)
@@ -358,7 +358,7 @@ namespace GadgetCore.Patches.NetIDPatches
     [HarmonyPatch("SpawnItem")]
     static class Patch_GameScript_SpawnItem
     {
-        public static readonly MethodInfo RPCMethod = typeof(GameScript).GetMethod("SpawnItem", BindingFlags.NonPublic | BindingFlags.Instance);
+        public static readonly MethodInfo RPCMethod = typeof(GameScript).GetMethod("SpawnItem", BindingFlags.Public | BindingFlags.Instance);
 
         [HarmonyPrefix]
         public static bool Prefix(GameScript __instance, ref int[] st, Vector3 pos)
@@ -380,7 +380,7 @@ namespace GadgetCore.Patches.NetIDPatches
     [HarmonyPatch("ChangePortal")]
     static class Patch_GameScript_ChangePortal
     {
-        public static readonly MethodInfo RPCMethod = typeof(GameScript).GetMethod("ChangePortal", BindingFlags.NonPublic | BindingFlags.Instance);
+        public static readonly MethodInfo RPCMethod = typeof(GameScript).GetMethod("ChangePortal", BindingFlags.Public | BindingFlags.Instance);
 
         [HarmonyPrefix]
         public static bool Prefix(GameScript __instance, ref int a, int challenge)
@@ -399,7 +399,7 @@ namespace GadgetCore.Patches.NetIDPatches
     [HarmonyPatch("ChangePortal2")]
     static class Patch_GameScript_ChangePortal2
     {
-        public static readonly MethodInfo RPCMethod = typeof(GameScript).GetMethod("ChangePortal2", BindingFlags.NonPublic | BindingFlags.Instance);
+        public static readonly MethodInfo RPCMethod = typeof(GameScript).GetMethod("ChangePortal2", BindingFlags.Public | BindingFlags.Instance);
 
         [HarmonyPrefix]
         public static bool Prefix(GameScript __instance, ref int a, int challenge)
@@ -418,7 +418,7 @@ namespace GadgetCore.Patches.NetIDPatches
     [HarmonyPatch("ShootProjectile")]
     static class Patch_DroidScript_ShootProjectile
     {
-        public static readonly MethodInfo RPCMethod = typeof(DroidScript).GetMethod("ShootProjectile", BindingFlags.NonPublic | BindingFlags.Instance);
+        public static readonly MethodInfo RPCMethod = typeof(DroidScript).GetMethod("ShootProjectile", BindingFlags.Public | BindingFlags.Instance);
 
         [HarmonyPrefix]
         public static bool Prefix(DroidScript __instance, ref int id, Vector3 targ, int dmg)
@@ -437,7 +437,7 @@ namespace GadgetCore.Patches.NetIDPatches
     [HarmonyPatch("UA")]
     static class Patch_DroidManager_UA
     {
-        public static readonly MethodInfo RPCMethod = typeof(DroidManager).GetMethod("UA", BindingFlags.NonPublic | BindingFlags.Instance);
+        public static readonly MethodInfo RPCMethod = typeof(DroidManager).GetMethod("UA", BindingFlags.Public | BindingFlags.Instance);
 
         [HarmonyPrefix]
         public static bool Prefix(DroidManager __instance, ref int[] d)
@@ -458,7 +458,7 @@ namespace GadgetCore.Patches.NetIDPatches
     [HarmonyPatch("RefreshWall")]
     static class Patch_ChunkWorld_RefreshWall
     {
-        public static readonly MethodInfo RPCMethod = typeof(ChunkWorld).GetMethod("RefreshWall", BindingFlags.NonPublic | BindingFlags.Instance);
+        public static readonly MethodInfo RPCMethod = typeof(ChunkWorld).GetMethod("RefreshWall", BindingFlags.Public | BindingFlags.Instance);
 
         [HarmonyPrefix]
         public static bool Prefix(ChunkWorld __instance, ref int[] gg)
@@ -480,7 +480,7 @@ namespace GadgetCore.Patches.NetIDPatches
     [HarmonyPatch("RefreshShip")]
     static class Patch_ChunkWorld_RefreshShip
     {
-        public static readonly MethodInfo RPCMethod = typeof(ChunkWorld).GetMethod("RefreshShip", BindingFlags.NonPublic | BindingFlags.Instance);
+        public static readonly MethodInfo RPCMethod = typeof(ChunkWorld).GetMethod("RefreshShip", BindingFlags.Public | BindingFlags.Instance);
 
         [HarmonyPrefix]
         public static bool Prefix(ChunkWorld __instance, ref int[] gg, ref int[] ggs)
@@ -506,7 +506,7 @@ namespace GadgetCore.Patches.NetIDPatches
     [HarmonyPatch("SetMaterial")]
     static class Patch_Chunk_SetMaterial
     {
-        public static readonly MethodInfo RPCMethod = typeof(Chunk).GetMethod("SetMaterial", BindingFlags.NonPublic | BindingFlags.Instance);
+        public static readonly MethodInfo RPCMethod = typeof(Chunk).GetMethod("SetMaterial", BindingFlags.Public | BindingFlags.Instance);
 
         [HarmonyPrefix]
         public static bool Prefix(Chunk __instance, ref int a)

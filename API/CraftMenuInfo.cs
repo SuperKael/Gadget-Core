@@ -15,9 +15,9 @@ namespace GadgetCore.API
     /// </summary>
     public class CraftMenuInfo : MenuInfo
     {
-        private static readonly MethodInfo RefreshExpBar = typeof(GameScript).GetMethod("RefreshExpBar", BindingFlags.NonPublic | BindingFlags.Instance);
-        private static readonly MethodInfo Crafting = typeof(GameScript).GetMethod("Crafting", BindingFlags.NonPublic | BindingFlags.Instance);
-        private static readonly MethodInfo CraftCheck = typeof(GameScript).GetMethod("CraftCheck", BindingFlags.NonPublic | BindingFlags.Instance);
+        private static readonly MethodInfo RefreshExpBar = typeof(GameScript).GetMethod("RefreshExpBar", BindingFlags.Public | BindingFlags.Instance);
+        private static readonly MethodInfo Crafting = typeof(GameScript).GetMethod("Crafting", BindingFlags.Public | BindingFlags.Instance);
+        private static readonly MethodInfo CraftCheck = typeof(GameScript).GetMethod("CraftCheck", BindingFlags.Public | BindingFlags.Instance);
 
         private static readonly FieldInfo holdingItem = typeof(GameScript).GetField("holdingItem", BindingFlags.NonPublic | BindingFlags.Instance);
         private static readonly FieldInfo curRecipePage = typeof(GameScript).GetField("curRecipePage", BindingFlags.NonPublic | BindingFlags.Instance);

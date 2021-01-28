@@ -16,7 +16,7 @@ namespace GadgetCore.Patches
     [HarmonyPatch("Update")]
     static class Patch_GameScript_Update
     {
-        public static readonly MethodInfo RefreshSlot = typeof(GameScript).GetMethod("RefreshSlot", BindingFlags.NonPublic | BindingFlags.Instance);
+        public static readonly MethodInfo RefreshSlot = typeof(GameScript).GetMethod("RefreshSlot", BindingFlags.Public | BindingFlags.Instance);
 
         [HarmonyPrefix]
         public static void Prefix(ref Item ___holdingItem, ref Item __state)

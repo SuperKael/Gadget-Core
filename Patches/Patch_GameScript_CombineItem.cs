@@ -8,7 +8,7 @@ namespace GadgetCore.Patches
     [HarmonyPatch("CombineItem")]
     static class Patch_GameScript_CombineItem
     {
-        public static readonly MethodInfo SwapItem = typeof(GameScript).GetMethod("SwapItem", BindingFlags.NonPublic | BindingFlags.Instance);
+        public static readonly MethodInfo SwapItem = typeof(GameScript).GetMethod("SwapItem", BindingFlags.Public | BindingFlags.Instance);
 
         [HarmonyPrefix]
         public static bool Prefix(GameScript __instance, int slot, Item[] ___inventory, Item ___holdingItem)

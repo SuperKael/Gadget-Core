@@ -11,6 +11,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace GadgetCore.Loader
 {
@@ -265,7 +266,10 @@ namespace GadgetCore.Loader
                             gadget.CreateSingleton(gadget);
                             GadgetInfo info = new GadgetInfo(gadget, attribute, mod);
                             gadget.Logger = new GadgetLogger(mod.Name, attribute.Name);
-                            gadget.Config = new GadgetConfig(Path.Combine(GadgetPaths.ConfigsPath, mod.Name + ".ini"), attribute.Name);
+                            string configFileName = Path.Combine(GadgetPaths.ConfigsPath, mod.Assembly.GetName().Name) + ".ini";
+                            string oldConfigFileName = Path.Combine(GadgetPaths.ConfigsPath, mod.Name + ".ini");
+                            if (!File.Exists(configFileName) && File.Exists(oldConfigFileName)) File.Move(oldConfigFileName, configFileName);
+                            gadget.Config = new GadgetConfig(configFileName, Regex.Replace(attribute.Name, @"\s+", ""));
                             Gadgets.RegisterGadget(info);
                             mod.m_LoadedGadgets.Add(info);
                             if (!BatchLoading)

@@ -10,8 +10,8 @@ namespace GadgetCore
     /// </summary>
     public static class PatchMethods
     {
-        private static MethodInfo GetItemLevel2 = typeof(GameScript).GetMethod("GetItemLevel2", BindingFlags.NonPublic | BindingFlags.Instance);
-        private static MethodInfo GetGearAspect = typeof(GameScript).GetMethod("GetGearAspect", BindingFlags.NonPublic | BindingFlags.Instance);
+        private static MethodInfo GetItemLevel2 = typeof(GameScript).GetMethod("GetItemLevel2", BindingFlags.Public | BindingFlags.Instance);
+        private static MethodInfo GetGearAspect = typeof(GameScript).GetMethod("GetGearAspect", BindingFlags.Public | BindingFlags.Instance);
 
         /// <summary>
         /// Displays the item-hover window on the cursor. For some reason, the base game has six different methods that all pretty much just do this.

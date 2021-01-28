@@ -10,7 +10,7 @@ namespace GadgetCore.Patches
     [HarmonyPatch("InitL")]
     static class Patch_ItemScript_InitL
     {
-        public static readonly MethodInfo Burst = typeof(ItemScript).GetMethod("Burst", BindingFlags.NonPublic | BindingFlags.Instance);
+        public static readonly MethodInfo Burst = typeof(ItemScript).GetMethod("Burst", BindingFlags.Public | BindingFlags.Instance);
 
         [HarmonyPrefix]
         public static bool Prefix(ItemScript __instance, int[] stats, ref Item ___item, ref Package ___package)

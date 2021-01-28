@@ -9,7 +9,7 @@ namespace GadgetCore.Patches
     [HarmonyPatch("RefreshStoragePage")]
     static class Patch_GameScript_RefreshStoragePage
     {
-        public static readonly MethodInfo RefreshSlotStorage = typeof(GameScript).GetMethod("RefreshSlotStorage", BindingFlags.NonPublic | BindingFlags.Instance);
+        public static readonly MethodInfo RefreshSlotStorage = typeof(GameScript).GetMethod("RefreshSlotStorage", BindingFlags.Public | BindingFlags.Instance);
         public static readonly FieldInfo curStoragePage = typeof(GameScript).GetField("curStoragePage", BindingFlags.NonPublic | BindingFlags.Instance);
 
         [HarmonyPrefix]

@@ -9,9 +9,6 @@ namespace GadgetCore.API
     /// </summary>
     public class VanillaItemInfo : ItemInfo
     {
-        private static MethodInfo UseMethod = typeof(PlayerScript).GetMethod("UseItemFinal", BindingFlags.NonPublic | BindingFlags.Instance);
-        private static MethodInfo AttackMethod = typeof(PlayerScript).GetMethod("Attack", BindingFlags.NonPublic | BindingFlags.Instance);
-
         internal static Dictionary<int, VanillaItemInfo> Wrappers = new Dictionary<int, VanillaItemInfo>();
 
         internal static bool Using;
@@ -28,11 +25,11 @@ namespace GadgetCore.API
             if ((Type & ItemType.EQUIP_MASK) == (ItemType.WEAPON & ItemType.EQUIP_MASK))
             {
                 SetWeaponInfo(ItemRegistry.GetDefaultWeaponScalingByID(ID), GadgetCoreAPI.GetAttackSound(ID), ItemRegistry.GetDefaultCritChanceBonus(ID), ItemRegistry.GetDefaultCritPowerBonus(ID), ID);
-                OnAttack += (script) => { Attacking = true; IEnumerator ie = AttackMethod.Invoke(script, new object[] { }) as IEnumerator; Attacking = false; return ie; };
+                OnAttack += (script) => { Attacking = true; IEnumerator ie = script.Attack(); Attacking = false; return ie; };
             }
             else if ((Type & ItemType.USABLE) == ItemType.USABLE)
             {
-                OnUse += (slot) => { Using = true; InstanceTracker.GameScript.StartCoroutine(UseMethod.Invoke(InstanceTracker.GameScript, new object[] { slot }) as IEnumerator); return false; };
+                OnUse += (slot) => { Using = true; InstanceTracker.GameScript.StartCoroutine(InstanceTracker.GameScript.UseItemFinal(slot)); return false; };
             }
             if (!WrapForTile)
             {

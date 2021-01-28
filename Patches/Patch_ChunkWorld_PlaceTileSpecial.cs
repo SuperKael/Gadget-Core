@@ -9,7 +9,7 @@ namespace GadgetCore.Patches
     [HarmonyPatch("PlaceTileSpecial")]
     static class Patch_ChunkWorld_PlaceTileSpecial
     {
-        public static readonly MethodInfo MultiplayerSupport = typeof(ChunkWorld).GetMethod("MultiplayerSupport", BindingFlags.NonPublic | BindingFlags.Instance);
+        public static readonly MethodInfo MultiplayerSupport = typeof(ChunkWorld).GetMethod("MultiplayerSupport", BindingFlags.Public | BindingFlags.Instance);
 
         [HarmonyPrefix]
         public static bool Prefix(ChunkWorld __instance, int[] msg, ref GameObject[,] ___gridSpecialObj)

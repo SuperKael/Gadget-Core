@@ -8,7 +8,7 @@ namespace GadgetCore.Patches
     [HarmonyPatch("SplitItemCraft")]
     static class Patch_GameScript_SplitItemCraft
     {
-        public static readonly MethodInfo SelectItemCraft = typeof(GameScript).GetMethod("SelectItemCraft", BindingFlags.NonPublic | BindingFlags.Instance);
+        public static readonly MethodInfo SelectItemCraft = typeof(GameScript).GetMethod("SelectItemCraft", BindingFlags.Public | BindingFlags.Instance);
 
         [HarmonyPrefix]
         public static bool Prefix(GameScript __instance, int slot, ref Item ___holdingItem)

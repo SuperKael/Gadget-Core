@@ -10,8 +10,8 @@ namespace GadgetCore.Patches
     [HarmonyPatch("AddItem")]
     static class Patch_GameScript_AddItem
     {
-        public static readonly MethodInfo RefreshSlot = typeof(GameScript).GetMethod("RefreshSlot", BindingFlags.NonPublic | BindingFlags.Instance);
-        public static readonly MethodInfo GetItemName = typeof(GameScript).GetMethod("GetItemName", BindingFlags.NonPublic | BindingFlags.Instance);
+        public static readonly MethodInfo RefreshSlot = typeof(GameScript).GetMethod("RefreshSlot", BindingFlags.Public | BindingFlags.Instance);
+        public static readonly MethodInfo GetItemName = typeof(GameScript).GetMethod("GetItemName", BindingFlags.Public | BindingFlags.Instance);
         public static readonly FieldInfo inventory = typeof(GameScript).GetField("inventory", BindingFlags.NonPublic | BindingFlags.Instance);
 
         [HarmonyPrefix]

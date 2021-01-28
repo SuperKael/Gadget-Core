@@ -79,6 +79,11 @@ namespace GadgetCore.API
         protected internal override void PostRegister()
         {
             if (Tile != null) Tile.OnInteract += OpenMenuRoutine;
+            if (MenuPrefab != null)
+            {
+                UnityEngine.Object.DontDestroyOnLoad(MenuPrefab);
+                MenuPrefab.SetActive(false);
+            }
         }
 
         /// <summary>
@@ -137,7 +142,6 @@ namespace GadgetCore.API
                     case MenuType.SIMPLE:
                     case MenuType.CRAFTING:
                         InstanceTracker.GameScript.inventoryMain.SetActive(true);
-                        MenuObj.SetActive(true);
                         break;
                     case MenuType.CHIP:
                         if (holdingItem.GetValue<Item>(InstanceTracker.GameScript).id != 0)
@@ -149,9 +153,9 @@ namespace GadgetCore.API
                         break;
                     case MenuType.EXCLUSIVE:
                         InstanceTracker.GameScript.inventoryMain.SetActive(false);
-                        MenuObj.SetActive(true);
                         break;
                 }
+                MenuObj.SetActive(true);
             }
             yield return new WaitForSeconds(0.5f);
             interacting.SetValue(InstanceTracker.PlayerScript, false);
@@ -166,15 +170,18 @@ namespace GadgetCore.API
             if (IsOpen)
             {
                 InstanceTracker.GameScript.GetComponent<AudioSource>().PlayOneShot((AudioClip)Resources.Load("Au/invClose"), Menuu.soundLevel / 10f);
+                InstanceTracker.GameScript.hoverItem.SetActive(false);
+                Cursor.visible = true;
+                if (holdingItem.GetValue<Item>(InstanceTracker.GameScript).id != 0)
+                {
+                    InstanceTracker.GameScript.InvokeMethod("DropItem");
+                }
+                InstanceTracker.GameScript.inventoryMain.SetActive(false);
+                MenuObj.SetActive(false);
+                GameScript.inventoryOpen = false;
                 switch (Type)
                 {
                     case MenuType.SIMPLE:
-                        InstanceTracker.GameScript.hoverItem.SetActive(false);
-                        if (holdingItem.GetValue<Item>(InstanceTracker.GameScript).id != 0)
-                        {
-                            InstanceTracker.GameScript.InvokeMethod("DropItem");
-                        }
-                        Cursor.visible = true;
                         break;
                     case MenuType.CRAFTING:
                         InstanceTracker.GameScript.InvokeMethod("DropCraftItems");
@@ -188,9 +195,6 @@ namespace GadgetCore.API
                     case MenuType.EXCLUSIVE:
                         break;
                 }
-                InstanceTracker.GameScript.inventoryMain.SetActive(false);
-                MenuObj.SetActive(false);
-                GameScript.inventoryOpen = false;
                 InvokeOnMenuClosed();
             }
             yield break;
@@ -207,7 +211,7 @@ namespace GadgetCore.API
         public event Action OnMenuClosed;
 
         /// <summary>
-        /// Triggers the OnMenuOpened event. Should only be used by overrides of <see cref="OpenMenuRoutine"/>
+        /// Triggers the OnMenuOpened event. Should only be used by <see cref="OpenMenuRoutine"/>
         /// </summary>
         protected void InvokeOnMenuOpened()
         {
@@ -215,7 +219,7 @@ namespace GadgetCore.API
         }
 
         /// <summary>
-        /// Triggers the OnMenuClosed event. Should only be used by overrides of <see cref="CloseMenuRoutine"/>
+        /// Triggers the OnMenuClosed event. Should only be used by <see cref="CloseMenuRoutine"/>
         /// </summary>
         protected void InvokeOnMenuClosed()
         {

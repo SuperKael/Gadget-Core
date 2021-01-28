@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace GadgetCore.API.ConfigMenu
 {
@@ -13,6 +14,11 @@ namespace GadgetCore.API.ConfigMenu
     /// </summary>
     public class INIGadgetConfigMenu : BasicGadgetConfigMenu
     {
+        /// <summary>
+        /// Regex for inserting spaces into PascalCase strings.
+        /// </summary>
+        public const string PASCAL_CASE_SPACING_REGEX = @"(?<!^)([A-Z][a-z]|(?<=[a-z])[A-Z])";
+
         /// <summary>
         /// The exception that occurs if the given config file has no configurable data.
         /// </summary>
@@ -63,8 +69,12 @@ namespace GadgetCore.API.ConfigMenu
         /// </summary>
         protected virtual void LoadConfigFile(string configFilePath, string section, params string[] readonlyEntries)
         {
+            ConfigFilePath = configFilePath;
+            ConfigFileSection = section;
+            ReadonlyEntries = readonlyEntries;
             if (!File.Exists(configFilePath))
             {
+                GadgetCore.CoreLogger.LogConsole(configFilePath);
                 AddComponent(new GadgetConfigLabelComponent(this, "No Config File", "This mod had no config file when this menu was generated."));
                 AddComponent(new GadgetConfigLabelComponent(this, "No Config File", "Perhaps it was just installed?"));
                 AddComponent(new GadgetConfigLabelComponent(this, "No Config File", "Click the button to reload this config menu."));
@@ -75,8 +85,6 @@ namespace GadgetCore.API.ConfigMenu
                 }, 0.25f));
                 return;
             }
-            ConfigFilePath = configFilePath;
-            ReadonlyEntries = readonlyEntries;
             IniParser = new FileIniDataParser();
             Ini = IniParser.ReadFile(configFilePath);
             Ini.Configuration.SkipInvalidLines = true;
@@ -105,12 +113,13 @@ namespace GadgetCore.API.ConfigMenu
                 try
                 {
                     string dataTypeString = keyData.Comments.SingleOrDefault((x) => x.StartsWith("[Type:"));
+                    string[] dataTypeStrings;
                     string dataRangeString = null;
                     if (!string.IsNullOrEmpty(dataTypeString))
                     {
-                        string[] dataTypeStrings = dataTypeString.Split('|');
+                        dataTypeStrings = dataTypeString.Split(new char[] { '|' }, 2);
                         dataTypeString = dataTypeStrings[0];
-                        if (dataTypeStrings.Length > 1)
+                        if (dataTypeStrings.Length == 2 && dataTypeStrings[1].StartsWith(" Range: "))
                         {
                             dataRangeString = dataTypeStrings[1].Substring(8, dataTypeStrings[1].Length - 9);
                         }
@@ -118,7 +127,7 @@ namespace GadgetCore.API.ConfigMenu
                     }
                     else
                     {
-                        dataTypeString = "String";
+                        dataTypeString = "None";
                     }
                     string defaultValueString = keyData.Comments.SingleOrDefault((x) => x.StartsWith("[Default(s):"));
                     string vanillaValueString = keyData.Comments.SingleOrDefault((x) => x.StartsWith("[Vanilla:"));
@@ -190,7 +199,8 @@ namespace GadgetCore.API.ConfigMenu
                         }
                     }
                     commentsMade = true;
-                    switch (dataTypeString)
+                    dataTypeStrings = dataTypeString.Split(new char[] { '-' }, 2);
+                    switch (dataTypeStrings[0])
                     {
                         case "Boolean":
                             bool boolValue = bool.Parse(keyData.Value);
@@ -263,7 +273,27 @@ namespace GadgetCore.API.ConfigMenu
                             string keyCodeVanillaValue = vanillaValueString;
                             AddComponent(new GadgetConfigKeybindComponent(this, keyData.KeyName, keyCodeValue, (s) => SetConfigValue(section, keyData.KeyName, s), false, readonlyEntries.Contains(keyData.KeyName), keyCodeDefaultValue, keyCodeVanillaValue), alignment);
                             break;
-                        default: continue;
+                        case "Enum":
+                            Type enumType;
+                            try
+                            {
+                                if (dataTypeStrings.Length == 2 && (enumType = Type.GetType(dataTypeStrings[1], false)) != null)
+                                {
+                                    string enumValue = keyData.Value;
+                                    string enumDefaultValue = defaultValueString;
+                                    string enumVanillaValue = vanillaValueString;
+                                    AddComponent(new GadgetConfigDropdownComponent(this, keyData.KeyName, Regex.Replace(enumValue, PASCAL_CASE_SPACING_REGEX, " $1"), Enum.GetNames(enumType).Select(x => Regex.Replace(x, PASCAL_CASE_SPACING_REGEX, " $1")).ToArray(), (s) => SetConfigValue(section, keyData.KeyName, s.Replace(" ", "")), readonlyEntries.Contains(keyData.KeyName), enumDefaultValue, enumVanillaValue), alignment);
+                                    break;
+                                }
+                            }
+                            catch (Exception) { }
+                            goto default;
+                        default:
+                            string unknownValue = keyData.Value;
+                            string unknownDefaultValue = defaultValueString;
+                            string unknownVanillaValue = vanillaValueString;
+                            AddComponent(new GadgetConfigStringComponent(this, keyData.KeyName, unknownValue, (s) => SetConfigValue(section, keyData.KeyName, s), readonlyEntries.Contains(keyData.KeyName), unknownDefaultValue, unknownVanillaValue), alignment);
+                            break;
                     }
                 }
                 catch (Exception e)

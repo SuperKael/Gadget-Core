@@ -10,7 +10,7 @@ namespace GadgetCore.Patches
     [HarmonyPatch("OnServerInitialized")]
     static class Patch_ChunkWorld_OnServerInitialized
     {
-        public static readonly MethodInfo OnServerInitialized = typeof(ChunkWorld).GetMethod("OnServerInitialized", BindingFlags.NonPublic | BindingFlags.Instance);
+        public static readonly MethodInfo OnServerInitialized = typeof(ChunkWorld).GetMethod("OnServerInitialized", BindingFlags.Public | BindingFlags.Instance);
 
         [HarmonyPrefix]
         public static bool Prefix(ChunkWorld __instance)

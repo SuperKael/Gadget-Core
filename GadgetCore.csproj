@@ -66,6 +66,9 @@
     <Reference Include="System.Core">
       <Private>false</Private>
     </Reference>
+    <Reference Include="System.Threading">
+      <HintPath>D:\Program Files (x86)\Steam\steamapps\common\Roguelands\Roguelands_Data\Managed\System.Threading.dll</HintPath>
+    </Reference>
     <Reference Include="System.Web">
       <HintPath>..\CoreLibs\System.Web.dll</HintPath>
       <Private>false</Private>
@@ -121,6 +124,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Assets\GadgetCore\left_arrow2.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\GadgetCore\menu_tile.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Assets\GadgetCore\missing_tex.png">

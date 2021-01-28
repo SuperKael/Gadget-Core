@@ -72,8 +72,8 @@ namespace GadgetCore.Util
         /// <summary>
         /// Gets the value of a field with the specified name and parameters.
         /// </summary>
-        /// <param name="type">The object instance to invoke upon.</param>
-        /// <param name="fieldName">The name of the field to invoke.</param>
+        /// <param name="type">The object instance to read from.</param>
+        /// <param name="fieldName">The name of the field to read from.</param>
         /// <returns>The value contained within the field.</returns>
         public static object GetFieldValue(this object type, string fieldName)
         {
@@ -94,10 +94,10 @@ namespace GadgetCore.Util
         }
 
         /// <summary>
-        /// Gets the value of a field with the specified name and parameters.
+        /// Sets the value of a field with the specified name and parameters.
         /// </summary>
-        /// <param name="type">The object instance to invoke upon.</param>
-        /// <param name="fieldName">The name of the field to invoke.</param>
+        /// <param name="type">The object instance to write to.</param>
+        /// <param name="fieldName">The name of the field to write to.</param>
         /// <param name="value">The value to set to the field.</param>
         public static void SetFieldValue(this object type, string fieldName, object value)
         {
@@ -179,37 +179,6 @@ namespace GadgetCore.Util
             {
                 throw new InvalidOperationException("No method was found with the specified name and parameters: `" + methodName + "`, with the parameters: {" + parameters.Select(x => x.GetType().ToString()).Concat() + "}");
             }
-        }
-
-        /// <summary>
-        /// Creates an invoker delegate for the given MethodInfo, allowing you to repeatedly invoke it without repeated calls to MethodInfo's Invoke method.
-        /// </summary>
-        public static T CreateInvoker<T>(this MethodInfo method, object targetInstance = null) where T : Delegate
-        {
-            return (T)CreateInvoker(method, targetInstance);
-        }
-
-        /// <summary>
-        /// Creates an invoker delegate for the given MethodInfo, allowing you to repeatedly invoke it without repeated calls to MethodInfo's Invoke method.
-        /// </summary>
-        public static Delegate CreateInvoker(this MethodInfo method, object targetInstance = null)
-        {
-            Func<Type[], Type> getType;
-            IEnumerable<Type> types = method.GetParameters().Select(p => p.ParameterType);
-
-            if (method.ReturnType == typeof(void))
-            {
-                getType = Expression.GetActionType;
-            }
-            else
-            {
-                getType = Expression.GetFuncType;
-                types = types.Concat(new Type[] { method.ReturnType });
-            }
-
-            Type delegateType = getType(types.ToArray());
-
-            return Delegate.CreateDelegate(delegateType, targetInstance, method);
         }
 
         /// <summary>

@@ -20,7 +20,7 @@ namespace GadgetCore.Patches
             }
             if (___craftType == 3)
             {
-                __result = (bool)typeof(GameScript).GetMethod("CanPlaceCraft2", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(__instance, new object[] { a });
+                __result = __instance.CanPlaceCraft2(a);
                 return false;
             }
             if (ItemRegistry.Singleton.HasEntry(a))

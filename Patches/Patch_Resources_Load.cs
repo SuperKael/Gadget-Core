@@ -16,7 +16,7 @@ namespace GadgetCore.Patches
             if (GadgetCoreAPI.IsCustomResourceRegistered(path))
             {
                 __result = GadgetCoreAPI.resources[path];
-                if (__result is AudioClip au && au.loadState != AudioDataLoadState.Loaded) GadgetCore.CoreLogger.LogWarning("Loading custom AudioClip resource \"" + path + "\" that is in loadState " + au.loadState);
+                if (__result is AudioClip au && !au.LoadAudioData()) GadgetCore.CoreLogger.LogWarning("Loading custom AudioClip resource \"" + path + "\" that is in loadState " + au.loadState);
                 return false;
             }
             return true;

@@ -92,7 +92,8 @@ namespace GadgetCore
             {
                 if (menu.MenuPrefab != null)
                 {
-                    menu.MenuObj = menu.MenuPrefab;
+                    menu.MenuObj = UnityEngine.Object.Instantiate(menu.MenuPrefab);
+                    menu.MenuObj.name = menu.MenuPrefab.name;
                     menu.MenuObj.transform.SetParent(InstanceTracker.MainCamera.transform);
                     menu.MenuObj.SetActive(false);
                 }
@@ -183,6 +184,7 @@ namespace GadgetCore
 
                 Transform buggedPlanetButton = InstanceTracker.GameScript.menuPlanets.transform.Find("14"); // Fixes problem with The Cathedral button.
                 buggedPlanetButton.position = new Vector3(InstanceTracker.GameScript.menuPlanets.transform.Find("0").position.x, buggedPlanetButton.position.y, buggedPlanetButton.position.z);
+                buggedPlanetButton.gameObject.SetActive(false);
             }
         }
 

@@ -10,7 +10,7 @@ namespace GadgetCore.Patches
     [HarmonyPatch("OnServerInitialized")]
     static class Patch_GameScript_OnServerInitialized
     {
-        public static readonly MethodInfo OnServerInitialized = typeof(GameScript).GetMethod("OnServerInitialized", BindingFlags.NonPublic | BindingFlags.Instance);
+        public static readonly MethodInfo OnServerInitialized = typeof(GameScript).GetMethod("OnServerInitialized", BindingFlags.Public | BindingFlags.Instance);
 
         [HarmonyPrefix]
         public static bool Prefix(GameScript __instance)

@@ -12,8 +12,8 @@ namespace GadgetCore.Patches
     {
         public static readonly FieldInfo usingItem = typeof(GameScript).GetField("usingItem", BindingFlags.NonPublic | BindingFlags.Instance);
         public static readonly FieldInfo curBlockSlot = typeof(GameScript).GetField("curBlockSlot", BindingFlags.NonPublic | BindingFlags.Instance);
-        public static readonly MethodInfo RefreshSlot = typeof(GameScript).GetMethod("RefreshSlot", BindingFlags.NonPublic | BindingFlags.Instance);
-        public static readonly MethodInfo EnterBuildMode = typeof(GameScript).GetMethod("EnterBuildMode", BindingFlags.NonPublic | BindingFlags.Instance);
+        public static readonly MethodInfo RefreshSlot = typeof(GameScript).GetMethod("RefreshSlot", BindingFlags.Public | BindingFlags.Instance);
+        public static readonly MethodInfo EnterBuildMode = typeof(GameScript).GetMethod("EnterBuildMode", BindingFlags.Public | BindingFlags.Instance);
 
         [HarmonyPrefix]
         public static bool Prefix(GameScript __instance, int slot, ref Item[] ___inventory, bool ___exitingcombatmode, ref bool ___usingItem)

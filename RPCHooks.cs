@@ -59,7 +59,12 @@ namespace GadgetCore
                 {
                     modCount++;
                     int[] hostVersionNums = mod.Gadget.GetModVersionString().Split('.').Select(x => int.Parse(x)).ToArray();
-                    int[] clientVersionNums = splitModList.Single(x => x[0] == mod.Attribute.Name)[1].Split('.').Select(x => int.Parse(x)).Take(4).ToArray();
+                    int[] clientVersionNums = splitModList.SingleOrDefault(x => x[0] == mod.Attribute.Name)?[1].Split('.').Select(x => int.Parse(x)).Take(4).ToArray();
+                    if (clientVersionNums == null)
+                    {
+                        isCompatible = false;
+                        break;
+                    }
                     hostVersionNums = hostVersionNums.Concat(Enumerable.Repeat(0, 4 - hostVersionNums.Length)).ToArray();
                     clientVersionNums = clientVersionNums.Concat(Enumerable.Repeat(0, 4 - clientVersionNums.Length)).ToArray();
                     if (!((mod.Attribute.GadgetCoreVersionSpecificity == VersionSpecificity.MAJOR && clientVersionNums[0] == hostVersionNums[0] && (clientVersionNums[1] > hostVersionNums[1] || (clientVersionNums[1] == hostVersionNums[1] && (clientVersionNums[2] > hostVersionNums[2] || (clientVersionNums[2] == hostVersionNums[2] && clientVersionNums[3] >= hostVersionNums[3]))))) ||
@@ -68,6 +73,7 @@ namespace GadgetCore
                         (mod.Attribute.GadgetCoreVersionSpecificity == VersionSpecificity.BUGFIX && clientVersionNums[0] == hostVersionNums[0] && clientVersionNums[1] == hostVersionNums[1] && clientVersionNums[2] == hostVersionNums[2] && clientVersionNums[3] == hostVersionNums[3])))
                     {
                         isCompatible = false;
+                        break;
                     }
                 }
                 if (isCompatible && modCount != splitModList.Length)
@@ -89,20 +95,20 @@ namespace GadgetCore
                 }
                 else
                 {
-                    GadgetCore.CoreLogger.Log("A client tried to connect with incompatible mods: " + info.sender.ipAddress + Environment.NewLine + modList);
+                    GadgetCore.CoreLogger.LogWarning("A client tried to connect with incompatible mods: " + info.sender.ipAddress + Environment.NewLine + modList);
                     if (Network.isServer)
                     {
-                        Network.Disconnect();
+                        Network.CloseConnection(info.sender, true);
                     }
                     else
                     {
-                        Network.CloseConnection(info.sender, true);
+                        Network.Disconnect();
                     }
                 }
             }
             catch (Exception e)
             {
-                GadgetCore.CoreLogger.Log("The following error occured processing the client's mod list: " + info.sender.ipAddress + Environment.NewLine + e.ToString());
+                GadgetCore.CoreLogger.LogWarning("The following error occured processing an incoming client's mod list: " + info.sender.ipAddress + Environment.NewLine + modList + Environment.NewLine + e.ToString());
                 if (Network.isServer)
                 {
                     Network.CloseConnection(info.sender, true);

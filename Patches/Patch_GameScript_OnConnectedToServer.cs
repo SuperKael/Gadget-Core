@@ -11,7 +11,7 @@ namespace GadgetCore.Patches
     [HarmonyPatch("OnConnectedToServer")]
     static class Patch_GameScript_OnConnectedToServer
     {
-        public static readonly MethodInfo OnConnectedToServer = typeof(GameScript).GetMethod("OnConnectedToServer", BindingFlags.NonPublic | BindingFlags.Instance);
+        public static readonly MethodInfo OnConnectedToServer = typeof(GameScript).GetMethod("OnConnectedToServer", BindingFlags.Public | BindingFlags.Instance);
 
         [HarmonyPrefix]
         public static bool Prefix(GameScript __instance)
