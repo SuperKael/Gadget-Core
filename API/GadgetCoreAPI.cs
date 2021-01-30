@@ -21,11 +21,11 @@ namespace GadgetCore.API
         /// <summary>
         /// The version numbers for this version of Gadget Core. You generally shouldn't access this directly, instead use <see cref="GetRawVersion()"/>
         /// </summary>
-        public const string RAW_VERSION = "2.0.2.0";
+        public const string RAW_VERSION = "2.0.2.1";
         /// <summary>
         /// A slightly more informative version. You generally shouldn't access this directly, instead use <see cref="GetFullVersion()"/>
         /// </summary>
-        public const string FULL_VERSION = "2.0.2.0";
+        public const string FULL_VERSION = "2.0.2.1";
         /// <summary>
         /// Indicates whether this version of GadgetCore is a beta version. You generally shouldn't access this directly, instead use <see cref="GetIsBeta()"/>
         /// </summary>
@@ -56,6 +56,7 @@ namespace GadgetCore.API
         internal static Dictionary<StatModifierType, List<Tuple<StatModifier, int>>> statModifiers = new Dictionary<StatModifierType, List<Tuple<StatModifier, int>>>();
         internal static Dictionary<string, PlayerScript> playersByName = new Dictionary<string, PlayerScript>();
         internal static Dictionary<string, Action<object[]>> customRPCs = new Dictionary<string, Action<object[]>>();
+        internal static Dictionary<int, List<string>> customRPCGadgets = new Dictionary<int, List<string>>();
         internal static Dictionary<int, Tuple<int, int>> emblemForgeRecipes = new Dictionary<int, Tuple<int, int>>();
         internal static Dictionary<int, Tuple<int, int>> prismForgeRecipes = new Dictionary<int, Tuple<int, int>>();
         internal static Dictionary<Tuple<int, int, int>, Tuple<Item, int>> gearForgeRecipes = new Dictionary<Tuple<int, int, int>, Tuple<Item, int>>();
@@ -681,7 +682,21 @@ namespace GadgetCore.API
             if (!Registry.registeringVanilla && Registry.modRegistering < 0) throw new InvalidOperationException("Data registration may only be performed by the Initialize method of a Gadget!");
             if (name == null) throw new ArgumentNullException("name");
             if (rpc == null) throw new ArgumentNullException("rpc");
-            customRPCs.Add(name, rpc);
+            customRPCs[name] = rpc;
+            if (!customRPCGadgets.ContainsKey(Registry.modRegistering)) customRPCGadgets.Add(Registry.modRegistering, new List<string>());
+            if (!customRPCGadgets[Registry.modRegistering].Contains(name)) customRPCGadgets[Registry.modRegistering].Add(name);
+        }
+
+        internal static void UnregisterGadgetRPCs(int modID)
+        {
+            if (customRPCGadgets.ContainsKey(modID))
+            {
+                foreach (string rpc in customRPCGadgets[modID])
+                {
+                    customRPCs.Remove(rpc);
+                }
+                customRPCGadgets.Remove(modID);
+            }
         }
 
         /// <summary>
@@ -1365,9 +1380,76 @@ namespace GadgetCore.API
         /// </summary>
         public static Texture2D LoadTexture2D(string file)
         {
+            return LoadTexture2DInternal(file, GadgetMods.GetModByAssembly(Assembly.GetCallingAssembly()));
+        }
+
+        /// <summary>
+        /// Loads an audio file from your Assets folder as an AudioClip. Assumes a file extension of .wav if one is not specified. Returns null if no file with the given name was found.
+        /// </summary>
+        public static AudioClip LoadAudioClip(string file)
+        {
+            return LoadAudioClipInternal(file, GadgetMods.GetModByAssembly(Assembly.GetCallingAssembly()));
+        }
+
+        /// <summary>
+        /// Loads an obj-format mesh from your Assets folder as a Mesh. Assumes a file extension of .obj if one is not specified. Returns null if no file with the given name was found.
+        /// </summary>
+        public static Mesh LoadObjMesh(string file)
+        {
+            return LoadObjMeshInternal(file, GadgetMods.GetModByAssembly(Assembly.GetCallingAssembly()));
+        }
+
+        /// <summary>
+        /// Loads an AssetBundle from your Assets folder. Returns null if no file with the given name was found.
+        /// </summary>
+        public static AssetBundle LoadAssetBundle(string file)
+        {
+            return LoadAssetBundleInternal(file, GadgetMods.GetModByAssembly(Assembly.GetCallingAssembly()));
+        }
+
+        /// <summary>
+        /// Obsolete: Use <see cref="LoadTexture2D(string)"/>
+        /// </summary>
+        [Obsolete("The `shared` parameter is nonfunctional, and should not be used.")]
+        public static Texture2D LoadTexture2D(string file, bool shared = false)
+        {
+            return LoadTexture2DInternal(file, GadgetMods.GetModByAssembly(Assembly.GetCallingAssembly()));
+        }
+
+        /// <summary>
+        /// Obsolete: Use <see cref="LoadAudioClip(string)"/>
+        /// </summary>
+        [Obsolete("The `shared` parameter is nonfunctional, and should not be used.")]
+        public static AudioClip LoadAudioClip(string file, bool shared = false)
+        {
+            return LoadAudioClipInternal(file, GadgetMods.GetModByAssembly(Assembly.GetCallingAssembly()));
+        }
+
+        /// <summary>
+        /// Obsolete: Use <see cref="LoadObjMesh(string)"/>
+        /// </summary>
+        [Obsolete("The `shared` parameter is nonfunctional, and should not be used.")]
+        public static Mesh LoadObjMesh(string file, bool shared = false)
+        {
+            return LoadObjMeshInternal(file, GadgetMods.GetModByAssembly(Assembly.GetCallingAssembly()));
+        }
+
+        /// <summary>
+        /// Obsolete: Use <see cref="LoadAssetBundle(string)"/>
+        /// </summary>
+        [Obsolete("The `shared` parameter is nonfunctional, and should not be used.")]
+        public static AssetBundle LoadAssetBundle(string file, bool shared = false)
+        {
+            return LoadAssetBundleInternal(file, GadgetMods.GetModByAssembly(Assembly.GetCallingAssembly()));
+        }
+
+        /// <summary>
+        /// Loads an image file from your Assets folder as a Texture2D. Assumes a file extension of .png if one is not specified. Returns null if no file with the given name was found.
+        /// </summary>
+        internal static Texture2D LoadTexture2DInternal(string file, GadgetMod mod)
+        {
             if (file.IndexOf('.') == -1) file += ".png";
-            GadgetMod mod = GadgetMods.GetModByAssembly(Assembly.GetCallingAssembly());
-            string modName = mod.Name ?? "GadgetCore";
+            string modName = mod?.Name ?? "GadgetCore";
             if (cachedTexes.ContainsKey(modName + ":" + file))
             {
                 return cachedTexes[modName + ":" + file];
@@ -1398,16 +1480,16 @@ namespace GadgetCore.API
         /// <summary>
         /// Loads an audio file from your Assets folder as an AudioClip. Assumes a file extension of .wav if one is not specified. Returns null if no file with the given name was found.
         /// </summary>
-        public static AudioClip LoadAudioClip(string file)
+        internal static AudioClip LoadAudioClipInternal(string file, GadgetMod mod)
         {
             if (file.IndexOf('.') == -1) file += ".wav";
-            GadgetMod mod = GadgetMods.GetModByAssembly(Assembly.GetCallingAssembly());
-            if (cachedAudioClips.ContainsKey(mod.Name + ":" + file))
+            string modName = mod?.Name ?? "GadgetCore";
+            if (cachedAudioClips.ContainsKey(modName + ":" + file))
             {
-                return cachedAudioClips[mod.Name + ":" + file];
+                return cachedAudioClips[modName + ":" + file];
             }
             string filePath = Path.Combine("Assets", file);
-            if (mod.HasModFile(filePath))
+            if (mod?.HasModFile(filePath) ?? false)
             {
                 GadgetModFile modFile = mod.GetModFile(filePath);
                 using (WWW www = new WWW("file:///" + modFile.FilePath))
@@ -1419,7 +1501,7 @@ namespace GadgetCore.API
                     {
                         for (int i = 0; !www.isDone && s.ElapsedMilliseconds < 1000; i++) Thread.Sleep(5);
                         clip = www.GetAudioClip(true, true);
-                        cachedAudioClips.Add(mod.Name + ":" + file, clip);
+                        cachedAudioClips.Add(modName + ":" + file, clip);
                         return clip;
                     }
                     finally
@@ -1445,22 +1527,22 @@ namespace GadgetCore.API
         /// <summary>
         /// Loads an obj-format mesh from your Assets folder as a Mesh. Assumes a file extension of .obj if one is not specified. Returns null if no file with the given name was found.
         /// </summary>
-        public static Mesh LoadObjMesh(string file)
+        internal static Mesh LoadObjMeshInternal(string file, GadgetMod mod)
         {
             if (file.IndexOf('.') == -1) file += ".wav";
-            GadgetMod mod = GadgetMods.GetModByAssembly(Assembly.GetCallingAssembly());
-            if (cachedMeshes.ContainsKey(mod.Name + ":" + file))
+            string modName = mod?.Name ?? "GadgetCore";
+            if (cachedMeshes.ContainsKey(modName + ":" + file))
             {
-                return cachedMeshes[mod.Name + ":" + file];
+                return cachedMeshes[modName + ":" + file];
             }
             string filePath = Path.Combine("Assets", file);
-            if (mod.HasModFile(filePath))
+            if (mod?.HasModFile(filePath) ?? false)
             {
                 using (Stream modFile = mod.ReadModFile(filePath))
                 using (StreamReader reader = new StreamReader(mod.ReadModFile(filePath)))
                 {
                     Mesh mesh = ObjImporter.ImportMesh(reader.ReadToEnd());
-                    cachedMeshes.Add(mod.Name + ":" + file, mesh);
+                    cachedMeshes.Add(modName + ":" + file, mesh);
                     return mesh;
                 }
             }
@@ -1473,64 +1555,28 @@ namespace GadgetCore.API
         /// <summary>
         /// Loads an AssetBundle from your Assets folder. Returns null if no file with the given name was found.
         /// </summary>
-        public static AssetBundle LoadAssetBundle(string file)
+        internal static AssetBundle LoadAssetBundleInternal(string file, GadgetMod mod)
         {
-            GadgetMod mod = GadgetMods.GetModByAssembly(Assembly.GetCallingAssembly());
-            if (cachedBundles.ContainsKey(mod.Name + ":" + file))
+            string modName = mod?.Name ?? "GadgetCore";
+            if (cachedBundles.ContainsKey(modName + ":" + file))
             {
-                return cachedBundles[mod.Name + ":" + file];
+                return cachedBundles[modName + ":" + file];
             }
             string filePath = Path.Combine("Assets", file);
-            if (mod.HasModFile(filePath))
+            if (mod?.HasModFile(filePath) ?? false)
             {
                 Stream stream = mod.ReadModFile(filePath);
                 byte[] fileData = new byte[stream.Length];
                 stream.Read(fileData, 0, fileData.Length);
                 stream.Dispose();
                 AssetBundle bundle = AssetBundle.LoadFromMemory(fileData);
-                cachedBundles.Add(mod.Name + ":" + file, bundle);
-                return bundle;  
+                cachedBundles.Add(modName + ":" + file, bundle);
+                return bundle;
             }
             else
             {
                 return null;
             }
-        }
-
-        /// <summary>
-        /// Obsolete: Use <see cref="LoadTexture2D(string)"/>
-        /// </summary>
-        [Obsolete("The `shared` parameter is nonfunctional, and should not be used.")]
-        public static Texture2D LoadTexture2D(string file, bool shared = false)
-        {
-            return LoadTexture2D(file);
-        }
-
-        /// <summary>
-        /// Obsolete: Use <see cref="LoadAudioClip(string)"/>
-        /// </summary>
-        [Obsolete("The `shared` parameter is nonfunctional, and should not be used.")]
-        public static AudioClip LoadAudioClip(string file, bool shared = false)
-        {
-            return LoadAudioClip(file);
-        }
-
-        /// <summary>
-        /// Obsolete: Use <see cref="LoadObjMesh(string)"/>
-        /// </summary>
-        [Obsolete("The `shared` parameter is nonfunctional, and should not be used.")]
-        public static Mesh LoadObjMesh(string file, bool shared = false)
-        {
-            return LoadObjMesh(file);
-        }
-
-        /// <summary>
-        /// Obsolete: Use <see cref="LoadAssetBundle(string)"/>
-        /// </summary>
-        [Obsolete("The `shared` parameter is nonfunctional, and should not be used.")]
-        public static AssetBundle LoadAssetBundle(string file, bool shared = false)
-        {
-            return LoadAssetBundle(file);
         }
 
         /// <summary>

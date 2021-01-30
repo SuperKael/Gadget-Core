@@ -287,7 +287,8 @@ namespace GadgetCore.Util
                 Remove(childNode);
                 if (inheritParents)
                 {
-                    childNode.m_Parents = childNode.Parents.Union(Parents).ToList();
+                    childNode.m_Parents = childNode.m_Parents.Union(m_Parents).ToList();
+                    childNode.Parents = new ReadOnlyCollection<MultiTreeList<T>>(childNode.m_Parents);
                 }
                 if (removeOrphanedChildren)
                 {
@@ -365,6 +366,14 @@ namespace GadgetCore.Util
         IEnumerator IEnumerable.GetEnumerator()
         {
             return Nodes.GetEnumerator();
+        }
+
+        /// <summary>
+        /// Converts this <see cref="MultiTreeList{T}"/> into a human-readable string representation
+        /// </summary>
+        public override string ToString()
+        {
+            return (Value?.ToString() ?? "Empty Node") + (Count > 0 ? " ->\n  " + Nodes.Select(x => x.ToString().Replace("\n", "\n  ")).Concat("\n  ") : "");
         }
     }
 }

@@ -59,5 +59,13 @@ namespace GadgetCore.API
             MultiTreeList<GadgetInfo> tree = new MultiTreeList<GadgetInfo>(this);
             return tree;
         }
+
+        /// <summary>
+        /// Converts this <see cref="GadgetInfo"/> into a human-readable string representation
+        /// </summary>
+        public override string ToString()
+        {
+            return Attribute.Name + " v" + Gadget.GetModVersionString();
+        }
     }
 }

@@ -361,7 +361,7 @@ namespace GadgetCore.Loader
                 {
                     string[] splitDependency = dependency.Split(' ');
                     GadgetInfo dependencyGadget = Gadgets.GetGadgetInfo(splitDependency[0]);
-                    valid = dependencyGadget != null;
+                    valid = dependencyGadget != null && dependencyGadget.Gadget.Enabled;
                     if (valid && splitDependency.Length == 2)
                     {
                         string versionString = splitDependency[1].Replace("v", "");
@@ -505,10 +505,13 @@ namespace GadgetCore.Loader
             Logger.Log("Unloading Gadgets...");
             foreach (GadgetInfo gadget in QueuedGadgets)
             {
+                Logger.Log("Unloading Gadget '" + gadget.Attribute.Name + "'");
                 gadget.Gadget.Unload();
                 LootTables.RemoveModEntries(gadget.Gadget.ModID);
                 GadgetCoreAPI.RemoveModResources(gadget.Gadget.ModID);
+                GadgetCoreAPI.UnregisterGadgetRPCs(gadget.Gadget.ModID);
                 GadgetCoreAPI.UnregisterStatModifiers(gadget.Gadget.ModID);
+                GadgetConsole.UnregisterGadgetCommands(gadget.Gadget.ModID);
                 GadgetNetwork.UnregisterSyncVars(gadget.Gadget.ModID);
                 PlanetRegistry.UnregisterGadget(gadget.Gadget.ModID);
                 foreach (Registry reg in GameRegistry.ListAllRegistries())
@@ -520,6 +523,7 @@ namespace GadgetCore.Loader
             Logger.Log("Unpatching Gadgets...");
             foreach (GadgetInfo gadget in QueuedGadgets.ToList())
             {
+                Logger.Log("Unpatching Gadget '" + gadget.Attribute.Name + "'");
                 try
                 {
                     gadget.Gadget.HarmonyInstance.UnpatchAll(gadget.Mod.Name + "." + gadget.Attribute.Name + ".gadget");

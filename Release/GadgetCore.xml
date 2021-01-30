@@ -2707,6 +2707,26 @@
             Obsolete: Use <see cref="M:GadgetCore.API.GadgetCoreAPI.LoadAssetBundle(System.String)"/>
             </summary>
         </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.LoadTexture2DInternal(System.String,GadgetCore.Loader.GadgetMod)">
+            <summary>
+            Loads an image file from your Assets folder as a Texture2D. Assumes a file extension of .png if one is not specified. Returns null if no file with the given name was found.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.LoadAudioClipInternal(System.String,GadgetCore.Loader.GadgetMod)">
+            <summary>
+            Loads an audio file from your Assets folder as an AudioClip. Assumes a file extension of .wav if one is not specified. Returns null if no file with the given name was found.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.LoadObjMeshInternal(System.String,GadgetCore.Loader.GadgetMod)">
+            <summary>
+            Loads an obj-format mesh from your Assets folder as a Mesh. Assumes a file extension of .obj if one is not specified. Returns null if no file with the given name was found.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.LoadAssetBundleInternal(System.String,GadgetCore.Loader.GadgetMod)">
+            <summary>
+            Loads an AssetBundle from your Assets folder. Returns null if no file with the given name was found.
+            </summary>
+        </member>
         <member name="T:GadgetCore.API.GadgetCoreAPI.SpriteSheetEntry">
             <summary>
             This represents an entry in the tile spritesheet. Returned by <see cref="M:GadgetCore.API.GadgetCoreAPI.AddTextureToSheet(UnityEngine.Texture2D)"/>
@@ -2760,6 +2780,11 @@
         <member name="M:GadgetCore.API.GadgetInfo.CalculateLoadTree(GadgetCore.Util.MultiTreeList{GadgetCore.API.GadgetInfo})">
             <summary>
             Calculates the load-order tree for Gadgets related to this one by their LoadBefore and LoadAfter attributes.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetInfo.ToString">
+            <summary>
+            Converts this <see cref="T:GadgetCore.API.GadgetInfo"/> into a human-readable string representation
             </summary>
         </member>
         <member name="T:GadgetCore.API.GadgetNetwork">
@@ -2939,7 +2964,7 @@
         </member>
         <member name="P:GadgetCore.API.Gadgets.LoadOrderTree">
             <summary>
-            A <see cref="T:GadgetCore.Util.MultiTreeList`1"/> representing the relationships between the installed Gadgets. It is read-only, so don't attempt to edit it. Note that this is just the parent of the structure, and it's <see cref="F:GadgetCore.Util.MultiTreeList`1.Value"/> is null.
+            A <see cref="T:GadgetCore.Util.MultiTreeList`1"/> representing the relationships between the installed Gadgets. It is read-only, so don't attempt to edit it. Note that this is just the parent of the structure, and its <see cref="F:GadgetCore.Util.MultiTreeList`1.Value"/> is null.
             </summary>
         </member>
         <member name="M:GadgetCore.API.Gadgets.CountGadgets">
@@ -6307,6 +6332,11 @@
             Returns an enumerator that iterates through the <see cref="T:GadgetCore.Util.MultiTreeList`1"/>
             </summary>
             <returns></returns>
+        </member>
+        <member name="M:GadgetCore.Util.MultiTreeList`1.ToString">
+            <summary>
+            Converts this <see cref="T:GadgetCore.Util.MultiTreeList`1"/> into a human-readable string representation
+            </summary>
         </member>
         <member name="T:GadgetCore.Util.ObjImporter">
             <summary>

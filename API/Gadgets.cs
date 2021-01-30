@@ -15,7 +15,7 @@ namespace GadgetCore.API
         private static Dictionary<string, GadgetInfo> previousNames = new Dictionary<string, GadgetInfo>();
         private static List<GadgetInfo> sortedGadgetList;
         /// <summary>
-        /// A <see cref="MultiTreeList{GadgetInfo}"/> representing the relationships between the installed Gadgets. It is read-only, so don't attempt to edit it. Note that this is just the parent of the structure, and it's <see cref="MultiTreeList{T}.Value"/> is null.
+        /// A <see cref="MultiTreeList{GadgetInfo}"/> representing the relationships between the installed Gadgets. It is read-only, so don't attempt to edit it. Note that this is just the parent of the structure, and its <see cref="MultiTreeList{T}.Value"/> is null.
         /// </summary>
         public static MultiTreeList<GadgetInfo> LoadOrderTree { get; private set; }
 
@@ -30,10 +30,6 @@ namespace GadgetCore.API
         internal static void UnregisterGadget(GadgetInfo mod)
         {
             gadgets.Remove(mod.Attribute.Name);
-            foreach (MultiTreeList<GadgetInfo> node in LoadOrderTree.FindAll(mod))
-            {
-                node.RemoveFromTree();
-            }
             foreach (Registry reg in GameRegistry.ListAllRegistries())
             {
                 reg.UnregisterGadget(mod);
@@ -49,8 +45,8 @@ namespace GadgetCore.API
             foreach (GadgetInfo info in gadgets.Values)
             {
                 List<GadgetInfo> list = new List<GadgetInfo>();
-                list.AddRange(info.Attribute.LoadAfter.Select(x => GetGadgetInfo(x)).Where(x => x != null));
-                list.AddRange(gadgets.Values.Where(x => x.Attribute.LoadBefore.Contains(info.Attribute.Name)));
+                list.AddRange(info.Attribute.LoadBefore.Select(x => GetGadgetInfo(x)).Where(x => x != null));
+                list.AddRange(gadgets.Values.Where(x => x.Attribute.LoadAfter.Contains(info.Attribute.Name)));
                 orderDependencies[info] = list;
             }
             LoadOrderTree = new MultiTreeList<GadgetInfo>(orderDependencies).MakeReadOnly();
@@ -185,18 +181,22 @@ namespace GadgetCore.API
             try
             {
                 if (gadget.Gadget.Enabled == enabled) return false;
-                if (gadget.Attribute.AllowRuntimeReloading || !enabled) gadget.Gadget.Enabled = enabled;
-                GadgetCoreConfig.enabledGadgets[gadget.Attribute.Name] = enabled;
                 bool wasBatchLoading = GadgetLoader.BatchLoading;
                 GadgetLoader.BatchLoading = true;
                 if (enabled)
                 {
-                    if (gadget.Attribute.AllowRuntimeReloading) RefreshAfters(gadget);
+                    if (gadget.Attribute.AllowRuntimeReloading)
+                    {
+                        EnableDependencies(gadget);
+                        RefreshAfters(gadget);
+                    }
                 }
                 else
                 {
                     DisableDependents(gadget);
                 }
+                GadgetCoreConfig.enabledGadgets[gadget.Attribute.Name] = enabled;
+                if (gadget.Attribute.AllowRuntimeReloading || !enabled) gadget.Gadget.Enabled = enabled;
                 GadgetLoader.BatchLoading = wasBatchLoading;
                 GadgetLoader.QueuedGadgets.Add(gadget);
                 if (!GadgetLoader.BatchLoading)
@@ -222,10 +222,22 @@ namespace GadgetCore.API
 
         private static void RefreshAfters(GadgetInfo gadget)
         {
-            foreach (GadgetInfo info in LoadOrderTree.Find(gadget).FlattenUniqueByBreadth().Where(x => x != gadget).Distinct())
+            foreach (GadgetInfo info in LoadOrderTree.Find(gadget).FlattenUniqueByBreadth().Where(x => x != gadget && x.Gadget.Enabled).Distinct())
             {
                 SetEnabled(info, false);
                 SetEnabled(info, true);
+            }
+        }
+
+        private static void EnableDependencies(GadgetInfo gadget)
+        {
+            foreach (GadgetInfo dependency in gadget.Dependencies)
+            {
+                if (!dependency.Gadget.Enabled)
+                {
+                    GadgetLoader.Logger.Log("Enabling Gadget Dependency of " + gadget + ": " + dependency);
+                    SetEnabled(dependency, true);
+                }
             }
         }
 
@@ -235,6 +247,7 @@ namespace GadgetCore.API
             {
                 if (dependent.Gadget.Enabled)
                 {
+                    GadgetLoader.Logger.Log("Disabling Gadget Dependent of " + gadget + ": " + dependent);
                     SetEnabled(dependent, false);
                 }
             }

@@ -32,6 +32,7 @@ namespace GadgetCore
         public static GadgetConsole Console { get; private set; }
         private static List<GadgetConsoleMessage> messages = new List<GadgetConsoleMessage>();
         private static Dictionary<string, ConsoleCommand> commands = new Dictionary<string, ConsoleCommand>(StringComparer.OrdinalIgnoreCase);
+        private static Dictionary<int, List<string>> gadgetCommands = new Dictionary<int, List<string>>();
         private static Dictionary<string, bool> isOperatorOnly = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
         private static Dictionary<string, string> helpDescriptions = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         private static Dictionary<string, string> fullHelps = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
@@ -130,6 +131,7 @@ namespace GadgetCore
         /// </summary>
         public static void RegisterCommand(string name, bool operatorOnly, ConsoleCommand command, string helpDesc, string fullHelp = null, params string[] aliases)
         {
+            if (!Registry.registeringVanilla && Registry.modRegistering < 0) throw new InvalidOperationException("Command registration may only be performed by the Initialize method of a Gadget!");
             name = name.ToLowerInvariant();
             if (commands.ContainsKey(name))
             {
@@ -138,11 +140,25 @@ namespace GadgetCore
             if (name == "all") throw new InvalidOperationException(name + " is a reserved command name!");
             if (name.All(x => x >= '0' && x <= '9')) throw new InvalidOperationException("A command name may not be a number!");
             commands[name] = command;
+            if (!gadgetCommands.ContainsKey(Registry.modRegistering)) gadgetCommands.Add(Registry.modRegistering, new List<string>());
+            if (!gadgetCommands[Registry.modRegistering].Contains(name)) gadgetCommands[Registry.modRegistering].Add(name);
             isOperatorOnly[name] = operatorOnly;
             helpDescriptions[name] = helpDesc;
             if (fullHelp != null) fullHelps[name] = fullHelp;
             commandAliases[name] = name;
             foreach (string alias in aliases) commandAliases[alias.ToLowerInvariant()] = name;
+        }
+
+        internal static void UnregisterGadgetCommands(int modID)
+        {
+            if (gadgetCommands.ContainsKey(modID))
+            {
+                foreach (string rpc in gadgetCommands[modID])
+                {
+                    commands.Remove(rpc);
+                }
+                gadgetCommands.Remove(modID);
+            }
         }
 
         /// <summary>
@@ -577,6 +593,11 @@ namespace GadgetCore
 
         static GadgetConsole()
         {
+            bool wasRegisteringVanilla = Registry.registeringVanilla;
+            int wasModRegistering = Registry.modRegistering;
+            Registry.registeringVanilla = true;
+            Registry.modRegistering = -1;
+
             RegisterCommand("help", false, CoreCommands.Help,
                 "Provides the help page you are seeing right now.",
                 "Can list available commands, as well as provide extended information about specific commands.\nUses the syntax: /help <page/command>",
@@ -607,6 +628,9 @@ namespace GadgetCore
                 "Toggles debug mode.",
                 "Toggles the game's built-in debug mode. Use with caution.\nUses the syntax: /debugmode",
                 "debug");
+
+            Registry.registeringVanilla = wasRegisteringVanilla;
+            Registry.modRegistering = wasModRegistering;
         }
 
         /// <summary>
