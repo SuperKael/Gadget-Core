@@ -7,5 +7,5 @@ using static TemplateGadgetMod.TemplateGadgetMod;
 [assembly: AssemblyDescription("A Gadget mod for Roguelands")] //This is a short description for your mod's assembly.
 [assembly: AssemblyCompany("")] //Set this to your name/nickname and/or website
 [assembly: AssemblyCopyright("© 20XX TemplateDeveloper. All rights reserved.")] //Set this to your copyright name.
-[assembly: AssemblyVersion(MOD_VERSION)]
-[assembly: AssemblyFileVersion(MOD_VERSION)]
+[assembly: AssemblyVersion(TemplateGadgetMod.TemplateGadgetMod.MOD_VERSION)]
+[assembly: AssemblyFileVersion(TemplateGadgetMod.TemplateGadgetMod.MOD_VERSION)]
