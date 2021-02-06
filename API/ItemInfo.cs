@@ -703,7 +703,7 @@ namespace GadgetCore.API
                 });
                 if ((bool)triple.GetValue(script))
                 {
-                    script.StartCoroutine(script.TripleShot());script.StartCoroutine(script.TripleShot());
+                    script.StartCoroutine(script.TripleShot());
                 }
             }
             yield return new WaitForSeconds(0.3f);
@@ -756,7 +756,7 @@ namespace GadgetCore.API
                 (r.GetValue(script) as Rigidbody).velocity = new Vector3(10f, (r.GetValue(script) as Rigidbody).velocity.y + 5f, 0f);
             }
             Vector3 targ = GadgetCoreAPI.GetCursorPos() - script.transform.position;
-            float dmgdmg = (dmg / 2);
+            float dmgdmg = dmg / 2;
             if (ID == 497)
             {
                 Package2 value2 = new Package2(targ, (int)dmgdmg, ProjectileID, PlayerGearModsTracker.GetGearMods(script)[10]);
@@ -772,7 +772,7 @@ namespace GadgetCore.API
                     });
                     if ((bool)triple.GetValue(script))
                     {
-                        script.StartCoroutine(script.TripleShot());script.StartCoroutine(script.TripleShot());
+                        script.StartCoroutine(script.TripleShot());
                     }
                 }
             }
@@ -787,7 +787,7 @@ namespace GadgetCore.API
                     targ,
                     dmg
                 });
-                script.StartCoroutine(script.TripleShot());script.StartCoroutine(script.TripleShot());
+                script.StartCoroutine(script.TripleShot());
             }
             else if (ID == 465)
             {
@@ -802,7 +802,7 @@ namespace GadgetCore.API
                 });
                 if ((bool)triple.GetValue(script))
                 {
-                    script.StartCoroutine(script.TripleShot());script.StartCoroutine(script.TripleShot());
+                    script.StartCoroutine(script.TripleShot());
                 }
                 Package2 value5 = new Package2(targ, dmg, ProjectileID, PlayerGearModsTracker.GetGearMods(script)[10]);
                 gameObject4 = (GameObject)UnityEngine.Object.Instantiate(Resources.Load("proj/shot" + ProjectileID), new Vector3(script.shot.transform.position.x, script.shot.transform.position.y + 2f, 0f), Quaternion.identity);
@@ -815,7 +815,7 @@ namespace GadgetCore.API
                 });
                 if ((bool)triple.GetValue(script))
                 {
-                    script.StartCoroutine(script.TripleShot());script.StartCoroutine(script.TripleShot());
+                    script.StartCoroutine(script.TripleShot());
                 }
                 Package2 value6 = new Package2(targ, dmg, ProjectileID, PlayerGearModsTracker.GetGearMods(script)[10]);
                 gameObject4 = (GameObject)UnityEngine.Object.Instantiate(Resources.Load("proj/shot" + ProjectileID), new Vector3(script.shot.transform.position.x, script.shot.transform.position.y - 2f, 0f), Quaternion.identity);
@@ -828,7 +828,7 @@ namespace GadgetCore.API
                 });
                 if ((bool)triple.GetValue(script))
                 {
-                    script.StartCoroutine(script.TripleShot());script.StartCoroutine(script.TripleShot());
+                    script.StartCoroutine(script.TripleShot());
                 }
             }
             else if (ID == 469)
@@ -842,7 +842,7 @@ namespace GadgetCore.API
                     targ,
                     dmg
                 });
-                script.StartCoroutine(script.TripleShot());script.StartCoroutine(script.TripleShot());
+                script.StartCoroutine(script.TripleShot());
             }
             else if (ID == 473)
             {
@@ -869,7 +869,7 @@ namespace GadgetCore.API
                 });
                 if ((bool)triple.GetValue(script))
                 {
-                    script.StartCoroutine(script.TripleShot());script.StartCoroutine(script.TripleShot());
+                    script.StartCoroutine(script.TripleShot());
                 }
                 targ = GadgetCoreAPI.GetCursorPos() - new Vector3(script.transform.position.x, script.transform.position.y - 5f, 0f);
                 Package2 value9 = new Package2(targ, dmg, ProjectileID, PlayerGearModsTracker.GetGearMods(script)[10]);
@@ -883,7 +883,7 @@ namespace GadgetCore.API
                 });
                 if ((bool)triple.GetValue(script))
                 {
-                    script.StartCoroutine(script.TripleShot());script.StartCoroutine(script.TripleShot());
+                    script.StartCoroutine(script.TripleShot());
                 }
             }
             else if (ID == 478)
@@ -953,7 +953,7 @@ namespace GadgetCore.API
                 });
                 if ((bool)triple.GetValue(script))
                 {
-                    script.StartCoroutine(script.TripleShot());script.StartCoroutine(script.TripleShot());
+                    script.StartCoroutine(script.TripleShot());
                 }
             }
             yield return new WaitForSeconds(0.3f);
@@ -1033,7 +1033,7 @@ namespace GadgetCore.API
                 });
                 if ((bool)triple.GetValue(script))
                 {
-                    script.StartCoroutine(script.TripleShot());script.StartCoroutine(script.TripleShot());
+                    script.StartCoroutine(script.TripleShot());
                 }
             }
             else if (ID == 513)
@@ -1213,7 +1213,7 @@ namespace GadgetCore.API
                 });
                 if ((bool)triple.GetValue(script))
                 {
-                    script.StartCoroutine(script.TripleShot());script.StartCoroutine(script.TripleShot());
+                    script.StartCoroutine(script.TripleShot());
                 }
             }
             else if (ID == 567)

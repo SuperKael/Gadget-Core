@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Policy;
@@ -180,6 +181,20 @@ namespace GadgetCore.Util
         {
             while (t.parent != null) t = t.parent;
             return t;
+        }
+
+        /// <summary>
+        /// Starts a coroutine after a delay
+        /// </summary>
+        public static Coroutine StartCoroutineDelayed(this MonoBehaviour script, IEnumerator routine, float delay)
+        {
+            return script.StartCoroutine(AfterDelay(routine, script, delay));
+        }
+
+        private static IEnumerator AfterDelay(IEnumerator routine, MonoBehaviour script, float delay)
+        {
+            yield return new WaitForSeconds(delay);
+            yield return script.StartCoroutine(routine);
         }
     }
 

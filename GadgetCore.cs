@@ -191,14 +191,14 @@ namespace GadgetCore
                 };
                 AppDomain.CurrentDomain.ReflectionOnlyAssemblyResolve += (object sender, ResolveEventArgs args) =>
                 {
-                    if (LoadedAssemblies.ContainsKey(args.Name)) return LoadedAssemblies[args.Name];
+                    if (LoadedAssemblies.ContainsKey("ReflectionOnly: " + args.Name)) return LoadedAssemblies["ReflectionOnly: " + args.Name];
                     string name = new AssemblyName(args.Name).Name;
                     foreach (string file in Directory.GetFiles(GadgetPaths.LibsPath))
                     {
                         if (AssemblyName.GetAssemblyName(file).Name == name)
                         {
                             Assembly assembly = Assembly.ReflectionOnlyLoadFrom(file);
-                            LoadedAssemblies.Add(args.Name, assembly);
+                            LoadedAssemblies["ReflectionOnly: " + name] = assembly;
                             return assembly;
                         }
                     }

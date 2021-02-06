@@ -247,8 +247,8 @@ namespace GadgetCore.Patches
                                 ___slotID = int.Parse(___hit.transform.gameObject.name);
                                 if (__state.id != 0 && ___craft[___slotID].id != __state.id)
                                 {
-                                    if (((__state.id <= 103 || __state.id >= 107) && (__state.id <= 113 || __state.id >= 117) &&
-                                        (__state.id <= 123 || __state.id >= 127) && (__state.id <= 133 || __state.id >= 137))
+                                    if ((__state.id <= 103 || __state.id >= 107) && (__state.id <= 113 || __state.id >= 117) &&
+                                        (__state.id <= 123 || __state.id >= 127) && (__state.id <= 133 || __state.id >= 137)
                                         && __instance.InvokeMethod<bool>("CanPlaceCraft2", __state.id))
                                     {
                                         Item holdingItem = __state;

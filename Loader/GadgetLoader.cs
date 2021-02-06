@@ -119,7 +119,7 @@ namespace GadgetCore.Loader
                     }
                     IniData manifest = manifestIniParser.ReadFile(manifestFile);
                     modName = manifest["Metadata"]["Name"];
-                    Assembly modAssembly = Assembly.LoadFile(Path.Combine(modDir, manifest["Metadata"]["Assembly"]));
+                    Assembly modAssembly = Assembly.Load(File.ReadAllBytes(Path.Combine(modDir, manifest["Metadata"]["Assembly"])));
                     GadgetCore.LoadedAssemblies[modAssembly.GetName().Name] = modAssembly;
                     GadgetMod mod = new GadgetMod(modDir, manifest, modAssembly);
                     GadgetMods.RegisterMod(mod);
@@ -557,6 +557,7 @@ namespace GadgetCore.Loader
                 {
                     UnloadModInternal(modToUnload);
                 }
+                GC.Collect();
                 BatchLoading = wasBatchLoading;
                 DisableQueuedGadgets();
                 Gadgets.SortGadgets();

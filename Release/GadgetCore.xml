@@ -4721,7 +4721,9 @@
         </member>
         <member name="M:GadgetCore.API.PlayerGearModsTracker.GetGearMods(PlayerScript)">
             <summary>
-            In theory, returns the gear mods that the given player has, in the same format as GameScript.MODS. In practice, it currently just returns GameScript.MODS. This exists so that Gadget Core can later add this functionality without it being a breaking change. As such, whenever you need to query what gear mods the player has, you should use this.
+            In theory, returns the gear mods that the given player has, in the same format as GameScript.MODS. In practice, it currently just returns GameScript.MODS.
+            This exists so that Gadget Core can later add this functionality without it being a breaking change.
+            As such, whenever you need to query what gear mods the player has, you should use this.
             </summary>
         </member>
         <member name="T:GadgetCore.API.Registry`3">
@@ -6141,6 +6143,11 @@
         <member name="M:GadgetCore.Util.ExtensionUtils.GetHighestParent(UnityEngine.Transform)">
             <summary>
             Returns the highest parent transform for this Transform
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.ExtensionUtils.StartCoroutineDelayed(UnityEngine.MonoBehaviour,System.Collections.IEnumerator,System.Single)">
+            <summary>
+            Starts a coroutine after a delay
             </summary>
         </member>
         <member name="T:GadgetCore.Util.EqualityComparison`1">

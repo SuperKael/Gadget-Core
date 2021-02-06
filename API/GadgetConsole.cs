@@ -804,6 +804,7 @@ namespace GadgetCore
                                     return new GadgetConsoleMessage("`" + splitProperty[1] + "` is not a valid number!", null, MessageSeverity.ERROR);
                                 }
                                 break;
+                            case "corrupt":
                             case "corrupted":
                                 if (!int.TryParse(splitProperty[1], out corrupted))
                                 {
@@ -911,6 +912,10 @@ namespace GadgetCore
                     id = ItemRegistry.GetItemIDByName(itemName);
                     if (id == -1)
                     {
+                        id = ItemRegistry.Singleton[itemName]?.GetID() ?? -1;
+                    }
+                    if (id == -1)
+                    {
                         return new GadgetConsoleMessage("There is no item with the name `" + itemName + "`", null, MessageSeverity.ERROR);
                     }
                 }
@@ -958,6 +963,10 @@ namespace GadgetCore
                 else
                 {
                     id = ChipRegistry.GetChipIDByName(itemName);
+                    if (id == -1)
+                    {
+                        id = ChipRegistry.Singleton[itemName]?.GetID() ?? -1;
+                    }
                     if (id == -1)
                     {
                         return new GadgetConsoleMessage("There is no chip with the name `" + itemName + "`", null, MessageSeverity.ERROR);
