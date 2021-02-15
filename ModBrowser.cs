@@ -33,7 +33,8 @@ namespace GadgetCore
 
         private static ModBrowser Singleton;
 
-        internal Text LoadingText;
+        internal Text ListLoadingText;
+        internal Text DescLoadingText;
         internal Text DescText;
         internal Text BrowserButtonText;
         internal Button InstallButton;
@@ -43,9 +44,7 @@ namespace GadgetCore
         internal static bool RestartNeeded { get; private set; } = false;
 
         private List<ModBrowserEntry> modEntries = new List<ModBrowserEntry>();
-        private bool loading;
-        private bool built;
-        private bool downloading;
+        private bool listLoading, descLoading, downloading, built;
 
         private Toggle toggle;
         private int modIndex = 0;
@@ -364,42 +363,72 @@ namespace GadgetCore
         [System.Diagnostics.CodeAnalysis.SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Unity Message")]
         private void Update()
         {
-            if (loading)
+            if (listLoading)
             {
-                if (!LoadingText.transform.parent.gameObject.activeSelf)
+                if (!ListLoadingText.transform.parent.gameObject.activeSelf)
                 {
-                    LoadingText.transform.parent.gameObject.SetActive(true);
+                    ListLoadingText.transform.parent.gameObject.SetActive(true);
                 }
-                switch ((int)((Time.time % 1) * 4))
+                switch ((int)(Time.time % 1 * 4))
                 {
                     case 0:
-                        LoadingText.text = "Loading   ";
+                        ListLoadingText.text = "Loading   ";
                         break;
                     case 1:
-                        LoadingText.text = "Loading.  ";
+                        ListLoadingText.text = "Loading.  ";
                         break;
                     case 2:
-                        LoadingText.text = "Loading.. ";
+                        ListLoadingText.text = "Loading.. ";
                         break;
                     case 3:
-                        LoadingText.text = "Loading...";
+                        ListLoadingText.text = "Loading...";
                         break;
                 }
             }
             else
             {
-                LoadingText.text = built ? string.Empty : "Load Failed!";
-                if (built && LoadingText.transform.parent.gameObject.activeSelf)
+                ListLoadingText.text = built ? string.Empty : "Load Failed!";
+                if (built && ListLoadingText.transform.parent.gameObject.activeSelf)
                 {
-                    LoadingText.transform.parent.gameObject.SetActive(false);
+                    ListLoadingText.transform.parent.gameObject.SetActive(false);
+                }
+            }
+            if (listLoading || descLoading)
+            {
+                if (!DescLoadingText.transform.parent.gameObject.activeSelf)
+                {
+                    DescLoadingText.transform.parent.gameObject.SetActive(true);
+                }
+                switch ((int)(Time.time % 1 * 4))
+                {
+                    case 0:
+                        DescLoadingText.text = "Loading   ";
+                        break;
+                    case 1:
+                        DescLoadingText.text = "Loading.  ";
+                        break;
+                    case 2:
+                        DescLoadingText.text = "Loading.. ";
+                        break;
+                    case 3:
+                        DescLoadingText.text = "Loading...";
+                        break;
+                }
+            }
+            else
+            {
+                DescLoadingText.text = !string.IsNullOrEmpty(DescText.text) || !built ? string.Empty : "Load Failed!";
+                if (!string.IsNullOrEmpty(DescText.text) && DescLoadingText.transform.parent.gameObject.activeSelf)
+                {
+                    DescLoadingText.transform.parent.gameObject.SetActive(false);
                 }
             }
         }
 
         private IEnumerator LoadModList()
         {
-            if (loading) yield break;
-            loading = true;
+            if (listLoading) yield break;
+            listLoading = true;
             Singleton.Clean();
             using (WWW modsWWW = new WWW(MODS_URL))
             {
@@ -419,7 +448,6 @@ namespace GadgetCore
                 {
                     foreach (KeyData modKey in modsSection.Keys)
                     {
-                        ModBrowserEntry modEntry = null;
                         try
                         {
                             Dictionary<string, string> modInfo = modKey.Value.Split(',').Select(x => x.Split(new char[] { ':' }, 2)).Where(x => x.Length == 2).ToDictionary(x => x[0], x => x[1].Replace("\\n", "\n"));
@@ -429,103 +457,11 @@ namespace GadgetCore
                                 if (modURL.Length > 0 && modURL[0] == '/') modInfo["URL"] = modURL = GIT_RAW_URL + modURL;
                             }
                             if (!modInfo.ContainsKey("Name")) modInfo.Add("Name", modKey.KeyName);
-                            modEntry = new ModBrowserEntry(modKey.KeyName, modURL, modInfo);
+                            modEntries.Add(new ModBrowserEntry(modKey.KeyName, modURL, modInfo));
                         }
                         catch (Exception e)
                         {
                             GadgetCore.CoreLogger.LogError("An error occured while reading the entry for " + modKey.KeyName + " in the Mods.ini file on the Roguelands-Mods repository: " + e);
-                        }
-                        if (modEntry != null)
-                        {
-                            while (modEntry.Info.TryGetValue("URL", out string modURL))
-                            {
-                                if (modURL.Length > 0 && modURL[0] == '/') modEntry.Info["URL"] = modURL = GIT_RAW_URL + modURL;
-                                yield return StartCoroutine(ProcessMetadataURL(modKey.KeyName, modURL, modEntry));
-                            }
-                            bool isValid = false;
-                            if (modEntry.Info.TryGetValue("File", out string fileURL))
-                            {
-                                if (modEntry.URL != null) modEntry.Info["URL"] = modEntry.URL;
-                                isValid = true;
-                            }
-                            if (modEntry.Info.TryGetValue("Git", out string gitURL))
-                            {
-                                string[] splitString = gitURL.Split(new char[] { ':' }, 3);
-                                if (splitString.Length == 3)
-                                {
-                                    using (WWW gitWWW = new WWW(string.Format(GIT_API_URL, splitString[0], splitString[1])))
-                                    {
-                                        yield return new WaitUntil(() => gitWWW.isDone);
-                                        try
-                                        {
-                                            JObject lastVersionJSON = null;
-                                            string downloadURL = null;
-                                            JToken responseToken = JToken.Parse(gitWWW.text);
-                                            if (responseToken is JArray responseArray)
-                                            {
-                                                foreach (JObject versionJSON in responseArray.Reverse())
-                                                {
-                                                    lastVersionJSON = versionJSON;
-                                                    downloadURL = versionJSON
-                                                            .Value<JArray>("assets")
-                                                            .ToObject<List<JObject>>().FirstOrDefault(x => Regex.IsMatch(x.Value<string>("name"), splitString[2]))
-                                                            ?.Value<string>("browser_download_url");
-                                                    if (downloadURL == null) continue;
-                                                    modEntry.OtherVersions[versionJSON.Value<string>("tag_name").TrimStart('v')] = "git:" + versionJSON.Value<string>("id");
-                                                }
-                                                if (downloadURL != null)
-                                                {
-                                                    modEntry.Info["File"] = downloadURL;
-                                                    string body = lastVersionJSON.Value<string>("body");
-                                                    if (body.StartsWith("GCVersion:") || body.StartsWith("GC Version:") ||
-                                                        body.StartsWith("GadgetCoreVersion:") || body.StartsWith("GadgetCore Version:") ||
-                                                        body.StartsWith("RequiredGCVersion:") || body.StartsWith("Required GC Version:") ||
-                                                        body.StartsWith("RequiredGadgetCoreVersion:") || body.StartsWith("Required GadgetCore Version:"))
-                                                    {
-                                                        string[] splitBody = body.Split(new char[] { '\r', '\n' }, 2);
-                                                        modEntry.Info["GCVersion"] = splitBody[0].Split(new char[] { ':' }, 2)[1].Trim();
-                                                        body = splitBody[1];
-                                                    }
-                                                    modEntry.Info["Version"] = lastVersionJSON.Value<string>("tag_name").TrimStart('v');
-                                                    string[] bodyLines = body.Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
-                                                    int indexOfDescription = bodyLines.IndexOf(x => x.StartsWith("Desc:") || x.StartsWith("Description:"));
-                                                    if (indexOfDescription >= 0)
-                                                    {
-                                                        string firstLine = bodyLines[indexOfDescription].Split(new char[] { ':' }, 2)[1].Trim();
-                                                        string[] changeLines = new string[indexOfDescription];
-                                                        string[] descLines = new string[bodyLines.Length - indexOfDescription - (string.IsNullOrEmpty(firstLine) ? 1 : 0)];
-                                                        if (changeLines.Length > 0)
-                                                        {
-                                                            Array.Copy(bodyLines, changeLines, changeLines.Length);
-                                                            modEntry.Info["Changed"] = changeLines.Concat("\n");
-                                                        }
-                                                        Array.Copy(bodyLines, indexOfDescription + (string.IsNullOrEmpty(firstLine) ? 1 : 0), descLines, 0, descLines.Length);
-                                                        modEntry.Info["Description"] = descLines.Concat("\n");
-                                                    }
-                                                    else
-                                                    {
-                                                        modEntry.Info["Changed"] = body;
-                                                    }
-                                                    isValid = true;
-                                                }
-                                            }
-                                            else if (responseToken is JObject responseObject)
-                                            {
-                                                string message = responseObject.Value<string>("message");
-                                                if (message != null && message.StartsWith("API rate limit exceeded"))
-                                                {
-                                                    GadgetCore.CoreLogger.LogWarning("GitHub API Rate limit exceeded for " + modEntry.Info["Name"] + "!");
-                                                }
-                                            }
-                                        }
-                                        catch (Exception e)
-                                        {
-                                            GadgetCore.CoreLogger.Log("An error occured while trying to fetch GitHub releases with the target '" + gitURL + "': " + e);
-                                        }
-                                    }
-                                }
-                            }
-                            if (isValid) modEntries.Add(modEntry);
                         }
                     }
                 }
@@ -535,7 +471,7 @@ namespace GadgetCore
                 }
             }
             modEntries.Sort((a, b) => string.Compare(a.Info["Name"], b.Info["Name"]));
-            loading = false;
+            listLoading = false;
             Build();
             yield break;
         }
@@ -594,6 +530,82 @@ namespace GadgetCore
                 if (modEntry.Info.TryGetValue("Version", out string version))
                 {
                     modEntry.OtherVersions[version] = "url:" + URL;
+                }
+                if (modEntry.Info.TryGetValue("Git", out string gitURL))
+                {
+                    string[] splitString = gitURL.Split(new char[] { ':' }, 3);
+                    if (splitString.Length == 3)
+                    {
+                        using (WWW gitWWW = new WWW(string.Format(GIT_API_URL, splitString[0], splitString[1])))
+                        {
+                            yield return new WaitUntil(() => gitWWW.isDone);
+                            try
+                            {
+                                JObject lastVersionJSON = null;
+                                string downloadURL = null;
+                                JToken responseToken = JToken.Parse(gitWWW.text);
+                                if (responseToken is JArray responseArray)
+                                {
+                                    foreach (JObject versionJSON in responseArray.Reverse())
+                                    {
+                                        lastVersionJSON = versionJSON;
+                                        downloadURL = versionJSON
+                                                .Value<JArray>("assets")
+                                                .ToObject<List<JObject>>().FirstOrDefault(x => Regex.IsMatch(x.Value<string>("name"), splitString[2]))
+                                                ?.Value<string>("browser_download_url");
+                                        if (downloadURL == null) continue;
+                                        modEntry.OtherVersions[versionJSON.Value<string>("tag_name").TrimStart('v')] = "git:" + versionJSON.Value<string>("id");
+                                    }
+                                    if (downloadURL != null)
+                                    {
+                                        modEntry.Info["File"] = downloadURL;
+                                        string body = lastVersionJSON.Value<string>("body");
+                                        if (body.StartsWith("GCVersion:") || body.StartsWith("GC Version:") ||
+                                            body.StartsWith("GadgetCoreVersion:") || body.StartsWith("GadgetCore Version:") ||
+                                            body.StartsWith("RequiredGCVersion:") || body.StartsWith("Required GC Version:") ||
+                                            body.StartsWith("RequiredGadgetCoreVersion:") || body.StartsWith("Required GadgetCore Version:"))
+                                        {
+                                            string[] splitBody = body.Split(new char[] { '\r', '\n' }, 2);
+                                            modEntry.Info["GCVersion"] = splitBody[0].Split(new char[] { ':' }, 2)[1].Trim();
+                                            body = splitBody[1];
+                                        }
+                                        modEntry.Info["Version"] = lastVersionJSON.Value<string>("tag_name").TrimStart('v');
+                                        string[] bodyLines = body.Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+                                        int indexOfDescription = bodyLines.IndexOf(x => x.StartsWith("Desc:") || x.StartsWith("Description:"));
+                                        if (indexOfDescription >= 0)
+                                        {
+                                            string firstLine = bodyLines[indexOfDescription].Split(new char[] { ':' }, 2)[1].Trim();
+                                            string[] changeLines = new string[indexOfDescription];
+                                            string[] descLines = new string[bodyLines.Length - indexOfDescription - (string.IsNullOrEmpty(firstLine) ? 1 : 0)];
+                                            if (changeLines.Length > 0)
+                                            {
+                                                Array.Copy(bodyLines, changeLines, changeLines.Length);
+                                                modEntry.Info["Changed"] = changeLines.Concat("\n");
+                                            }
+                                            Array.Copy(bodyLines, indexOfDescription + (string.IsNullOrEmpty(firstLine) ? 1 : 0), descLines, 0, descLines.Length);
+                                            modEntry.Info["Description"] = descLines.Concat("\n");
+                                        }
+                                        else
+                                        {
+                                            modEntry.Info["Changed"] = body;
+                                        }
+                                    }
+                                }
+                                else if (responseToken is JObject responseObject)
+                                {
+                                    string message = responseObject.Value<string>("message");
+                                    if (message != null && message.StartsWith("API rate limit exceeded"))
+                                    {
+                                        GadgetCore.CoreLogger.LogWarning("GitHub API Rate limit exceeded for " + modEntry.Info["Name"] + "!");
+                                    }
+                                }
+                            }
+                            catch (Exception e)
+                            {
+                                GadgetCore.CoreLogger.Log("An error occured while trying to fetch GitHub releases with the target '" + gitURL + "': " + e);
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -767,7 +779,14 @@ namespace GadgetCore
                 modToggle.group = modList.GetComponent<ToggleGroup>();
                 int toggleIndex = i;
                 if (i == modIndex) selectedToggle = modToggle;
-                modToggle.onValueChanged.AddListener((toggled) => { if (toggled) { UpdateInfo(modToggle, toggleIndex); GadgetCoreAPI.CloseDialog(); } });
+                modToggle.onValueChanged.AddListener((toggled) =>
+                {
+                    if (toggled)
+                    {
+                        GadgetCoreAPI.CloseDialog();
+                        StartCoroutine(ProcessEntryMetadata(modEntry, modToggle, toggleIndex));
+                    }
+                });
 
                 GadgetMod existingMod = GadgetMods.GetModByName(modEntry.Info["Name"]);
 
@@ -791,7 +810,26 @@ namespace GadgetCore
 
             built = true;
 
-            UpdateInfo(selectedToggle, modIndex);
+            StartCoroutine(ProcessEntryMetadata(modEntries[modIndex], selectedToggle, modIndex));
+        }
+
+        private IEnumerator ProcessEntryMetadata(ModBrowserEntry modEntry, Toggle toggle, int modIndex)
+        {
+            descLoading = true;
+            DescText.text = string.Empty;
+            InstallButton.interactable = false;
+            InstallButton.GetComponentInChildren<Text>().color = new Color(1f, 1f, 1f, 0.25f);
+            ActivateButton.interactable = false;
+            ActivateButton.GetComponentInChildren<Text>().color = new Color(1f, 1f, 1f, 0.25f);
+            VersionsButton.interactable = false;
+            VersionsButton.GetComponentInChildren<Text>().color = new Color(1f, 1f, 1f, 0.25f);
+            while (modEntry.Info.TryGetValue("URL", out string modURL))
+            {
+                if (modURL.Length > 0 && modURL[0] == '/') modEntry.Info["URL"] = modURL = GIT_RAW_URL + modURL;
+                yield return StartCoroutine(ProcessMetadataURL(modEntry.ID, modURL, modEntry));
+            }
+            UpdateInfo(toggle, modIndex);
+            descLoading = false;
         }
 
         private void Clean()
@@ -822,8 +860,11 @@ namespace GadgetCore
                 ModBrowserEntry modEntry = modEntries[modIndex];
 
                 InstallButton.interactable = modEntry.Info.ContainsKey("File");
+                InstallButton.GetComponentInChildren<Text>().color = InstallButton.interactable ? new Color(1f, 1f, 1f, 1f) : new Color(1f, 1f, 1f, 0.25f);
                 ActivateButton.interactable = modEntry.Info.ContainsKey("File") && File.Exists(Path.Combine(GadgetPaths.ModsPath, Path.GetFileName(modEntry.Info["File"]))) && GadgetMods.GetModByPath(Path.Combine(GadgetPaths.ModsPath, Path.GetFileName(modEntry.Info["File"]))) == null;
+                ActivateButton.GetComponentInChildren<Text>().color = ActivateButton.interactable ? new Color(1f, 1f, 1f, 1f) : new Color(1f, 1f, 1f, 0.25f);
                 VersionsButton.interactable = modEntry.Info.ContainsKey("Version") && modEntry.OtherVersions.Count > 1;
+                VersionsButton.GetComponentInChildren<Text>().color = VersionsButton.interactable ? new Color(1f, 1f, 1f, 1f) : new Color(1f, 1f, 1f, 0.25f);
                 GadgetMod existingMod = GadgetMods.GetModByName(modEntry.Info["Name"]);
                 string existingVersionString = existingMod != null && modEntry.Info.ContainsKey("Version") ? existingMod.Version.ToString(4) : null;
                 string paddedVersion = modEntry.Info.ContainsKey("Version") ? modEntry.Info["Version"] + Enumerable.Repeat(".0", 3 - modEntry.Info["Version"].Count(x => x == '.')).Concat(string.Empty) : null;

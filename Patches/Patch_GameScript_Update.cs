@@ -324,7 +324,7 @@ namespace GadgetCore.Patches
                                     }
                                 }
                             }
-                            else if ((___modSlot[___slotID].id < 300 || ___modSlot[___slotID].id >= 1000) && (ItemRegistry.GetItem(holdingItem.id).Type & ItemType.MODABLE) == ItemType.MODABLE)
+                            else if ((___modSlot[___slotID].id < 300 || ___modSlot[___slotID].id >= 1000) && (ItemRegistry.GetItem(___modSlot[___slotID].id).Type & ItemType.MODABLE) == ItemType.MODABLE)
                             {
                                 __instance.SelectItemMod(___slotID);
                             }

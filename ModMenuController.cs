@@ -549,8 +549,11 @@ namespace GadgetCore
                 else
                 {
                     enableButton.interactable = modEntries[modIndex].Name != "GadgetCore" && (modEnabled || modEntries[modIndex].Type == ModMenuEntryType.DISABLED_UMF);
+                    enableButton.GetComponentInChildren<Text>().color = enableButton.interactable ? new Color(1f, 1f, 1f, 1f) : new Color(1f, 1f, 1f, 0.25f);
                     reloadButton.interactable = modEntries[modIndex].Name != "GadgetCore" && (modEntries[modIndex].Type == ModMenuEntryType.GADGET || modEntries[modIndex].Type == ModMenuEntryType.UMF);
+                    reloadButton.GetComponentInChildren<Text>().color = reloadButton.interactable ? new Color(1f, 1f, 1f, 1f) : new Color(1f, 1f, 1f, 0.25f);
                     configButton.interactable = GadgetModConfigs.GetConfigMenuObject((modIndex << 16) + (gadgetIndex & 0xFFFF)) != null;
+                    configButton.GetComponentInChildren<Text>().color = configButton.interactable ? new Color(1f, 1f, 1f, 1f) : new Color(1f, 1f, 1f, 0.25f);
                     enableButton.GetComponentInChildren<Text>().text = (modEnabled ^ modsToToggle.Contains(modEntries[modIndex].Name)) ? "Disable" : "Enable";
                     descTextBuilder.Append((modEnabled ? "Mod Enabled" : "Mod Disabled") + (modsToToggle.Contains(modEntries[modIndex].Name) ? (modEnabled ? " (Will disable after restart)" : " (Will enable after restart)") : "") + '\n');
                     foreach (KeyValuePair<string, string> info in modEntries[modIndex].Info)
