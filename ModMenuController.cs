@@ -527,8 +527,11 @@ namespace GadgetCore
                 {
                     GadgetInfo mod = modEntries[modIndex].Gadgets[gadgetIndex];
                     enableButton.interactable = modEnabled;
+                    enableButton.GetComponentInChildren<Text>().color = enableButton.interactable ? new Color(1f, 1f, 1f, 1f) : new Color(1f, 1f, 1f, 0.25f);
                     reloadButton.interactable = mod.Attribute.AllowRuntimeReloading;
+                    reloadButton.GetComponentInChildren<Text>().color = reloadButton.interactable ? new Color(1f, 1f, 1f, 1f) : new Color(1f, 1f, 1f, 0.25f);
                     configButton.interactable = GadgetModConfigs.GetConfigMenuObject((modIndex << 16) + (gadgetIndex & 0xFFFF)) != null;
+                    configButton.GetComponentInChildren<Text>().color = configButton.interactable ? new Color(1f, 1f, 1f, 1f) : new Color(1f, 1f, 1f, 0.25f);
                     enableButton.GetComponentInChildren<Text>().text = mod.Gadget.Enabled ? "Disable" : "Enable";
                     descTextBuilder.Append((mod.Gadget.Enabled ? "Gadget Enabled" : "Gadget Disabled") + (modEnabled ? "" : " (Disabled by mod) ") + '\n');
                     Dictionary<string, string> gadgetInfo = new Dictionary<string, string>
