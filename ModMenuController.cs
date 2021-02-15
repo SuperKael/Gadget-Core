@@ -346,8 +346,8 @@ namespace GadgetCore
                         gadgetLabel.rectTransform.SetParent(gadgetRect);
                         gadgetLabel.rectTransform.anchorMin = new Vector2(0f, 0f);
                         gadgetLabel.rectTransform.anchorMax = new Vector2(1f, 1f);
-                        gadgetLabel.rectTransform.offsetMin = new Vector2(10, 10);
-                        gadgetLabel.rectTransform.offsetMax = new Vector2(-10, -10);
+                        gadgetLabel.rectTransform.offsetMin = new Vector2(10, 0);
+                        gadgetLabel.rectTransform.offsetMax = new Vector2(-10, 0);
                         gadgetLabel.font = SceneInjector.ModConfigMenuText.GetComponent<TextMesh>().font;
                         gadgetLabel.fontSize = 12;
                         gadgetLabel.horizontalOverflow = HorizontalWrapMode.Overflow;
@@ -389,8 +389,8 @@ namespace GadgetCore
                     modLabel.rectTransform.SetParent(modEntryRect);
                     modLabel.rectTransform.anchorMin = new Vector2(0f, 0f);
                     modLabel.rectTransform.anchorMax = new Vector2(1f, 1f);
-                    modLabel.rectTransform.offsetMin = new Vector2(10, 10);
-                    modLabel.rectTransform.offsetMax = new Vector2(-10, -10);
+                    modLabel.rectTransform.offsetMin = new Vector2(10, 0);
+                    modLabel.rectTransform.offsetMax = new Vector2(-10, 0);
                     modLabel.font = SceneInjector.ModConfigMenuText.GetComponent<TextMesh>().font;
                     modLabel.fontSize = 12;
                     modLabel.horizontalOverflow = HorizontalWrapMode.Overflow;
