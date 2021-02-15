@@ -715,8 +715,8 @@ namespace GadgetCore
             chatScrollBar.GetComponent<RectTransform>().SetParent(console.transform);
             chatScrollBar.GetComponent<RectTransform>().anchorMin = new Vector2(0.9f, 0.1f);
             chatScrollBar.GetComponent<RectTransform>().anchorMax = new Vector2(0.9f, 1f);
-            chatScrollBar.GetComponent<RectTransform>().offsetMin = new Vector2(-100f, 0f);
-            chatScrollBar.GetComponent<RectTransform>().offsetMax = new Vector2(0f, 0f);
+            chatScrollBar.GetComponent<RectTransform>().offsetMin = new Vector2(0f, 0f);
+            chatScrollBar.GetComponent<RectTransform>().offsetMax = new Vector2(50f, 0f);
             chatScrollBar.GetComponent<Image>().sprite = BoxSprite;
             chatScrollBar.GetComponent<Image>().type = Image.Type.Sliced;
             chatScrollBar.GetComponent<Image>().fillCenter = true;
