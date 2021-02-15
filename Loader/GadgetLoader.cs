@@ -291,7 +291,7 @@ namespace GadgetCore.Loader
                 else
                 {
                     int rD = (int)attribute.GadgetCoreVersionSpecificity;
-                    Logger.LogWarning("Found Gadget with an incompatible version: " + attribute.Name + ", in mod: {" + mod.Name + "}. Requires version: " + new string(attribute.TargetGCVersion.TakeWhile(x => (x == '.' ? --rD : rD) > 0).ToArray()));
+                    Logger.LogWarning("Found Gadget with an incompatible version: " + attribute.Name + ", in mod: {" + mod.Name + "}. Requires at least version: " + attribute.TargetGCVersion + ", but no greater than version: " + new string(attribute.TargetGCVersion.TakeWhile(x => (x == '.' ? --rD : rD) > 0).ToArray()));
                 }
             }
             mod.IsLoaded = true;
@@ -359,23 +359,44 @@ namespace GadgetCore.Loader
                 bool valid = true;
                 foreach (string dependency in gadget.Attribute.Dependencies)
                 {
-                    string[] splitDependency = dependency.Split(' ');
+                    string[] splitDependency = dependency.Split(':');
                     GadgetInfo dependencyGadget = Gadgets.GetGadgetInfo(splitDependency[0]);
                     valid = dependencyGadget != null && dependencyGadget.Gadget.Enabled;
-                    if (valid && splitDependency.Length == 2)
+                    if (valid)
                     {
-                        string versionString = splitDependency[1].Replace("v", "");
-                        int[] targetVersionNums = versionString.Split('.').Select(x => int.Parse(x)).ToArray();
-                        if (targetVersionNums.Length > 4) continue;
-                        int[] actualVersionNums = dependencyGadget.Mod.Version.ToString().Split('.').Select(x => int.Parse(x)).ToArray();
-                        VersionSpecificity versionSpecificity = (VersionSpecificity)targetVersionNums.Length;
-                        if (targetVersionNums.Length != 4) Array.Resize(ref targetVersionNums, 4);
-                        if (actualVersionNums.Length != 4) Array.Resize(ref actualVersionNums, 4);
-                        valid = (versionSpecificity == VersionSpecificity.MAJOR && actualVersionNums[0] == targetVersionNums[0] && (actualVersionNums[1] > targetVersionNums[1] || (actualVersionNums[1] == targetVersionNums[1] && (actualVersionNums[2] > targetVersionNums[2] || (actualVersionNums[2] == targetVersionNums[2] && actualVersionNums[3] >= targetVersionNums[3]))))) ||
-                                (versionSpecificity == VersionSpecificity.MINOR && actualVersionNums[0] == targetVersionNums[0] && actualVersionNums[1] == targetVersionNums[1] && (actualVersionNums[2] > targetVersionNums[2] || (actualVersionNums[2] == targetVersionNums[2] && actualVersionNums[3] >= targetVersionNums[3]))) ||
-                                (versionSpecificity == VersionSpecificity.NONBREAKING && actualVersionNums[0] == targetVersionNums[0] && actualVersionNums[1] == targetVersionNums[1] && actualVersionNums[2] == targetVersionNums[2] && actualVersionNums[3] >= targetVersionNums[3]) ||
-                                (versionSpecificity == VersionSpecificity.BUGFIX && actualVersionNums[0] == targetVersionNums[0] && actualVersionNums[1] == targetVersionNums[1] && actualVersionNums[2] == targetVersionNums[2] && actualVersionNums[3] == targetVersionNums[3]);
-
+                        if (splitDependency.Length == 2)
+                        {
+                            string versionString = splitDependency[1].TrimStart('v');
+                            int[] targetVersionNums = versionString.Split('.').Select(x => int.Parse(x)).ToArray();
+                            if (targetVersionNums.Length > 4) continue;
+                            int[] actualVersionNums = dependencyGadget.Mod.Version.ToString().Split('.').Select(x => int.Parse(x)).ToArray();
+                            if (targetVersionNums.Length != 4) Array.Resize(ref targetVersionNums, 4);
+                            if (actualVersionNums.Length != 4) Array.Resize(ref actualVersionNums, 4);
+                            valid = actualVersionNums[0] == targetVersionNums[0] && actualVersionNums[1] == targetVersionNums[1] && (actualVersionNums[2] > targetVersionNums[2] || (actualVersionNums[2] == targetVersionNums[2] && actualVersionNums[3] >= targetVersionNums[3]));
+                        }
+                        else if (splitDependency.Length == 3)
+                        {
+                            string versionString = splitDependency[1].TrimStart('v');
+                            int[] targetVersionNums = versionString.Split('.').Select(x => int.Parse(x)).ToArray();
+                            if (targetVersionNums.Length > 4) continue;
+                            int[] actualVersionNums = dependencyGadget.Mod.Version.ToString().Split('.').Select(x => int.Parse(x)).ToArray();
+                            VersionSpecificity versionSpecificity;
+                            try
+                            {
+                                versionSpecificity = (VersionSpecificity)Enum.Parse(typeof(VersionSpecificity), splitDependency[2], true);
+                            }
+                            catch (ArgumentException)
+                            {
+                                Logger.LogWarning("Gadget " + gadget.Attribute.Name + " has an improperly-formatted dependency version string: " + dependency);
+                                versionSpecificity = VersionSpecificity.MINOR;
+                            }
+                            if (targetVersionNums.Length != 4) Array.Resize(ref targetVersionNums, 4);
+                            if (actualVersionNums.Length != 4) Array.Resize(ref actualVersionNums, 4);
+                            valid = (versionSpecificity == VersionSpecificity.MAJOR && actualVersionNums[0] == targetVersionNums[0] && (actualVersionNums[1] > targetVersionNums[1] || (actualVersionNums[1] == targetVersionNums[1] && (actualVersionNums[2] > targetVersionNums[2] || (actualVersionNums[2] == targetVersionNums[2] && actualVersionNums[3] >= targetVersionNums[3]))))) ||
+                                    (versionSpecificity == VersionSpecificity.MINOR && actualVersionNums[0] == targetVersionNums[0] && actualVersionNums[1] == targetVersionNums[1] && (actualVersionNums[2] > targetVersionNums[2] || (actualVersionNums[2] == targetVersionNums[2] && actualVersionNums[3] >= targetVersionNums[3]))) ||
+                                    (versionSpecificity == VersionSpecificity.NONBREAKING && actualVersionNums[0] == targetVersionNums[0] && actualVersionNums[1] == targetVersionNums[1] && actualVersionNums[2] == targetVersionNums[2] && actualVersionNums[3] >= targetVersionNums[3]) ||
+                                    (versionSpecificity == VersionSpecificity.BUGFIX && actualVersionNums[0] == targetVersionNums[0] && actualVersionNums[1] == targetVersionNums[1] && actualVersionNums[2] == targetVersionNums[2] && actualVersionNums[3] == targetVersionNums[3]);
+                        }
                     }
                 }
                 if (valid)
@@ -557,6 +578,7 @@ namespace GadgetCore.Loader
                 {
                     UnloadModInternal(modToUnload);
                 }
+                mod.Unload();
                 GC.Collect();
                 BatchLoading = wasBatchLoading;
                 DisableQueuedGadgets();
@@ -574,9 +596,9 @@ namespace GadgetCore.Loader
             {
                 if (dependency.Name != "GadgetCore") UnloadModInternal(mod);
             }
-            mod.IsLoaded = false;
             GadgetMods.UnregisterMod(mod);
             GadgetCore.LoadedAssemblies.Remove(mod.Assembly.GetName().Name);
+            mod.Unload();
         }
 
         /// <summary>
@@ -693,6 +715,31 @@ namespace GadgetCore.Loader
                 Logger.LogError("Error reloading " + mod.Name + ": " + e);
             }
             return mod;
+        }
+
+        /// <summary>
+        /// Compares two arrays representing sets of version numbers.
+        /// Returns a positive value if <paramref name="firstNums"/> is greater/newer,
+        /// Returns a negative value if <paramref name="secondNums"/> is greater/newer,
+        /// and 0 if the two sets of version numbers are equivalent.
+        /// </summary>
+        public static int CompareVersionNumbers(int[] firstNums, int[] secondNums, int maxDepth = int.MaxValue)
+        {
+            int numCount = Math.Max(firstNums.Length, secondNums.Length);
+            for (int i = 0; i < numCount; i++)
+            {
+                int dif;
+
+                if (i >= secondNums.Length)
+                    dif = firstNums[i];
+                else if (i >= firstNums.Length)
+                    dif = -secondNums[i];
+                else
+                    dif = firstNums[i] - secondNums[i];
+
+                if (dif != 0) return dif;
+            }
+            return 0;
         }
     }
 }

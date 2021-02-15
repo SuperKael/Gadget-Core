@@ -25,7 +25,7 @@ namespace GadgetCore.Patches
         }
 
         [HarmonyPostfix]
-        public static void Postfix(GameScript __instance, ref RaycastHit ___hit, ref int ___craftType, ref int ___slotID, ref bool ___shifting, ref Item[] ___inventory, ref Item[] ___craft, ref int ___curBlockSlot, ref ChunkWorld ___chunkWorld, ref ChunkWorld ___chunkWorldWall, ref Item __state)
+        public static void Postfix(GameScript __instance, ref RaycastHit ___hit, ref int ___craftType, ref int ___slotID, ref bool ___shifting, ref Item[] ___inventory, ref Item[] ___craft, ref Item[] ___modSlot, ref int ___curBlockSlot, ref ChunkWorld ___chunkWorld, ref ChunkWorld ___chunkWorldWall, ref Item __state)
         {
             if (!GameScript.pausing && !GameScript.inventoryOpen && GameScript.buildMode && Input.GetMouseButtonDown(0) && ___inventory[___curBlockSlot].q > 0 && ItemRegistry.Singleton.HasEntry(___inventory[___curBlockSlot].id))
             {
@@ -270,6 +270,15 @@ namespace GadgetCore.Patches
                         else if (___hit.transform.gameObject.tag == "planet")
                         {
                             ___slotID = int.Parse(___hit.transform.gameObject.name);
+                            if (___slotID >= 14)
+                            {
+                                while (___slotID >= 14)
+                                {
+                                    ___slotID -= 14;
+                                    PlanetRegistry.PlanetSelectorPage++;
+                                }
+                                PlanetRegistry.UpdatePlanetSelector();
+                            }
                             int planetIndex = (PlanetRegistry.PlanetSelectorPage - 2) * 14 + ___slotID;
                             if (planetIndex >= 0 && planetIndex < PlanetRegistry.selectorPlanets.Length && PlanetRegistry.selectorPlanets[planetIndex] is PlanetInfo planet)
                             {
@@ -295,6 +304,29 @@ namespace GadgetCore.Patches
                                         InstanceTracker.GameScript.txtPortalUses[1].text = InstanceTracker.GameScript.txtPortalUses[0].text;
                                     }
                                 }
+                            }
+                        }
+                        else if (___hit.transform.gameObject.tag == "mod")
+                        {
+                            ___slotID = int.Parse(___hit.transform.gameObject.name);
+                            Item holdingItem = __state;
+                            if (holdingItem.id != 0)
+                            {
+                                if ((holdingItem.id < 300 || holdingItem.id >= 1000) && (ItemRegistry.GetItem(holdingItem.id).Type & ItemType.MODABLE) == ItemType.MODABLE)
+                                {
+                                    if (___modSlot[___slotID].id == 0)
+                                    {
+                                        __instance.PlaceItemMod(___slotID);
+                                    }
+                                    else
+                                    {
+                                        __instance.SwapItemMod(___slotID);
+                                    }
+                                }
+                            }
+                            else if ((___modSlot[___slotID].id < 300 || ___modSlot[___slotID].id >= 1000) && (ItemRegistry.GetItem(holdingItem.id).Type & ItemType.MODABLE) == ItemType.MODABLE)
+                            {
+                                __instance.SelectItemMod(___slotID);
                             }
                         }
                     }
@@ -331,27 +363,53 @@ namespace GadgetCore.Patches
                 }
                 else if (Input.GetMouseButtonDown(1) && GameScript.inventoryOpen && Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out ___hit, 7f))
                 {
-                    if (___hit.transform.gameObject.layer == 16 && ___hit.transform.gameObject.tag == "craft")
+                    if (___hit.transform.gameObject.layer == 16)
                     {
-                        if (MenuRegistry.Singleton.GetEntry(___craftType) is CraftMenuInfo craftMenu)
+                        if (___hit.transform.gameObject.tag == "craft")
+                        {
+                            if (MenuRegistry.Singleton.GetEntry(___craftType) is CraftMenuInfo craftMenu)
+                            {
+                                ___slotID = int.Parse(___hit.transform.gameObject.name);
+                                if (__state.id != 0)
+                                {
+                                    Item holdingItem = __state;
+                                    Item[] craftItems = ___craft;
+                                    int slotID = ___slotID;
+                                    if (craftMenu.SlotValidators.Any(x => x(holdingItem, craftItems, slotID)))
+                                    {
+                                        if (___craft[___slotID].id == 0 || (GadgetCoreAPI.CanItemsStack(___craft[___slotID], __state) && ___craft[___slotID].q < 9999))
+                                        {
+                                            __instance.InvokeMethod("PlaceOneItemCraft", ___slotID);
+                                        }
+                                        else
+                                        {
+                                            __instance.InvokeMethod("SwapItemCraft", ___slotID);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        else if (___hit.transform.gameObject.tag == "mod")
                         {
                             ___slotID = int.Parse(___hit.transform.gameObject.name);
-                            if (__state.id != 0)
+                            Item holdingItem = __state;
+                            if (holdingItem.id != 0)
                             {
-                                Item holdingItem = __state;
-                                Item[] craftItems = ___craft;
-                                int slotID = ___slotID;
-                                if (craftMenu.SlotValidators.Any(x => x(holdingItem, craftItems, slotID)))
+                                if ((holdingItem.id < 300 || holdingItem.id >= 1000) && (ItemRegistry.GetItem(holdingItem.id).Type & ItemType.MODABLE) == ItemType.MODABLE)
                                 {
-                                    if (___craft[___slotID].id == 0 || (GadgetCoreAPI.CanItemsStack(___craft[___slotID], __state) && ___craft[___slotID].q < 9999))
+                                    if (___modSlot[___slotID].id == 0)
                                     {
-                                        __instance.InvokeMethod("PlaceOneItemCraft", ___slotID);
+                                        __instance.PlaceItemMod(___slotID);
                                     }
                                     else
                                     {
-                                        __instance.InvokeMethod("SwapItemCraft", ___slotID);
+                                        __instance.SwapItemMod(___slotID);
                                     }
                                 }
+                            }
+                            else if ((___modSlot[___slotID].id < 300 || ___modSlot[___slotID].id >= 1000) && (ItemRegistry.GetItem(holdingItem.id).Type & ItemType.MODABLE) == ItemType.MODABLE)
+                            {
+                                __instance.SelectItemMod(___slotID);
                             }
                         }
                     }

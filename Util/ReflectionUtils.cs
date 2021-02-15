@@ -12,6 +12,11 @@ namespace GadgetCore.Util
     /// </summary>
     public static class ReflectionUtils
     {
+        /// <summary>
+        /// Const value representative of the combination of the four standard <see cref="BindingFlags"/>:
+        /// BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance
+        /// </summary>
+        public const BindingFlags ALL_BF = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance;
         private static Dictionary<MethodInfoData, MethodInfo> cachedMethods = new Dictionary<MethodInfoData, MethodInfo>();
         private static Dictionary<FieldInfoData, FieldInfo> cachedFields = new Dictionary<FieldInfoData, FieldInfo>();
         private static Dictionary<FieldInfo, Delegate> cachedGetters = new Dictionary<FieldInfo, Delegate>();
@@ -56,7 +61,7 @@ namespace GadgetCore.Util
             FieldInfoData fieldInfoData = new FieldInfoData(type.GetType(), fieldName);
             if (!cachedFields.ContainsKey(fieldInfoData))
             {
-                cachedFields.Add(fieldInfoData, type.GetType().GetField(fieldName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static));
+                cachedFields.Add(fieldInfoData, type.GetType().GetField(fieldName, ALL_BF));
             }
             FieldInfo field = cachedFields[fieldInfoData];
             if (field != null)
@@ -80,7 +85,7 @@ namespace GadgetCore.Util
             FieldInfoData fieldInfoData = new FieldInfoData(type.GetType(), fieldName);
             if (!cachedFields.ContainsKey(fieldInfoData))
             {
-                cachedFields.Add(fieldInfoData, type.GetType().GetField(fieldName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static));
+                cachedFields.Add(fieldInfoData, type.GetType().GetField(fieldName, ALL_BF));
             }
             FieldInfo field = cachedFields[fieldInfoData];
             if (field != null)
@@ -104,7 +109,7 @@ namespace GadgetCore.Util
             FieldInfoData fieldInfoData = new FieldInfoData(type.GetType(), fieldName);
             if (!cachedFields.ContainsKey(fieldInfoData))
             {
-                cachedFields.Add(fieldInfoData, type.GetType().GetField(fieldName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static));
+                cachedFields.Add(fieldInfoData, type.GetType().GetField(fieldName, ALL_BF));
             }
             FieldInfo field = cachedFields[fieldInfoData];
             if (field != null)
@@ -167,7 +172,7 @@ namespace GadgetCore.Util
             MethodInfoData methodInfoData = new MethodInfoData(type.GetType(), methodName, generics, parameters.Select(x => x?.GetType()).ToArray());
             if (!cachedMethods.ContainsKey(methodInfoData))
             {
-                cachedMethods.Add(methodInfoData, type.GetType().GetMethod(methodName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static, Type.DefaultBinder, CallingConventions.Standard, methodInfoData.parameters, null));
+                cachedMethods.Add(methodInfoData, type.GetType().GetMethod(methodName, ALL_BF, Type.DefaultBinder, CallingConventions.Standard, methodInfoData.parameters, null));
                 if (generics != null) cachedMethods[methodInfoData] = cachedMethods[methodInfoData].MakeGenericMethod(generics);
             }
             MethodInfo method = cachedMethods[methodInfoData];
@@ -243,6 +248,32 @@ namespace GadgetCore.Util
         }
 
         /// <summary>
+        /// Creates a getter for the given static FieldInfo, allowing you to repeatedly get its value without repeated calls to GetValue
+        /// </summary>
+        public static Delegate CreateStaticGetter(this FieldInfo field)
+        {
+            if (!field.IsStatic) throw new InvalidOperationException("Cannot make a static getter for a non-static field!");
+            DynamicMethod getterMethod = new DynamicMethod(field.ReflectedType.FullName + ".get_" + field.Name, field.FieldType, new Type[] { }, field.Module, true);
+            ILGenerator gen = getterMethod.GetILGenerator();
+            gen.Emit(OpCodes.Ldsfld, field);
+            gen.Emit(OpCodes.Ret);
+            return getterMethod.CreateDelegate(typeof(Func<>).MakeGenericType(field.FieldType));
+        }
+
+        /// <summary>
+        /// Creates a getter for the given static FieldInfo, allowing you to repeatedly get its value without repeated calls to GetValue
+        /// </summary>
+        public static Func<T> CreateStaticGetter<T>(this FieldInfo field)
+        {
+            if (!field.IsStatic) throw new InvalidOperationException("Cannot make a static getter for a non-static field!");
+            DynamicMethod getterMethod = new DynamicMethod(field.ReflectedType.FullName + ".get_" + field.Name, typeof(T), new Type[] { }, field.Module, true);
+            ILGenerator gen = getterMethod.GetILGenerator();
+            gen.Emit(OpCodes.Ldsfld, field);
+            gen.Emit(OpCodes.Ret);
+            return (Func<T>)getterMethod.CreateDelegate(typeof(Func<T>));
+        }
+
+        /// <summary>
         /// Creates a setter for the given FieldInfo, allowing you to repeatedly set its value without repeated calls to SetValue
         /// </summary>
         public static Delegate CreateSetter(this FieldInfo field)
@@ -307,6 +338,105 @@ namespace GadgetCore.Util
             }
             gen.Emit(OpCodes.Ret);
             return (Action<S, T>)setterMethod.CreateDelegate(typeof(Action<S, T>));
+        }
+
+        /// <summary>
+        /// Creates a setter for the given static FieldInfo, allowing you to repeatedly set its value without repeated calls to SetValue
+        /// </summary>
+        public static Delegate CreateStaticSetter(this FieldInfo field)
+        {
+            DynamicMethod setterMethod = new DynamicMethod(field.ReflectedType.FullName + ".set_" + field.Name, null, new Type[] { field.FieldType }, field.Module, true);
+            ILGenerator gen = setterMethod.GetILGenerator();
+            gen.Emit(OpCodes.Ldarg_0);
+            gen.Emit(OpCodes.Stsfld, field);
+            gen.Emit(OpCodes.Ret);
+            return setterMethod.CreateDelegate(typeof(Action<>).MakeGenericType(field.FieldType));
+        }
+
+        /// <summary>
+        /// Creates a setter for the given static FieldInfo, allowing you to repeatedly set its value without repeated calls to SetValue
+        /// </summary>
+        public static Action<T> CreateStaticSetter<T>(this FieldInfo field)
+        {
+            if (!field.IsStatic) throw new InvalidOperationException("Cannot make a static setter for a non-static field!");
+            DynamicMethod setterMethod = new DynamicMethod(field.ReflectedType.FullName + ".set_" + field.Name, null, new Type[] { typeof(T) }, field.Module, true);
+            ILGenerator gen = setterMethod.GetILGenerator();
+            gen.Emit(OpCodes.Ldarg_0);
+            gen.Emit(OpCodes.Stsfld, field);
+            gen.Emit(OpCodes.Ret);
+            return (Action<T>)setterMethod.CreateDelegate(typeof(Action<T>));
+        }
+
+        /// <summary>
+        /// Creates an invoker delegate for the given MethodInfo, allowing you to repeatedly invoke it without repeated calls to MethodInfo's Invoke method.
+        /// </summary>
+        public static T CreateInvoker<T>(this MethodInfo method, object targetInstance = null) where T : Delegate
+        {
+            return (T)CreateInvoker(method, targetInstance);
+        }
+
+        /// <summary>
+        /// Creates an invoker delegate for the given MethodInfo, allowing you to repeatedly invoke it without repeated calls to MethodInfo's Invoke method.
+        /// </summary>
+        public static Delegate CreateInvoker(this MethodInfo method, object targetInstance = null)
+        {
+            IEnumerable<Type> parameterTypes = method.GetParameters().Select(p => p.ParameterType);
+            Type[] parameterTypesArray = parameterTypes.ToArray();
+            Type delegateType;
+
+            if (method.ReturnType == typeof(void))
+            {
+                delegateType = Expression.GetActionType(parameterTypesArray);
+            }
+            else
+            {
+                delegateType = Expression.GetFuncType(parameterTypes.Concat(new Type[] { method.ReturnType }).ToArray());
+            }
+
+            if (method.IsStatic || targetInstance != null)
+            {
+                return Delegate.CreateDelegate(delegateType, targetInstance, method);
+            }
+            else
+            {
+                DynamicMethod invokerMethod = new DynamicMethod(method.ReflectedType.FullName + ".invoke_" + method.Name,
+                    MethodAttributes.Public | MethodAttributes.Static, CallingConventions.Standard, method.ReturnType, parameterTypesArray, method.Module, true);
+                ILGenerator gen = invokerMethod.GetILGenerator();
+
+                gen.Emit(OpCodes.Ldnull);
+                for (int i = 0;i < parameterTypesArray.Length;i++)
+                {
+                    switch (i)
+                    {
+                        case 0:
+                            gen.Emit(OpCodes.Ldarg_0);
+                            break;
+                        case 1:
+                            gen.Emit(OpCodes.Ldarg_1);
+                            break;
+                        case 2:
+                            gen.Emit(OpCodes.Ldarg_2);
+                            break;
+                        case 3:
+                            gen.Emit(OpCodes.Ldarg_3);
+                            break;
+                        default:
+                            gen.Emit(OpCodes.Ldarg, i);
+                            break;
+                    }
+                }
+                if (method.IsVirtual)
+                {
+                    gen.Emit(OpCodes.Callvirt, method);
+                }
+                else
+                {
+                    gen.Emit(OpCodes.Call, method);
+                }
+                gen.Emit(OpCodes.Ret);
+
+                return invokerMethod.CreateDelegate(delegateType);
+            }
         }
 
         private struct MethodInfoData

@@ -7,8 +7,8 @@ using System.IO;
 namespace GadgetCore.Patches
 {
     [HarmonyPatch(typeof(GameScript))]
-    [HarmonyPatch("InitializeStats")]
-    static class Patch_GameScript_InitializeStats
+    [HarmonyPatch("RefreshStats")]
+    static class Patch_GameScript_RefreshStats
     {
         [HarmonyPostfix]
         public static void Postfix(Item[] ___inventory)

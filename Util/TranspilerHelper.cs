@@ -181,7 +181,7 @@ namespace GadgetCore.Util
                     if (insn?.labels == null) continue;
                     foreach (Label label in insn.labels)
                     {
-                        LabelIndexes.Add(label, Tuple.Create(++labels, ILAddresses.Count - 2));
+                        LabelIndexes[label] = Tuple.Create(++labels, ILAddresses.Count - 2);
                     }
                 }
             }
@@ -574,6 +574,14 @@ namespace GadgetCore.Util
                 ShiftInsns(target.GetRefByOffset(count), -count);
             }
 
+            /// <summary>
+            /// Removes the set of instructions in the block started by the given <see cref="ILRef"/>s.
+            /// </summary>
+            public void RemoveInsns(ILRef start, ILRef end)
+            {
+                ShiftInsns(end, end.Index - start.Index + 1);
+            }
+
             private void ShiftInsns(ILRef target, int shift)
             {
                 if (shift == 0) return;
@@ -591,8 +599,11 @@ namespace GadgetCore.Util
                 }
                 else if (target.Index + shift >= 0)
                 {
+                    Label[] labels = Insns.GetRange(targetIndex + shift, -shift).SelectMany(x => x.labels).ToArray();
                     Insns.RemoveRange(targetIndex + shift, -shift);
                     Insns.TrimExcess();
+                    CodeInstruction firstInsn = Insns[targetIndex + shift];
+                    foreach (Label label in labels) firstInsn.labels.Add(label);
                     UpdateMetadata();
                     foreach (KeyValuePair<int, ILRef> r in ILRefs.Where(x => x.Key >= targetIndex + shift).OrderBy(x => x.Key).ToList())
                     {

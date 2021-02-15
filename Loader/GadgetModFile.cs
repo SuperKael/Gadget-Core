@@ -118,5 +118,17 @@ namespace GadgetCore.Loader
                 reference.Dispose();
             }
         }
+
+        internal static void DisposeAll(GadgetMod mod)
+        {
+            foreach (GadgetModFile reference in openReferences)
+            {
+                if (reference.Mod == mod)
+                {
+                    GadgetCore.CoreLogger.Log("WARNING: Forcibly disposing of GadgetModFile that " + mod.Name + " failed to dispose of: " + reference.FilePath);
+                    reference.Dispose();
+                }
+            }
+        }
     }
 }

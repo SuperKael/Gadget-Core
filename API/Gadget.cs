@@ -1,4 +1,5 @@
 ﻿using GadgetCore.API.ConfigMenu;
+using GadgetCore.Loader;
 using HarmonyLib;
 using System;
 using System.IO;
@@ -115,7 +116,7 @@ namespace GadgetCore.API
         {
             try
             {
-                return new INIGadgetConfigMenu(Regex.Replace(Info.Attribute.Name, @"\s+", ""), false, Path.Combine(GadgetPaths.ConfigsPath, Assembly.GetAssembly(GetType()).GetName().Name) + ".ini", Info.Attribute.AllowConfigReloading ? ModMenuController.modEntries[ModID] : null);
+                return new INIGadgetConfigMenu(Regex.Replace(Info.Attribute.Name, @"\s+", ""), false, Path.Combine(GadgetPaths.ConfigsPath, Assembly.GetAssembly(GetType()).GetName().Name) + ".ini", Info.Attribute.AllowConfigReloading ? ModMenuController.modEntries[GadgetMods.IndexOfMod(Info.Mod)] : null);
             }
             catch (InvalidOperationException e)
             {
@@ -146,6 +147,14 @@ namespace GadgetCore.API
         public static Gadget<T> GetSingleton()
         {
             return singleton;
+        }
+
+        /// <summary>
+        /// Returns this <see cref="Gadget{T}"/>'s logger.
+        /// </summary>
+        public static GadgetLogger GetLogger()
+        {
+            return singleton.Logger;
         }
 
         internal sealed override void CreateSingleton(Gadget singleton)

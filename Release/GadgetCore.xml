@@ -1912,6 +1912,11 @@
             Returns this <see cref="T:GadgetCore.API.Gadget`1"/>'s singleton.
             </summary>
         </member>
+        <member name="M:GadgetCore.API.Gadget`1.GetLogger">
+            <summary>
+            Returns this <see cref="T:GadgetCore.API.Gadget`1"/>'s logger.
+            </summary>
+        </member>
         <member name="T:GadgetCore.API.GadgetAttribute">
             <summary>
             Required by classes that extend Gadget. Provides information about your Gadget.
@@ -2397,7 +2402,7 @@
         </member>
         <member name="M:GadgetCore.API.GadgetCoreAPI.GetItemName(System.Int32)">
             <summary>
-            Gets the name of the item with the given ID. Easier than using reflection to call GetItemName on GameScript.
+            Gets the name of the item with the given ID. Works even on the title screen.
             </summary>
         </member>
         <member name="M:GadgetCore.API.GadgetCoreAPI.GetItemDesc(System.Int32)">
@@ -3620,7 +3625,7 @@
         </member>
         <member name="F:GadgetCore.API.ItemType.MODABLE">
             <summary>
-            This item is able to have mods installed into it. Note that this is non-functional in this version of Gadget Core.
+            This item is able to have mods installed into it.
             </summary>
         </member>
         <member name="F:GadgetCore.API.ItemType.MOD">
@@ -5760,6 +5765,14 @@
             WARNING: Will trigger an immediate GC collection, causing a short freeze!
             </summary>
         </member>
+        <member name="M:GadgetCore.Loader.GadgetLoader.CompareVersionNumbers(System.Int32[],System.Int32[],System.Int32)">
+            <summary>
+            Compares two arrays representing sets of version numbers.
+            Returns a positive value if <paramref name="firstNums"/> is greater/newer,
+            Returns a negative value if <paramref name="secondNums"/> is greater/newer,
+            and 0 if the two sets of version numbers are equivalent.
+            </summary>
+        </member>
         <member name="T:GadgetCore.Loader.GadgetMod">
             <summary>
             The container class used for tracking a Gadget Mod.
@@ -5930,6 +5943,11 @@
             Lists the names of all GadgetMods.
             </summary>
         </member>
+        <member name="M:GadgetCore.Loader.GadgetMods.IndexOfMod(GadgetCore.Loader.GadgetMod)">
+            <summary>
+            Finds the index of the given mod in the list of all mods.
+            </summary>
+        </member>
         <member name="M:GadgetCore.Loader.GadgetMods.SetEnabled(System.String,System.Boolean)">
             <summary>
             Sets the Enabled status of the gadget with the given name using <see cref="M:GadgetCore.Loader.GadgetMods.GetModByName(System.String)"/>. Will throw a NullReferenceException if there is no mod with the given name.
@@ -5938,6 +5956,27 @@
         <member name="M:GadgetCore.Loader.GadgetMods.SetEnabled(GadgetCore.Loader.GadgetMod,System.Boolean)">
             <summary>
             Sets the Enabled status of the given mod. Note that this can be queried using GadgetMod.Enabled
+            </summary>
+        </member>
+        <member name="F:GadgetCore.ModBrowser.PASCAL_CASE_SPACING_REGEX">
+            <summary>
+            Regex for inserting spaces into PascalCase strings.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.ModBrowser.ToggleModBrowser">
+            <summary>
+            Toggles the mod browser. Only works if the mod menu is open.
+            Returns true if the mod browser is now open. (Assuming the mod menu is open).
+            </summary>
+        </member>
+        <member name="M:GadgetCore.ModBrowser.OpenModBrowser">
+            <summary>
+            Opens the mod browser. Only works if the mod menu is open.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.ModBrowser.CloseModBrowser">
+            <summary>
+            Closes the mod browser.
             </summary>
         </member>
         <member name="T:GadgetCore.ModMenuEntry">
@@ -6360,6 +6399,12 @@
             Provides the extension method 'InvokeMethod' for easily invoking methods with Reflection.
             </summary>
         </member>
+        <member name="F:GadgetCore.Util.ReflectionUtils.ALL_BF">
+            <summary>
+            Const value representative of the combination of the four standard <see cref="T:System.Reflection.BindingFlags"/>:
+            BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance
+            </summary>
+        </member>
         <member name="M:GadgetCore.Util.ReflectionUtils.GetValue``1(System.Reflection.FieldInfo,System.Object)">
             <summary>
             Gets the value of this <see cref="T:System.Reflection.FieldInfo"/>. Uses caching with <see cref="M:GadgetCore.Util.ReflectionUtils.CreateGetter(System.Reflection.FieldInfo)"/>
@@ -6452,6 +6497,16 @@
             Creates a getter for the given FieldInfo, allowing you to repeatedly get its value without repeated calls to GetValue
             </summary>
         </member>
+        <member name="M:GadgetCore.Util.ReflectionUtils.CreateStaticGetter(System.Reflection.FieldInfo)">
+            <summary>
+            Creates a getter for the given static FieldInfo, allowing you to repeatedly get its value without repeated calls to GetValue
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.ReflectionUtils.CreateStaticGetter``1(System.Reflection.FieldInfo)">
+            <summary>
+            Creates a getter for the given static FieldInfo, allowing you to repeatedly get its value without repeated calls to GetValue
+            </summary>
+        </member>
         <member name="M:GadgetCore.Util.ReflectionUtils.CreateSetter(System.Reflection.FieldInfo)">
             <summary>
             Creates a setter for the given FieldInfo, allowing you to repeatedly set its value without repeated calls to SetValue
@@ -6465,6 +6520,26 @@
         <member name="M:GadgetCore.Util.ReflectionUtils.CreateSetter``2(System.Reflection.FieldInfo)">
             <summary>
             Creates a setter for the given FieldInfo, allowing you to repeatedly set its value without repeated calls to SetValue
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.ReflectionUtils.CreateStaticSetter(System.Reflection.FieldInfo)">
+            <summary>
+            Creates a setter for the given static FieldInfo, allowing you to repeatedly set its value without repeated calls to SetValue
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.ReflectionUtils.CreateStaticSetter``1(System.Reflection.FieldInfo)">
+            <summary>
+            Creates a setter for the given static FieldInfo, allowing you to repeatedly set its value without repeated calls to SetValue
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.ReflectionUtils.CreateInvoker``1(System.Reflection.MethodInfo,System.Object)">
+            <summary>
+            Creates an invoker delegate for the given MethodInfo, allowing you to repeatedly invoke it without repeated calls to MethodInfo's Invoke method.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.ReflectionUtils.CreateInvoker(System.Reflection.MethodInfo,System.Object)">
+            <summary>
+            Creates an invoker delegate for the given MethodInfo, allowing you to repeatedly invoke it without repeated calls to MethodInfo's Invoke method.
             </summary>
         </member>
         <member name="T:GadgetCore.Util.TopoSort">
@@ -6684,6 +6759,11 @@
             <summary>
             Removes the set of instructions in the block started by the given <see cref="T:GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef"/>.
             Accepts values of <paramref name="count"/> higher than the number of instructions.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.TranspilerHelper.CILProcessor.RemoveInsns(GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef,GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef)">
+            <summary>
+            Removes the set of instructions in the block started by the given <see cref="T:GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef"/>s.
             </summary>
         </member>
         <member name="M:GadgetCore.Util.TranspilerHelper.CILProcessor.GetInstructions">

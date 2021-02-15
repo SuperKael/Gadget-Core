@@ -52,7 +52,7 @@ namespace GadgetCore.API
             {
                 return itemIDsByRegistryName[name];
             }
-            return 0;
+            return -1;
         }
 
         /// <summary>
@@ -1103,7 +1103,7 @@ namespace GadgetCore.API
         /// </summary>
         LEVELING    = 0b0000000001000000,
         /// <summary>
-        /// This item is able to have mods installed into it. Note that this is non-functional in this version of Gadget Core.
+        /// This item is able to have mods installed into it.
         /// </summary>
         MODABLE     = 0b0000000010100000,
         /// <summary>

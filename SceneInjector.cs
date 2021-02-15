@@ -27,11 +27,14 @@ namespace GadgetCore
         public static GameObject ModMenu { get; internal set; }
         public static Canvas ModMenuCanvas { get; internal set; }
         public static ModMenuController ModMenuPanel { get; internal set; }
+        public static ModBrowser ModBrowserPanel { get; internal set; }
         public static RectTransform ModConfigMenus { get; internal set; }
         public static GameObject ModMenuBackButtonBeam { get; internal set; }
         public static GameObject ModMenuBackButtonHolder { get; internal set; }
         public static GameObject ModConfigMenuText { get; internal set; }
         public static ScrollRect ModMenuDescPanel { get; internal set; }
+        public static ScrollRect ModBrowserDescPanel { get; internal set; }
+        public static Button ModBrowserButton { get; internal set; }
 
         public static GameObject BuildStand { get; internal set; }
 
@@ -185,6 +188,14 @@ namespace GadgetCore
                 Transform buggedPlanetButton = InstanceTracker.GameScript.menuPlanets.transform.Find("14"); // Fixes problem with The Cathedral button.
                 buggedPlanetButton.position = new Vector3(InstanceTracker.GameScript.menuPlanets.transform.Find("0").position.x, buggedPlanetButton.position.y, buggedPlanetButton.position.z);
                 buggedPlanetButton.gameObject.SetActive(false);
+
+                foreach (Transform hiddenPlanetButton in InstanceTracker.GameScript.menuPlanets.transform) // Ensure all other hidden planet buttons are inactive as well
+                {
+                    if (int.TryParse(hiddenPlanetButton.name, out int buttonIndex) && buttonIndex > 14)
+                    {
+                        hiddenPlanetButton.gameObject.SetActive(false);
+                    }
+                }
             }
         }
 
@@ -236,7 +247,7 @@ namespace GadgetCore
             restartRequiredText.transform.localPosition = new Vector3(0, -10.5f, -1);
             restartRequiredText.transform.localScale *= 0.75f;
             Array.ForEach(restartRequiredText.GetComponentsInChildren<TextMesh>(), x => { x.text = "Restart Required!"; x.anchor = TextAnchor.UpperCenter; });
-            ModMenuPanel = new GameObject("Panel", typeof(RectTransform), typeof(ModMenuController)).GetComponent<ModMenuController>();
+            ModMenuPanel = new GameObject("Mod Menu", typeof(RectTransform), typeof(ModMenuController)).GetComponent<ModMenuController>();
             ModMenuPanel.GetComponent<RectTransform>().SetParent(ModMenuCanvas.transform);
             ModMenuPanel.GetComponent<RectTransform>().anchorMin = new Vector2(0.15f, 0.15f);
             ModMenuPanel.GetComponent<RectTransform>().anchorMax = new Vector2(0.85f, 0.85f);
@@ -300,6 +311,7 @@ namespace GadgetCore
             ModMenuDescPanel.GetComponent<ScrollRect>().viewport = modMenuDescViewport;
             ModMenuPanel.descText = modMenuDescText;
             ModMenuPanel.restartRequiredText = restartRequiredText;
+
             Image modMenuButtonPanel = new GameObject("Button Panel", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image)).GetComponent<Image>();
             modMenuButtonPanel.GetComponent<RectTransform>().SetParent(ModMenuPanel.transform);
             modMenuButtonPanel.GetComponent<RectTransform>().anchorMin = new Vector2(0.4f, 0f);
@@ -429,7 +441,181 @@ namespace GadgetCore
             configReloadButtonText.fontSize = 12;
             configReloadButtonText.text = "Reload Configs";
 
+            BuildModBrowser();
+
             GadgetModConfigs.ConfigMenus.Clear();
+        }
+
+        private static void BuildModBrowser()
+        {
+            ModBrowserPanel = new GameObject("Mod Browser", typeof(RectTransform), typeof(ModBrowser), typeof(CanvasRenderer), typeof(Image)).GetComponent<ModBrowser>();
+            ModBrowserPanel.GetComponent<RectTransform>().SetParent(ModMenuCanvas.transform);
+            ModBrowserPanel.GetComponent<RectTransform>().anchorMin = new Vector2(0.15f, 0.15f);
+            ModBrowserPanel.GetComponent<RectTransform>().anchorMax = new Vector2(0.85f, 0.85f);
+            ModBrowserPanel.GetComponent<RectTransform>().offsetMin = Vector2.zero;
+            ModBrowserPanel.GetComponent<RectTransform>().offsetMax = Vector2.zero;
+            ModBrowserPanel.GetComponent<Image>().type = Image.Type.Sliced;
+            ModBrowserPanel.GetComponent<Image>().fillCenter = true;
+            ModBrowserPanel.GetComponent<Image>().sprite = BoxSprite;
+
+            RectTransform loadingTextBackground = new GameObject("Loading Panel", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image)).GetComponent<RectTransform>();
+            loadingTextBackground.GetComponent<RectTransform>().SetParent(ModBrowserPanel.transform);
+            loadingTextBackground.GetComponent<RectTransform>().anchorMin = new Vector2(0f, 0f);
+            loadingTextBackground.GetComponent<RectTransform>().anchorMax = new Vector2(0.3f, 1f);
+            loadingTextBackground.GetComponent<RectTransform>().offsetMin = new Vector2(10, 10);
+            loadingTextBackground.GetComponent<RectTransform>().offsetMax = new Vector2(0, -10);
+            loadingTextBackground.GetComponent<Image>().sprite = BoxSprite;
+            loadingTextBackground.GetComponent<Image>().type = Image.Type.Sliced;
+            loadingTextBackground.GetComponent<Image>().fillCenter = true;
+            ModBrowserPanel.LoadingText = new GameObject("Loading Text", typeof(RectTransform), typeof(CanvasRenderer), typeof(Text)).GetComponent<Text>();
+            ModBrowserPanel.LoadingText.rectTransform.SetParent(loadingTextBackground);
+            ModBrowserPanel.LoadingText.rectTransform.anchorMin = new Vector2(0f, 0f);
+            ModBrowserPanel.LoadingText.rectTransform.anchorMax = new Vector2(1f, 1f);
+            ModBrowserPanel.LoadingText.rectTransform.offsetMin = Vector2.zero;
+            ModBrowserPanel.LoadingText.rectTransform.offsetMax = Vector2.zero;
+            ModBrowserPanel.LoadingText.alignment = TextAnchor.MiddleCenter;
+            ModBrowserPanel.LoadingText.font = ModConfigMenuText.GetComponent<TextMesh>().font;
+            ModBrowserPanel.LoadingText.fontSize = 20;
+            ModBrowserPanel.LoadingText.text = string.Empty;
+
+            ModBrowserDescPanel = new GameObject("Mod Desc Panel", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(ScrollRect)).GetComponent<ScrollRect>();
+            ModBrowserDescPanel.GetComponent<RectTransform>().SetParent(ModBrowserPanel.transform);
+            ModBrowserDescPanel.GetComponent<RectTransform>().anchorMin = new Vector2(0.4f, 0.25f);
+            ModBrowserDescPanel.GetComponent<RectTransform>().anchorMax = new Vector2(1f, 1f);
+            ModBrowserDescPanel.GetComponent<RectTransform>().offsetMin = new Vector2(0, 5);
+            ModBrowserDescPanel.GetComponent<RectTransform>().offsetMax = new Vector2(-10, -10);
+            ModBrowserDescPanel.GetComponent<Image>().sprite = BoxSprite;
+            ModBrowserDescPanel.GetComponent<Image>().type = Image.Type.Sliced;
+            ModBrowserDescPanel.GetComponent<Image>().fillCenter = true;
+            Mask modBrowserDescPanelMask = new GameObject("Mask", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Mask)).GetComponent<Mask>();
+            modBrowserDescPanelMask.GetComponent<RectTransform>().SetParent(ModBrowserDescPanel.transform);
+            modBrowserDescPanelMask.GetComponent<RectTransform>().anchorMin = new Vector2(0f, 0f);
+            modBrowserDescPanelMask.GetComponent<RectTransform>().anchorMax = new Vector2(1f, 1f);
+            modBrowserDescPanelMask.GetComponent<RectTransform>().offsetMin = Vector2.zero;
+            modBrowserDescPanelMask.GetComponent<RectTransform>().offsetMax = Vector2.zero;
+            modBrowserDescPanelMask.GetComponent<Image>().sprite = BoxMask;
+            modBrowserDescPanelMask.GetComponent<Image>().type = Image.Type.Sliced;
+            modBrowserDescPanelMask.GetComponent<Image>().fillCenter = true;
+            modBrowserDescPanelMask.showMaskGraphic = false;
+            RectTransform modBrowserDescViewport = new GameObject("Viewport", typeof(RectTransform)).GetComponent<RectTransform>();
+            modBrowserDescViewport.SetParent(modBrowserDescPanelMask.transform);
+            modBrowserDescViewport.anchorMin = new Vector2(0f, 0f);
+            modBrowserDescViewport.anchorMax = new Vector2(1f, 1f);
+            modBrowserDescViewport.offsetMin = new Vector2(10, 10);
+            modBrowserDescViewport.offsetMax = new Vector2(-10, -10);
+            Text modBrowserDescText = new GameObject("Description", typeof(RectTransform), typeof(CanvasRenderer), typeof(Text), typeof(ContentSizeFitter)).GetComponent<Text>();
+            modBrowserDescText.rectTransform.SetParent(modBrowserDescViewport);
+            modBrowserDescText.rectTransform.anchorMin = new Vector2(0f, 0f);
+            modBrowserDescText.rectTransform.anchorMax = new Vector2(1f, 1f);
+            modBrowserDescText.rectTransform.offsetMin = Vector2.zero;
+            modBrowserDescText.rectTransform.offsetMax = Vector2.zero;
+            modBrowserDescText.rectTransform.pivot = new Vector2(0.5f, 1f);
+            modBrowserDescText.font = ModConfigMenuText.GetComponent<TextMesh>().font;
+            modBrowserDescText.fontSize = 12;
+            modBrowserDescText.horizontalOverflow = HorizontalWrapMode.Wrap;
+            modBrowserDescText.GetComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+            ModBrowserDescPanel.GetComponent<ScrollRect>().content = modBrowserDescText.rectTransform;
+            ModBrowserDescPanel.GetComponent<ScrollRect>().horizontal = false;
+            ModBrowserDescPanel.GetComponent<ScrollRect>().scrollSensitivity = 5;
+            ModBrowserDescPanel.GetComponent<ScrollRect>().viewport = modBrowserDescViewport;
+            ModBrowserPanel.DescText = modBrowserDescText;
+
+            Image modBrowserButtonPanel = new GameObject("Button Panel", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image)).GetComponent<Image>();
+            modBrowserButtonPanel.GetComponent<RectTransform>().SetParent(ModBrowserPanel.transform);
+            modBrowserButtonPanel.GetComponent<RectTransform>().anchorMin = new Vector2(0.4f, 0f);
+            modBrowserButtonPanel.GetComponent<RectTransform>().anchorMax = new Vector2(1f, 0.25f);
+            modBrowserButtonPanel.GetComponent<RectTransform>().offsetMin = new Vector2(0, 10);
+            modBrowserButtonPanel.GetComponent<RectTransform>().offsetMax = new Vector2(-10, -5);
+            modBrowserButtonPanel.GetComponent<Image>().sprite = BoxSprite;
+            modBrowserButtonPanel.GetComponent<Image>().type = Image.Type.Sliced;
+            modBrowserButtonPanel.GetComponent<Image>().fillCenter = true;
+            ModBrowserPanel.InstallButton = new GameObject("Download Button", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Button)).GetComponent<Button>();
+            ModBrowserPanel.InstallButton.GetComponent<RectTransform>().SetParent(modBrowserButtonPanel.transform);
+            ModBrowserPanel.InstallButton.GetComponent<RectTransform>().anchorMin = new Vector2(0f, 0f);
+            ModBrowserPanel.InstallButton.GetComponent<RectTransform>().anchorMax = new Vector2(1f / 3f, 1f);
+            ModBrowserPanel.InstallButton.GetComponent<RectTransform>().offsetMin = new Vector2(10, 10);
+            ModBrowserPanel.InstallButton.GetComponent<RectTransform>().offsetMax = new Vector2(-10, -10);
+            ModBrowserPanel.InstallButton.GetComponent<Image>().sprite = BoxSprite;
+            ModBrowserPanel.InstallButton.GetComponent<Image>().type = Image.Type.Sliced;
+            ModBrowserPanel.InstallButton.GetComponent<Image>().fillCenter = true;
+            ModBrowserPanel.InstallButton.targetGraphic = ModBrowserPanel.InstallButton.GetComponent<Image>();
+            ModBrowserPanel.InstallButton.onClick.AddListener(ModBrowserPanel.OnDownloadButton);
+            Text enableButtonText = new GameObject("Text", typeof(RectTransform), typeof(CanvasRenderer), typeof(Text)).GetComponent<Text>();
+            enableButtonText.rectTransform.SetParent(ModBrowserPanel.InstallButton.transform);
+            enableButtonText.rectTransform.anchorMin = new Vector2(0f, 0f);
+            enableButtonText.rectTransform.anchorMax = new Vector2(1f, 1f);
+            enableButtonText.rectTransform.offsetMin = Vector2.zero;
+            enableButtonText.rectTransform.offsetMax = Vector2.zero;
+            enableButtonText.alignment = TextAnchor.MiddleCenter;
+            enableButtonText.font = modBrowserDescText.font;
+            enableButtonText.fontSize = 12;
+            enableButtonText.text = "Install";
+            ModBrowserPanel.ActivateButton = new GameObject("Activate Button", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Button)).GetComponent<Button>();
+            ModBrowserPanel.ActivateButton.GetComponent<RectTransform>().SetParent(modBrowserButtonPanel.transform);
+            ModBrowserPanel.ActivateButton.GetComponent<RectTransform>().anchorMin = new Vector2(1f / 3f, 0f);
+            ModBrowserPanel.ActivateButton.GetComponent<RectTransform>().anchorMax = new Vector2(2f / 3f, 1f);
+            ModBrowserPanel.ActivateButton.GetComponent<RectTransform>().offsetMin = new Vector2(10, 10);
+            ModBrowserPanel.ActivateButton.GetComponent<RectTransform>().offsetMax = new Vector2(-10, -10);
+            ModBrowserPanel.ActivateButton.GetComponent<Image>().sprite = BoxSprite;
+            ModBrowserPanel.ActivateButton.GetComponent<Image>().type = Image.Type.Sliced;
+            ModBrowserPanel.ActivateButton.GetComponent<Image>().fillCenter = true;
+            ModBrowserPanel.ActivateButton.targetGraphic = ModBrowserPanel.ActivateButton.GetComponent<Image>();
+            ModBrowserPanel.ActivateButton.onClick.AddListener(ModBrowserPanel.OnActivateButton);
+            Text reloadButtonText = new GameObject("Text", typeof(RectTransform), typeof(CanvasRenderer), typeof(Text)).GetComponent<Text>();
+            reloadButtonText.rectTransform.SetParent(ModBrowserPanel.ActivateButton.transform);
+            reloadButtonText.rectTransform.anchorMin = new Vector2(0f, 0f);
+            reloadButtonText.rectTransform.anchorMax = new Vector2(1f, 1f);
+            reloadButtonText.rectTransform.offsetMin = Vector2.zero;
+            reloadButtonText.rectTransform.offsetMax = Vector2.zero;
+            reloadButtonText.alignment = TextAnchor.MiddleCenter;
+            reloadButtonText.font = modBrowserDescText.font;
+            reloadButtonText.fontSize = 12;
+            reloadButtonText.text = "Activate";
+            ModBrowserPanel.VersionsButton = new GameObject("Versions Button", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Button)).GetComponent<Button>();
+            ModBrowserPanel.VersionsButton.GetComponent<RectTransform>().SetParent(modBrowserButtonPanel.transform);
+            ModBrowserPanel.VersionsButton.GetComponent<RectTransform>().anchorMin = new Vector2(2f / 3f, 0f);
+            ModBrowserPanel.VersionsButton.GetComponent<RectTransform>().anchorMax = new Vector2(1f, 1f);
+            ModBrowserPanel.VersionsButton.GetComponent<RectTransform>().offsetMin = new Vector2(10, 10);
+            ModBrowserPanel.VersionsButton.GetComponent<RectTransform>().offsetMax = new Vector2(-10, -10);
+            ModBrowserPanel.VersionsButton.GetComponent<Image>().sprite = BoxSprite;
+            ModBrowserPanel.VersionsButton.GetComponent<Image>().type = Image.Type.Sliced;
+            ModBrowserPanel.VersionsButton.GetComponent<Image>().fillCenter = true;
+            ModBrowserPanel.VersionsButton.targetGraphic = ModBrowserPanel.VersionsButton.GetComponent<Image>();
+            ModBrowserPanel.VersionsButton.onClick.AddListener(ModBrowserPanel.OnVersionsButton);
+            Text configButtonText = new GameObject("Text", typeof(RectTransform), typeof(CanvasRenderer), typeof(Text)).GetComponent<Text>();
+            configButtonText.rectTransform.SetParent(ModBrowserPanel.VersionsButton.transform);
+            configButtonText.rectTransform.anchorMin = new Vector2(0f, 0f);
+            configButtonText.rectTransform.anchorMax = new Vector2(1f, 1f);
+            configButtonText.rectTransform.offsetMin = Vector2.zero;
+            configButtonText.rectTransform.offsetMax = Vector2.zero;
+            configButtonText.alignment = TextAnchor.MiddleCenter;
+            configButtonText.font = modBrowserDescText.font;
+            configButtonText.fontSize = 12;
+            configButtonText.text = "Only Version";
+
+            ModBrowserButton = new GameObject("Mod Browser Button", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Button)).GetComponent<Button>();
+            ModBrowserButton.GetComponent<RectTransform>().SetParent(ModMenuCanvas.transform);
+            ModBrowserButton.GetComponent<RectTransform>().anchorMin = new Vector2(0.875f, 0.05f);
+            ModBrowserButton.GetComponent<RectTransform>().anchorMax = new Vector2(0.975f, 0.20f);
+            ModBrowserButton.GetComponent<RectTransform>().offsetMin = new Vector2(0, 0);
+            ModBrowserButton.GetComponent<RectTransform>().offsetMax = new Vector2(0, 0);
+            ModBrowserButton.GetComponent<Image>().sprite = BoxSprite;
+            ModBrowserButton.GetComponent<Image>().type = Image.Type.Sliced;
+            ModBrowserButton.GetComponent<Image>().fillCenter = true;
+            ModBrowserButton.targetGraphic = ModBrowserButton.GetComponent<Image>();
+            ModBrowserButton.onClick.AddListener(() => ModBrowser.ToggleModBrowser());
+            Text modBrowserButtonText = new GameObject("Text", typeof(RectTransform), typeof(CanvasRenderer), typeof(Text)).GetComponent<Text>();
+            modBrowserButtonText.rectTransform.SetParent(ModBrowserButton.transform);
+            modBrowserButtonText.rectTransform.anchorMin = new Vector2(0f, 0f);
+            modBrowserButtonText.rectTransform.anchorMax = new Vector2(1f, 1f);
+            modBrowserButtonText.rectTransform.offsetMin = Vector2.zero;
+            modBrowserButtonText.rectTransform.offsetMax = Vector2.zero;
+            modBrowserButtonText.alignment = TextAnchor.MiddleCenter;
+            modBrowserButtonText.font = modBrowserDescText.font;
+            modBrowserButtonText.fontSize = 12;
+            modBrowserButtonText.text = "Mod Browser";
+
+            ModBrowserPanel.BrowserButtonText = modBrowserButtonText;
         }
 
         private static void BuildPersistantCanvas()

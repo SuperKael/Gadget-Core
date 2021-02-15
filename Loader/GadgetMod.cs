@@ -174,5 +174,13 @@ namespace GadgetCore.Loader
                 return File.Exists(Path.Combine(ModPath, relativeFilePath));
             }
         }
+
+        internal void Unload()
+        {
+            if (!IsLoaded) return;
+            IsLoaded = false;
+            if (Archive != null) Archive.Dispose();
+            GadgetModFile.DisposeAll(this);
+        }
     }
 }

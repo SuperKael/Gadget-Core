@@ -683,6 +683,7 @@ namespace GadgetCore
             {
                 Array.ForEach(SceneInjector.ModMenuBackButtonHolder.GetComponentsInChildren<TextMesh>(), x => x.text = RestartNeeded ? "QUIT" : "BACK");
                 restartRequiredText.SetActive(RestartNeeded);
+                SceneInjector.ModBrowserButton.interactable = !RestartNeeded;
                 UpdateInfo(toggle, modIndex);
             }
         }

@@ -164,7 +164,7 @@ namespace GadgetCore.API
                     if (dropChance <= 0) return false;
                     if (UnityEngine.Random.value <= dropChance)
                     {
-                        if (isChip || (ItemRegistry.GetTypeByID(itemToDrop.id) & ItemType.NONSTACKING) == ItemType.NONSTACKING)
+                        if (itemToDrop == null || isChip || (ItemRegistry.GetTypeByID(itemToDrop.id) & ItemType.NONSTACKING) == ItemType.NONSTACKING)
                         {
                             if (itemToDrop != null) itemToDrop.q = 1;
                             for (int i = 0; i < Mathf.RoundToInt(UnityEngine.Random.value * (maxDropQuantity - minDropQuantity)) + minDropQuantity; i++)
@@ -177,7 +177,7 @@ namespace GadgetCore.API
                         }
                         else
                         {
-                            if (itemToDrop != null) itemToDrop.q = Mathf.RoundToInt(UnityEngine.Random.value * (maxDropQuantity - minDropQuantity)) + minDropQuantity;
+                            itemToDrop.q = Mathf.RoundToInt(UnityEngine.Random.value * (maxDropQuantity - minDropQuantity)) + minDropQuantity;
                             if ((CustomDropBehavior == null || CustomDropBehavior(itemToDrop, pos)) && itemToDrop != null)
                             {
                                 GadgetCoreAPI.SpawnItemLocal(pos, itemToDrop, isChip);

@@ -1,6 +1,7 @@
 using GadgetCore.API;
 using PreviewLabs;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -112,7 +113,7 @@ namespace GadgetCore
             }
             catch (Exception e)
             {
-                GadgetCore.CoreLogger.LogError("Error updating config: " + e.Message + "(" + e.InnerException?.Message + ")");
+                GadgetCore.CoreLogger.LogError("Error updating config: " + e);
             }
         }
     }

@@ -21,11 +21,11 @@ namespace GadgetCore.API
         /// <summary>
         /// The version numbers for this version of Gadget Core. You generally shouldn't access this directly, instead use <see cref="GetRawVersion()"/>
         /// </summary>
-        public const string RAW_VERSION = "2.0.2.2";
+        public const string RAW_VERSION = "2.0.3.0";
         /// <summary>
         /// A slightly more informative version. You generally shouldn't access this directly, instead use <see cref="GetFullVersion()"/>
         /// </summary>
-        public const string FULL_VERSION = "2.0.2.2";
+        public const string FULL_VERSION = "2.0.3.0 - Mod Browser Edition";
         /// <summary>
         /// Indicates whether this version of GadgetCore is a beta version. You generally shouldn't access this directly, instead use <see cref="GetIsBeta()"/>
         /// </summary>
@@ -38,7 +38,7 @@ namespace GadgetCore.API
         /// </summary>
         public static SpriteSheetEntry MissingTexSprite { get; internal set; }
 
-        private static readonly MethodInfo GetItemNameMethod = typeof(GameScript).GetMethod("GetItemName", BindingFlags.Public | BindingFlags.Instance);
+        private static readonly Func<int, string> GetItemNameInvoker = typeof(GameScript).GetMethod("GetItemName", BindingFlags.Public | BindingFlags.Instance).CreateInvoker<Func<int, string>>();
         private static readonly MethodInfo GetItemDescMethod = typeof(GameScript).GetMethod("GetItemDesc", BindingFlags.Public | BindingFlags.Instance);
         private static readonly MethodInfo GetChipNameMethod = typeof(GameScript).GetMethod("GetChipName", BindingFlags.Public | BindingFlags.Instance);
         private static readonly MethodInfo GetChipDescMethod = typeof(GameScript).GetMethod("GetChipDesc", BindingFlags.Public | BindingFlags.Instance);
@@ -778,11 +778,11 @@ namespace GadgetCore.API
         }
 
         /// <summary>
-        /// Gets the name of the item with the given ID. Easier than using reflection to call GetItemName on GameScript.
+        /// Gets the name of the item with the given ID. Works even on the title screen.
         /// </summary>
         public static string GetItemName(int ID)
         {
-            return GetItemNameMethod.Invoke(InstanceTracker.GameScript, new object[] { ID }) as string;
+            return InstanceTracker.GameScript != null ? InstanceTracker.GameScript.GetItemName(ID) : GetItemNameInvoker.Invoke(ID);
         }
 
         /// <summary>

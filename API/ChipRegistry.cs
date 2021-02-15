@@ -52,7 +52,7 @@ namespace GadgetCore.API
             {
                 return chipIDsByRegistryName[name];
             }
-            return 0;
+            return -1;
         }
 
         /// <summary>

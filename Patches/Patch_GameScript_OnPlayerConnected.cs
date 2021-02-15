@@ -29,6 +29,7 @@ namespace GadgetCore.Patches
         {
             if (!GadgetNetwork.MatrixReady && GadgetNetwork.GetTimeSinceConnect() > GadgetNetwork.MatrixTimeout && Gadgets.ListAllGadgetInfos().Any(x => x.Attribute.RequiredOnClients))
             {
+                GadgetCore.CoreLogger.LogWarning("Disconnecting client " + pl.ipAddress + " due to timout! You can try raising NetworkTimeout in the config.");
                 Network.CloseConnection(pl, true);
             }
         }

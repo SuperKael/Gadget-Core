@@ -1,4 +1,5 @@
 ﻿using GadgetCore.API;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -80,6 +81,14 @@ namespace GadgetCore.Loader
         public static string[] ListAllModNames(bool IncludeUnloaded = false)
         {
             return IncludeUnloaded ? ModsByName.Keys.ToArray() : ModsByName.Where(x => x.Value.IsLoaded).Select(x => x.Key).ToArray();
+        }
+
+        /// <summary>
+        /// Finds the index of the given mod in the list of all mods.
+        /// </summary>
+        public static int IndexOfMod(GadgetMod mod)
+        {
+            return Array.IndexOf(ModsByName.Values.ToArray(), mod);
         }
 
         /// <summary>

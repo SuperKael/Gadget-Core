@@ -37,6 +37,7 @@ namespace GadgetCore.Patches
         }
         private static IEnumerator ModMenu(Menuu instance)
         {
+            ModBrowser.CloseModBrowser();
             SceneInjector.ModMenuPanel.Rebuild();
             SceneInjector.ModMenuBackButtonBeam.transform.localScale = new Vector3(30f, 0f, 1f);
             SceneInjector.ModMenuBackButtonHolder.transform.position = new Vector3(-40f, 0f, 0f);

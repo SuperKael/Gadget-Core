@@ -15,7 +15,7 @@ namespace GadgetCore.Patches
         {
             __result = GadgetCoreAPI.EmptyEnumerator();
             if (GadgetCoreAPI.IsInputFrozen()) return false;
-            if (ModMenuController.RestartNeeded)
+            if (ModMenuController.RestartNeeded || ModBrowser.RestartNeeded)
             {
                 foreach (System.Diagnostics.Process process in ModMenuController.ConfigHandles)
                 {
@@ -24,6 +24,7 @@ namespace GadgetCore.Patches
                 GadgetCoreAPI.Quit();
                 return false;
             }
+            ModBrowser.CloseModBrowser();
             SceneInjector.ModMenuBeam.transform.localScale = new Vector3(30f, 0f, 1f);
             SceneInjector.ModMenuButtonHolder.transform.position = new Vector3(-40f, 0f, 0f);
             SceneInjector.ModMenu.SetActive(false);
