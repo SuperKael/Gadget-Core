@@ -633,9 +633,9 @@ namespace GadgetCore.API
 
         internal void InvokeOnGenerateWorld(SpawnerScript spawner, int[] s) { OnGenerateWorld?.Invoke(spawner, s); }
         internal void InvokeOnGenerateTown(SpawnerScript spawner, int[] s) { OnGenerateTown?.Invoke(spawner, s); }
-        internal IEnumerable<GameObject> InvokeOnGenerateInside(Chunk chunk) { return OnGenerateInside?.Invoke(chunk); }
-        internal IEnumerable<GameObject> InvokeOnGenerateInsideTown(Chunk chunk) { return OnGenerateInsideTown?.Invoke(chunk); }
-        internal IEnumerable<GameObject> InvokeOnSpawnBiomeSlot(Chunk chunk, Vector3 pos) { return OnSpawnBiomeSlot?.Invoke(chunk, pos); }
-        internal IEnumerable<GameObject> InvokeOnSpawnTownSlot(Chunk chunk, Vector3 pos) { return OnSpawnTownSlot?.Invoke(chunk, pos); }
+        internal IEnumerable<GameObject> InvokeOnGenerateInside(Chunk chunk) { return OnGenerateInside?.GetInvocationList().SelectMany(x => ((Func<Chunk, IEnumerable<GameObject>>)x)(chunk)); }
+        internal IEnumerable<GameObject> InvokeOnGenerateInsideTown(Chunk chunk) { return OnGenerateInsideTown?.GetInvocationList().SelectMany(x => ((Func<Chunk, IEnumerable<GameObject>>)x)(chunk)); }
+        internal IEnumerable<GameObject> InvokeOnSpawnBiomeSlot(Chunk chunk, Vector3 pos) { return OnSpawnBiomeSlot?.GetInvocationList().Cast<Func<Chunk, Vector3, IEnumerable<GameObject>>>().SelectMany(x => x(chunk, pos)); }
+        internal IEnumerable<GameObject> InvokeOnSpawnTownSlot(Chunk chunk, Vector3 pos) { return OnSpawnTownSlot?.GetInvocationList().Cast<Func<Chunk, Vector3, IEnumerable<GameObject>>>().SelectMany(x => x(chunk, pos)); }
     }
 }

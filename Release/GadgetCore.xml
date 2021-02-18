@@ -2305,7 +2305,17 @@
             The base game transmits Items across the network using int arrays. This method converts an int array into an Item, and restores the Item's extra data in the process. Indexes 0-10 of the array are used for vanilla data, while indexes 11 and up are used for any and all extra data, and are encoded in a format that is not meant to be manually read.
             </summary>
         </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.ConstructItemFromIntArray(System.Int32[],System.Boolean,System.Boolean)">
+            <summary>
+            The base game transmits Items across the network using int arrays. This method converts an int array into an Item, and restores the Item's extra data in the process. Indexes 0-10 of the array are used for vanilla data, while indexes 11 and up are used for any and all extra data, and are encoded in a format that is not meant to be manually read.
+            </summary>
+        </member>
         <member name="M:GadgetCore.API.GadgetCoreAPI.ConstructIntArrayFromItem(Item)">
+            <summary>
+            The base game transmits Items across the network using int arrays. This method converts an Item into an int array, and preserves the Item's extra data in the process. Indexes 0-10 of the array are used for vanilla data, while indexes 11 and up are used for any and all extra data, and are encoded in a format that is not meant to be manually read.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.ConstructIntArrayFromItem(Item,System.Boolean,System.Boolean)">
             <summary>
             The base game transmits Items across the network using int arrays. This method converts an Item into an int array, and preserves the Item's extra data in the process. Indexes 0-10 of the array are used for vanilla data, while indexes 11 and up are used for any and all extra data, and are encoded in a format that is not meant to be manually read.
             </summary>

@@ -21,11 +21,11 @@ namespace GadgetCore.API
         /// <summary>
         /// The version numbers for this version of Gadget Core. You generally shouldn't access this directly, instead use <see cref="GetRawVersion()"/>
         /// </summary>
-        public const string RAW_VERSION = "2.0.3.1";
+        public const string RAW_VERSION = "2.0.3.2";
         /// <summary>
         /// A slightly more informative version. You generally shouldn't access this directly, instead use <see cref="GetFullVersion()"/>
         /// </summary>
-        public const string FULL_VERSION = "2.0.3.1 - Mod Browser Edition";
+        public const string FULL_VERSION = "2.0.3.2 - Mod Browser Edition";
         /// <summary>
         /// Indicates whether this version of GadgetCore is a beta version. You generally shouldn't access this directly, instead use <see cref="GetIsBeta()"/>
         /// </summary>
@@ -43,6 +43,8 @@ namespace GadgetCore.API
         private static readonly MethodInfo GetChipNameMethod = typeof(GameScript).GetMethod("GetChipName", BindingFlags.Public | BindingFlags.Instance);
         private static readonly MethodInfo GetChipDescMethod = typeof(GameScript).GetMethod("GetChipDesc", BindingFlags.Public | BindingFlags.Instance);
         private static readonly MethodInfo GetGearBaseStatsMethod = typeof(GameScript).GetMethod("GetGearBaseStats", BindingFlags.Public | BindingFlags.Instance);
+
+        private static readonly List<string> frozenInput = new List<string>();
 
         internal static Dictionary<string, UnityEngine.Object> resources = new Dictionary<string, UnityEngine.Object>();
         internal static Dictionary<int, string> resourcePaths = new Dictionary<int, string>();
@@ -68,7 +70,6 @@ namespace GadgetCore.API
         internal static int spriteSheetSize = -1;
         internal static Texture2D spriteSheet;
         internal static int[][] equippedGearStats = new int[9][];
-        private static List<string> frozenInput = new List<string>();
 
         static GadgetCoreAPI()
         {
@@ -307,7 +308,15 @@ namespace GadgetCore.API
         /// </summary>
         public static Item ConstructItemFromIntArray(int[] st)
         {
-            Item item = new Item(st[0], st[1], st[2], st[3], st[4], new int[]
+            return ConstructItemFromIntArray(st, false, false);
+        }
+
+        /// <summary>
+        /// The base game transmits Items across the network using int arrays. This method converts an int array into an Item, and restores the Item's extra data in the process. Indexes 0-10 of the array are used for vanilla data, while indexes 11 and up are used for any and all extra data, and are encoded in a format that is not meant to be manually read.
+        /// </summary>
+        public static Item ConstructItemFromIntArray(int[] st, bool convertToLocal, bool isChip)
+        {
+            Item item = new Item(convertToLocal ? isChip ? ChipRegistry.Singleton.ConvertIDToLocal(st[0]) : ItemRegistry.Singleton.ConvertIDToLocal(st[0]) : st[0], st[1], st[2], st[3], st[4], new int[]
             {
                 st[5],
                 st[6],
@@ -330,6 +339,14 @@ namespace GadgetCore.API
         /// </summary>
         public static int[] ConstructIntArrayFromItem(Item item)
         {
+            return ConstructIntArrayFromItem(item, false, false);
+        }
+
+        /// <summary>
+        /// The base game transmits Items across the network using int arrays. This method converts an Item into an int array, and preserves the Item's extra data in the process. Indexes 0-10 of the array are used for vanilla data, while indexes 11 and up are used for any and all extra data, and are encoded in a format that is not meant to be manually read.
+        /// </summary>
+        public static int[] ConstructIntArrayFromItem(Item item, bool convertToHost, bool isChip)
+        {
             byte[] bytes = Encoding.Default.GetBytes(item.SerializeExtraData());
             if (bytes.Length % 4 != 0) Array.Resize(ref bytes, bytes.Length + (4 - (bytes.Length % 4)));
             var size = bytes.Count() / sizeof(int);
@@ -339,7 +356,7 @@ namespace GadgetCore.API
                 extraData[index] = BitConverter.ToInt32(bytes, index * sizeof(int));
             }
             int[] st = new int[11 + extraData.Length];
-            st[0] = item.id;
+            st[0] = convertToHost ? isChip ? ChipRegistry.Singleton.ConvertIDToHost(item.id) : ItemRegistry.Singleton.ConvertIDToHost(item.id) : item.id;
             st[1] = item.q;
             st[2] = item.exp;
             st[3] = item.tier;
@@ -681,8 +698,7 @@ namespace GadgetCore.API
         {
             if (!Registry.registeringVanilla && Registry.modRegistering < 0) throw new InvalidOperationException("Data registration may only be performed by the Initialize method of a Gadget!");
             if (name == null) throw new ArgumentNullException("name");
-            if (rpc == null) throw new ArgumentNullException("rpc");
-            customRPCs[name] = rpc;
+            customRPCs[name] = rpc ?? throw new ArgumentNullException("rpc");
             if (!customRPCGadgets.ContainsKey(Registry.modRegistering)) customRPCGadgets.Add(Registry.modRegistering, new List<string>());
             if (!customRPCGadgets[Registry.modRegistering].Contains(name)) customRPCGadgets[Registry.modRegistering].Add(name);
         }

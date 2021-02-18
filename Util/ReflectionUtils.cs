@@ -17,10 +17,10 @@ namespace GadgetCore.Util
         /// BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance
         /// </summary>
         public const BindingFlags ALL_BF = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance;
-        private static Dictionary<MethodInfoData, MethodInfo> cachedMethods = new Dictionary<MethodInfoData, MethodInfo>();
-        private static Dictionary<FieldInfoData, FieldInfo> cachedFields = new Dictionary<FieldInfoData, FieldInfo>();
-        private static Dictionary<FieldInfo, Delegate> cachedGetters = new Dictionary<FieldInfo, Delegate>();
-        private static Dictionary<FieldInfo, Delegate> cachedSetters = new Dictionary<FieldInfo, Delegate>();
+        private static readonly Dictionary<MethodInfoData, MethodInfo> cachedMethods = new Dictionary<MethodInfoData, MethodInfo>();
+        private static readonly Dictionary<FieldInfoData, FieldInfo> cachedFields = new Dictionary<FieldInfoData, FieldInfo>();
+        private static readonly Dictionary<FieldInfo, Delegate> cachedGetters = new Dictionary<FieldInfo, Delegate>();
+        private static readonly Dictionary<FieldInfo, Delegate> cachedSetters = new Dictionary<FieldInfo, Delegate>();
 
         /// <summary>
         /// Gets the value of this <see cref="FieldInfo"/>. Uses caching with <see cref="CreateGetter(FieldInfo)"/>

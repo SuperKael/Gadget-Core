@@ -230,7 +230,7 @@ namespace GadgetCore.API
                 {
                     HeadTex = HeadMat.mainTexture;
                 }
-                GadgetCoreAPI.AddCustomResource((Type & (ItemType.EQUIP_MASK | ItemType.TYPE_MASK)) == ItemType.DROID ? ("droid/d" + ID + "h") : "h/h" + ID, HeadMat);
+                GadgetCoreAPI.AddCustomResource((Type & (ItemType.EQUIP_MASK | ItemType.TYPE_MASK)) == ItemType.DROID ? ("droid/d" + (ID - 1000) + "h") : "h/h" + ID, HeadMat);
             }
             if (BodyTex != null || BodyMat != null)
             {
@@ -245,7 +245,7 @@ namespace GadgetCore.API
                 {
                     BodyTex = BodyMat.mainTexture;
                 }
-                GadgetCoreAPI.AddCustomResource((Type & (ItemType.EQUIP_MASK | ItemType.TYPE_MASK)) == ItemType.DROID ? ("droid/d" + ID + "b") : "b/b" + ID, BodyMat);
+                GadgetCoreAPI.AddCustomResource((Type & (ItemType.EQUIP_MASK | ItemType.TYPE_MASK)) == ItemType.DROID ? ("droid/d" + (ID - 1000) + "b") : "b/b" + ID, BodyMat);
             }
             if (ArmTex != null || ArmMat != null)
             {
@@ -540,11 +540,11 @@ namespace GadgetCore.API
         /// </summary>
         public event Func<PlayerScript, IEnumerator> OnAttack;
 
-        internal bool InvokeOnUse(int slot) { return OnUse?.Invoke(slot) ?? false; }
-        internal void InvokeOnUseFinal(int slot) { OnUseFinal?.GetInvocationList().All(x => { InstanceTracker.GameScript.StartCoroutine((x as Func<int, IEnumerator>)?.Invoke(slot) ?? GadgetCoreAPI.EmptyEnumerator()); return true; }); }
+        internal bool InvokeOnUse(int slot) { return OnUse?.GetInvocationList().Any(x => ((Func<int, bool>)x)(slot)) ?? false; }
+        internal void InvokeOnUseFinal(int slot) { OnUseFinal?.GetInvocationList().Select(x => InstanceTracker.GameScript.StartCoroutine(((Func<int, IEnumerator>)x).Invoke(slot))); }
         internal void InvokeOnEquip(int slot) { OnEquip?.Invoke(slot); }
         internal void InvokeOnDequip(int slot) { OnDequip?.Invoke(slot); }
-        internal void InvokeOnAttack(PlayerScript script) { OnAttack?.GetInvocationList().All(x => { script.StartCoroutine((x as Func<PlayerScript, IEnumerator>)?.Invoke(script) ?? GadgetCoreAPI.EmptyEnumerator()); return true; }); }
+        internal void InvokeOnAttack(PlayerScript script) { OnAttack?.GetInvocationList().Select(x => script.StartCoroutine(((Func<PlayerScript, IEnumerator>)x).Invoke(script))); }
 
         /// <summary>
         /// Gets the default attack routine for the given ItemInfo, assuming that it is has a vanilla ID. It is recommended to set OnAttack to this if you are overriding a vanilla weapon. This is only valid to use without specifying the ID parameter after registering the item.

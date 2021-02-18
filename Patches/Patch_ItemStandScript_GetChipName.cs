@@ -10,9 +10,9 @@ namespace GadgetCore.Patches
         [HarmonyPrefix]
         public static bool Prefix(ItemStandScript __instance, int id, ref string __result)
         {
-            if (ChipRegistry.Singleton.HasEntry(id))
+            if (ChipRegistry.Singleton.TryGetEntry(id, out ChipInfo chip))
             {
-                __result = ChipRegistry.Singleton.GetEntry(id).Name;
+                __result = chip.Name;
                 return false;
             }
             return true;

@@ -42,7 +42,15 @@ namespace GadgetCore.Patches
                                     InstanceTracker.GameScript.StartCoroutine(GadgetUtils.WaitAndInvoke(RPCMethod, GadgetNetwork.MatrixTimeout - GadgetNetwork.GetTimeSinceConnect(), () => GadgetNetwork.MatrixReady, __instance, name, mode, args));
                                     return false;
                                 }
-                                GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton, ref (args[0] as int[])[0]);
+                                ItemStandScript itemStandScript = __instance.GetComponent<ItemStandScript>();
+                                if (itemStandScript == null || !itemStandScript.isChipStand)
+                                {
+                                    GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton, ref (args[0] as int[])[0]);
+                                }
+                                else
+                                {
+                                    GadgetNetwork.ConvertIDToHost(ChipRegistry.Singleton, ref (args[0] as int[])[0]);
+                                }
                             }
                             else if (args[0] is Package2)
                             {

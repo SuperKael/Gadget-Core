@@ -47,12 +47,12 @@
     <PackageReference Include="DotNetZip" Version="1.12.0" />
   </ItemGroup>
   <ItemGroup>
+	<Reference Include="Assembly-CSharp">
+	  <HintPath>D:\Program Files (x86)\Steam\steamapps\common\Roguelands\Roguelands_Data\Managed\Assembly-CSharp.dll</HintPath>
+      <Private>false</Private>
+	</Reference>
     <Reference Include="0Harmony">
       <HintPath>D:\Program Files (x86)\Steam\steamapps\common\Roguelands\Roguelands_Data\Managed\0Harmony.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="Assembly-CSharp">
-      <HintPath>D:\Program Files (x86)\Steam\steamapps\common\Roguelands\Roguelands_Data\Managed\Assembly-CSharp.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="INIFileParser">

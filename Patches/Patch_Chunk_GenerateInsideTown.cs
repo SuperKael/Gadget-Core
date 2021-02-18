@@ -27,7 +27,7 @@ namespace GadgetCore.Patches
 
         private static IEnumerator GenerateWrapper(IEnumerator generateRoutine, Chunk instance, PlanetInfo planet)
         {
-            yield return generateRoutine;
+            yield return instance.StartCoroutine(generateRoutine);
             IEnumerable<GameObject> objs = planet.InvokeOnGenerateInsideTown(instance);
             if (objs == null) yield break;
             GameObject[] networkStuff = networkStuffField.GetValue<GameObject[]>(instance);

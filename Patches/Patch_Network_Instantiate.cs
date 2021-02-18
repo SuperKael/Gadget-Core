@@ -9,7 +9,7 @@ namespace GadgetCore.Patches
     static class Patch_Network_Instantiate
     {
         [HarmonyPrefix]
-        public static bool Prefix(ref UnityEngine.Object prefab, Vector3 position, Quaternion rotation, int group, ref UnityEngine.Object __result)
+        public static bool Prefix(ref Object prefab, Vector3 position, Quaternion rotation, int group, ref Object __result)
         {
             if (GadgetCoreAPI.resourcePaths.ContainsKey(prefab.GetInstanceID()))
             {
@@ -20,7 +20,7 @@ namespace GadgetCore.Patches
         }
 
         [HarmonyPostfix]
-        public static void Postfix(ref UnityEngine.Object __result)
+        public static void Postfix(ref Object __result)
         {
             if ((__result.hideFlags & HideFlags.HideAndDontSave) == HideFlags.HideAndDontSave)
             {

@@ -232,14 +232,14 @@ namespace GadgetCore
             }
             else
             {
-                view.RPC("RPCGiveItem", player, GadgetCoreAPI.ConstructIntArrayFromItem(item));
+                view.RPC("RPCGiveItem", player, GadgetCoreAPI.ConstructIntArrayFromItem(item, true, false));
             }
         }
 
         [RPC]
         internal void RPCGiveItem(int[] st)
         {
-            GadgetCoreAPI.SpawnItemLocal(InstanceTracker.PlayerScript.transform.position, GadgetCoreAPI.ConstructItemFromIntArray(st), false).gameObject.SendMessage("Request");
+            GadgetCoreAPI.SpawnItemLocal(InstanceTracker.PlayerScript.transform.position, GadgetCoreAPI.ConstructItemFromIntArray(st, true, false), false).gameObject.SendMessage("Request");
         }
 
         internal void GiveChip(Item item, NetworkPlayer player)
@@ -250,14 +250,14 @@ namespace GadgetCore
             }
             else
             {
-                view.RPC("RPCGiveChip", player, GadgetCoreAPI.ConstructIntArrayFromItem(item));
+                view.RPC("RPCGiveChip", player, GadgetCoreAPI.ConstructIntArrayFromItem(item, true, true));
             }
         }
 
         [RPC]
         internal void RPCGiveChip(int[] st)
         {
-            GadgetCoreAPI.SpawnItemLocal(InstanceTracker.PlayerScript.transform.position, GadgetCoreAPI.ConstructItemFromIntArray(st), true).gameObject.SendMessage("Request");
+            GadgetCoreAPI.SpawnItemLocal(InstanceTracker.PlayerScript.transform.position, GadgetCoreAPI.ConstructItemFromIntArray(st, true, true), true).gameObject.SendMessage("Request");
         }
 
         internal void CallGeneral(string name, RPCMode mode, params object[] args)
