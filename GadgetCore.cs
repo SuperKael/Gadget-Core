@@ -177,7 +177,7 @@ namespace GadgetCore
                 AppDomain.CurrentDomain.AssemblyResolve += (object sender, ResolveEventArgs args) =>
                 {
                     string name = new AssemblyName(args.Name).Name;
-                    if (LoadedAssemblies.ContainsKey(name)) return LoadedAssemblies[args.Name];
+                    if (LoadedAssemblies.ContainsKey(name)) return LoadedAssemblies[name];
                     foreach (string file in Directory.GetFiles(GadgetPaths.LibsPath))
                     {
                         if (AssemblyName.GetAssemblyName(file).Name == name)
@@ -191,8 +191,8 @@ namespace GadgetCore
                 };
                 AppDomain.CurrentDomain.ReflectionOnlyAssemblyResolve += (object sender, ResolveEventArgs args) =>
                 {
-                    if (LoadedAssemblies.ContainsKey("ReflectionOnly: " + args.Name)) return LoadedAssemblies["ReflectionOnly: " + args.Name];
                     string name = new AssemblyName(args.Name).Name;
+                    if (LoadedAssemblies.ContainsKey("ReflectionOnly: " + name)) return LoadedAssemblies["ReflectionOnly: " + name];
                     foreach (string file in Directory.GetFiles(GadgetPaths.LibsPath))
                     {
                         if (AssemblyName.GetAssemblyName(file).Name == name)

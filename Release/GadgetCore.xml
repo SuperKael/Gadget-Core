@@ -2297,7 +2297,7 @@
         </member>
         <member name="M:GadgetCore.API.GadgetCoreAPI.CopyItem(Item)">
             <summary>
-            Creates a copy of an Item.
+            Creates a copy of an Item, including its extra data.
             </summary>
         </member>
         <member name="M:GadgetCore.API.GadgetCoreAPI.ConstructItemFromIntArray(System.Int32[])">

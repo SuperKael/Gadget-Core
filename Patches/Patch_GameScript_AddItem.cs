@@ -17,12 +17,8 @@ namespace GadgetCore.Patches
         [HarmonyPrefix]
         public static bool Prefix(GameScript __instance, Package package, ref IEnumerator __result)
         {
-            if (ItemRegistry.GetSingleton().HasEntry(package.item.id))
-            {
-                __result = AddItem(__instance, package);
-                return false;
-            }
-            return true;
+            __result = AddItem(__instance, package);
+            return false;
         }
 
         private static IEnumerator AddItem(GameScript script, Package package)
@@ -46,6 +42,7 @@ namespace GadgetCore.Patches
                         if (inventory[i].q > 9999)
                         {
                             Item item = new Item(package.item.id, inventory[i].q - 9999, 0, 0, 0, new int[3], new int[3]);
+                            item.SetAllExtraData(package.item.GetAllExtraData());
                             inventory[i].q = 9999;
                             Package package2 = new Package(item, package.obj, localItem);
                             script.AddItem(package2);

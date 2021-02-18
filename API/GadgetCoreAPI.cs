@@ -21,11 +21,11 @@ namespace GadgetCore.API
         /// <summary>
         /// The version numbers for this version of Gadget Core. You generally shouldn't access this directly, instead use <see cref="GetRawVersion()"/>
         /// </summary>
-        public const string RAW_VERSION = "2.0.3.2";
+        public const string RAW_VERSION = "2.0.3.3";
         /// <summary>
         /// A slightly more informative version. You generally shouldn't access this directly, instead use <see cref="GetFullVersion()"/>
         /// </summary>
-        public const string FULL_VERSION = "2.0.3.2 - Mod Browser Edition";
+        public const string FULL_VERSION = "2.0.3.3 - Mod Browser Edition";
         /// <summary>
         /// Indicates whether this version of GadgetCore is a beta version. You generally shouldn't access this directly, instead use <see cref="GetIsBeta()"/>
         /// </summary>
@@ -39,10 +39,10 @@ namespace GadgetCore.API
         public static SpriteSheetEntry MissingTexSprite { get; internal set; }
 
         private static readonly Func<int, string> GetItemNameInvoker = typeof(GameScript).GetMethod("GetItemName", BindingFlags.Public | BindingFlags.Instance).CreateInvoker<Func<int, string>>();
-        private static readonly MethodInfo GetItemDescMethod = typeof(GameScript).GetMethod("GetItemDesc", BindingFlags.Public | BindingFlags.Instance);
-        private static readonly MethodInfo GetChipNameMethod = typeof(GameScript).GetMethod("GetChipName", BindingFlags.Public | BindingFlags.Instance);
-        private static readonly MethodInfo GetChipDescMethod = typeof(GameScript).GetMethod("GetChipDesc", BindingFlags.Public | BindingFlags.Instance);
-        private static readonly MethodInfo GetGearBaseStatsMethod = typeof(GameScript).GetMethod("GetGearBaseStats", BindingFlags.Public | BindingFlags.Instance);
+        private static readonly Func<int, string> GetItemDescInvoker = typeof(GameScript).GetMethod("GetItemDesc", BindingFlags.Public | BindingFlags.Instance).CreateInvoker<Func<int, string>>();
+        private static readonly Func<int, string> GetChipNameInvoker = typeof(GameScript).GetMethod("GetChipName", BindingFlags.Public | BindingFlags.Instance).CreateInvoker<Func<int, string>>();
+        private static readonly Func<int, string> GetChipDescInvoker = typeof(GameScript).GetMethod("GetChipDesc", BindingFlags.Public | BindingFlags.Instance).CreateInvoker<Func<int, string>>();
+        private static readonly Func<int, int[]> GetGearBaseStatsInvoker = typeof(GameScript).GetMethod("GetGearBaseStats", BindingFlags.Public | BindingFlags.Instance).CreateInvoker<Func<int, int[]>>();
 
         private static readonly List<string> frozenInput = new List<string>();
 
@@ -294,11 +294,11 @@ namespace GadgetCore.API
         }
 
         /// <summary>
-        /// Creates a copy of an Item.
+        /// Creates a copy of an Item, including its extra data.
         /// </summary>
         public static Item CopyItem(Item item)
         {
-            Item copy = new Item(item.id, item.q, item.exp, item.tier, item.corrupted, item.aspect, item.aspectLvl);
+            Item copy = new Item(item.id, item.q, item.exp, item.tier, item.corrupted, item.aspect.ToArray(), item.aspectLvl.ToArray());
             copy.SetAllExtraData(item.GetAllExtraData());
             return copy;
         }
@@ -806,7 +806,7 @@ namespace GadgetCore.API
         /// </summary>
         public static string GetItemDesc(int ID)
         {
-            return GetItemDescMethod.Invoke(InstanceTracker.GameScript, new object[] { ID }) as string;
+            return InstanceTracker.GameScript != null ? InstanceTracker.GameScript.GetItemDesc(ID) : GetItemDescInvoker.Invoke(ID);
         }
 
         /// <summary>
@@ -814,7 +814,7 @@ namespace GadgetCore.API
         /// </summary>
         public static string GetChipName(int ID)
         {
-            return GetChipNameMethod.Invoke(InstanceTracker.GameScript, new object[] { ID }) as string;
+            return InstanceTracker.GameScript != null ? InstanceTracker.GameScript.GetChipName(ID) : GetChipNameInvoker.Invoke(ID);
         }
 
         /// <summary>
@@ -822,7 +822,7 @@ namespace GadgetCore.API
         /// </summary>
         public static string GetChipDesc(int ID)
         {
-            return GetChipDescMethod.Invoke(InstanceTracker.GameScript, new object[] { ID }) as string;
+            return InstanceTracker.GameScript != null ? InstanceTracker.GameScript.GetChipDesc(ID) : GetChipDescInvoker.Invoke(ID);
         }
 
 
@@ -926,7 +926,7 @@ namespace GadgetCore.API
             {
                 return ItemRegistry.Singleton.GetEntry(ID).Stats;
             }
-            return new EquipStats(GetGearBaseStatsMethod.Invoke(InstanceTracker.GameScript, new object[] { ID }) as int[]);
+            return new EquipStats(InstanceTracker.GameScript != null ? InstanceTracker.GameScript.GetGearBaseStats(ID) : GetGearBaseStatsInvoker.Invoke(ID));
         }
 
         /// <summary>

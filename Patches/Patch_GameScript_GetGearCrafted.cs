@@ -14,7 +14,8 @@ namespace GadgetCore.Patches
         {
             if (GadgetCoreAPI.gearForgeRecipes.TryGetValue(Tuple.Create(___craft[0].id, ___craft[1].id, ___craft[2].id), out Tuple<Item, int> recipe))
             {
-                __result = new Item(recipe.Item1.id, recipe.Item1.q + Random.Range(0, recipe.Item2 + 1), recipe.Item1.exp, recipe.Item1.tier, recipe.Item1.corrupted, recipe.Item1.aspect, recipe.Item1.aspectLvl);
+                __result = GadgetCoreAPI.CopyItem(recipe.Item1);
+                __result.q += Random.Range(0, recipe.Item2 + 1);
                 return false;
             }
             return true;

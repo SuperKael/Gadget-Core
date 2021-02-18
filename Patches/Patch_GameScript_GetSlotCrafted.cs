@@ -38,7 +38,8 @@ namespace GadgetCore.Patches
 				int id5 = ___craft[num3].id;
 				if (GadgetCoreAPI.creationMachineRecipes.TryGetValue(id5, out Tuple<Item, int> recipe))
                 {
-					__result = new Item(recipe.Item1.id, recipe.Item1.q + Random.Range(0, recipe.Item2 + 1), recipe.Item1.exp, recipe.Item1.tier, recipe.Item1.corrupted, recipe.Item1.aspect, recipe.Item1.aspectLvl);
+					__result = GadgetCoreAPI.CopyItem(recipe.Item1);
+					__result.q += Random.Range(0, recipe.Item2 + 1);
 				}
 				else
                 {

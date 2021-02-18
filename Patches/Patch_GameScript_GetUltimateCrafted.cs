@@ -14,7 +14,9 @@ namespace GadgetCore.Patches
         {
             if (GadgetCoreAPI.ultimateForgeRecipes.TryGetValue(Tuple.Create(___craft[0].id, ___craft[2].id), out int outputID))
             {
-                __result = new Item(outputID, 1, 0, ___craft[0].tier, ___craft[0].corrupted, ___craft[0].aspect, ___craft[0].aspectLvl);
+                __result = GadgetCoreAPI.CopyItem(___craft[0]);
+                __result.q = 1;
+                __result.exp = 0;
                 return false;
             }
             return true;
@@ -24,6 +26,7 @@ namespace GadgetCore.Patches
         public static void Postfix(ref Item[] ___craft, ref Item __result)
         {
             __result.corrupted = ___craft[0].corrupted;
+            __result.SetAllExtraData(___craft[0].GetAllExtraData());
         }
     }
 }
