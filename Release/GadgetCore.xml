@@ -6144,6 +6144,16 @@
             Finds the index of the given predicate, returns -1 if it is not found.
             </summary>
         </member>
+        <member name="M:GadgetCore.Util.ExtensionUtils.ForEach``1(System.Collections.Generic.IEnumerable{``0},System.Action{``0})">
+            <summary>
+            Executes a given <see cref="T:System.Action"/> for each entry in the <see cref="T:System.Collections.Generic.IEnumerable`1"/>
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.ExtensionUtils.ForEach``2(System.Collections.Generic.IEnumerable{``0},System.Func{``0,``1})">
+            <summary>
+            Executes a given <see cref="T:System.Action"/> for each entry in the <see cref="T:System.Collections.Generic.IEnumerable`1"/>
+            </summary>
+        </member>
         <member name="M:GadgetCore.Util.ExtensionUtils.IsSublist``1(System.Collections.Generic.List{``0},System.Collections.Generic.List{``0},System.Int32,GadgetCore.Util.EqualityComparison{``0})">
             <summary>
             Checks if the list has the given sublist at the specified index.

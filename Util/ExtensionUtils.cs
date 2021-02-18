@@ -39,6 +39,24 @@ namespace GadgetCore.Util
             return -1;
         }
 
+        /// <summary>
+        /// Executes a given <see cref="Action"/> for each entry in the <see cref="IEnumerable{T}"/>
+        /// </summary>
+        public static void ForEach<T>(this IEnumerable<T> source, Action<T> handler)
+        {
+            foreach (T item in source) handler(item);
+        }
+
+        /// <summary>
+        /// Executes a given <see cref="Action"/> for each entry in the <see cref="IEnumerable{T}"/>
+        /// </summary>
+        public static IEnumerable<TResult> ForEach<T, TResult>(this IEnumerable<T> source, Func<T, TResult> handler)
+        {
+            List<TResult> results = new List<TResult>();
+            foreach (T item in source) results.Add(handler(item));
+            return results;
+        }
+
 
         /// <summary>
         /// Checks if the list has the given sublist at the specified index.

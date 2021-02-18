@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GadgetCore.Util;
+using System;
 using System.Collections;
 using System.Linq;
 using System.Reflection;
@@ -541,10 +542,10 @@ namespace GadgetCore.API
         public event Func<PlayerScript, IEnumerator> OnAttack;
 
         internal bool InvokeOnUse(int slot) { return OnUse?.GetInvocationList().Any(x => ((Func<int, bool>)x)(slot)) ?? false; }
-        internal void InvokeOnUseFinal(int slot) { OnUseFinal?.GetInvocationList().Select(x => InstanceTracker.GameScript.StartCoroutine(((Func<int, IEnumerator>)x).Invoke(slot))); }
+        internal void InvokeOnUseFinal(int slot) { OnUseFinal?.GetInvocationList().Select(x => ((Func<int, IEnumerator>)x).Invoke(slot)).ForEach(InstanceTracker.GameScript.StartCoroutine); }
         internal void InvokeOnEquip(int slot) { OnEquip?.Invoke(slot); }
         internal void InvokeOnDequip(int slot) { OnDequip?.Invoke(slot); }
-        internal void InvokeOnAttack(PlayerScript script) { OnAttack?.GetInvocationList().Select(x => script.StartCoroutine(((Func<PlayerScript, IEnumerator>)x).Invoke(script))); }
+        internal void InvokeOnAttack(PlayerScript script) { OnAttack?.GetInvocationList().Select(x => ((Func<PlayerScript, IEnumerator>)x).Invoke(script)).ForEach(InstanceTracker.GameScript.StartCoroutine); }
 
         /// <summary>
         /// Gets the default attack routine for the given ItemInfo, assuming that it is has a vanilla ID. It is recommended to set OnAttack to this if you are overriding a vanilla weapon. This is only valid to use without specifying the ID parameter after registering the item.
