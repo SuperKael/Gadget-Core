@@ -21,11 +21,11 @@ namespace GadgetCore.API
         /// <summary>
         /// The version numbers for this version of Gadget Core. You generally shouldn't access this directly, instead use <see cref="GetRawVersion()"/>
         /// </summary>
-        public const string RAW_VERSION = "2.0.3.4";
+        public const string RAW_VERSION = "2.0.3.5";
         /// <summary>
         /// A slightly more informative version. You generally shouldn't access this directly, instead use <see cref="GetFullVersion()"/>
         /// </summary>
-        public const string FULL_VERSION = "2.0.3.4 - Mod Browser Edition";
+        public const string FULL_VERSION = "2.0.3.5 - Mod Browser Edition";
         /// <summary>
         /// Indicates whether this version of GadgetCore is a beta version. You generally shouldn't access this directly, instead use <see cref="GetIsBeta()"/>
         /// </summary>
@@ -751,19 +751,16 @@ namespace GadgetCore.API
         public static void AddCustomResource(string path, UnityEngine.Object resource)
         {
             if (!Registry.registeringVanilla && Registry.modRegistering < 0) throw new InvalidOperationException("Data registration may only be performed by the Initialize method of a Gadget!");
-            if (resource is GameObject go && go.transform.parent == null) UnityEngine.Object.DontDestroyOnLoad(resource);
-            resource.hideFlags |= HideFlags.HideAndDontSave;
-            if (resource is GameObject)
+            if (resource is GameObject obj)
             {
-                if (!(resource as GameObject).activeSelf)
+                if (obj.transform.parent != null) throw new InvalidOperationException("Cannot add an object with a parent as a custom resource!");
+                UnityEngine.Object.DontDestroyOnLoad(obj);
+                if (obj.activeSelf)
                 {
-                    resource.hideFlags |= HideFlags.HideInInspector;
-                }
-                else
-                {
-                    (resource as GameObject).SetActive(false);
+                    obj.SetActive(false);
                 }
             }
+            resource.hideFlags |= HideFlags.HideInInspector;
             resources[path] = resource;
             resourcePaths[resource.GetInstanceID()] = path;
             if (!modResources.ContainsKey(Registry.modRegistering)) modResources.Add(Registry.modRegistering, new List<int>());

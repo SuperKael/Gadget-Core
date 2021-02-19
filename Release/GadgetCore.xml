@@ -3400,7 +3400,7 @@
         </member>
         <member name="M:GadgetCore.API.ItemInfo.GetValue">
             <summary>
-            Gets the item's sell-value.
+            Gets the item's sell value.
             </summary>
         </member>
         <member name="M:GadgetCore.API.ItemInfo.GetName">
@@ -6132,6 +6132,16 @@
         <member name="T:GadgetCore.Util.ExtensionUtils">
             <summary>
             Provides miscellaneous extension methods.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.ExtensionUtils.ReplaceComponent``2(UnityEngine.GameObject)">
+            <summary>
+            Replaces one component with another on a <see cref="T:UnityEngine.GameObject"/>
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.ExtensionUtils.ReplaceComponent(UnityEngine.GameObject,System.Type,System.Type)">
+            <summary>
+            Replaces one component with another on a <see cref="T:UnityEngine.GameObject"/>
             </summary>
         </member>
         <member name="M:GadgetCore.Util.ExtensionUtils.Concat(System.Collections.Generic.IEnumerable{System.String},System.String)">

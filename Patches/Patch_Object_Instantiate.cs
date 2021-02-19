@@ -1,57 +1,33 @@
 using HarmonyLib;
 using UnityEngine;
 using System;
+using System.Reflection;
+using System.Linq;
+using System.Collections.Generic;
 
 namespace GadgetCore.Patches
 {
-    [HarmonyPatch(typeof(UnityEngine.Object))]
-    [HarmonyPatch("Instantiate")]
-    [HarmonyPatch(new Type[] { typeof(UnityEngine.Object), typeof(Vector3), typeof(Quaternion) })]
+    [HarmonyPatch]
     static class Patch_Object_Instantiate
     {
-        private static HideFlags flags;
+        [HarmonyTargetMethods]
+        public static MethodBase[] TargetMethods()
+        {
+            return typeof(UnityEngine.Object).GetMethods().Where(x => x.Name == "Instantiate" && (x.GetMethodBody()?.GetILAsByteArray()?.Length ?? 0) > 0).Select(x => x.IsGenericMethod ? x.MakeGenericMethod(typeof(UnityEngine.Object)) : x).ToArray();
+        }
 
         [HarmonyPrefix]
-        public static void Prefix(ref UnityEngine.Object original)
+        public static void Prefix(ref UnityEngine.Object original, ref HideFlags __state)
         {
-            if (original != null) flags = original.hideFlags & (HideFlags.HideAndDontSave | HideFlags.HideInInspector);
+            if (original != null) __state = original.hideFlags;
         }
 
         [HarmonyPostfix]
-        public static void Postfix(ref UnityEngine.Object __result)
+        public static void Postfix(ref UnityEngine.Object __result, ref HideFlags __state)
         {
-            if ((flags & HideFlags.HideAndDontSave) == HideFlags.HideAndDontSave)
+            if ((__state & HideFlags.HideInInspector) == HideFlags.HideInInspector)
             {
-                if (__result is GameObject && (flags & HideFlags.HideInInspector) != HideFlags.HideInInspector)
-                {
-                    (__result as GameObject).SetActive(true);
-                }
-            }
-        }
-    }
-
-    [HarmonyPatch(typeof(UnityEngine.Object))]
-    [HarmonyPatch("Instantiate")]
-    [HarmonyPatch(new Type[] { typeof(GameObject), typeof(Vector3), typeof(Quaternion) })]
-    static class Patch_Object_InstantiateGameObject
-    {
-        private static HideFlags flags;
-
-        [HarmonyPrefix]
-        public static void Prefix(ref GameObject original)
-        {
-            if (original != null) flags = original.hideFlags & (HideFlags.HideAndDontSave | HideFlags.HideInInspector);
-        }
-
-        [HarmonyPostfix]
-        public static void Postfix(ref UnityEngine.Object __result)
-        {
-            if ((flags & HideFlags.HideAndDontSave) == HideFlags.HideAndDontSave)
-            {
-                if (__result is GameObject && (flags & HideFlags.HideInInspector) != HideFlags.HideInInspector)
-                {
-                    (__result as GameObject).SetActive(true);
-                }
+                (__result as GameObject)?.SetActive(true);
             }
         }
     }

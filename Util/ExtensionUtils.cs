@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Security.Policy;
 using System.Text;
 using UnityEngine;
@@ -14,6 +15,56 @@ namespace GadgetCore.Util
     /// </summary>
     public static class ExtensionUtils
     {
+        /// <summary>
+        /// Replaces one component with another on a <see cref="GameObject"/>
+        /// </summary>
+        public static NewComponent ReplaceComponent<OldComponent, NewComponent>(this GameObject obj) where OldComponent : MonoBehaviour where NewComponent : MonoBehaviour
+        {
+            OldComponent oldComponent = obj.GetComponent<OldComponent>();
+            if (oldComponent == null) throw new InvalidOperationException("Object does not have a " + typeof(OldComponent).Name + " Component!");
+            bool isEnabled = obj.activeSelf;
+            if (isEnabled) obj.SetActive(false);
+            NewComponent newComponent = obj.AddComponent<NewComponent>();
+            FieldInfo[] fields = typeof(OldComponent).GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
+            foreach (FieldInfo field in fields)
+            {
+                FieldInfo newField = typeof(NewComponent).GetField(field.Name, BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
+                if (newField != null && field.FieldType == newField.FieldType)
+                {
+                    newField.SetValue(newComponent, field.GetValue(oldComponent));
+                }
+            }
+            UnityEngine.Object.Destroy(oldComponent);
+            if (isEnabled) obj.SetActive(true);
+            return newComponent;
+        }
+
+        /// <summary>
+        /// Replaces one component with another on a <see cref="GameObject"/>
+        /// </summary>
+        public static MonoBehaviour ReplaceComponent(this GameObject obj, Type oldComponentType, Type newComponentType)
+        {
+            if (!typeof(MonoBehaviour).IsAssignableFrom(oldComponentType)) throw new ArgumentException("oldComponentType must be a MonoBehaviour!");
+            if (!typeof(MonoBehaviour).IsAssignableFrom(newComponentType)) throw new ArgumentException("newComponentType must be a MonoBehaviour!");
+            MonoBehaviour oldComponent = obj.GetComponent(oldComponentType) as MonoBehaviour;
+            if (oldComponent == null) throw new InvalidOperationException("Object does not have a " + oldComponentType.Name + " Component!");
+            bool isEnabled = obj.activeSelf;
+            if (isEnabled) obj.SetActive(false);
+            MonoBehaviour newComponent = obj.AddComponent(newComponentType) as MonoBehaviour;
+            FieldInfo[] fields = oldComponentType.GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
+            foreach (FieldInfo field in fields)
+            {
+                FieldInfo newField = newComponentType.GetField(field.Name, BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
+                if (newField != null && field.FieldType == newField.FieldType)
+                {
+                    newField.SetValue(newComponent, field.GetValue(oldComponent));
+                }
+            }
+            UnityEngine.Object.Destroy(oldComponent);
+            if (isEnabled) obj.SetActive(true);
+            return newComponent;
+        }
+
         /// <summary>
         /// Concatenates the strings in the given <see cref="IEnumerable{T}"/> together. Uses ", " as the seperator if one is not explicitly specified.
         /// </summary>

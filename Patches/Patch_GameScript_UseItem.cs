@@ -22,9 +22,9 @@ namespace GadgetCore.Patches
             ItemInfo item = ItemRegistry.Singleton.GetEntry(___inventory[slot].id);
             if (item != null && !GameScript.dead && !___exitingcombatmode && !___usingItem)
             {
-                if ((item.Type & ItemType.USABLE) == ItemType.USABLE)
+                ___usingItem = item.InvokeOnUse(slot);
+                if ((item.Type & ItemType.USABLE) == ItemType.USABLE || ___usingItem)
                 {
-                    ___usingItem = item.InvokeOnUse(slot);
                     if (!VanillaItemInfo.Using) __instance.StartCoroutine(UseItemFinal(__instance, slot, item, ___inventory, ___usingItem));
                     VanillaItemInfo.Using = false;
                 }

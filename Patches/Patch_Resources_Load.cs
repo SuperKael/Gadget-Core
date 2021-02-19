@@ -2,14 +2,20 @@ using HarmonyLib;
 using GadgetCore.API;
 using UnityEngine;
 using System;
+using System.Reflection;
+using System.Linq;
 
 namespace GadgetCore.Patches
 {
-    [HarmonyPatch(typeof(Resources))]
-    [HarmonyPatch("Load")]
-    [HarmonyPatch(new Type[] { typeof(string) })]
+    [HarmonyPatch]
     static class Patch_Resources_Load
     {
+        [HarmonyTargetMethods]
+        public static MethodBase[] TargetMethods()
+        {
+            return typeof(Resources).GetMethods().Where(x => x.Name == "Load" && (x.GetMethodBody()?.GetILAsByteArray()?.Length ?? 0) > 0).Select(x => x.IsGenericMethod ? x.MakeGenericMethod(typeof(UnityEngine.Object)) : x).ToArray();
+        }
+
         [HarmonyPrefix]
         public static bool Prefix(string path, ref UnityEngine.Object __result)
         {

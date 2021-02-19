@@ -410,7 +410,7 @@ namespace GadgetCore.API
         }
 
         /// <summary>
-        /// Gets the item's sell-value.
+        /// Gets the item's sell value.
         /// </summary>
         public virtual int GetValue()
         {
