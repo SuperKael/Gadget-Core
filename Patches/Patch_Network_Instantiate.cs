@@ -22,14 +22,10 @@ namespace GadgetCore.Patches
         [HarmonyPostfix]
         public static void Postfix(ref Object __result)
         {
-            if ((__result.hideFlags & HideFlags.HideAndDontSave) == HideFlags.HideAndDontSave)
+            if ((__result.hideFlags & HideFlags.HideInInspector) == HideFlags.HideInInspector)
             {
-                if (__result is GameObject && (__result.hideFlags & HideFlags.HideInInspector) != HideFlags.HideInInspector)
-                {
-                    (__result as GameObject).SetActive(true);
-                }
-                __result.hideFlags &= ~(HideFlags.HideAndDontSave | HideFlags.HideInInspector);
-                __result.hideFlags |= (HideFlags)64;
+                __result.hideFlags |= ~HideFlags.HideInInspector;
+                (__result as GameObject)?.SetActive(true);
             }
         }
     }
