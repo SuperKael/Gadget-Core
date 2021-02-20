@@ -64,9 +64,9 @@ namespace GadgetCore.API
         /// </summary>
         public static Dictionary<string, object> GetAllExtraData(this Item item)
         {
-            if (extraItemData.ContainsKey(item))
+            if (extraItemData.TryGetValue(item, out Dictionary<string, object> value))
             {
-                return extraItemData[item];
+                return value;
             }
             else
             {
@@ -126,7 +126,7 @@ namespace GadgetCore.API
         }
 
         /// <summary>
-        /// Serializes all of the extra data on an Item, for transmission across the Network.
+        /// Serializes all of the extra data on an Item, for transmission across the Network, or saving into PlayerPrefs.
         /// </summary>
         public static string SerializeExtraData(this Item item)
         {
@@ -137,7 +137,7 @@ namespace GadgetCore.API
                     br.Serialize(ms, x.Value);
                     return x.Key + "=" + Convert.ToBase64String(ms.ToArray()).Replace("\"", "\"\"");
                 }
-            }).Aggregate(string.Empty, (x, y) => x + "," + y) ?? "";
+            }).Aggregate(string.Empty, (x, y) => x + "," + y) ?? string.Empty;
         }
 
         /// <summary>

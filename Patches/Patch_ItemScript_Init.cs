@@ -15,7 +15,7 @@ namespace GadgetCore.Patches
         [HarmonyPrefix]
         public static bool Prefix(ItemScript __instance, int[] stats, ref Item ___item, ref Package ___package)
         {
-            ___item = GadgetCoreAPI.ConstructItemFromIntArray(stats);
+            ___item = GadgetCoreAPI.ConstructItemFromIntArray(stats, true, false);
             ___package = new Package(___item, __instance.gameObject, __instance.localItem);
             __instance.b.GetComponent<Renderer>().material = (Material)Resources.Load("i/i" + ___item.id);
             AnimIcon animIcon = (AnimIcon)__instance.back.GetComponent("AnimIcon");

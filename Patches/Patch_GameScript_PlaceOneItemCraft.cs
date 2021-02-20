@@ -1,5 +1,6 @@
 using HarmonyLib;
 using GadgetCore.API;
+using UnityEngine;
 
 namespace GadgetCore.Patches
 {
@@ -16,7 +17,21 @@ namespace GadgetCore.Patches
             {
                 return false;
             }
-            return true;
+            __instance.GetComponent<AudioSource>().PlayOneShot((AudioClip)Resources.Load("Au/CLICK2"), Menuu.soundLevel / 10f);
+            if (___craft[slot].id == ___holdingItem.id)
+            {
+                ___craft[slot].q++;
+            }
+            else
+            {
+                ___craft[slot] = GadgetCoreAPI.CopyItem(___holdingItem);
+                ___craft[slot].q = 1;
+            }
+            ___holdingItem.q--;
+            __instance.RefreshSlotCraft(slot);
+            __instance.RefreshHoldingSlot();
+            __instance.CraftCheck();
+            return false;
         }
     }
 }

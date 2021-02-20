@@ -26,8 +26,8 @@ namespace GadgetCore.Patches
                             Network.Destroy(___networkStuff[i].gameObject);
                         }
                     }
-                    ___networkStuff = new GameObject[40];
                 }
+                ___networkStuff = new GameObject[40];
             }
         }
     }

@@ -21,11 +21,11 @@ namespace GadgetCore.API
         /// <summary>
         /// The version numbers for this version of Gadget Core. You generally shouldn't access this directly, instead use <see cref="GetRawVersion()"/>
         /// </summary>
-        public const string RAW_VERSION = "2.0.3.5";
+        public const string RAW_VERSION = "2.0.3.6";
         /// <summary>
         /// A slightly more informative version. You generally shouldn't access this directly, instead use <see cref="GetFullVersion()"/>
         /// </summary>
-        public const string FULL_VERSION = "2.0.3.5 - Mod Browser Edition";
+        public const string FULL_VERSION = "2.0.3.6 - Mod Browser Edition";
         /// <summary>
         /// Indicates whether this version of GadgetCore is a beta version. You generally shouldn't access this directly, instead use <see cref="GetIsBeta()"/>
         /// </summary>
@@ -318,9 +318,9 @@ namespace GadgetCore.API
         {
             Item item = new Item(convertToLocal ? isChip ? ChipRegistry.Singleton.ConvertIDToLocal(st[0]) : ItemRegistry.Singleton.ConvertIDToLocal(st[0]) : st[0], st[1], st[2], st[3], st[4], new int[]
             {
-                st[5],
-                st[6],
-                st[7]
+                convertToLocal ? ItemRegistry.Singleton.ConvertIDToLocal(st[5]) : st[5],
+                convertToLocal ? ItemRegistry.Singleton.ConvertIDToLocal(st[6]) : st[6],
+                convertToLocal ? ItemRegistry.Singleton.ConvertIDToLocal(st[7]) : st[7]
             }, new int[]
             {
                 st[8],
@@ -361,9 +361,9 @@ namespace GadgetCore.API
             st[2] = item.exp;
             st[3] = item.tier;
             st[4] = item.corrupted;
-            st[5] = item.aspect[0];
-            st[6] = item.aspect[1];
-            st[7] = item.aspect[2];
+            st[5] = convertToHost ? ItemRegistry.Singleton.ConvertIDToHost(item.aspect[0]) : item.aspect[0];
+            st[6] = convertToHost ? ItemRegistry.Singleton.ConvertIDToHost(item.aspect[1]) : item.aspect[1];
+            st[7] = convertToHost ? ItemRegistry.Singleton.ConvertIDToHost(item.aspect[2]) : item.aspect[2];
             st[8] = item.aspectLvl[0];
             st[9] = item.aspectLvl[1];
             st[10] = item.aspectLvl[2];

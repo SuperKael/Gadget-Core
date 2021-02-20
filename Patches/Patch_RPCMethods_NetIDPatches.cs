@@ -314,28 +314,6 @@ namespace GadgetCore.Patches.NetIDPatches
     }
 
     [HarmonyPatch(typeof(ItemScript))]
-    [HarmonyPatch("Init")]
-    static class Patch_ItemScript_Init
-    {
-        public static readonly MethodInfo RPCMethod = typeof(ItemScript).GetMethod("Init", BindingFlags.Public | BindingFlags.Instance);
-
-        [HarmonyPrefix]
-        public static bool Prefix(ItemScript __instance, ref int[] stats)
-        {
-            if (!GadgetNetwork.MatrixReady && GadgetNetwork.GetTimeSinceConnect() < GadgetNetwork.MatrixTimeout)
-            {
-                __instance.StartCoroutine(GadgetUtils.WaitAndInvoke(RPCMethod, GadgetNetwork.MatrixTimeout - GadgetNetwork.GetTimeSinceConnect(), () => GadgetNetwork.MatrixReady, __instance, stats));
-                return false;
-            }
-            GadgetNetwork.ConvertIDToLocal(ItemRegistry.Singleton, ref stats[0]);
-            GadgetNetwork.ConvertIDToLocal(ItemRegistry.Singleton, ref stats[5]);
-            GadgetNetwork.ConvertIDToLocal(ItemRegistry.Singleton, ref stats[6]);
-            GadgetNetwork.ConvertIDToLocal(ItemRegistry.Singleton, ref stats[7]);
-            return true;
-        }
-    }
-
-    [HarmonyPatch(typeof(ItemScript))]
     [HarmonyPatch("Chip")]
     static class Patch_ItemScript_Chip
     {

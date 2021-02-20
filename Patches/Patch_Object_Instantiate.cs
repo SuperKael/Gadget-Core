@@ -27,7 +27,7 @@ namespace GadgetCore.Patches
         {
             if ((__state & HideFlags.HideInInspector) == HideFlags.HideInInspector)
             {
-                __result.hideFlags |= ~HideFlags.HideInInspector;
+                __result.hideFlags &= ~(HideFlags.HideAndDontSave | HideFlags.HideInInspector);
                 (__result as GameObject)?.SetActive(true);
             }
         }

@@ -3225,7 +3225,7 @@
         </member>
         <member name="M:GadgetCore.API.ItemExtension.SerializeExtraData(Item)">
             <summary>
-            Serializes all of the extra data on an Item, for transmission across the Network.
+            Serializes all of the extra data on an Item, for transmission across the Network, or saving into PlayerPrefs.
             </summary>
         </member>
         <member name="M:GadgetCore.API.ItemExtension.DeserializeExtraData(Item,System.String)">
