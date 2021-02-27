@@ -603,6 +603,30 @@ namespace GadgetCore
 
             ModBrowserPanel.BrowserButtonText = modBrowserButtonText;
 
+            ModBrowserPanel.UnlimitButton = new GameObject("Unlimit Button", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Button)).GetComponent<Button>();
+            ModBrowserPanel.UnlimitButton.GetComponent<RectTransform>().SetParent(ModMenuCanvas.transform);
+            ModBrowserPanel.UnlimitButton.GetComponent<RectTransform>().anchorMin = new Vector2(0.025f, 0.05f);
+            ModBrowserPanel.UnlimitButton.GetComponent<RectTransform>().anchorMax = new Vector2(0.125f, 0.20f);
+            ModBrowserPanel.UnlimitButton.GetComponent<RectTransform>().offsetMin = new Vector2(0, 0);
+            ModBrowserPanel.UnlimitButton.GetComponent<RectTransform>().offsetMax = new Vector2(0, 0);
+            ModBrowserPanel.UnlimitButton.GetComponent<Image>().sprite = BoxSprite;
+            ModBrowserPanel.UnlimitButton.GetComponent<Image>().type = Image.Type.Sliced;
+            ModBrowserPanel.UnlimitButton.GetComponent<Image>().fillCenter = true;
+            ModBrowserPanel.UnlimitButton.targetGraphic = ModBrowserPanel.UnlimitButton.GetComponent<Image>();
+            ModBrowserPanel.UnlimitButton.onClick.AddListener(ModBrowserPanel.OnUnlimitButton);
+            Text unlimitButtonText = new GameObject("Text", typeof(RectTransform), typeof(CanvasRenderer), typeof(Text)).GetComponent<Text>();
+            unlimitButtonText.rectTransform.SetParent(ModBrowserPanel.UnlimitButton.transform);
+            unlimitButtonText.rectTransform.anchorMin = new Vector2(0f, 0f);
+            unlimitButtonText.rectTransform.anchorMax = new Vector2(1f, 1f);
+            unlimitButtonText.rectTransform.offsetMin = Vector2.zero;
+            unlimitButtonText.rectTransform.offsetMax = Vector2.zero;
+            unlimitButtonText.alignment = TextAnchor.MiddleCenter;
+            unlimitButtonText.font = modBrowserDescText.font;
+            unlimitButtonText.fontSize = 12;
+            unlimitButtonText.text = "Login To GitHub\nTo Remove Limit";
+
+            ModBrowserPanel.UnlimitButton.gameObject.SetActive(false);
+
             RectTransform listLoadingTextBackground = new GameObject("List Loading Panel", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image)).GetComponent<RectTransform>();
             listLoadingTextBackground.GetComponent<RectTransform>().SetParent(ModBrowserPanel.transform);
             listLoadingTextBackground.GetComponent<RectTransform>().anchorMin = new Vector2(0f, 0f);

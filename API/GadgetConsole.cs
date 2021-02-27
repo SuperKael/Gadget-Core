@@ -1,6 +1,7 @@
 ﻿using GadgetCore.API;
 using GadgetCore.Loader;
 using GadgetCore.Util;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -629,6 +630,10 @@ namespace GadgetCore
                 "Toggles debug mode.",
                 "Toggles the game's built-in debug mode. Use with caution.\nUses the syntax: /debugmode",
                 "debug");
+            RegisterCommand("githublogin", true, CoreCommands.GitHubLogin,
+                "Logs into or out of GitHub, for use in the Mod Browser.",
+                "Logs into or out of GitHub, for use in the Mod Browser. Uses a Personal Access Token, created on this page:\nhttps://github.com/settings/tokens/new\nUses the syntax: /githublogin [auth token]",
+                "ghl");
 
             Registry.registeringVanilla = wasRegisteringVanilla;
             Registry.gadgetRegistering = wasModRegistering;
@@ -1013,6 +1018,63 @@ namespace GadgetCore
             {
                 GameScript.debugMode = !GameScript.debugMode;
                 return new GadgetConsoleMessage("Debug Mode is now " + (GameScript.debugMode ? "ON" : "OFF"));
+            }
+
+            /// <summary>
+            /// The /githublogin command.
+            /// </summary>
+            public static GadgetConsoleMessage GitHubLogin(string sender, params string[] args)
+            {
+                if (args.Length == 1)
+                {
+                    if (!string.IsNullOrEmpty(PlayerPrefs.GetString("GitHubAuthToken")))
+                    {
+                        PlayerPrefs.DeleteKey("GitHubAuthToken");
+                        ModBrowser.gitHubAuthToken = null;
+                        ModBrowser.gitHubAuthHeaders.Remove("Authorization");
+                        return new GadgetConsoleMessage("Succesfully deleted GitHub login information and logged you out.");
+                    }
+                    else
+                    {
+                        return new GadgetConsoleMessage("Cannot delete your login information as you have not logged in. " +
+                            "If you meant to log in, use the version of this command with an argument for an auth token.", null, MessageSeverity.ERROR);
+                    }
+                }
+                else if (args.Length == 2)
+                {
+                    Console.StartCoroutine(GitHubLoginRoutine(args[1]));
+                    return null;
+                }
+                else return CommandSyntaxError(args[0], "[auth token]");
+            }
+
+            private static IEnumerator GitHubLoginRoutine(string authToken)
+            {
+                Print(new GadgetConsoleMessage("Attempting GitHub login..."));
+                using (WWW testWWW = new WWW(ModBrowser.MODS_URL, null, new Dictionary<string, string>()
+                {
+                    ["User-Agent"] = ModBrowser.GITHUB_USER_AGENT,
+                    ["Authorization"] = $"token {authToken}"
+                }))
+                {
+                    yield return new WaitUntil(() => testWWW.isDone);
+                    if (string.IsNullOrEmpty(testWWW.error) && !string.IsNullOrEmpty(testWWW.text))
+                    {
+                        PlayerPrefs.SetString("GitHubAuthToken", ModBrowser.gitHubAuthToken = authToken);
+                        if (ModBrowser.gitHubAuthToken != null)
+                        {
+                            ModBrowser.gitHubAuthHeaders["Authorization"] = $"token {ModBrowser.gitHubAuthToken}";
+                        }
+                        if (SceneInjector.ModBrowserPanel != null) SceneInjector.ModBrowserPanel.UnlimitButton.gameObject.SetActive(false);
+                        Print(new GadgetConsoleMessage("GitHub Login Successful! This login will be remembered even for future sessions."));
+                        Print(new GadgetConsoleMessage("If you wish to log out, use `/githublogin` with no arguments."));
+                    }
+                    else
+                    {
+                        Print(new GadgetConsoleMessage("Login failed! Your auth token must have been invalid.", null, MessageSeverity.ERROR));
+                    }
+                }
+                yield break;
             }
         }
 

@@ -5517,6 +5517,11 @@
             The /debugmode command.
             </summary>
         </member>
+        <member name="M:GadgetCore.GadgetConsole.CoreCommands.GitHubLogin(System.String,System.String[])">
+            <summary>
+            The /githublogin command.
+            </summary>
+        </member>
         <member name="T:GadgetCore.GadgetConsole.MessageSeverity">
             <summary>
             Used to indicate the severity of a GadgetConsole message.

@@ -28,16 +28,15 @@ namespace GadgetCore
         public const string PASCAL_CASE_SPACING_REGEX = @"(?<!^)([A-Z][a-z]|(?<=[a-z])[A-Z])";
 
         public const string GITHUB_USER_AGENT = @"SuperKael-GadgetCore-ModBrowser";
-        public const string GITHUB_AUTH_TOKEN = @"R2FkZ2V0Q29yZTphY2ZjMzU0YWFjYWU0MTA0NmQ1Njk3NGEzNzA2MzJiNzcxMGU4NTQ3";
         public const string REPO_URL = @"https://github.com/SuperKael/Roguelands-Mods";
         public const string GIT_RAW_URL = @"https://raw.githubusercontent.com/SuperKael/Roguelands-Mods/master";
         public const string GIT_API_URL = @"https://api.github.com/repos/{0}/{1}/releases";
         public const string MODS_URL = GIT_RAW_URL + @"/Mods.ini";
 
-        private static Dictionary<string, string> gitHubAuthHeaders = new Dictionary<string, string>()
+        internal static string gitHubAuthToken = PlayerPrefs.GetString("GitHubAuthToken", null);
+        internal static Dictionary<string, string> gitHubAuthHeaders = new Dictionary<string, string>()
         {
-            ["User-Agent"] = GITHUB_USER_AGENT,
-            ["Authorization"] = $"Basic {GITHUB_AUTH_TOKEN}"
+            ["User-Agent"] = GITHUB_USER_AGENT
         };
 
         private static ModBrowser Singleton;
@@ -49,6 +48,7 @@ namespace GadgetCore
         internal Button InstallButton;
         internal Button ActivateButton;
         internal Button VersionsButton;
+        internal Button UnlimitButton;
 
         internal static bool RestartNeeded { get; private set; } = false;
 
@@ -98,7 +98,11 @@ namespace GadgetCore
                 SceneInjector.ModMenuPanel.gameObject.SetActive(false);
                 Array.ForEach(SceneInjector.ModConfigMenuText.GetComponentsInChildren<TextMesh>(), x => { x.text = "MOD BROWSER"; x.anchor = TextAnchor.UpperCenter; });
                 Singleton.BrowserButtonText.text = "Mod Menu";
-                SceneInjector.ModBrowserPanel.gameObject.SetActive(true);
+                Singleton.gameObject.SetActive(true);
+                if (gitHubAuthToken != null)
+                {
+                    gitHubAuthHeaders["Authorization"] = $"token {gitHubAuthToken}";
+                }
                 Singleton.StartCoroutine(Singleton.LoadModList());
             }
         }
@@ -119,7 +123,8 @@ namespace GadgetCore
                     GadgetCoreAPI.Quit();
                     return;
                 }
-                SceneInjector.ModBrowserPanel.gameObject.SetActive(false);
+                Singleton.gameObject.SetActive(false);
+                Singleton.UnlimitButton.gameObject.SetActive(false);
                 Array.ForEach(SceneInjector.ModConfigMenuText.GetComponentsInChildren<TextMesh>(), x => { x.text = "MOD CONFIG MENU"; x.anchor = TextAnchor.UpperCenter; });
                 Singleton.BrowserButtonText.text = "Mod Browser";
                 SceneInjector.ModMenuPanel.Rebuild();
@@ -139,7 +144,7 @@ namespace GadgetCore
             if (!entry.Info.ContainsKey("File")) yield break;
             downloading = true;
             GadgetCore.CoreLogger.LogConsole("Initiating download for " + entry.Info["Name"] + "!");
-            using (WWW modFileWWW = new WWW(entry.Info["File"], null, gitHubAuthHeaders))
+            using (WWW modFileWWW = new WWW(entry.Info["File"]))
             {
                 yield return new WaitUntil(() => modFileWWW.isDone);
                 if (modFileWWW.text == "404: Not Found")
@@ -362,6 +367,13 @@ namespace GadgetCore
             yield break;
         }
 
+        internal void OnUnlimitButton()
+        {
+            GadgetCoreAPI.DisplayYesNoDialog("In order to login to GitHub to remove the rate limit, you must use the command:\n\n/githublogin [auth token]\n\n" +
+                "Would you like to open GitHub in your web browser to generate an auth token?\n" +
+                "You do not have to check any of the boxes, simply set a note such as \"GadgetCore Mod Browser\", and select \"Generate token\" at the bottom. Then copy the generated token and use it with the /githublogin command.", () => System.Diagnostics.Process.Start(@"https://github.com/settings/tokens/new"));
+        }
+
         [System.Diagnostics.CodeAnalysis.SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Unity Message")]
         private void Awake()
         {
@@ -439,7 +451,7 @@ namespace GadgetCore
             if (listLoading) yield break;
             listLoading = true;
             Singleton.Clean();
-            using (WWW modsWWW = new WWW(MODS_URL, null, gitHubAuthHeaders))
+            using (WWW modsWWW = new WWW(MODS_URL))
             {
                 yield return new WaitUntil(() => modsWWW.isDone);
                 IniData modsIni;
@@ -496,7 +508,7 @@ namespace GadgetCore
 
         private IEnumerator ProcessMetadataURL(string ID, string URL, ModBrowserEntry modEntry)
         {
-            using (WWW modWWW = new WWW(URL, null, gitHubAuthHeaders))
+            using (WWW modWWW = new WWW(URL))
             {
                 yield return new WaitUntil(() => modWWW.isDone);
                 modEntry.Info.Remove("URL");
@@ -625,6 +637,7 @@ namespace GadgetCore
                             {
                                 GadgetCore.CoreLogger.LogWarning("GitHub API Rate limit exceeded! Please wait one hour before for it to reset.");
                                 modEntry.Info["Error"] = "GitHub Rate Limit Exceeded!";
+                                Singleton.UnlimitButton.gameObject.SetActive(string.IsNullOrEmpty(gitHubAuthToken));
                             }
                         }
                     }
@@ -660,6 +673,7 @@ namespace GadgetCore
                             {
                                 GadgetCore.CoreLogger.LogWarning("GitHub API Rate limit exceeded! Please wait one hour before for it to reset.");
                                 modEntry.Info["Error"] = "GitHub Rate Limit Exceeded!";
+                                Singleton.UnlimitButton.gameObject.SetActive(string.IsNullOrEmpty(gitHubAuthToken));
                             }
                             else
                             {
