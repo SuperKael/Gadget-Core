@@ -28,8 +28,7 @@ namespace GadgetCore
         public const string PASCAL_CASE_SPACING_REGEX = @"(?<!^)([A-Z][a-z]|(?<=[a-z])[A-Z])";
 
         public const string GITHUB_USER_AGENT = @"SuperKael-GadgetCore-ModBrowser";
-        public const string GITHUB_MACHINE_USER = @"GadgetCore";
-        public const string GITHUB_ACCESS_TOKEN = @"96d58d8e85d4d329f8fea22231f3eb9bdf807848";
+        public const string GITHUB_AUTH_TOKEN = @"R2FkZ2V0Q29yZTphY2ZjMzU0YWFjYWU0MTA0NmQ1Njk3NGEzNzA2MzJiNzcxMGU4NTQ3";
         public const string REPO_URL = @"https://github.com/SuperKael/Roguelands-Mods";
         public const string GIT_RAW_URL = @"https://raw.githubusercontent.com/SuperKael/Roguelands-Mods/master";
         public const string GIT_API_URL = @"https://api.github.com/repos/{0}/{1}/releases";
@@ -38,7 +37,7 @@ namespace GadgetCore
         private static Dictionary<string, string> gitHubAuthHeaders = new Dictionary<string, string>()
         {
             ["User-Agent"] = GITHUB_USER_AGENT,
-            ["Authorization"] = $"Basic {Convert.ToBase64String(Encoding.ASCII.GetBytes($"{GITHUB_MACHINE_USER}:{GITHUB_ACCESS_TOKEN}"))}"
+            ["Authorization"] = $"Basic {GITHUB_AUTH_TOKEN}"
         };
 
         private static ModBrowser Singleton;
