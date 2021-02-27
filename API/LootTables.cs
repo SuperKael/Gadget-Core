@@ -146,7 +146,7 @@ namespace GadgetCore.API
 
             public LootTableEntry(Item itemToDrop, float dropChance, int minDropQuantity, int maxDropQuantity, Func<Vector3, bool> CheckValidToDrop, Func<Item, Vector3, bool> CustomDropBehavior, bool isChip = false)
             {
-                if (!Registry.registeringVanilla && Registry.modRegistering < 0) throw new InvalidOperationException("Loot table entries can only be added during Gadget initialization!");
+                if (!Registry.registeringVanilla && Registry.gadgetRegistering < 0) throw new InvalidOperationException("Loot table entries can only be added during Gadget initialization!");
                 this.itemToDrop = itemToDrop;
                 this.dropChance = dropChance;
                 this.minDropQuantity = minDropQuantity;
@@ -154,7 +154,7 @@ namespace GadgetCore.API
                 this.CheckValidToDrop = CheckValidToDrop;
                 this.CustomDropBehavior = CustomDropBehavior;
                 this.isChip = isChip;
-                modID = Registry.modRegistering;
+                modID = Registry.gadgetRegistering;
             }
 
             public bool TryDrop(Vector3 pos)

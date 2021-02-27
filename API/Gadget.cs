@@ -85,6 +85,27 @@ namespace GadgetCore.API
         /// </summary>
         protected internal virtual void ScriptFixedUpdate() { }
 
+        internal void LoadInternal()
+        {
+            Initialize();
+            OnLoad?.Invoke();
+        }
+
+        internal void UnloadInternal()
+        {
+            OnUnload?.Invoke();
+            Unload();
+        }
+
+        /// <summary>
+        /// Called after this Gadget is fully loaded and initialized.
+        /// </summary>
+        public event Action OnLoad;
+        /// <summary>
+        /// Called before this Gadget is unloaded.
+        /// </summary>
+        public event Action OnUnload;
+
         /// <summary>
         /// Returns the description of this Gadget. By default, returns null, which will cause the Gadget's ModInfo to be used as its description.
         /// </summary>

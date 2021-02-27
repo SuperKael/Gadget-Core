@@ -349,7 +349,7 @@ namespace GadgetCore
 
         private static void VanillaRegistration()
         {
-            Registry.modRegistering = -1;
+            Registry.gadgetRegistering = -1;
             Registry.registeringVanilla = true;
 
             GameRegistry.RegisterRegistry(ItemRegistry.Singleton);

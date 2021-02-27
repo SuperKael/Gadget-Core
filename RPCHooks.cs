@@ -176,6 +176,55 @@ namespace GadgetCore
             }
         }
 
+        internal GameObject CreateMarketStand(ItemInfo item, Vector2 pos, int cost, bool isBuild, bool isCredits, bool isTrophies)
+        {
+            NetworkViewID viewID = Network.AllocateViewID();
+            Singleton.GetComponent<NetworkView>().RPC("RPCCreateMarketStand", RPCMode.OthersBuffered, item.GetHostID(), pos, cost, isBuild, isCredits, isTrophies, viewID);
+            GameObject shopStand = Instantiate(SceneInjector.BuildStand, SceneInjector.BuildStand.transform.parent);
+            NetworkView view = shopStand.GetComponent<NetworkView>();
+            if (view == null) view = shopStand.AddComponent<NetworkView>();
+            view.viewID = viewID;
+            shopStand.transform.localPosition = new Vector3(pos.x, pos.y, SceneInjector.BuildStand.transform.position.z);
+            shopStand.name = isBuild ? "buildStand" : "kylockeStand";
+            KylockeStand standScript = shopStand.GetComponent<KylockeStand>();
+            standScript.isTrophies = isTrophies;
+            standScript.isCredits = isCredits;
+            standScript.isBuild = isBuild;
+            standScript.itemID = item.ID;
+            standScript.cost = cost;
+            standScript.currency.GetComponent<MeshRenderer>().material = isBuild ? isCredits ? isTrophies ? GadgetCoreAPI.GetItemMaterial(59) : GadgetCoreAPI.GetItemMaterial(52) : GadgetCoreAPI.GetItemMaterial(57) : GadgetCoreAPI.GetItemMaterial(51);
+            standScript.icon.GetComponent<MeshRenderer>().material = item.Mat;
+            standScript.txtName[0].text = item.GetName();
+            standScript.txtName[1].text = standScript.txtName[0].text;
+            standScript.txtCost[0].text = string.Empty + standScript.cost;
+            standScript.txtCost[1].text = standScript.txtCost[0].text;
+            return shopStand;
+        }
+
+        [RPC]
+        internal void RPCCreateMarketStand(int itemID, Vector2 pos, int cost, bool isBuild, bool isCredits, bool isTrophies, NetworkViewID viewID)
+        {
+            ItemInfo item = ItemRegistry.Singleton[ItemRegistry.Singleton.ConvertIDToLocal(itemID)];
+            GameObject shopStand = Instantiate(SceneInjector.BuildStand, SceneInjector.BuildStand.transform.parent);
+            NetworkView view = shopStand.GetComponent<NetworkView>();
+            if (view == null) view = shopStand.AddComponent<NetworkView>();
+            view.viewID = viewID;
+            shopStand.transform.localPosition = new Vector3(pos.x, pos.y, SceneInjector.BuildStand.transform.position.z);
+            shopStand.name = isBuild ? "buildStand" : "kylockeStand";
+            KylockeStand standScript = shopStand.GetComponent<KylockeStand>();
+            standScript.isTrophies = isTrophies;
+            standScript.isCredits = isCredits;
+            standScript.isBuild = isBuild;
+            standScript.itemID = item.ID;
+            standScript.cost = cost;
+            standScript.currency.GetComponent<MeshRenderer>().material = isBuild ? isCredits ? isTrophies ? GadgetCoreAPI.GetItemMaterial(59) : GadgetCoreAPI.GetItemMaterial(52) : GadgetCoreAPI.GetItemMaterial(57) : GadgetCoreAPI.GetItemMaterial(51);
+            standScript.icon.GetComponent<MeshRenderer>().material = item.Mat;
+            standScript.txtName[0].text = item.GetName();
+            standScript.txtName[1].text = standScript.txtName[0].text;
+            standScript.txtCost[0].text = string.Empty + standScript.cost;
+            standScript.txtCost[1].text = standScript.txtCost[0].text;
+        }
+
         internal void BroadcastConsoleMessage(string text, string sender, GadgetConsole.MessageSeverity severity, float sendTime)
         {
             view.RPC("RPCBroadcastConsoleMessage", RPCMode.Others, text, sender, (int)severity, sendTime);

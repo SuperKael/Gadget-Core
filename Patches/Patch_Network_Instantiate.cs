@@ -11,7 +11,7 @@ namespace GadgetCore.Patches
         [HarmonyPrefix]
         public static bool Prefix(ref Object prefab, Vector3 position, Quaternion rotation, int group, ref Object __result)
         {
-            if (GadgetCoreAPI.resourcePaths.ContainsKey(prefab.GetInstanceID()))
+            if (prefab != null && GadgetCoreAPI.resourcePaths.ContainsKey(prefab.GetInstanceID()))
             {
                 __result = RPCHooks.Instantiate(GadgetCoreAPI.resourcePaths[prefab.GetInstanceID()], position, rotation, group);
                 return false;

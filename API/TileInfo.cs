@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace GadgetCore.API
@@ -180,10 +182,10 @@ namespace GadgetCore.API
         public virtual bool TryPlaceTile() { return true; }
 
         /// <summary>
-        /// Called when this tile is interacted with. Will only ever be called if the Prop's layer is 12, which it will automatically be set to if the Tyspe is specified as INTERACTIVE
+        /// Called when this tile is interacted with. Will only ever be called if the Prop's layer is 12, which it will automatically be set to if the Type is specified as INTERACTIVE
         /// </summary>
         public event Func<IEnumerator> OnInteract;
 
-        internal IEnumerator Interact() { return OnInteract?.Invoke(); }
+        internal IEnumerable<IEnumerator> Interact() { return OnInteract?.GetInvocationList().Select(x => ((Func<IEnumerator>)x).Invoke()); }
     }
 }

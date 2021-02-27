@@ -15,6 +15,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using UnityEngine;
+using UnityEngine.Networking;
 using UnityEngine.UI;
 
 namespace GadgetCore
@@ -26,10 +27,19 @@ namespace GadgetCore
         /// </summary>
         public const string PASCAL_CASE_SPACING_REGEX = @"(?<!^)([A-Z][a-z]|(?<=[a-z])[A-Z])";
 
+        public const string GITHUB_USER_AGENT = @"SuperKael-GadgetCore-ModBrowser";
+        public const string GITHUB_MACHINE_USER = @"GadgetCore";
+        public const string GITHUB_ACCESS_TOKEN = @"96d58d8e85d4d329f8fea22231f3eb9bdf807848";
         public const string REPO_URL = @"https://github.com/SuperKael/Roguelands-Mods";
         public const string GIT_RAW_URL = @"https://raw.githubusercontent.com/SuperKael/Roguelands-Mods/master";
         public const string GIT_API_URL = @"https://api.github.com/repos/{0}/{1}/releases";
         public const string MODS_URL = GIT_RAW_URL + @"/Mods.ini";
+
+        private static Dictionary<string, string> gitHubAuthHeaders = new Dictionary<string, string>()
+        {
+            ["User-Agent"] = GITHUB_USER_AGENT,
+            ["Authorization"] = $"Basic {Convert.ToBase64String(Encoding.ASCII.GetBytes($"{GITHUB_MACHINE_USER}:{GITHUB_ACCESS_TOKEN}"))}"
+        };
 
         private static ModBrowser Singleton;
 
@@ -130,7 +140,7 @@ namespace GadgetCore
             if (!entry.Info.ContainsKey("File")) yield break;
             downloading = true;
             GadgetCore.CoreLogger.LogConsole("Initiating download for " + entry.Info["Name"] + "!");
-            using (WWW modFileWWW = new WWW(entry.Info["File"]))
+            using (WWW modFileWWW = new WWW(entry.Info["File"], null, gitHubAuthHeaders))
             {
                 yield return new WaitUntil(() => modFileWWW.isDone);
                 if (modFileWWW.text == "404: Not Found")
@@ -430,7 +440,7 @@ namespace GadgetCore
             if (listLoading) yield break;
             listLoading = true;
             Singleton.Clean();
-            using (WWW modsWWW = new WWW(MODS_URL))
+            using (WWW modsWWW = new WWW(MODS_URL, null, gitHubAuthHeaders))
             {
                 yield return new WaitUntil(() => modsWWW.isDone);
                 IniData modsIni;
@@ -458,18 +468,11 @@ namespace GadgetCore
                             }
                             if (!modInfo.ContainsKey("Name")) modInfo.Add("Name", modKey.KeyName);
                             modEntry = new ModBrowserEntry(modKey.KeyName, modInfo);
+                            modEntries.Add(modEntry);
                         }
                         catch (Exception e)
                         {
                             GadgetCore.CoreLogger.LogError("An error occured while reading the entry for " + modKey.KeyName + " in the Mods.ini file on the Roguelands-Mods repository: " + e);
-                        }
-                        if (modEntry != null)
-                        {
-                            if (modEntry.Info.TryGetValue("Git", out string gitURL))
-                            {
-                                yield return StartCoroutine(ProcessGitVersions(gitURL, modEntry));
-                            }
-                            modEntries.Add(modEntry);
                         }
                     }
                 }
@@ -494,7 +497,7 @@ namespace GadgetCore
 
         private IEnumerator ProcessMetadataURL(string ID, string URL, ModBrowserEntry modEntry)
         {
-            using (WWW modWWW = new WWW(URL))
+            using (WWW modWWW = new WWW(URL, null, gitHubAuthHeaders))
             {
                 yield return new WaitUntil(() => modWWW.isDone);
                 modEntry.Info.Remove("URL");
@@ -547,10 +550,6 @@ namespace GadgetCore
                 {
                     modEntry.OtherVersions[version] = "url:" + URL;
                 }
-                if (modEntry.Info.TryGetValue("Git", out string gitURL))
-                {
-                    yield return StartCoroutine(ProcessGitVersions(gitURL, modEntry));
-                }
             }
         }
 
@@ -559,9 +558,15 @@ namespace GadgetCore
             string[] splitString = gitURL.Split(new char[] { ':' }, 3);
             if (splitString.Length == 3)
             {
-                using (WWW gitWWW = new WWW(string.Format(GIT_API_URL, splitString[0], splitString[1])))
+                using (WWW gitWWW = new WWW(string.Format(GIT_API_URL, splitString[0], splitString[1]), null, gitHubAuthHeaders))
                 {
                     yield return new WaitUntil(() => gitWWW.isDone);
+                    if (!string.IsNullOrEmpty(gitWWW.error))
+                    {
+                        GadgetCore.CoreLogger.Log("An error occured while trying to fetch GitHub releases with the target '" + gitURL + "': " + gitWWW.error);
+                        GadgetCore.CoreLogger.Log("Response Body: " + gitWWW.text);
+                        yield break;
+                    }
                     try
                     {
                         JObject lastVersionJSON = null;
@@ -619,7 +624,8 @@ namespace GadgetCore
                             string message = responseObject.Value<string>("message");
                             if (message != null && message.StartsWith("API rate limit exceeded"))
                             {
-                                GadgetCore.CoreLogger.LogWarning("GitHub API Rate limit exceeded for " + modEntry.Info["Name"] + "!");
+                                GadgetCore.CoreLogger.LogWarning("GitHub API Rate limit exceeded! Please wait one hour before for it to reset.");
+                                modEntry.Info["Error"] = "GitHub Rate Limit Exceeded!";
                             }
                         }
                     }
@@ -638,16 +644,23 @@ namespace GadgetCore
                 string[] splitString = gitURL.Split(new char[] { ':' }, 3);
                 if (splitString.Length == 3)
                 {
-                    using (WWW gitWWW = new WWW(string.Format(GIT_API_URL + '/' + gitID, splitString[0], splitString[1])))
+                    using (WWW gitWWW = new WWW(string.Format(GIT_API_URL + '/' + gitID, splitString[0], splitString[1]), null, gitHubAuthHeaders))
                     {
                         yield return new WaitUntil(() => gitWWW.isDone);
+                        if (!string.IsNullOrEmpty(gitWWW.error))
+                        {
+                            GadgetCore.CoreLogger.Log("An error occured while trying to fetch GitHub release " + gitID + " with the target '" + gitURL + "': " + gitWWW.error);
+                            GadgetCore.CoreLogger.Log("Response Body: " + gitWWW.text);
+                            yield break;
+                        }
                         try
                         {
                             JObject versionJSON = JsonConvert.DeserializeObject<JObject>(gitWWW.text);
                             string message = versionJSON.Value<string>("message");
                             if (message != null && message.StartsWith("API rate limit exceeded"))
                             {
-                                GadgetCore.CoreLogger.LogWarning("GitHub API Rate limit exceeded for " + modEntry.Info["Name"] + "!");
+                                GadgetCore.CoreLogger.LogWarning("GitHub API Rate limit exceeded! Please wait one hour before for it to reset.");
+                                modEntry.Info["Error"] = "GitHub Rate Limit Exceeded!";
                             }
                             else
                             {
@@ -844,6 +857,10 @@ namespace GadgetCore
             ActivateButton.GetComponentInChildren<Text>().color = new Color(1f, 1f, 1f, 0.25f);
             VersionsButton.interactable = false;
             VersionsButton.GetComponentInChildren<Text>().color = new Color(1f, 1f, 1f, 0.25f);
+            if (modEntry.Info.TryGetValue("Git", out string gitURL) && !modEntry.Info.ContainsKey("File"))
+            {
+                yield return StartCoroutine(ProcessGitVersions(gitURL, modEntry));
+            }
             while (modEntry.Info.TryGetValue("URL", out string modURL))
             {
                 if (modURL.Length > 0 && modURL[0] == '/') modEntry.Info["URL"] = modURL = GIT_RAW_URL + modURL;

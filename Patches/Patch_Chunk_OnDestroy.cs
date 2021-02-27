@@ -11,7 +11,7 @@ namespace GadgetCore.Patches
     [HarmonyPatch("OnDestroy")]
     static class Patch_Chunk_OnDestroy
     {
-        [HarmonyPrefix]
+        [HarmonyPostfix]
         public static void Postfix(ref GameObject[] ___networkStuff)
         {
             if (___networkStuff.Length > 40)

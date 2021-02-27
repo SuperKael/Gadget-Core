@@ -15,6 +15,7 @@ namespace GadgetCore.Patches
             if (GadgetCoreAPI.ultimateForgeRecipes.TryGetValue(Tuple.Create(___craft[0].id, ___craft[2].id), out int outputID))
             {
                 __result = GadgetCoreAPI.CopyItem(___craft[0]);
+                __result.id = outputID;
                 __result.q = 1;
                 __result.exp = 0;
                 return false;

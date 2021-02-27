@@ -235,7 +235,7 @@ namespace GadgetCore
             ModMenuCanvas.renderMode = RenderMode.ScreenSpaceOverlay;
             ModMenuCanvas.pixelPerfect = true;
             CanvasScaler scaler = ModMenuCanvas.GetComponent<CanvasScaler>();
-            scaler.scaleFactor = 2;
+            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
             scaler.referencePixelsPerUnit = 100;
             ModConfigMenuText = UnityEngine.Object.Instantiate(InstanceTracker.Menuu.menuOptions.transform.Find("txt0").gameObject, ModMenu.transform);
             ModConfigMenuText.name = "txt0";

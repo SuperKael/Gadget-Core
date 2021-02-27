@@ -60,10 +60,19 @@ namespace GadgetCore.API
         }
 
         /// <summary>
+        /// Gets the ID of this ItemInfo on the multiplayer host, saves the trouble of calling <see cref="ConvertIDToHost(Registry, int)"/>
+        /// </summary>
+        public static int GetHostID<E, T>(this RegistryEntry<E, T> entry) where E : RegistryEntry<E, T> where T : Enum
+        {
+            return ConvertIDToHost(entry.GetRegistry(), entry.ID);
+        }
+
+        /// <summary>
         /// Gets the host ID that matches the specified local ID. The given ID MUST be an int. Returns -1 if the host does not have a matching ID for the specified local ID.
         /// </summary>
         public static object ConvertIDToHost(this Registry reg, ref object ID)
         {
+            if (Network.isServer) return ID;
             int id = (int)ID;
             if (!MatrixReady)
             {
@@ -83,6 +92,7 @@ namespace GadgetCore.API
         /// </summary>
         public static int ConvertIDToHost(this Registry reg, ref int ID)
         {
+            if (Network.isServer) return ID;
             if (!MatrixReady)
             {
                 Debug.Log("Network ID conversion cannot be performed when the ID conversion matrix is not ready!");
@@ -101,6 +111,7 @@ namespace GadgetCore.API
         /// </summary>
         public static int ConvertIDToHost(this Registry reg, int ID)
         {
+            if (Network.isServer) return ID;
             if (!MatrixReady)
             {
                 Debug.Log("Network ID conversion cannot be performed when the ID conversion matrix is not ready!");
@@ -119,6 +130,7 @@ namespace GadgetCore.API
         /// </summary>
         public static object ConvertIDToLocal(this Registry reg, ref object ID)
         {
+            if (Network.isServer) return ID;
             int id = (int)ID;
             if (!MatrixReady)
             {
@@ -138,6 +150,7 @@ namespace GadgetCore.API
         /// </summary>
         public static int ConvertIDToLocal(this Registry reg, ref int ID)
         {
+            if (Network.isServer) return ID;
             if (!MatrixReady)
             {
                 Debug.Log("Network ID conversion cannot be performed when the ID conversion matrix is not ready!");
@@ -156,6 +169,7 @@ namespace GadgetCore.API
         /// </summary>
         public static int ConvertIDToLocal(this Registry reg, int ID)
         {
+            if (Network.isServer) return ID;
             if (!MatrixReady)
             {
                 Debug.Log("Network ID conversion cannot be performed when the ID conversion matrix is not ready!");
@@ -191,6 +205,7 @@ namespace GadgetCore.API
                 IDConversionMatrixToLocal[reg.GetRegistryName()] = new Dictionary<int, int>();
             }
             MatrixReady = true;
+            OnMatrixReady?.Invoke(false);
         }
 
         internal static void ParseIDMatrixData(string packedData)
@@ -220,6 +235,7 @@ namespace GadgetCore.API
                     }
                 }
                 MatrixReady = true;
+                OnMatrixReady?.Invoke(true);
             }
             catch (Exception e)
             {
@@ -236,8 +252,8 @@ namespace GadgetCore.API
         /// </summary>
         public static void RegisterSyncVar<T>(string name, T initialValue)
         {
-            if (!Registry.registeringVanilla && Registry.modRegistering < 0) throw new InvalidOperationException("SyncVars may only be registered in the Initialize method of a Gadget!");
-            SyncVars.Add(name, new SyncVar(initialValue, Registry.modRegistering));
+            if (!Registry.registeringVanilla && Registry.gadgetRegistering < 0) throw new InvalidOperationException("SyncVars may only be registered in the Initialize method of a Gadget!");
+            SyncVars.Add(name, new SyncVar(initialValue, Registry.gadgetRegistering));
         }
 
         /// <summary>
@@ -248,8 +264,8 @@ namespace GadgetCore.API
         /// </summary>
         public static void RegisterLocalSyncVar<T>(string name, T initialValue)
         {
-            if (!Registry.registeringVanilla && Registry.modRegistering < 0) throw new InvalidOperationException("SyncVars may only be registered in the Initialize method of a Gadget!");
-            LocalSyncVars.Add(name, new LocalSyncVar(initialValue, Registry.modRegistering));
+            if (!Registry.registeringVanilla && Registry.gadgetRegistering < 0) throw new InvalidOperationException("SyncVars may only be registered in the Initialize method of a Gadget!");
+            LocalSyncVars.Add(name, new LocalSyncVar(initialValue, Registry.gadgetRegistering));
         }
 
         internal static void UnregisterSyncVars(int modID)
@@ -324,6 +340,14 @@ namespace GadgetCore.API
         {
             return LocalSyncVars[name].Values.ContainsKey(player) ? (T)LocalSyncVars[name].Values[player] : (T)LocalSyncVars[name].DefaultValue;
         }
+
+        /// <summary>
+        /// Invoked once the ID Conversion Matrix is ready for use. Bool parameter is true if the host has GadgetCore installed.
+        /// Warning: In cases of high latency, this event may be invoked twice. The first time with a false parameter suggesting the host is vanilla,
+        /// the second time with a true parameter once the modded Matrix connection is initialized. As such, you most likely only want to utilize
+        /// this event when the parameter is true.
+        /// </summary>
+        public static event Action<bool> OnMatrixReady;
 
         internal enum SyncVarType
         {

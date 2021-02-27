@@ -19,13 +19,13 @@ namespace GadgetCore.API
         /// </summary>
         public static Registry<R, E, T> Singleton { get; } = new R();
 
-        private static Dictionary<T, int> lastUsedIDs = new Dictionary<T, int>();
+        private static readonly Dictionary<T, int> lastUsedIDs = new Dictionary<T, int>();
         private readonly Dictionary<int, E> IDRegistry = new Dictionary<int, E>();
         private readonly Dictionary<string, E> NameRegistry = new Dictionary<string, E>();
 
         internal static int RegisterStatic(E entry, string name, int preferredID = -1, bool overrideExisting = true)
         {
-            if (!registeringVanilla && modRegistering < 0)
+            if (!registeringVanilla && gadgetRegistering < 0)
             {
                 throw new InvalidOperationException("Data registration may only be performed by the Initialize method of a Gadget!");
             }
@@ -33,7 +33,7 @@ namespace GadgetCore.API
             {
                 throw new InvalidOperationException("This registry entry is not yet ready to be registered, or has already been registered!");
             }
-            string modNamePrefix = Gadgets.GetGadgetInfo(modRegistering).Attribute.Name + ":";
+            string modNamePrefix = Gadgets.GetGadgetInfo(gadgetRegistering).Attribute.Name + ":";
             bool hasPrefix = false;
             if (name != null)
             {
@@ -46,7 +46,17 @@ namespace GadgetCore.API
             int reservedID = Singleton.GetReservedID(registryName);
             if (reservedID >= 0 && preferredID < 0)
             {
-                preferredID = reservedID;
+                if (!Singleton.HasEntry(reservedID))
+                {
+                    preferredID = reservedID;
+                }
+                else
+                {
+                    GadgetCore.CoreLogger.LogWarning("Duplicate reserved " + Singleton.GetRegistryName() + " ID used by both `" + Singleton[reservedID].RegistryName + "` and `" +
+                        (registeringVanilla ? "Roguelands" : Gadgets.GetGadgetInfo(gadgetRegistering).Attribute.Name) + ":" + name + "`. The later has been allocated a new ID - " +
+                        "any instances of the later " + Singleton.GetRegistryName() + " in your save file will now load as the former.");
+                    Singleton.reservedIDs.Remove(registryName);
+                }
             }
             T typeEnum = entry.GetEntryType();
             int id = lastUsedIDs.ContainsKey(typeEnum) ? lastUsedIDs[typeEnum] : -1;
@@ -60,10 +70,10 @@ namespace GadgetCore.API
             {
                 id = preferredID;
             }
-            entry.ModID = modRegistering;
+            entry.ModID = gadgetRegistering;
             entry.ID = id;
             if (name == preferredID.ToString()) name = id.ToString();
-            entry.RegistryName = (registeringVanilla ? "Roguelands" : Gadgets.GetGadgetInfo(modRegistering).Attribute.Name) + ":" + name;
+            entry.RegistryName = (registeringVanilla ? "Roguelands" : Gadgets.GetGadgetInfo(gadgetRegistering).Attribute.Name) + ":" + name;
             Singleton.IDRegistry[entry.ID] = entry;
             Singleton.NameRegistry[entry.RegistryName] = entry;
             if (!registeringVanilla) Singleton.reservedIDs[entry.RegistryName] = id;
@@ -279,7 +289,7 @@ namespace GadgetCore.API
         internal Dictionary<string, int> reservedIDs;
 
         internal static bool registeringVanilla = false;
-        internal static int modRegistering = -1;
+        internal static int gadgetRegistering = -1;
 
         /// <summary>
         /// Gets the reserved ID for the registry entry with the specified registry name. Returns -1 if there is no ID reserved for that registry name.

@@ -1879,6 +1879,16 @@
             Called when the gadget hook script has a fixed update.
             </summary>
         </member>
+        <member name="E:GadgetCore.API.Gadget.OnLoad">
+            <summary>
+            Called after this Gadget is fully loaded and initialized.
+            </summary>
+        </member>
+        <member name="E:GadgetCore.API.Gadget.OnUnload">
+            <summary>
+            Called before this Gadget is unloaded.
+            </summary>
+        </member>
         <member name="M:GadgetCore.API.Gadget.GetModDescription">
             <summary>
             Returns the description of this Gadget. By default, returns null, which will cause the Gadget's ModInfo to be used as its description.
@@ -2261,7 +2271,7 @@
         </member>
         <member name="M:GadgetCore.API.GadgetCoreAPI.CreateMarketStand(GadgetCore.API.ItemInfo,UnityEngine.Vector2,System.Int32,System.Boolean,System.Boolean,System.Boolean)">
             <summary>
-            Creates a market stand.
+            Creates a market stand. If called on the title screen, will return null but a stand will still be created upon ship load.
             </summary>
             <param name="item">The item to sell</param>
             <param name="pos">The position to put the stand at</param>
@@ -2837,6 +2847,11 @@
             Checks if the network host has the specified registry.
             </summary>
         </member>
+        <member name="M:GadgetCore.API.GadgetNetwork.GetHostID``2(GadgetCore.API.RegistryEntry{``0,``1})">
+            <summary>
+            Gets the ID of this ItemInfo on the multiplayer host, saves the trouble of calling <see cref="M:GadgetCore.API.GadgetNetwork.ConvertIDToHost(GadgetCore.API.Registry,System.Int32)"/>
+            </summary>
+        </member>
         <member name="M:GadgetCore.API.GadgetNetwork.ConvertIDToHost(GadgetCore.API.Registry,System.Object@)">
             <summary>
             Gets the host ID that matches the specified local ID. The given ID MUST be an int. Returns -1 if the host does not have a matching ID for the specified local ID.
@@ -2905,6 +2920,14 @@
         <member name="M:GadgetCore.API.GadgetNetwork.GetLocalSyncVar``1(System.String,System.String)">
             <summary>
             Gets the value of a local SyncVar, for a given player.
+            </summary>
+        </member>
+        <member name="E:GadgetCore.API.GadgetNetwork.OnMatrixReady">
+            <summary>
+            Invoked once the ID Conversion Matrix is ready for use. Bool parameter is true if the host has GadgetCore installed.
+            Warning: In cases of high latency, this event may be invoked twice. The first time with a false parameter suggesting the host is vanilla,
+            the second time with a true parameter once the modded Matrix connection is initialized. As such, you most likely only want to utilize
+            this event when the parameter is true.
             </summary>
         </member>
         <member name="T:GadgetCore.API.GadgetPaths">
@@ -5123,7 +5146,7 @@
         </member>
         <member name="E:GadgetCore.API.TileInfo.OnInteract">
             <summary>
-            Called when this tile is interacted with. Will only ever be called if the Prop's layer is 12, which it will automatically be set to if the Tyspe is specified as INTERACTIVE
+            Called when this tile is interacted with. Will only ever be called if the Prop's layer is 12, which it will automatically be set to if the Type is specified as INTERACTIVE
             </summary>
         </member>
         <member name="T:GadgetCore.API.TileRegistry">
@@ -5146,18 +5169,14 @@
             Gets the default type of the given ID, assuming that it is a vanilla ID.
             </summary>
         </member>
-        <member name="M:GadgetCore.API.TileRegistry.Register(GadgetCore.API.TileInfo,System.String,System.Int32,System.Boolean)">
-            <summary>
-            Used to register a registry entry to this registry. You should probably use the Register method on that registry entry instead.
-            </summary>
-            <param name="entry">The RegistryEntry to register.</param>
-            <param name="name">The registry name to use.</param>
-            <param name="preferredID">If specified, will use this registry ID.</param>
-            <param name="overrideExisting">If false, will not register if the preferred ID is already used. Ignored if no preferred ID is specified.</param>
-        </member>
         <member name="M:GadgetCore.API.TileRegistry.GetIDByPropName(System.String)">
             <summary>
             Gets the ID of the TileInfo whose prop has the given name.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.TileRegistry.PostRegistration(GadgetCore.API.TileInfo)">
+            <summary>
+            Called after the specified Registry Entry has been registered. You should never call this yourself. Note that this is called before <see cref="M:GadgetCore.API.RegistryEntry`2.PostRegister"/>
             </summary>
         </member>
         <member name="M:GadgetCore.API.TileRegistry.GetIDStart">

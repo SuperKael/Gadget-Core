@@ -12,7 +12,7 @@ namespace GadgetCore.API
         /// </summary>
         public const string REGISTRY_NAME = "Tile";
 
-        private static Dictionary<string, int> IDsByPropName = new Dictionary<string, int>();
+        private static readonly Dictionary<string, int> IDsByPropName = new Dictionary<string, int>();
 
         /// <summary>
         /// Gets the name of this registry. Must be constant. Returns <see cref="REGISTRY_NAME"/>.
@@ -34,20 +34,6 @@ namespace GadgetCore.API
         }
 
         /// <summary>
-        /// Used to register a registry entry to this registry. You should probably use the Register method on that registry entry instead.
-        /// </summary>
-        /// <param name="entry">The RegistryEntry to register.</param>
-        /// <param name="name">The registry name to use.</param>
-        /// <param name="preferredID">If specified, will use this registry ID.</param>
-        /// <param name="overrideExisting">If false, will not register if the preferred ID is already used. Ignored if no preferred ID is specified.</param>
-        public override int Register(TileInfo entry, string name, int preferredID = -1, bool overrideExisting = true)
-        {
-            int id = base.Register(entry, name, preferredID < 0 && entry.Item != null ? entry.Item.ID : preferredID, overrideExisting);
-            if (entry.Type == TileType.INTERACTIVE && entry.Prop != null) IDsByPropName.Add(entry.Prop.name, id);
-            return id;
-        }
-
-        /// <summary>
         /// Gets the ID of the TileInfo whose prop has the given name.
         /// </summary>
         public static int GetIDByPropName(string name)
@@ -60,6 +46,14 @@ namespace GadgetCore.API
             {
                 return -1;
             }
+        }
+
+        /// <summary>
+        /// Called after the specified Registry Entry has been registered. You should never call this yourself. Note that this is called before <see cref="RegistryEntry{E, T}.PostRegister"/>
+        /// </summary>
+        protected override void PostRegistration(TileInfo entry)
+        {
+            if (entry.Type == TileType.INTERACTIVE && entry.Prop != null) IDsByPropName.Add(entry.Prop.name, entry.GetID());
         }
 
         /// <summary>

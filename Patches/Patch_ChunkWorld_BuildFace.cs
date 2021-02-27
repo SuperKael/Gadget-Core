@@ -12,6 +12,7 @@ namespace GadgetCore.Patches
         [HarmonyPrefix]
         public static bool Prefix(ChunkWorld __instance, byte brick, Vector3 corner, Vector3 up, Vector3 right, bool reversed, List<Vector3> verts, List<Vector2> uvs, List<int> tris, int id, int face)
         {
+            int count = verts.Count;
             if (TileRegistry.Singleton.HasEntry(id))
             {
                 TileInfo tile = TileRegistry.Singleton.GetEntry(id);
@@ -69,21 +70,21 @@ namespace GadgetCore.Patches
                 }
                 if (reversed)
                 {
-                    tris.Add(verts.Count);
-                    tris.Add(verts.Count + 1);
-                    tris.Add(verts.Count + 2);
-                    tris.Add(verts.Count + 2);
-                    tris.Add(verts.Count + 3);
-                    tris.Add(verts.Count);
+                    tris.Add(count);
+                    tris.Add(count + 1);
+                    tris.Add(count + 2);
+                    tris.Add(count + 2);
+                    tris.Add(count + 3);
+                    tris.Add(count);
                 }
                 else
                 {
-                    tris.Add(verts.Count + 1);
-                    tris.Add(verts.Count);
-                    tris.Add(verts.Count + 2);
-                    tris.Add(verts.Count + 3);
-                    tris.Add(verts.Count + 2);
-                    tris.Add(verts.Count);
+                    tris.Add(count + 1);
+                    tris.Add(count);
+                    tris.Add(count + 2);
+                    tris.Add(count + 3);
+                    tris.Add(count + 2);
+                    tris.Add(count);
                 }
                 return false;
             }
@@ -105,21 +106,21 @@ namespace GadgetCore.Patches
 
                 if (reversed)
                 {
-                    tris.Add(verts.Count);
-                    tris.Add(verts.Count + 1);
-                    tris.Add(verts.Count + 2);
-                    tris.Add(verts.Count + 2);
-                    tris.Add(verts.Count + 3);
-                    tris.Add(verts.Count);
+                    tris.Add(count);
+                    tris.Add(count + 1);
+                    tris.Add(count + 2);
+                    tris.Add(count + 2);
+                    tris.Add(count + 3);
+                    tris.Add(count);
                 }
                 else
                 {
-                    tris.Add(verts.Count + 1);
-                    tris.Add(verts.Count);
-                    tris.Add(verts.Count + 2);
-                    tris.Add(verts.Count + 3);
-                    tris.Add(verts.Count + 2);
-                    tris.Add(verts.Count);
+                    tris.Add(count + 1);
+                    tris.Add(count);
+                    tris.Add(count + 2);
+                    tris.Add(count + 3);
+                    tris.Add(count + 2);
+                    tris.Add(count);
                 }
                 return false;
             }

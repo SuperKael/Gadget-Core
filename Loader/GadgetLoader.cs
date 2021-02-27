@@ -500,8 +500,8 @@ namespace GadgetCore.Loader
                 Logger.Log("Initializing Gadget '" + gadget.Attribute.Name + "'");
                 try
                 {
-                    Registry.modRegistering = gadget.Gadget.ModID;
-                    gadget.Gadget.Initialize();
+                    Registry.gadgetRegistering = gadget.Gadget.ModID;
+                    gadget.Gadget.LoadInternal();
                 }
                 catch (Exception e)
                 {
@@ -513,7 +513,7 @@ namespace GadgetCore.Loader
                 }
                 finally
                 {
-                    Registry.modRegistering = -1;
+                    Registry.gadgetRegistering = -1;
                 }
             }
             Logger.Log("Done initializing Gadgets.");
@@ -527,7 +527,7 @@ namespace GadgetCore.Loader
             foreach (GadgetInfo gadget in QueuedGadgets)
             {
                 Logger.Log("Unloading Gadget '" + gadget.Attribute.Name + "'");
-                gadget.Gadget.Unload();
+                gadget.Gadget.UnloadInternal();
                 LootTables.RemoveModEntries(gadget.Gadget.ModID);
                 GadgetCoreAPI.RemoveModResources(gadget.Gadget.ModID);
                 GadgetCoreAPI.UnregisterGadgetRPCs(gadget.Gadget.ModID);

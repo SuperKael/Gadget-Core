@@ -602,8 +602,8 @@ namespace GadgetCore.API
             CraftValidators.Add(CraftValidator);
             CraftPerformers.Add(CraftPerformer);
             CraftFinalizers.Add(CraftFinalizer);
-            CraftPerformerModIDs.Add(Registry.modRegistering);
-            CraftPerformerInitModIDs.Add(Registry.modRegistering);
+            CraftPerformerModIDs.Add(Registry.gadgetRegistering);
+            CraftPerformerInitModIDs.Add(Registry.gadgetRegistering);
             return CraftPerformers.Count - 1;
         }
 
@@ -641,7 +641,7 @@ namespace GadgetCore.API
             CraftValidators[index] = CraftValidator ?? throw new ArgumentNullException("CraftValidator cannot be null!");
             CraftPerformers[index] = CraftPerformer ?? throw new ArgumentNullException("CraftPerformer cannot be null!");
             CraftFinalizers[index] = CraftFinalizer;
-            CraftPerformerModIDs[index] = Registry.modRegistering;
+            CraftPerformerModIDs[index] = Registry.gadgetRegistering;
             return CraftPerformers.Count - 1;
         }
 

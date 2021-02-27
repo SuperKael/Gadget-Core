@@ -131,7 +131,7 @@ namespace GadgetCore
         /// </summary>
         public static void RegisterCommand(string name, bool operatorOnly, ConsoleCommand command, string helpDesc, string fullHelp = null, params string[] aliases)
         {
-            if (!Registry.registeringVanilla && Registry.modRegistering < 0) throw new InvalidOperationException("Command registration may only be performed by the Initialize method of a Gadget!");
+            if (!Registry.registeringVanilla && Registry.gadgetRegistering < 0) throw new InvalidOperationException("Command registration may only be performed by the Initialize method of a Gadget!");
             name = name.ToLowerInvariant();
             if (commands.ContainsKey(name))
             {
@@ -140,8 +140,8 @@ namespace GadgetCore
             if (name == "all") throw new InvalidOperationException(name + " is a reserved command name!");
             if (name.All(x => x >= '0' && x <= '9')) throw new InvalidOperationException("A command name may not be a number!");
             commands[name] = command;
-            if (!gadgetCommands.ContainsKey(Registry.modRegistering)) gadgetCommands.Add(Registry.modRegistering, new List<string>());
-            if (!gadgetCommands[Registry.modRegistering].Contains(name)) gadgetCommands[Registry.modRegistering].Add(name);
+            if (!gadgetCommands.ContainsKey(Registry.gadgetRegistering)) gadgetCommands.Add(Registry.gadgetRegistering, new List<string>());
+            if (!gadgetCommands[Registry.gadgetRegistering].Contains(name)) gadgetCommands[Registry.gadgetRegistering].Add(name);
             isOperatorOnly[name] = operatorOnly;
             helpDescriptions[name] = helpDesc;
             if (fullHelp != null) fullHelps[name] = fullHelp;
@@ -298,6 +298,7 @@ namespace GadgetCore
                 textComponent.rectTransform.anchorMax = new Vector2(0f, 1f);
                 textComponent.rectTransform.offsetMin = new Vector2(0f, 0f);
                 textComponent.rectTransform.offsetMax = new Vector2(0f, 0f);
+                textComponent.raycastTarget = i == 0;
                 textComponent.horizontalOverflow = HorizontalWrapMode.Wrap;
                 textComponent.verticalOverflow = VerticalWrapMode.Overflow;
                 textComponent.supportRichText = true;
@@ -594,9 +595,9 @@ namespace GadgetCore
         static GadgetConsole()
         {
             bool wasRegisteringVanilla = Registry.registeringVanilla;
-            int wasModRegistering = Registry.modRegistering;
+            int wasModRegistering = Registry.gadgetRegistering;
             Registry.registeringVanilla = true;
-            Registry.modRegistering = -1;
+            Registry.gadgetRegistering = -1;
 
             RegisterCommand("help", false, CoreCommands.Help,
                 "Provides the help page you are seeing right now.",
@@ -630,7 +631,7 @@ namespace GadgetCore
                 "debug");
 
             Registry.registeringVanilla = wasRegisteringVanilla;
-            Registry.modRegistering = wasModRegistering;
+            Registry.gadgetRegistering = wasModRegistering;
         }
 
         /// <summary>

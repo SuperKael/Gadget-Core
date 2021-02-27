@@ -49,12 +49,13 @@ namespace GadgetCore.API
                 list.AddRange(gadgets.Values.Where(x => x.Attribute.LoadAfter.Contains(info.Attribute.Name)));
                 orderDependencies[info] = list;
             }
-            LoadOrderTree = new MultiTreeList<GadgetInfo>(orderDependencies).MakeReadOnly();
+            LoadOrderTree = new MultiTreeList<GadgetInfo>(orderDependencies);
             foreach (MultiTreeList<GadgetInfo> node in LoadOrderTree.SelectMany(x => x.ListAllNodes()))
             {
                 node.Sort((x, y) => x.Value.Attribute.LoadPriority - y.Value.Attribute.LoadPriority);
             }
             sortedGadgetList = LoadOrderTree.FlattenUniqueByBreadth().Where(x => x != null).ToList();
+            LoadOrderTree.MakeReadOnly();
             for (int i = 0; i < sortedGadgetList.Count; i++) sortedGadgetList[i].Gadget.ModID = i;
             foreach (GadgetInfo gadget in sortedGadgetList)
             {

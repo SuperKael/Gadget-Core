@@ -10,6 +10,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace GadgetCore.API
 {
@@ -21,11 +22,11 @@ namespace GadgetCore.API
         /// <summary>
         /// The version numbers for this version of Gadget Core. You generally shouldn't access this directly, instead use <see cref="GetRawVersion()"/>
         /// </summary>
-        public const string RAW_VERSION = "2.0.3.6";
+        public const string RAW_VERSION = "2.0.3.7";
         /// <summary>
         /// A slightly more informative version. You generally shouldn't access this directly, instead use <see cref="GetFullVersion()"/>
         /// </summary>
-        public const string FULL_VERSION = "2.0.3.6 - Mod Browser Edition";
+        public const string FULL_VERSION = "2.0.3.7 - Mod Browser Edition";
         /// <summary>
         /// Indicates whether this version of GadgetCore is a beta version. You generally shouldn't access this directly, instead use <see cref="GetIsBeta()"/>
         /// </summary>
@@ -209,7 +210,7 @@ namespace GadgetCore.API
         }
 
         /// <summary>
-        /// Creates a market stand.
+        /// Creates a market stand. If called on the title screen, will return null but a stand will still be created upon ship load.
         /// </summary>
         /// <param name="item">The item to sell</param>
         /// <param name="pos">The position to put the stand at</param>
@@ -219,22 +220,37 @@ namespace GadgetCore.API
         /// <param name="isTrophies">If isBuild, isCredits, and isTrophies are true, costs wealth trophies instead of credits.</param>
         public static GameObject CreateMarketStand(ItemInfo item, Vector2 pos, int cost, bool isBuild = true, bool isCredits = false, bool isTrophies = false)
         {
-            GameObject shopStand = UnityEngine.Object.Instantiate(SceneInjector.BuildStand, SceneInjector.BuildStand.transform.parent);
-            shopStand.transform.localPosition = new Vector3(pos.x, pos.y, SceneInjector.BuildStand.transform.position.z);
-            shopStand.name = isBuild ? "buildStand" : "kylockeStand";
-            KylockeStand standScript = shopStand.GetComponent<KylockeStand>();
-            standScript.isTrophies = isTrophies;
-            standScript.isCredits = isCredits;
-            standScript.isBuild = isBuild;
-            standScript.itemID = item.ID;
-            standScript.cost = cost;
-            standScript.currency.GetComponent<MeshRenderer>().material = isBuild ? isCredits ? isTrophies ? GetItemMaterial(59) : GetItemMaterial(52) : GetItemMaterial(57) : GetItemMaterial(51);
-            standScript.icon.GetComponent<MeshRenderer>().material = item.Mat;
-            standScript.txtName[0].text = item.GetName();
-            standScript.txtName[1].text = standScript.txtName[0].text;
-            standScript.txtCost[0].text = string.Empty + standScript.cost;
-            standScript.txtCost[1].text = standScript.txtCost[0].text;
-            return shopStand;
+            if (SceneManager.GetActiveScene().buildIndex != 0)
+            {
+                if (Network.isServer && GadgetNetwork.MatrixReady)
+                {
+                    return RPCHooks.Singleton.CreateMarketStand(item, pos, cost, isBuild, isCredits, isTrophies);
+                }
+                else
+                {
+                    throw Network.isServer ? new InvalidOperationException("Market stands cannot be created when the ID Conversion Matrix is not yet ready!") : new InvalidOperationException("Only the host may create market stands!");
+                }
+            }
+            else
+            {
+                if (!Registry.registeringVanilla && Registry.gadgetRegistering < 0) throw new InvalidOperationException("Market stands may only be created on the title screen by the Initialize method of a Gadget!");
+                Gadget gadget = Gadgets.GetGadget(Registry.gadgetRegistering);
+                void onMatrixReadyHandler(bool b)
+                {
+                    if (b && SceneManager.GetActiveScene().buildIndex == 1 && Network.isServer)
+                    {
+                        RPCHooks.Singleton.CreateMarketStand(item, pos, cost, isBuild, isCredits, isTrophies);
+                    }
+                }
+                void onGadgetUnloadHandler()
+                {
+                    GadgetNetwork.OnMatrixReady -= onMatrixReadyHandler;
+                    gadget.OnUnload -= onGadgetUnloadHandler;
+                }
+                GadgetNetwork.OnMatrixReady += onMatrixReadyHandler;
+                gadget.OnUnload += onGadgetUnloadHandler;
+                return null;
+            }
         }
 
         /// <summary>
@@ -696,11 +712,11 @@ namespace GadgetCore.API
         /// </summary>
         public static void RegisterCustomRPC(string name, Action<object[]> rpc)
         {
-            if (!Registry.registeringVanilla && Registry.modRegistering < 0) throw new InvalidOperationException("Data registration may only be performed by the Initialize method of a Gadget!");
+            if (!Registry.registeringVanilla && Registry.gadgetRegistering < 0) throw new InvalidOperationException("Data registration may only be performed by the Initialize method of a Gadget!");
             if (name == null) throw new ArgumentNullException("name");
             customRPCs[name] = rpc ?? throw new ArgumentNullException("rpc");
-            if (!customRPCGadgets.ContainsKey(Registry.modRegistering)) customRPCGadgets.Add(Registry.modRegistering, new List<string>());
-            if (!customRPCGadgets[Registry.modRegistering].Contains(name)) customRPCGadgets[Registry.modRegistering].Add(name);
+            if (!customRPCGadgets.ContainsKey(Registry.gadgetRegistering)) customRPCGadgets.Add(Registry.gadgetRegistering, new List<string>());
+            if (!customRPCGadgets[Registry.gadgetRegistering].Contains(name)) customRPCGadgets[Registry.gadgetRegistering].Add(name);
         }
 
         internal static void UnregisterGadgetRPCs(int modID)
@@ -750,7 +766,7 @@ namespace GadgetCore.API
         /// <param name="resource">The resource to register.</param>
         public static void AddCustomResource(string path, UnityEngine.Object resource)
         {
-            if (!Registry.registeringVanilla && Registry.modRegistering < 0) throw new InvalidOperationException("Data registration may only be performed by the Initialize method of a Gadget!");
+            if (!Registry.registeringVanilla && Registry.gadgetRegistering < 0) throw new InvalidOperationException("Data registration may only be performed by the Initialize method of a Gadget!");
             if (resource is GameObject obj)
             {
                 if (obj.transform.parent != null) throw new InvalidOperationException("Cannot add an object with a parent as a custom resource!");
@@ -763,8 +779,8 @@ namespace GadgetCore.API
             resource.hideFlags |= HideFlags.HideInInspector;
             resources[path] = resource;
             resourcePaths[resource.GetInstanceID()] = path;
-            if (!modResources.ContainsKey(Registry.modRegistering)) modResources.Add(Registry.modRegistering, new List<int>());
-            if (!modResources[Registry.modRegistering].Contains(resource.GetInstanceID())) modResources[Registry.modRegistering].Add(resource.GetInstanceID());
+            if (!modResources.ContainsKey(Registry.gadgetRegistering)) modResources.Add(Registry.gadgetRegistering, new List<int>());
+            if (!modResources[Registry.gadgetRegistering].Contains(resource.GetInstanceID())) modResources[Registry.gadgetRegistering].Add(resource.GetInstanceID());
         }
 
         internal static void RemoveModResources(int modID)
@@ -784,7 +800,7 @@ namespace GadgetCore.API
         /// <param name="sprite">The Texture2D to register to the spritesheet</param>
         public static SpriteSheetEntry AddTextureToSheet(Texture2D sprite)
         {
-            if (!Registry.registeringVanilla && Registry.modRegistering < 0) throw new InvalidOperationException("Data registration may only be performed by the Initialize method of a Gadget!");
+            if (!Registry.registeringVanilla && Registry.gadgetRegistering < 0) throw new InvalidOperationException("Data registration may only be performed by the Initialize method of a Gadget!");
             SpriteSheetEntry entry = new SpriteSheetEntry(sprite, spriteSheetSprites.Count);
             spriteSheetSprites.Add(entry);
             return entry;
@@ -1068,9 +1084,9 @@ namespace GadgetCore.API
         /// <param name="type"></param>
         public static void RegisterStatModifier(StatModifier modifier, StatModifierType type)
         {
-            if (!Registry.registeringVanilla && Registry.modRegistering < 0) throw new InvalidOperationException("Stat modifiers may only be registered by the Initialize method of a Gadget!");
+            if (!Registry.registeringVanilla && Registry.gadgetRegistering < 0) throw new InvalidOperationException("Stat modifiers may only be registered by the Initialize method of a Gadget!");
             if (!statModifiers.ContainsKey(type)) statModifiers.Add(type, new List<Tuple<StatModifier, int>>());
-            statModifiers[type].Add(Tuple.Create(modifier, Registry.modRegistering));
+            statModifiers[type].Add(Tuple.Create(modifier, Registry.gadgetRegistering));
         }
 
         internal static void UnregisterStatModifiers(int modID)

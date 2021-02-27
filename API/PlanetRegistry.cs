@@ -68,16 +68,16 @@ namespace GadgetCore.API
         /// </summary>
         public static void SetVanillaExitPortalWeight(int planetID, int portalID, int weight)
         {
-            if (!registeringVanilla && modRegistering < 0) throw new InvalidOperationException("Data registration may only be performed by the Initialize method of a Gadget!");
+            if (!registeringVanilla && gadgetRegistering < 0) throw new InvalidOperationException("Data registration may only be performed by the Initialize method of a Gadget!");
             if (planetID < 0 || planetID > VanillaWeightedExitPortalIDs.Length) throw new ArgumentOutOfRangeException("planetID");
-            int index = VanillaWeightedExitPortalIDs[planetID].IndexOf(x => x.Item3 == Registry.modRegistering);
+            int index = VanillaWeightedExitPortalIDs[planetID].IndexOf(x => x.Item3 == Registry.gadgetRegistering);
             if (index != -1)
             {
-                VanillaWeightedExitPortalIDs[planetID][index] = Tuple.Create(portalID, weight, modRegistering);
+                VanillaWeightedExitPortalIDs[planetID][index] = Tuple.Create(portalID, weight, gadgetRegistering);
             }
             else
             {
-                VanillaWeightedExitPortalIDs[planetID].Add(Tuple.Create(portalID, weight, modRegistering));
+                VanillaWeightedExitPortalIDs[planetID].Add(Tuple.Create(portalID, weight, gadgetRegistering));
             }
         }
 
