@@ -1,7 +1,9 @@
 ﻿using GadgetCore.API;
 using GadgetCore.Util;
+using System;
 using System.IO;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace GadgetCore.CoreMod
 {
@@ -20,6 +22,8 @@ namespace GadgetCore.CoreMod
         /// </summary>
         public TileInfo crafterTile;
 
+        private Action<bool> onMatrixReadyHandler;
+
         /// <summary>
         /// Called during gadget initialization. All data registration should be done from this method.
         /// </summary>
@@ -29,7 +33,7 @@ namespace GadgetCore.CoreMod
             crafterItem = new ItemInfo(ItemType.GENERIC, "Crafter Block", "Used for crafting\nmodded items.", crafterItemTex).Register("Crafter Block");
 
             Texture2D crafterTileTex = GadgetCoreAPI.LoadTexture2D("Core Mod/Universal Crafter/tile_tex");
-            GameObject crafterProp = Object.Instantiate(GadgetCoreAPI.GetPlaceableNPCResource(2101));
+            GameObject crafterProp = UnityEngine.Object.Instantiate(GadgetCoreAPI.GetPlaceableNPCResource(2101));
             crafterProp.name = "Universal Crafter";
             crafterProp.transform.GetChild(0).GetComponent<MeshRenderer>().material = new Material(Shader.Find("Unlit/Transparent"))
             {
@@ -57,6 +61,20 @@ namespace GadgetCore.CoreMod
                 GadgetCoreAPI.LoadTexture2D("Core Mod/Universal Crafter/menu_tex"), GadgetCoreAPI.LoadTexture2D("Core Mod/Universal Crafter/bar_tex"),
                 GadgetCoreAPI.LoadTexture2D("Core Mod/Universal Crafter/button0_tex"), GadgetCoreAPI.LoadTexture2D("Core Mod/Universal Crafter/button1_tex"), GadgetCoreAPI.LoadTexture2D("Core Mod/Universal Crafter/button2_tex"),
                 GadgetCoreAPI.LoadAudioClip("Core Mod/Universal Crafter/craft_au"), null, crafterTile);
+
+            GadgetNetwork.OnMatrixReady += onMatrixReadyHandler = (b) =>
+            {
+                if (MenuRegistry.Singleton["Gadget Core:Crafter Menu"] is CraftMenuInfo craftMenu && craftMenu.CraftPerformers.Count > 0
+                && b && SceneManager.GetActiveScene().buildIndex == 1 && Network.isServer) GadgetCoreAPI.CreateMarketStand(crafterItem, new Vector2(-138f, -7.49f), 10);
+            };
+        }
+
+        /// <summary>
+        /// Called when this gadget is unloaded or reloaded. 
+        /// </summary>
+        protected internal override void Unload()
+        {
+            GadgetNetwork.OnMatrixReady -= onMatrixReadyHandler;
         }
 
         /// <summary>

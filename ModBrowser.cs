@@ -99,7 +99,7 @@ namespace GadgetCore
                 Array.ForEach(SceneInjector.ModConfigMenuText.GetComponentsInChildren<TextMesh>(), x => { x.text = "MOD BROWSER"; x.anchor = TextAnchor.UpperCenter; });
                 Singleton.BrowserButtonText.text = "Mod Menu";
                 Singleton.gameObject.SetActive(true);
-                if (gitHubAuthToken != null)
+                if (!string.IsNullOrEmpty(gitHubAuthToken))
                 {
                     gitHubAuthHeaders["Authorization"] = $"token {gitHubAuthToken}";
                 }

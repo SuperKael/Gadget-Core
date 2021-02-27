@@ -104,11 +104,6 @@ namespace GadgetCore
 
             BuildStand = GameObject.Find("Ship").transform.Find("SHIPPLACES").Find("buildStand").gameObject;
 
-            if (MenuRegistry.Singleton["Gadget Core:Crafter Menu"] is CraftMenuInfo craftMenu && craftMenu.CraftPerformers.Count > 0)
-            {
-                GadgetCoreAPI.CreateMarketStand(ItemRegistry.Singleton["Gadget Core:Crafter Block"], new Vector2(-138f, -7.49f), 10);
-            }
-
             PlanetRegistry.PlanetSelectorPage = 1;
             int totalPages = PlanetRegistry.PlanetSelectorPages;
 

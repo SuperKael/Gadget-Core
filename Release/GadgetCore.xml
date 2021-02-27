@@ -5572,6 +5572,11 @@
             Called during gadget initialization. All data registration should be done from this method.
             </summary>
         </member>
+        <member name="M:GadgetCore.CoreMod.GadgetCoreMod.Unload">
+            <summary>
+            Called when this gadget is unloaded or reloaded. 
+            </summary>
+        </member>
         <member name="M:GadgetCore.CoreMod.GadgetCoreMod.GetModDescription">
             <summary>
             Returns this mod's description.

@@ -22,11 +22,11 @@ namespace GadgetCore.API
         /// <summary>
         /// The version numbers for this version of Gadget Core. You generally shouldn't access this directly, instead use <see cref="GetRawVersion()"/>
         /// </summary>
-        public const string RAW_VERSION = "2.0.3.7";
+        public const string RAW_VERSION = "2.0.3.8";
         /// <summary>
         /// A slightly more informative version. You generally shouldn't access this directly, instead use <see cref="GetFullVersion()"/>
         /// </summary>
-        public const string FULL_VERSION = "2.0.3.7 - Mod Browser Edition";
+        public const string FULL_VERSION = "2.0.3.8 - Mod Browser Edition";
         /// <summary>
         /// Indicates whether this version of GadgetCore is a beta version. You generally shouldn't access this directly, instead use <see cref="GetIsBeta()"/>
         /// </summary>
@@ -228,7 +228,9 @@ namespace GadgetCore.API
                 }
                 else
                 {
-                    throw Network.isServer ? new InvalidOperationException("Market stands cannot be created when the ID Conversion Matrix is not yet ready!") : new InvalidOperationException("Only the host may create market stands!");
+                    throw Network.isServer ? new InvalidOperationException("Market stands cannot be created when the ID Conversion Matrix is not yet ready!") :
+                        Network.isClient ? new InvalidOperationException("Only the host may create market stands!") :
+                        new InvalidOperationException("Cannot create market stands when the network has not yet initialized!");
                 }
             }
             else

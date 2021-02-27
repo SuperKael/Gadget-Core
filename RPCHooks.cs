@@ -178,13 +178,14 @@ namespace GadgetCore
 
         internal GameObject CreateMarketStand(ItemInfo item, Vector2 pos, int cost, bool isBuild, bool isCredits, bool isTrophies)
         {
+            Vector3 pos3d = new Vector3(pos.x, pos.y, SceneInjector.BuildStand.transform.position.z);
             NetworkViewID viewID = Network.AllocateViewID();
-            Singleton.GetComponent<NetworkView>().RPC("RPCCreateMarketStand", RPCMode.OthersBuffered, item.GetHostID(), pos, cost, isBuild, isCredits, isTrophies, viewID);
+            Singleton.GetComponent<NetworkView>().RPC("RPCCreateMarketStand", RPCMode.OthersBuffered, item.GetHostID(), pos3d, cost, isBuild, isCredits, isTrophies, viewID);
             GameObject shopStand = Instantiate(SceneInjector.BuildStand, SceneInjector.BuildStand.transform.parent);
             NetworkView view = shopStand.GetComponent<NetworkView>();
             if (view == null) view = shopStand.AddComponent<NetworkView>();
             view.viewID = viewID;
-            shopStand.transform.localPosition = new Vector3(pos.x, pos.y, SceneInjector.BuildStand.transform.position.z);
+            shopStand.transform.localPosition = pos3d;
             shopStand.name = isBuild ? "buildStand" : "kylockeStand";
             KylockeStand standScript = shopStand.GetComponent<KylockeStand>();
             standScript.isTrophies = isTrophies;
@@ -202,7 +203,7 @@ namespace GadgetCore
         }
 
         [RPC]
-        internal void RPCCreateMarketStand(int itemID, Vector2 pos, int cost, bool isBuild, bool isCredits, bool isTrophies, NetworkViewID viewID)
+        internal void RPCCreateMarketStand(int itemID, Vector3 pos, int cost, bool isBuild, bool isCredits, bool isTrophies, NetworkViewID viewID)
         {
             ItemInfo item = ItemRegistry.Singleton[ItemRegistry.Singleton.ConvertIDToLocal(itemID)];
             GameObject shopStand = Instantiate(SceneInjector.BuildStand, SceneInjector.BuildStand.transform.parent);
