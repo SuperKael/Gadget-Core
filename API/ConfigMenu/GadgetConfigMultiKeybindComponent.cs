@@ -119,7 +119,7 @@ namespace GadgetCore.API.ConfigMenu
                 buttonLabel.rectTransform.offsetMax = new Vector2(-2.5f, -2.5f);
                 buttonLabel.font = SceneInjector.ModConfigMenuText.GetComponent<TextMesh>().font;
                 buttonLabel.horizontalOverflow = HorizontalWrapMode.Wrap;
-                buttonLabel.verticalOverflow = VerticalWrapMode.Truncate;
+                buttonLabel.verticalOverflow = VerticalWrapMode.Overflow;
                 buttonLabel.alignment = TextAnchor.MiddleCenter;
                 buttonLabel.text = Value[i];
                 float buttonWidth = Math.Min(Height / Value.Length / (Screen.width / Screen.height), 0.125f);

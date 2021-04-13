@@ -635,7 +635,7 @@ namespace GadgetCore
                             string message = responseObject.Value<string>("message");
                             if (message != null && message.StartsWith("API rate limit exceeded"))
                             {
-                                GadgetCore.CoreLogger.LogWarning("GitHub API Rate limit exceeded! Please wait one hour before for it to reset.");
+                                GadgetCore.CoreLogger.LogWarning("GitHub API Rate limit exceeded! Please wait one hour for it to reset.");
                                 modEntry.Info["Error"] = "GitHub Rate Limit Exceeded!";
                                 Singleton.UnlimitButton.gameObject.SetActive(string.IsNullOrEmpty(gitHubAuthToken));
                             }

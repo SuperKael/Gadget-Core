@@ -90,6 +90,7 @@ namespace GadgetCore.API.ConfigMenu
             placeholder.font = SceneInjector.ModConfigMenuText.GetComponent<TextMesh>().font;
             placeholder.fontSize = 12;
             placeholder.horizontalOverflow = HorizontalWrapMode.Wrap;
+            placeholder.verticalOverflow = VerticalWrapMode.Overflow;
             placeholder.alignment = TextAnchor.MiddleLeft;
             placeholder.color = new Color(1f, 1f, 1f, 0.5f);
             textbox.placeholder = placeholder;
@@ -102,6 +103,7 @@ namespace GadgetCore.API.ConfigMenu
             text.font = SceneInjector.ModConfigMenuText.GetComponent<TextMesh>().font;
             text.fontSize = 12;
             text.horizontalOverflow = HorizontalWrapMode.Wrap;
+            text.verticalOverflow = VerticalWrapMode.Overflow;
             text.supportRichText = true;
             text.alignment = TextAnchor.MiddleLeft;
             textbox.textComponent = text;

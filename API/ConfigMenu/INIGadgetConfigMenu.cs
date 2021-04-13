@@ -98,14 +98,14 @@ namespace GadgetCore.API.ConfigMenu
                 }
             }
             ConfigFileSection = section;
-            if (Ini.Sections.ContainsSection("uModFramework") && Ini["uModFramework"].ContainsKey("ConfigVersion")) AddComponent(new GadgetConfigLabelComponent(this, "ConfigVersion", "Config Version (not to be confused with mod version): " + Ini["uModFramework"]["ConfigVersion"]), GadgetConfigComponentAlignment.HEADER);
+            if (Ini.Sections.ContainsSection("uModFramework") && Ini["uModFramework"].ContainsKey("ConfigVersion")) AddComponent(new GadgetConfigLabelComponent(this, "ConfigVersion", "Config Version (not to be confused with mod version): " + Ini["uModFramework"]["ConfigVersion"], allowHeightResize: true), GadgetConfigComponentAlignment.HEADER);
             bool firstStandard = true, firstHeader = false, firstFooter = true;
             foreach (KeyData keyData in Ini[section])
             {
                 if (keyData == null) continue;
                 if (keyData.KeyName == "ConfigVersion")
                 {
-                    AddComponent(new GadgetConfigLabelComponent(this, "ConfigVersion", "Config Version (not to be confused with mod version): " + keyData.Value), GadgetConfigComponentAlignment.HEADER);
+                    AddComponent(new GadgetConfigLabelComponent(this, "ConfigVersion", "Config Version (not to be confused with mod version): " + keyData.Value, allowHeightResize: true), GadgetConfigComponentAlignment.HEADER);
                     continue;
                 }
                 GadgetConfigComponentAlignment alignment = default;

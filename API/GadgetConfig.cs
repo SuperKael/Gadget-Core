@@ -332,11 +332,11 @@ namespace GadgetCore.API
             Type underlyingT = Nullable.GetUnderlyingType(typeof(T)) ?? typeof(T);
             if (range != null && range.Length > 0 && range.Any(x => x != null))
             {
-                commentList.Add("[Type: " + (underlyingT.IsEnum ? "Enum-" + underlyingT.AssemblyQualifiedName : underlyingT.Name) + " | Range: " + range.Where(x => x != null).Select(x => x.ToString()).Concat() + "]");
+                commentList.Add("[Type: " + (underlyingT.IsEnum && !typeof(KeyCode).IsAssignableFrom(underlyingT) ? "Enum-" + underlyingT.AssemblyQualifiedName : underlyingT.Name) + " | Range: " + range.Where(x => x != null).Select(x => x.ToString()).Concat() + "]");
             }
             else
             {
-                commentList.Add("[Type: " + (underlyingT.IsEnum ? "Enum-" + underlyingT.AssemblyQualifiedName : underlyingT.Name) + "]");
+                commentList.Add("[Type: " + (underlyingT.IsEnum && !typeof(KeyCode).IsAssignableFrom(underlyingT) ? "Enum-" + underlyingT.AssemblyQualifiedName : underlyingT.Name) + "]");
             }
             if (allowed != null && allowed.Length > 0 && allowed.Any(x => x != null))
             {
