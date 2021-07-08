@@ -5708,7 +5708,7 @@
         </member>
         <member name="M:GadgetCore.GadgetConsole.CoreCommands.GivePortals(System.String,System.String[])">
             <summary>
-            The /givechip command
+            The /giveportals command
             </summary>
         </member>
         <member name="M:GadgetCore.GadgetConsole.CoreCommands.ReloadMod(System.String,System.String[])">

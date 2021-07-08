@@ -1275,7 +1275,7 @@ namespace GadgetCore
                         {
                             GadgetCoreAPI.GetPortalUses()[planetID] = 3;
                             GameScript.planetRelics[planetID] -= GameScript.planetRelics[planetID] / 100 - 100;
-                            PreviewLabs.PlayerPrefs.SetInt("portalUses" + planetID, planet.PortalUses);
+                            PreviewLabs.PlayerPrefs.SetInt("portalUses" + planetID, GadgetCoreAPI.GetPortalUses()[planetID]);
                             PreviewLabs.PlayerPrefs.SetInt("planetRelics" + planetID, GameScript.planetRelics[planetID]);
                         }
                     }
