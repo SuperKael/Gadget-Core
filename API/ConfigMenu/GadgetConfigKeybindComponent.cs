@@ -74,6 +74,7 @@ namespace GadgetCore.API.ConfigMenu
                 label.font = SceneInjector.ModConfigMenuText.GetComponent<TextMesh>().font;
                 label.fontSize = 12;
                 label.horizontalOverflow = HorizontalWrapMode.Wrap;
+                label.verticalOverflow = VerticalWrapMode.Overflow;
                 label.alignment = TextAnchor.MiddleLeft;
             }
             Text defaults = new GameObject("Defaults", typeof(RectTransform), typeof(CanvasRenderer), typeof(Text)).GetComponent<Text>();

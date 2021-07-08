@@ -798,7 +798,7 @@ namespace GadgetCore
             console.AlwaysActivePanel.GetComponent<ContentSizeFitter>().horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
             console.AlwaysActivePanel.GetComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
 
-            GadgetConsole.PrintQueuedMessages();
+            CoroutineHooker.StartCoroutine(GadgetConsole.PrintQueuedMessages());
 
             ConfirmationDialog = new GameObject("Confirmation Dialog", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
             ConfirmationDialog.GetComponent<RectTransform>().SetParent(PersistantCanvas.transform);

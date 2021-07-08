@@ -15,7 +15,7 @@ namespace GadgetCore.API
         private static Dictionary<string, GadgetInfo> previousNames = new Dictionary<string, GadgetInfo>();
         private static List<GadgetInfo> sortedGadgetList;
         /// <summary>
-        /// A <see cref="MultiTreeList{GadgetInfo}"/> representing the relationships between the installed Gadgets. It is read-only, so don't attempt to edit it. Note that this is just the parent of the structure, and its <see cref="MultiTreeList{T}.Value"/> is null.
+        /// A <see cref="MultiTreeList{GadgetInfo}"/> representing the relationships between the installed Gadgets. It is read-only, so do not attempt to edit it. Note that this is just the parent of the structure, and its <see cref="MultiTreeList{T}.Value"/> is null.
         /// </summary>
         public static MultiTreeList<GadgetInfo> LoadOrderTree { get; private set; }
 

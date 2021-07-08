@@ -40,6 +40,10 @@ namespace GadgetCore.API
         /// </summary>
         public static readonly string LogsPath;
         /// <summary>
+        /// The path to the Log Archives directory.
+        /// </summary>
+        public static readonly string LogArchivesPath;
+        /// <summary>
         /// The path to the Assets directory.
         /// </summary>
         public static readonly string AssetsPath;
@@ -76,6 +80,8 @@ namespace GadgetCore.API
             Directory.CreateDirectory(ConfigsPath);
             LogsPath = Path.Combine(GadgetCorePath, "Logs");
             Directory.CreateDirectory(LogsPath);
+            LogArchivesPath = Path.Combine(LogsPath, "Archives");
+            Directory.CreateDirectory(LogArchivesPath);
             AssetsPath = Path.Combine(GadgetCorePath, "Assets");
             Directory.CreateDirectory(AssetsPath);
             LibsPath = Path.Combine(GadgetCorePath, "Libs");

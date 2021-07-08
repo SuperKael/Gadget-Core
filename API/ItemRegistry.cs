@@ -80,18 +80,18 @@ namespace GadgetCore.API
         {
             if (ID > 0 && ID <= 40)
             {
-                if (ID <= 10) return ItemType.LOOT | ItemType.ORE;
-                if (ID <= 20) return ItemType.LOOT | ItemType.PLANT;
-                if (ID <= 30) return ItemType.LOOT | ItemType.MONSTER;
-                return ItemType.LOOT | ItemType.BUG;
+                if (ID <= 10) return ItemType.LOOT | ItemType.ORE | (ItemType)((ID % 10) << 8);
+                if (ID <= 20) return ItemType.LOOT | ItemType.PLANT | (ItemType)((ID % 10) << 8);
+                if (ID <= 30) return ItemType.LOOT | ItemType.MONSTER | (ItemType)((ID % 10) << 8);
+                return ItemType.LOOT | ItemType.BUG | (ItemType)((ID % 10) << 8);
             }
             if (ID > 100 && ID <= 200)
             {
-                if (ID <= 110) return ItemType.EMBLEM | ItemType.ORE;
-                if (ID <= 120) return ItemType.EMBLEM | ItemType.PLANT;
-                if (ID <= 130) return ItemType.EMBLEM | ItemType.MONSTER;
-                if (ID <= 140) return ItemType.EMBLEM | ItemType.BUG;
-                return ItemType.EMBLEM | ItemType.OTHER;
+                if (ID <= 110) return ItemType.EMBLEM | ItemType.ORE | (ItemType)((ID % 10) << 8);
+                if (ID <= 120) return ItemType.EMBLEM | ItemType.PLANT | (ItemType)((ID % 10) << 8);
+                if (ID <= 130) return ItemType.EMBLEM | ItemType.MONSTER | (ItemType)((ID % 10) << 8);
+                if (ID <= 140) return ItemType.EMBLEM | ItemType.BUG | (ItemType)((ID % 10) << 8);
+                return ItemType.EMBLEM | ItemType.OTHER | (ItemType)((ID % 10) << 8);
             }
             if (ID > 200 && ID < 300) return ItemType.MOD;
             if (ID >= 300 && ID < 600) return ItemType.WEAPON;

@@ -37,7 +37,6 @@ namespace GadgetCore
                 if (keyList == null)
                 {
                     keyList = new List<string>();
-                    keybindSetter("");
                     clickSkip = false;
                     GadgetCoreAPI.FreezeInput("Keybinding");
                 }

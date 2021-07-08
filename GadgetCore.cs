@@ -15,6 +15,8 @@ using System.Diagnostics.CodeAnalysis;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using GadgetCore.Util;
+using Ionic.Zip;
+using System.Text.RegularExpressions;
 
 namespace GadgetCore
 {
@@ -91,12 +93,31 @@ namespace GadgetCore
                     }
                 }
             }
+            GadgetConsole.hidThisFrame = false;
         }
 
         internal static void Initialize()
         {
             if (Initialized) return;
             Initialized = true;
+            bool earlyConfigLoaded = false;
+            try
+            {
+                GadgetCoreConfig.EarlyLoad();
+                earlyConfigLoaded = true;
+            }
+            catch (Exception e)
+            {
+                Debug.Log("Failed to load GadgetCore config file early: " + e);
+            }
+            try
+            {
+                if (GadgetCoreConfig.MaxLogArchives > 0) BackupLogFiles();
+            }
+            catch (Exception e)
+            {
+                Debug.Log("Failed to backup old log files: " + e);
+            }
             try
             {
                 CoreLogger = new GadgetLogger("GadgetCore", "Core");
@@ -105,31 +126,35 @@ namespace GadgetCore
             }
             catch (Exception e)
             {
-                Debug.Log(e);
+                Debug.Log("GadgetCore Logger Initialization Failed: " + e);
                 GadgetCoreAPI.Quit();
                 return;
             }
             try
             {
-                if (File.Exists(Application.persistentDataPath + "/PlayerPrefs.txt") && VerifySaveFile())
+                if (File.Exists(Application.persistentDataPath + "/PlayerPrefs.txt"))
                 {
-                    if (GadgetCoreConfig.MaxBackups > 0)
+                    if (VerifySaveFile())
                     {
-                        File.Copy(Application.persistentDataPath + "/PlayerPrefs.txt", Path.Combine(GadgetPaths.SaveBackupsPath, "Save Backup - " + DateTime.Now.ToString("yyyy-dd-M_HH-mm-ss") + ".txt"));
-                        FileInfo[] backups = new DirectoryInfo(GadgetPaths.SaveBackupsPath).GetFiles().OrderByDescending(x => x.LastWriteTime.Year <= 1601 ? x.CreationTime : x.LastWriteTime).ToArray();
-                        if (backups.Length > GadgetCoreConfig.MaxBackups)
+                        if (GadgetCoreConfig.MaxBackups > 0)
                         {
-                            for (int i = GadgetCoreConfig.MaxBackups;i < backups.Length;i++)
+                            File.Copy(Application.persistentDataPath + "/PlayerPrefs.txt", Path.Combine(GadgetPaths.SaveBackupsPath, "Save Backup - " + DateTime.Now.ToString("yyyy-dd-M_HH-mm-ss") + ".txt"));
+                            FileInfo[] backups = new DirectoryInfo(GadgetPaths.SaveBackupsPath).GetFiles().OrderByDescending(x => x.LastWriteTime.Year <= 1601 ? x.CreationTime : x.LastWriteTime).ToArray();
+                            if (backups.Length > GadgetCoreConfig.MaxBackups)
                             {
-                                backups[i].Delete();
+                                for (int i = GadgetCoreConfig.MaxBackups; i < backups.Length; i++)
+                                {
+                                    backups[i].Delete();
+                                }
                             }
                         }
                     }
-                }
-                else
-                {
-                    GadgetCoreAPI.Quit();
-                    return;
+                    else
+                    {
+                        CoreLogger.LogError("Quitting game due to corrupt save file!");
+                        GadgetCoreAPI.Quit();
+                        return;
+                    }
                 }
                 HarmonyInstance = new Harmony("GadgetCore.core");
                 Type[] types;
@@ -218,6 +243,7 @@ namespace GadgetCore
                 }
                 CoreLib = Activator.CreateInstance(Assembly.LoadFile(Path.Combine(Path.Combine(GadgetPaths.GadgetCorePath, "DependentLibs"), "GadgetCoreLib.dll")).GetTypes().First(x => typeof(IGadgetCoreLib).IsAssignableFrom(x))) as IGadgetCoreLib;
                 CoreLib.ProvideLogger(CoreLogger);
+                if (!earlyConfigLoaded) GadgetCoreConfig.EarlyLoad();
                 GadgetCoreConfig.Load();
                 CoreLogger.Log("Finished loading config.");
                 RegisterKeys();
@@ -242,8 +268,90 @@ namespace GadgetCore
             }
         }
 
+        private static void BackupLogFiles()
+        {
+            string[] logFiles = Directory.GetFiles(GadgetPaths.LogsPath, "*.log");
+            if (logFiles == null || logFiles.Length < 1) return;
+            DateTime logZipTime = File.GetCreationTime(File.Exists(Path.Combine(GadgetPaths.LogsPath, "GadgetCore.log")) ? Path.Combine(GadgetPaths.LogsPath, "GadgetCore.log") : logFiles[0]);
+            int warningCount = 0, errorCount = 0, exceptionCount = 0;
+            bool warningErr = false, errorErr = false, exceptionErr = false;
+            foreach (string logFile in logFiles)
+            {
+                if (Path.GetFileName(logFile) == "Unity Output.log")
+                {
+                    try
+                    {
+                        exceptionCount += File.ReadAllLines(logFile).Count(x => x.Contains("Exception"));
+                    }
+                    catch (Exception)
+                    {
+                        exceptionErr = true;
+                    }
+                }
+                else
+                {
+                    string[] lines;
+                    try
+                    {
+                        lines = File.ReadAllLines(logFile);
+                    }
+                    catch (Exception)
+                    {
+                        warningErr = true;
+                        errorErr = true;
+                        continue;
+                    }
+                    try
+                    {
+                        warningCount += lines.Count(x => x.Contains("[Warning]"));
+                    }
+                    catch (Exception)
+                    {
+                        warningErr = true;
+                    }
+                    try
+                    {
+                        errorCount += lines.Count(x => x.Contains("[Error]"));
+                    }
+                    catch (Exception)
+                    {
+                        errorErr = true;
+                    }
+                }
+            }
+            string logZipName = $"Archived Logs ({logZipTime:yyyy-MM-dd hh.mm.ss tt}) - " +
+                (warningCount < 0 || errorCount < 0 || exceptionCount < 0 ? "[Possibly Corrupt] " : "") + 
+                $"[{(warningErr ? $"{warningCount}?" : warningCount.ToString())} Warnings] " +
+                $"[{(errorErr ? $"{errorCount}?" : errorCount.ToString())} Errors] " +
+                $"[{(exceptionErr ? $"{exceptionCount}?" : exceptionCount.ToString())} Exceptions]" +
+                ".zip";
+            using (ZipFile logZip = new ZipFile())
+            {
+                logZip.AddFiles(logFiles, string.Empty);
+                logZip.Save(Path.Combine(GadgetPaths.LogArchivesPath, logZipName));
+            }
+            foreach (string file in logFiles)
+            {
+                try
+                {
+                    File.Delete(file);
+                }
+                catch (Exception) { }
+            }
+
+            FileInfo[] archives = new DirectoryInfo(GadgetPaths.LogArchivesPath).GetFiles().OrderByDescending(x => x.LastWriteTime.Year <= 1601 ? x.CreationTime : x.LastWriteTime).ToArray();
+            if (archives.Length > GadgetCoreConfig.MaxLogArchives)
+            {
+                for (int i = GadgetCoreConfig.MaxLogArchives; i < archives.Length; i++)
+                {
+                    archives[i].Delete();
+                }
+            }
+        }
+
         internal static void OnSceneLoaded(Scene scene, LoadSceneMode mode)
         {
+            GadgetCoreAPI.SceneReset();
             if (scene.buildIndex == 0)
             {
                 GadgetNetwork.ResetIDMatrix();

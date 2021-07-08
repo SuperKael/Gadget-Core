@@ -74,6 +74,27 @@ namespace GadgetCore.Util
         }
 
         /// <summary>
+        /// Concatenates the objects in the given <see cref="IEnumerable{T}"/> together. Uses ", " as the seperator if one is not explicitly specified.
+        /// </summary>
+        public static string Concat<T>(this IEnumerable<T> list, Func<T, string> predicate, string seperator = ", ")
+        {
+            return list.Aggregate(new StringBuilder(), (a, b) => { if (a.Length > 0 && seperator != null) a.Append(seperator); a.Append(predicate(b)); return a; }).ToString();
+        }
+
+        /// <summary>
+        /// Recursively concatenates the objects in the given <see cref="IEnumerable{T}"/> together. Uses ", " as the seperator if one is not explicitly specified.
+        /// </summary>
+        public static string RecursiveConcat<T>(this IEnumerable<T> list, Func<object, string> predicate = null, string seperator = ", ")
+        {
+            return list.Concat((x) => RecursiveConcatInternal(x, predicate ?? ((o) => o?.ToString() ?? "null"), seperator), seperator);
+        }
+
+        private static string RecursiveConcatInternal(object obj, Func<object, string> predicate, string seperator = ", ")
+        {
+            return obj is IEnumerable enumerable ? enumerable.Cast<object>().Concat((x) => RecursiveConcatInternal(x, predicate, seperator), seperator) : predicate(obj);
+        }
+
+        /// <summary>
         /// Finds the index of the given predicate, returns -1 if it is not found.
         /// </summary>
         public static int IndexOf<TSource>(this IEnumerable<TSource> source, Func<TSource, bool> predicate)

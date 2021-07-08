@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 
 namespace GadgetCore.API
 {
@@ -81,6 +82,21 @@ namespace GadgetCore.API
             Singleton.PostRegistration(entry);
             entry.PostRegister();
             return id;
+        }
+
+        /// <summary>
+        /// Checks if a given Registry ID matches the given Entry type. Optionally applies a flags mask to both the entry's type and the given type.
+        /// </summary>
+        public static bool IDMatchesType(int id, T type, T mask = default)
+        {
+            T entryType = Singleton.GetEntry(id).GetEntryType();
+            if (!EqualityComparer<T>.Default.Equals(mask, default))
+            {
+                MethodInfo maskAndOp = typeof(T).GetMethod("op_BitwiseAnd", new Type[] { typeof(T), typeof(T) });
+                type = (T)maskAndOp.Invoke(null, new object[] { type, mask });
+                entryType = (T)maskAndOp.Invoke(null, new object[] { entryType, mask });
+            }
+            return EqualityComparer<T>.Default.Equals(type, entryType);
         }
 
         /// <summary>

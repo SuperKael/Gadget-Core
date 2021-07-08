@@ -69,6 +69,7 @@ namespace GadgetCore.API.ConfigMenu
                 label.font = SceneInjector.ModConfigMenuText.GetComponent<TextMesh>().font;
                 label.fontSize = 12;
                 label.horizontalOverflow = HorizontalWrapMode.Wrap;
+                label.verticalOverflow = VerticalWrapMode.Overflow;
                 label.alignment = TextAnchor.MiddleLeft;
             }
             InputField textbox = new GameObject("Textbox", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(InputField)).GetComponent<InputField>();

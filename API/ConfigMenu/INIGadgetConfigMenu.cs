@@ -436,6 +436,7 @@ namespace GadgetCore.API.ConfigMenu
             IniParser.WriteFile(ConfigFilePath, Ini);
             if (ConfigFileSection == "GadgetCore")
             {
+                GadgetCoreConfig.EarlyLoad();
                 GadgetCoreConfig.Load();
                 GadgetCore.CoreLogger.Log("Finished reloading config.");
             }

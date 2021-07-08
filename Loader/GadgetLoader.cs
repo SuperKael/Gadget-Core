@@ -544,6 +544,7 @@ namespace GadgetCore.Loader
             Logger.Log("Unpatching Gadgets...");
             foreach (GadgetInfo gadget in QueuedGadgets.ToList())
             {
+                if (gadget.Gadget.HarmonyInstance == null) continue;
                 Logger.Log("Unpatching Gadget '" + gadget.Attribute.Name + "'");
                 try
                 {

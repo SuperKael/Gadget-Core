@@ -683,8 +683,17 @@ namespace GadgetCore.API
         /// <summary>
         /// Generates a standard SlotValidator/CraftValidator/CraftPerformer trio using a simple set of input IDs and an output Item
         /// </summary>
-        /// <param name="recipes">A list of recipes consisting of the ingredient IDs, the item output, and the amount of possible random extra output.</param>
+        /// <param name="recipes">An array of recipes consisting of the ingredient IDs, the item output, and the amount of possible random extra output.</param>
         public static Tuple<SlotValidator, CraftValidator, CraftPerformer> CreateSimpleCraftPerformer(params Tuple<int[], Item, int>[] recipes)
+        {
+            return CreateSimpleCraftPerformer(recipes.Select(x => Tuple.Create(x.Item1, x.Item2, x.Item3, false)).ToArray());
+        }
+
+        /// <summary>
+        /// Generates a standard SlotValidator/CraftValidator/CraftPerformer trio using a simple set of input IDs and an output Item
+        /// </summary>
+        /// <param name="recipes">An array of recipes consisting of the ingredient IDs, the item output, the amount of possible random extra output, and whether to randomize the rarity of the output item.</param>
+        public static Tuple<SlotValidator, CraftValidator, CraftPerformer> CreateSimpleCraftPerformer(params Tuple<int[], Item, int, bool>[] recipes)
         {
             return Tuple.Create<SlotValidator, CraftValidator, CraftPerformer>((Item newItem, Item[] items, int slot) =>
             {
@@ -701,7 +710,7 @@ namespace GadgetCore.API
                 });
             }, (Item[] items) =>
             {
-                foreach (Tuple<int[], Item, int> recipe in recipes)
+                foreach (Tuple<int[], Item, int, bool> recipe in recipes)
                 {
                     bool recipeValid = true;
                     for (int i = 0; i < recipe.Item1.Length; i++)
@@ -719,6 +728,7 @@ namespace GadgetCore.API
                             if (recipe.Item1[i] > 0)
                             {
                                 items[i].q--;
+                                if (items[i].q <= 0) items[i] = GadgetCoreAPI.EmptyItem();
                             }
                         }
                         if (items[items.Length - 1].id == recipe.Item2.id && items[items.Length - 1].q > 0)
@@ -728,9 +738,105 @@ namespace GadgetCore.API
                         else
                         {
                             items[items.Length - 1] = GadgetCoreAPI.CopyItem(recipe.Item2);
+                            if (recipe.Item4) items[items.Length - 1].tier = GadgetCoreAPI.GetRandomCraftTier();
                         }
                         if (recipe.Item3 > 0) items[items.Length - 1].q += UnityEngine.Random.Range(0, recipe.Item3 + 1);
                         if (recipe.Item3 < 0) items[items.Length - 1].q -= UnityEngine.Random.Range(0, -recipe.Item3 + 1);
+                        break;
+                    }
+                }
+            });
+        }
+
+        /// <summary>
+        /// Generates a standard SlotValidator/CraftValidator/CraftPerformer trio using a more advanced structure of recipe components.
+        /// </summary>
+        /// <param name="recipes">An array of recipes represented by <see cref="AdvancedRecipe"/>s.</param>
+        public static Tuple<SlotValidator, CraftValidator, CraftPerformer> CreateAdvancedCraftPerformer(params AdvancedRecipe[] recipes)
+        {
+            return Tuple.Create<SlotValidator, CraftValidator, CraftPerformer>((Item newItem, Item[] items, int slot) =>
+            {
+                return recipes.Any(x => x.Slots[slot].Type != AdvancedRecipeComponentType.UNUSED && (x.Slots[slot].Type & AdvancedRecipeComponentType.OUTPUT) == AdvancedRecipeComponentType.INPUT && x.Slots[slot].Fuzzy ? x.Slots[slot].Item.id == newItem.id : GadgetCoreAPI.MatchItems(x.Slots[slot].Item, newItem));
+            }, (Item[] items) =>
+            {
+                return recipes.Any(x =>
+                {
+                    for (int i = 0; i < x.Slots.Length; i++)
+                    {
+                        bool isSlotEmpty = items.Length <= i || items[i] == null || items[i].q <= 0;
+                        if (x.Slots[i].Type == AdvancedRecipeComponentType.UNUSED && !isSlotEmpty || // Unused slot
+
+                        (x.Slots[i].Type & AdvancedRecipeComponentType.OUTPUT) == AdvancedRecipeComponentType.INPUT ?
+
+                        (isSlotEmpty || items[i].q < x.Slots[i].Item.q + Math.Max(x.Slots[i].QuantityVariation, 0) ||
+                        (x.Slots[i].Fuzzy ? x.Slots[i].Item.id != items[i].id : !GadgetCoreAPI.MatchItems(x.Slots[i].Item, items[i]))) : // Input slot
+
+                        !isSlotEmpty && (!GadgetCoreAPI.CanItemsStack(x.Slots[i].Item, items[i]) || // Output slot
+                        items[i].q + x.Slots[i].Item.q + x.Slots[i].QuantityVariation > 9999)) return false;
+                    }
+                    return true;
+                });
+            }, (Item[] items) =>
+            {
+                foreach (AdvancedRecipe recipe in recipes)
+                {
+                    bool recipeValid = true;
+                    for (int i = 0; i < recipe.Slots.Length; i++)
+                    {
+                        bool isSlotEmpty = items.Length <= i || items[i] == null || items[i].q <= 0;
+                        if (recipe.Slots[i].Type == AdvancedRecipeComponentType.UNUSED && !isSlotEmpty || // Unused slot
+
+                           (recipe.Slots[i].Type & AdvancedRecipeComponentType.OUTPUT) == AdvancedRecipeComponentType.INPUT ?
+
+                           (isSlotEmpty || items[i].q < recipe.Slots[i].Item.q + Math.Max(recipe.Slots[i].QuantityVariation, 0) ||
+                           (recipe.Slots[i].Fuzzy ? recipe.Slots[i].Item.id != items[i].id : !GadgetCoreAPI.MatchItems(recipe.Slots[i].Item, items[i]))) : // Input slot
+
+                           !isSlotEmpty && (!GadgetCoreAPI.CanItemsStack(recipe.Slots[i].Item, items[i]) || // Output slot
+                           items[i].q + recipe.Slots[i].Item.q + recipe.Slots[i].QuantityVariation > 9999))
+                        {
+                            recipeValid = false;
+                            break;
+                        }
+                    }
+                    if (recipeValid)
+                    {
+                        Item coreItem = new Item(0, 1, 0, 0, 0, new int[3], new int[3]);
+                        for (int i = 0; i < recipe.Slots.Length; i++)
+                        {
+                            switch (recipe.Slots[i].Type)
+                            {
+                                case AdvancedRecipeComponentType.CORE_INPUT:
+                                    coreItem = items[i].CloneItem();
+                                    goto case AdvancedRecipeComponentType.INPUT;
+                                case AdvancedRecipeComponentType.INPUT:
+                                    items[i].q -= recipe.Slots[i].Item.q;
+                                    if (recipe.Slots[i].QuantityVariation > 0) items[i].q -= UnityEngine.Random.Range(0, recipe.Slots[i].QuantityVariation + 1);
+                                    if (recipe.Slots[i].QuantityVariation < 0) items[i].q += UnityEngine.Random.Range(0, -recipe.Slots[i].QuantityVariation + 1);
+                                    if (items[i].q <= 0) items[i] = GadgetCoreAPI.EmptyItem();
+                                    break;
+                            }
+                        }
+                        for (int i = 0; i < recipe.Slots.Length; i++)
+                        {
+                            switch (recipe.Slots[i].Type)
+                            {
+                                case AdvancedRecipeComponentType.CORE_OUTPUT:
+                                    items[i] = coreItem.CloneItem();
+                                    items[i].id = recipe.Slots[i].Item.id;
+                                    items[i].q = recipe.Slots[i].Item.q;
+                                    items[i].exp += recipe.Slots[i].Item.exp;
+                                    items[i].tier += recipe.Slots[i].Item.tier;
+                                    if (recipe.Slots[i].QuantityVariation > 0) items[i].q += UnityEngine.Random.Range(0, recipe.Slots[i].QuantityVariation + 1);
+                                    if (recipe.Slots[i].QuantityVariation < 0) items[i].q -= UnityEngine.Random.Range(0, -recipe.Slots[i].QuantityVariation + 1);
+                                    break;
+                                case AdvancedRecipeComponentType.OUTPUT:
+                                    items[i] = recipe.Slots[i].Item.CloneItem();
+                                    if (items[i].tier < 0) items[i].tier = GadgetCoreAPI.GetRandomCraftTier();
+                                    if (recipe.Slots[i].QuantityVariation > 0) items[i].q += UnityEngine.Random.Range(0, recipe.Slots[i].QuantityVariation + 1);
+                                    if (recipe.Slots[i].QuantityVariation < 0) items[i].q -= UnityEngine.Random.Range(0, -recipe.Slots[i].QuantityVariation + 1);
+                                    break;
+                            }
+                        }
                         break;
                     }
                 }
@@ -758,5 +864,104 @@ namespace GadgetCore.API
         /// A delegate used for finalizing crafting recipes.
         /// </summary>
         public delegate void CraftFinalizer(Item[] items);
+
+        /// <summary>
+        /// Represents a recipe provided to <see cref="CreateAdvancedCraftPerformer(AdvancedRecipe[])"/>
+        /// </summary>
+        public struct AdvancedRecipe
+        {
+            /// <summary>
+            /// Array of recipe components for this recipe. Will always be of length 4.
+            /// </summary>
+            public readonly AdvancedRecipeComponent[] Slots;
+
+            /// <summary>
+            /// Constructs a new <see cref="AdvancedRecipe"/> with the four specified slots. An unused slot can be null.
+            /// </summary>
+            public AdvancedRecipe(AdvancedRecipeComponent Slot1, AdvancedRecipeComponent Slot2, AdvancedRecipeComponent Slot3, AdvancedRecipeComponent Slot4)
+            {
+                Slots = new AdvancedRecipeComponent[] { Slot1, Slot2, Slot3, Slot4 };
+                if (Slots.Count(x => x.Type == AdvancedRecipeComponentType.CORE_INPUT) > 1) throw new InvalidOperationException("An advanced recipe may only contain one CORE_INPUT component!");
+                if (Slots.Count(x => x.Type == AdvancedRecipeComponentType.CORE_INPUT) == 0 && Slots.Count(x => x.Type == AdvancedRecipeComponentType.CORE_OUTPUT) > 0) throw new InvalidOperationException("An advanced recipe may not contain a CORE_OUTPUT component without a CORE_INPUT component1!");
+            }
+        }
+
+        /// <summary>
+        /// Represents a component in a recipe provided to <see cref="CreateAdvancedCraftPerformer(AdvancedRecipe[])"/>
+        /// </summary>
+        public struct AdvancedRecipeComponent
+        {
+            /// <summary>
+            /// Fill unused recipe slots with this.
+            /// </summary>
+            public static readonly AdvancedRecipeComponent UNUSED = new AdvancedRecipeComponent(null, AdvancedRecipeComponentType.UNUSED);
+
+            /// <summary>
+            /// The type of this advanced recipe component.
+            /// </summary>
+            public readonly AdvancedRecipeComponentType Type;
+            /// <summary>
+            /// The Item associated with this slot.
+            /// </summary>
+            public readonly Item Item;
+            /// <summary>
+            /// Whether or not the Item should be matched purely based on ID.
+            /// </summary>
+            public readonly bool Fuzzy;
+            /// <summary>
+            /// The maximum amount by which the quantity of the associated Item may by randomly increased by.
+            /// </summary>
+            public readonly int QuantityVariation;
+
+            /// <summary>
+            /// Constructs a new <see cref="AdvancedRecipeComponent"/>
+            /// </summary>
+            public AdvancedRecipeComponent(Item item, AdvancedRecipeComponentType type, int quantityVariation = 0)
+            {
+                if (type != AdvancedRecipeComponentType.UNUSED && (item == null || item.id == 0 || item.q == 0)) throw new InvalidOperationException("Only unused slots may have empty Items!");
+                Item = item;
+                Type = type;
+                Fuzzy = (type & AdvancedRecipeComponentType.CORE_INPUT) == AdvancedRecipeComponentType.CORE_INPUT;
+                QuantityVariation = quantityVariation;
+            }
+
+            /// <summary>
+            /// Constructs a new <see cref="AdvancedRecipeComponent"/>
+            /// </summary>
+            public AdvancedRecipeComponent(Item item, AdvancedRecipeComponentType type, bool fuzzy, int quantityVariation = 0)
+            {
+                Item = item;
+                Type = type;
+                Fuzzy = fuzzy;
+                QuantityVariation = quantityVariation;
+            }
+        }
+
+        /// <summary>
+        /// Represents the component type of an <see cref="AdvancedRecipeComponent"/>
+        /// </summary>
+        public enum AdvancedRecipeComponentType
+        {
+            /// <summary>
+            /// Standard input component for a recipe.
+            /// </summary>
+            INPUT       = 0b00,
+            /// <summary>
+            /// Core input component for a recipe - there can only be one component of this type.
+            /// </summary>
+            CORE_INPUT  = 0b01,
+            /// <summary>
+            /// Standard output component for a recipe.
+            /// </summary>
+            OUTPUT      = 0b10,
+            /// <summary>
+            /// Core output component for a recipe - inherits all properties other than ID and quantity from the core input component.
+            /// </summary>
+            CORE_OUTPUT = 0b11,
+            /// <summary>
+            /// A component representing an unused slot.
+            /// </summary>
+            UNUSED      = 0b100
+        }
     }
 }

@@ -245,6 +245,18 @@ namespace GadgetCore.Util
             }
 
             /// <summary>
+            /// Finds the first instruction that matches the given instruction's opcode and operand.
+            /// Ignores the instruction's labels and exception blocks.
+            /// </summary>
+            public ILRef FindRefByInsn(CodeInstruction insn, ILRef startRef)
+            {
+                if (insn == null) throw new ArgumentNullException("insn");
+                bool hasToString = insn.operand != null && !(insn.operand is Label) && insn.operand.GetType().GetMethods().Any(m => m.Name == "ToString" && m.GetParameters().Length == 0 && m.DeclaringType != typeof(object));
+                int index = Insns.FindIndex(startRef.Index, x => x?.opcode == insn.opcode && (insn.operand == null || (hasToString ? x?.operand?.ToString() == insn.operand?.ToString() : x?.operand is Label xLab && insn.operand is Label insnLab ? xLab == insnLab : x?.operand == insn.operand)));
+                return index >= 0 ? GetRefByIndex(index) : null;
+            }
+
+            /// <summary>
             /// Finds the last instruction that matches the given instruction's opcode and operand.
             /// Ignores the instruction's labels and exception blocks.
             /// </summary>
@@ -253,6 +265,18 @@ namespace GadgetCore.Util
                 if (insn == null) throw new ArgumentNullException("insn");
                 bool hasToString = insn.operand != null && !(insn.operand is Label) && insn.operand.GetType().GetMethods().Any(m => m.Name == "ToString" && m.GetParameters().Length == 0 && m.DeclaringType != typeof(object));
                 int index = Insns.FindLastIndex(x => x?.opcode == insn.opcode && (insn.operand == null || (hasToString ? x?.operand?.ToString() == insn.operand?.ToString() : x?.operand is Label xLab && insn.operand is Label insnLab ? xLab == insnLab : x?.operand == insn.operand)));
+                return index >= 0 ? GetRefByIndex(index) : null;
+            }
+
+            /// <summary>
+            /// Finds the last instruction that matches the given instruction's opcode and operand.
+            /// Ignores the instruction's labels and exception blocks.
+            /// </summary>
+            public ILRef FindLastRefByInsn(CodeInstruction insn, ILRef startRef)
+            {
+                if (insn == null) throw new ArgumentNullException("insn");
+                bool hasToString = insn.operand != null && !(insn.operand is Label) && insn.operand.GetType().GetMethods().Any(m => m.Name == "ToString" && m.GetParameters().Length == 0 && m.DeclaringType != typeof(object));
+                int index = Insns.FindLastIndex(startRef.Index, x => x?.opcode == insn.opcode && (insn.operand == null || (hasToString ? x?.operand?.ToString() == insn.operand?.ToString() : x?.operand is Label xLab && insn.operand is Label insnLab ? xLab == insnLab : x?.operand == insn.operand)));
                 return index >= 0 ? GetRefByIndex(index) : null;
             }
 
@@ -282,6 +306,19 @@ namespace GadgetCore.Util
             }
 
             /// <summary>
+            /// Finds the first instruction block that matches the given instructions' opcodes and operands.
+            /// Ignores the instruction's labels and exception blocks.
+            /// The <see cref="ILRef"/> points to the first instruction in the block.
+            /// </summary>
+            public ILRef FindRefByInsns(CodeInstruction[] searchInsns, ILRef startRef)
+            {
+                if (searchInsns == null) throw new ArgumentNullException("searchInsns");
+                EqualityComparison<CodeInstruction>[] comparers = searchInsns.Select(x => x == null ? (a, b) => true : x.operand == null ? (a, b) => a?.opcode == b?.opcode : !(x.operand is Label) && x.operand.GetType().GetMethods().Any(m => m.Name == "ToString" && m.GetParameters().Length == 0 && m.DeclaringType != typeof(object)) ? (a, b) => a?.opcode == b?.opcode && a?.operand?.ToString() == b?.operand?.ToString() : (EqualityComparison<CodeInstruction>)((a, b) => a?.opcode == b?.opcode && (a?.operand is Label aLab && b?.operand is Label bLab ? aLab == bLab : a?.operand == b?.operand))).ToArray();
+                int index = Insns.IndexOfSublist(searchInsns.ToList(), startRef.Index, comparers);
+                return index >= 0 ? GetRefByIndex(index) : null;
+            }
+
+            /// <summary>
             /// Finds the last instruction block that matches the given instructions' opcodes and operands.
             /// Ignores the instruction's labels and exception blocks.
             /// The <see cref="ILRef"/> points to the first instruction in the block.
@@ -291,6 +328,19 @@ namespace GadgetCore.Util
                 if (searchInsns == null) throw new ArgumentNullException("searchInsns");
                 EqualityComparison<CodeInstruction>[] comparers = searchInsns.Select(x => x == null ? (a, b) => true : x.operand == null ? (a, b) => a?.opcode == b?.opcode : !(x.operand is Label) && x.operand.GetType().GetMethods().Any(m => m.Name == "ToString" && m.GetParameters().Length == 0 && m.DeclaringType != typeof(object)) ? (a, b) => a?.opcode == b?.opcode && a?.operand?.ToString() == b?.operand?.ToString() : (EqualityComparison<CodeInstruction>)((a, b) => a?.opcode == b?.opcode && (a?.operand is Label aLab && b?.operand is Label bLab ? aLab == bLab : a?.operand == b?.operand))).ToArray();
                 int index = Insns.LastIndexOfSublist(searchInsns.ToList(), 0, comparers);
+                return index >= 0 ? GetRefByIndex(index) : null;
+            }
+
+            /// <summary>
+            /// Finds the last instruction block that matches the given instructions' opcodes and operands.
+            /// Ignores the instruction's labels and exception blocks.
+            /// The <see cref="ILRef"/> points to the first instruction in the block.
+            /// </summary>
+            public ILRef FindLastRefByInsns(CodeInstruction[] searchInsns, ILRef startRef)
+            {
+                if (searchInsns == null) throw new ArgumentNullException("searchInsns");
+                EqualityComparison<CodeInstruction>[] comparers = searchInsns.Select(x => x == null ? (a, b) => true : x.operand == null ? (a, b) => a?.opcode == b?.opcode : !(x.operand is Label) && x.operand.GetType().GetMethods().Any(m => m.Name == "ToString" && m.GetParameters().Length == 0 && m.DeclaringType != typeof(object)) ? (a, b) => a?.opcode == b?.opcode && a?.operand?.ToString() == b?.operand?.ToString() : (EqualityComparison<CodeInstruction>)((a, b) => a?.opcode == b?.opcode && (a?.operand is Label aLab && b?.operand is Label bLab ? aLab == bLab : a?.operand == b?.operand))).ToArray();
+                int index = Insns.LastIndexOfSublist(searchInsns.ToList(), startRef.Index, comparers);
                 return index >= 0 ? GetRefByIndex(index) : null;
             }
 
@@ -314,6 +364,16 @@ namespace GadgetCore.Util
             }
 
             /// <summary>
+            /// Finds the first instruction that has the given opcode.
+            /// </summary>
+            public ILRef FindRefByOpCode(OpCode code, ILRef startRef)
+            {
+                if (code == null) throw new ArgumentNullException("code");
+                int index = Insns.FindIndex(startRef.Index, x => x?.opcode == code);
+                return index >= 0 ? GetRefByIndex(index) : null;
+            }
+
+            /// <summary>
             /// Finds the last instruction that has the given opcode.
             /// </summary>
             public ILRef FindLastRefByOpCode(OpCode code)
@@ -324,8 +384,18 @@ namespace GadgetCore.Util
             }
 
             /// <summary>
+            /// Finds the last instruction that has the given opcode.
+            /// </summary>
+            public ILRef FindLastRefByOpCode(OpCode code, ILRef startRef)
+            {
+                if (code == null) throw new ArgumentNullException("code");
+                int index = Insns.FindLastIndex(startRef.Index, x => x?.opcode == code);
+                return index >= 0 ? GetRefByIndex(index) : null;
+            }
+
+            /// <summary>
             /// Finds the instruction with the given label. Returns null if no instruction has the given label.
-            /// Returns the first instruction found with the given label - if multiple instructions have the same label, then that is an invalid state.
+            /// Returns the first instruction found with the given label - if multiple instructions have the same label, then that indicates an invalid state.
             /// </summary>
             public ILRef FindRefByLabel(Label label)
             {
@@ -414,6 +484,18 @@ namespace GadgetCore.Util
             }
 
             /// <summary>
+            /// Marks a label at the target instruction, for use in branch instructions.
+            /// </summary>
+            public Label MarkLabel(ILRef target)
+            {
+                Label l = ILGen.DefineLabel();
+                CodeInstruction insn = GetInsn(target);
+                if (insn.labels == null) insn.labels = new List<Label>();
+                insn.labels.Add(l);
+                return l;
+            }
+
+            /// <summary>
             /// Simplifies needlessly complicated conditional branch structures.
             /// </summary>
             public ILRef SimplifyConditionalBranch(ILRef ifBranch)
@@ -436,7 +518,7 @@ namespace GadgetCore.Util
 
             /// <summary>
             /// Injects an elseif structure onto the end of a specified if block specified by the <see cref="ILRef"/> that is targeting a conditional branch instruction.
-            /// The returned <see cref="ILRef"/>s will point to NOPs you can use and/or replace.
+            /// The out <see cref="ILRef"/>s will point to NOPs you can use and/or replace.
             /// </summary>
             public void InjectElseIf(ILRef ifBranch, OpCode conditionCode, out ILRef conditionBlock, out ILRef codeBlock)
             {
@@ -458,7 +540,8 @@ namespace GadgetCore.Util
             }
 
             /// <summary>
-            /// Injects a LDFLD instruction into the given <see cref="ILRef"/>. Will fail to load a non-static field from a static method.
+            /// Injects a LDFLD instruction for a field in the same class as this method into the given <see cref="ILRef"/>.
+            /// Will fail to load a non-static field from a static method, unless the first parameter of the method is an instance of the class.
             /// If <paramref name="insert"/> is false, it will replace the target instruction.
             /// If <paramref name="insert"/> is true, then it will insert the new instruction and push forward the instructions at
             /// and after the given <see cref="ILRef"/>
@@ -529,7 +612,8 @@ namespace GadgetCore.Util
             }
 
             /// <summary>
-            /// Injects a set of instructions into the block started by the given <see cref="ILRef"/>. If <paramref name="insert"/> is false, it will replace the target instructions.
+            /// Injects a set of instructions into the block started by the given <see cref="ILRef"/>.
+            /// If <paramref name="insert"/> is false, it will replace the target instructions.
             /// If <paramref name="insert"/> is true, then it will insert the new instructions and push forward the instructions at
             /// and after the given <see cref="ILRef"/>
             /// </summary>
@@ -678,6 +762,38 @@ namespace GadgetCore.Util
                 internal void Shift(int shift)
                 {
                     Index += shift;
+                }
+
+                /// <summary>
+                /// Marks a label at the referenced instruction, for use in branch instructions.
+                /// </summary>
+                public CodeInstruction GetInsn()
+                {
+                    return processor.GetInsn(this);
+                }
+
+                /// <summary>
+                /// Marks a label at the referenced instruction, for use in branch instructions.
+                /// </summary>
+                public Label MarkLabel()
+                {
+                    return processor.MarkLabel(this);
+                }
+
+                /// <summary>
+                /// Returns an <see cref="ILRef"/> for the instruction immediately after this one.
+                /// </summary>
+                public ILRef GetNextRef()
+                {
+                    return processor.GetRefByIndex(Index + 1);
+                }
+                
+                /// <summary>
+                /// Returns an <see cref="ILRef"/> for the instruction immediately before this one.
+                /// </summary>
+                public ILRef GetPreviousRef()
+                {
+                    return processor.GetRefByIndex(Index - 1);
                 }
 
                 /// <summary>

@@ -7,7 +7,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Reflection;
 using System.Text;
+using System.Threading;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
@@ -24,8 +26,8 @@ namespace GadgetCore
         /// Indicates whether the console should show debug messages.
         /// </summary>
         public static bool Debug { get; internal set; } = false;
-
         private static GadgetLogger Logger = new GadgetLogger("GadgetCore", "Console");
+        private static Thread mainThread;
 
         /// <summary>
         /// The Console object in the scene
@@ -40,11 +42,14 @@ namespace GadgetCore
         private static Dictionary<string, string> commandAliases = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         private static List<GadgetConsoleMessage> queuedMessages = new List<GadgetConsoleMessage>();
         private static List<string> messageHistory = new List<string>();
+        private static HashSet<string> executeBlacklist = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         private static int historyIndex;
 
         internal static List<string> operators = new List<string>();
 
+        private static bool suppressPrint;
         private static bool wasSelected, wasOpen;
+        internal static bool hidThisFrame;
 
         /// <summary>
         /// The text field where input is entered into the console.
@@ -61,11 +66,17 @@ namespace GadgetCore
 
         private Action TextSubmitAction, HistoryUpAction, HistoryDownAction;
 
+        private void Awake()
+        {
+            mainThread = Thread.CurrentThread;
+        }
+
         /// <summary>
         /// Opens the console
         /// </summary>
         public static void ShowConsole()
         {
+            if (hidThisFrame) return;
             GadgetCoreAPI.FreezeInput("Gadget Console Open");
             wasOpen = true;
             Console.gameObject.SetActive(true);
@@ -81,6 +92,7 @@ namespace GadgetCore
         public static void HideConsole()
         {
             GadgetCoreAPI.DelayUnfreezeInput("Gadget Console Open");
+            if (wasOpen) hidThisFrame = true;
             wasOpen = false;
             Console.gameObject.SetActive(false);
             Console.AlwaysActivePanel.gameObject.SetActive(true);
@@ -128,6 +140,35 @@ namespace GadgetCore
         }
 
         /// <summary>
+        /// Dealiases the given command.
+        /// </summary>
+        public static string DealiasCommand(string command)
+        {
+            return commandAliases.TryGetValue(command, out string dialiasedCommand) ? dialiasedCommand : command;
+        }
+
+        /// <summary>
+        /// Returns whether the given command is on the /execute blacklist.
+        /// </summary>
+        public static bool IsCommandExecuteBlacklisted(string command)
+        {
+            return executeBlacklist.Contains(DealiasCommand(command));
+        }
+
+        /// <summary>
+        /// Registers a command. If <paramref name="operatorOnly"/> is true, then only operators will be able to execute this command. If <paramref name="allowExecute"/> is false, then the /execute command cannot be used to force a player to run this command.
+        /// </summary>
+        public static void RegisterCommand(string name, bool operatorOnly, bool allowExecute, ConsoleCommand command, string helpDesc, string fullHelp = null, params string[] aliases)
+        {
+            if (!allowExecute)
+            {
+                executeBlacklist.Add(name);
+                foreach (string alias in aliases) executeBlacklist.Add(alias);
+            }
+            RegisterCommand(name, operatorOnly, command, helpDesc, fullHelp, aliases);
+        }
+
+        /// <summary>
         /// Registers a command. If <paramref name="operatorOnly"/> is true, then only operators will be able to execute this command.
         /// </summary>
         public static void RegisterCommand(string name, bool operatorOnly, ConsoleCommand command, string helpDesc, string fullHelp = null, params string[] aliases)
@@ -163,7 +204,7 @@ namespace GadgetCore
         }
 
         /// <summary>
-        /// Prints the given text to the console. Returns the index of the message on the console, which can be used to change or remove it later. Will return null if a debug message is printed, but <see cref="Debug"/> is false.
+        /// Prints the given text to the console. Returns the index of the message on the console, which can be used to change or remove it later. Will return -1 if the message is suppressed.
         /// </summary>
         public static int Print(string text, string sender = null, MessageSeverity severity = MessageSeverity.RAW)
         {
@@ -171,11 +212,11 @@ namespace GadgetCore
         }
 
         /// <summary>
-        /// Prints the given <see cref="GadgetConsoleMessage"/> to the console. Returns the index of the message on the console, which can be used to change or remove it later. Will return null if a debug message is printed, but <see cref="Debug"/> is false.
+        /// Prints the given <see cref="GadgetConsoleMessage"/> to the console. Returns the index of the message on the console, which can be used to change or remove it later. Will return -1 if the message is suppressed.
         /// </summary>
         public static int Print(GadgetConsoleMessage message)
         {
-            return AddMessage(message);
+            return suppressPrint ? -1 : AddMessage(message);
         }
 
         /// <summary>
@@ -280,9 +321,12 @@ namespace GadgetCore
         {
             if (message == null) return -1;
             if (!Debug && message.Severity == MessageSeverity.DEBUG) return -1;
-            if (Console == null)
+            if (Console == null || !Thread.CurrentThread.Equals(mainThread))
             {
-                queuedMessages.Add(message);
+                lock (queuedMessages)
+                {
+                    queuedMessages.Add(message);
+                }
                 return -1;
             }
             if (messages.Contains(message))
@@ -337,19 +381,38 @@ namespace GadgetCore
             return messages.Count - 1;
         }
 
-        internal static void PrintQueuedMessages()
+        internal static IEnumerator PrintQueuedMessages()
         {
-            foreach (GadgetConsoleMessage message in queuedMessages)
+            while (true)
             {
-                AddMessage(message);
+                if (Console == null) yield return new WaitUntil(() => Console != null);
+                lock (queuedMessages)
+                {
+                    if (queuedMessages.Count > 0)
+                    {
+                        foreach (GadgetConsoleMessage message in queuedMessages)
+                        {
+                            AddMessage(message);
+                        }
+                        queuedMessages.Clear();
+                    }
+                }
+                yield return new WaitForEndOfFrame();
             }
-            queuedMessages.Clear();
         }
 
         /// <summary>
-        /// Sends a message to the console, as if it were typed by the player. Can trigger commands. If <paramref name="printCommandFeedback"/> is false, then response feedback from commands will be supressed.
+        /// Sends a message to the console, as if it were entered by the player. Can trigger commands. If <paramref name="printCommandFeedback"/> is false, then response feedback from commands will be supressed.
         /// </summary>
         public static int SendConsoleMessage(string message, string sender, bool printCommandFeedback = true)
+        {
+            return SendConsoleMessage(message, sender, printCommandFeedback, false);
+        }
+
+        /// <summary>
+        /// Sends a message to the console, as if it were entered by the player. Can trigger commands. If <paramref name="printCommandFeedback"/> is false, then response feedback from commands will be supressed.
+        /// </summary>
+        public static int SendConsoleMessage(string message, string sender, bool printCommandFeedback, bool force)
         {
             if (!string.IsNullOrEmpty(message))
             {
@@ -358,9 +421,22 @@ namespace GadgetCore
                     string[] args = ParseArgs(message.Substring(1));
                     if (commandAliases.ContainsKey(args[0]))
                     {
-                        if (SceneManager.GetActiveScene().buildIndex == 0 || Network.isServer || !isOperatorOnly[commandAliases[args[0]]] || operators.Contains(Menuu.curName))
+                        if (force || SceneManager.GetActiveScene().buildIndex == 0 || Network.isServer || !isOperatorOnly[commandAliases[args[0]]] || operators.Contains(Menuu.curName))
                         {
-                            GadgetConsoleMessage feedback = commands[commandAliases[args[0]]](sender, args);
+                            GadgetConsoleMessage feedback;
+                            try
+                            {
+                                if (!printCommandFeedback) suppressPrint = true;
+                                feedback = commands[commandAliases[args[0]]](sender, args);
+                            }
+                            catch (Exception e)
+                            {
+                                feedback = new GadgetConsoleMessage("Error executing command: " + e);
+                            }
+                            finally
+                            {
+                                suppressPrint = false;
+                            }
                             if (printCommandFeedback && feedback != null) return Print(feedback);
                         }
                         else
@@ -391,7 +467,7 @@ namespace GadgetCore
         /// </summary>
         public static bool IsOperator(string name)
         {
-            return operators.Contains(name);
+            return SceneManager.GetActiveScene().buildIndex == 0 || name == Menuu.curName && Network.isServer || operators.Contains(name);
         }
 
         /// <summary>
@@ -600,40 +676,64 @@ namespace GadgetCore
             Registry.registeringVanilla = true;
             Registry.gadgetRegistering = -1;
 
-            RegisterCommand("help", false, CoreCommands.Help,
+            RegisterCommand("help", false, false, CoreCommands.Help,
                 "Provides the help page you are seeing right now.",
                 "Can list available commands, as well as provide extended information about specific commands.\nUses the syntax: /help <page/command>",
                 "h");
-            RegisterCommand("op", true, CoreCommands.Op,
+            RegisterCommand("op", true, false, CoreCommands.Op,
                 "Grants operator permissions to a given player.",
                 "Grants operator permissions to a given player. These permissions only last as long as the multiplayer session continues.\nThis command, along with /deop, can only be used by the game host.\nUses the syntax: /op <player>");
-            RegisterCommand("deop", true, CoreCommands.Deop,
+            RegisterCommand("deop", true, false, CoreCommands.Deop,
                 "Removes operator permissions from a given player.",
                 "Removes operator permissions from a given player. These permissions only last as long as the multiplayer session continues.\nThis command, along with /op, can only be used by the game host.\nUses the syntax: /deop <player>");
-            RegisterCommand("give", true, CoreCommands.Give,
+            RegisterCommand("give", true, true, CoreCommands.Give,
                 "Used to spawn items into your or another player's inventory.",
                 "Used to spawn items into your or another player's inventory. Note that you can set multiple properties,\nand they work like, I.E.: \"tier=3\", where 3 represents legendary.\nUses the syntax: /give [player] <item name/id> [quantity] [property]=[value]...",
                 "g");
-            RegisterCommand("givechip", true, CoreCommands.GiveChip,
+            RegisterCommand("givechip", true, true, CoreCommands.GiveChip,
                 "Used to spawn chips into your or another player's inventory.",
                 "Used to spawn chips into your or another player's inventory.\nUses the syntax: /givechip [player] <chip name/id>",
                 "gc");
-            RegisterCommand("reloadmod", true, CoreCommands.ReloadMod,
+            RegisterCommand("giveexp", true, true, CoreCommands.GiveExp,
+                "Used to give yourself exp.",
+                "Used to give yourself exp for either your character, or your gear.\nSuffix the exp amount with 'L' to give an amount of levels rather than exp points.\nUses the syntax: /giveexp <character/weapon/offhand/helmet/armor/ring/droid> <amount>",
+                "exp", "gxp", "givexp");
+            RegisterCommand("giveportals", true, true, CoreCommands.GivePortals,
+                "Used to give yourself portal uses.",
+                "Used to give yourself portal uses.\nThe keyword 'Infinite' can be used instead of an amount as well - however, this is permanent and cannot be undone.\nUses the syntax: /giveexp <planet id> <amount>",
+                "gp", "giveportal");
+            RegisterCommand("reloadmod", true, false, CoreCommands.ReloadMod,
                 "Reloads the specified mod.",
                 "Reloads the specified mod. Will ask for confirmation, and lists other mods that will be reloaded as a consequence.\nUses the syntax: /reloadmod <mod>",
                 "rlm");
-            RegisterCommand("reloadgadget", true, CoreCommands.ReloadGadget,
+            RegisterCommand("reloadgadget", true, false, CoreCommands.ReloadGadget,
                 "Reloads the specified Gadget.",
                 "Reloads the specified Gadget. Will ask for confirmation, and lists other Gadgets that will be reloaded as a consequence.\nUses the syntax: /reloadgadget <gadget>",
                 "rlg");
-            RegisterCommand("debugmode", true, CoreCommands.DebugMode,
+            RegisterCommand("debugmode", true, false, CoreCommands.DebugMode,
                 "Toggles debug mode.",
                 "Toggles the game's built-in debug mode. Use with caution.\nUses the syntax: /debugmode",
                 "debug");
-            RegisterCommand("githublogin", true, CoreCommands.GitHubLogin,
+            RegisterCommand("githublogin", true, false, CoreCommands.GitHubLogin,
                 "Logs into or out of GitHub, for use in the Mod Browser.",
                 "Logs into or out of GitHub, for use in the Mod Browser. Uses a Personal Access Token, created on this page:\nhttps://github.com/settings/tokens/new\nUses the syntax: /githublogin [auth token]",
                 "ghl");
+            RegisterCommand("spawnentity", true, true, CoreCommands.SpawnEntity,
+                "Spawns an entity into the world.",
+                "Spawns an entity into the world. Optionally accepts X and Y offsets to specify where to spawn the entity relative to the player's position.\nUses the syntax: /spawnentity <entity> [x offset] [y offset]",
+                "spawn");
+            RegisterCommand("godmode", true, true, CoreCommands.GodMode,
+                "Toggles god mode.",
+                "Toggles god mode. When active, your HP will be set to max every frame, thereby making it theoretically impossible to die.\nUses the syntax: /godmode",
+                "tgm", "god");
+            RegisterCommand("execute", true, false, CoreCommands.Execute,
+                "Forces another player to execute a command.",
+                "Forces another player to execute a command. Some commands are blacklisted, such as the /reflect command.\nIf the affected player is an operator, then they will be notified that you used the command on them.\nUses the syntax: /execute <player> <command> [args]...",
+                "ex", "exe");
+            RegisterCommand("reflect", true, false, CoreCommands.Reflect,
+                "Console utility for performing some simple arbitrary Reflection at runtime.",
+                "Console utility for performing some simple arbitrary Reflection at runtime, such as by monitoring the value of a field. Use /reflect help to see available modes of the command.\nUses the syntax: /reflect <mode> [parameters]...",
+                "refl", "reflector");
 
             Registry.registeringVanilla = wasRegisteringVanilla;
             Registry.gadgetRegistering = wasModRegistering;
@@ -644,7 +744,6 @@ namespace GadgetCore
         /// </summary>
         public static class CoreCommands
         {
-
             /// <summary>
             /// The /help command
             /// </summary>
@@ -984,6 +1083,226 @@ namespace GadgetCore
             }
 
             /// <summary>
+            /// The /giveexp command
+            /// </summary>
+            public static GadgetConsoleMessage GiveExp(string sender, params string[] args)
+            {
+                if (InstanceTracker.PlayerScript == null) return new GadgetConsoleMessage("This command may only be used in-game!", null, MessageSeverity.ERROR);
+                if (args.Length != 3) return CommandSyntaxError(args[0], "<player/weapon/offhand/helmet/armor/rings/droids> <amount>");
+                string amountString = args[2];
+                bool isLevels = false;
+                if (amountString[amountString.Length - 1] == 'L')
+                {
+                    amountString = amountString.Substring(0, amountString.Length - 1);
+                    isLevels = true;
+                }
+                if (int.TryParse(amountString, out int amount))
+                {
+                    string typeName;
+                    Item gearItem;
+                    switch (args[1][0])
+                    {
+                        case 'p':
+                            if (!args[1].Equals("player".Substring(0, args[1].Length), StringComparison.OrdinalIgnoreCase)) return new GadgetConsoleMessage($"`{args[1]}` is not a valid exp target!", null, MessageSeverity.ERROR);
+                            typeName = "player";
+                            InstanceTracker.GameScript.AddExp(isLevels ? GadgetCoreAPI.GetPlayerExp(GameScript.playerLevel + amount) - GadgetCoreAPI.GetPlayerExp(GameScript.playerLevel) : amount);
+                            break;
+                        case 'c':
+                            if (!args[1].Equals("character".Substring(0, args[1].Length), StringComparison.OrdinalIgnoreCase)) return new GadgetConsoleMessage($"`{args[1]}` is not a valid exp target!", null, MessageSeverity.ERROR);
+                            typeName = "character";
+                            InstanceTracker.GameScript.AddExp(isLevels ? GadgetCoreAPI.GetPlayerExp(GameScript.playerLevel + amount) - GadgetCoreAPI.GetPlayerExp(GameScript.playerLevel) : amount);
+                            break;
+                        case 'w':
+                            if (!args[1].Equals("weapon".Substring(0, args[1].Length), StringComparison.OrdinalIgnoreCase)) return new GadgetConsoleMessage($"`{args[1]}` is not a valid exp target!", null, MessageSeverity.ERROR);
+                            typeName = "weapon";
+                            gearItem = GadgetCoreAPI.GetInventory()[36];
+                            Patches.Patch_GameScript_GetItemLevel.SpoofLevel(GadgetCoreAPI.GetGearLevel(gearItem));
+                            if (gearItem != null && gearItem.id != 0)
+                            {
+                                int gearLevel = GadgetCoreAPI.GetGearLevel(gearItem.exp, -1);
+                                gearItem.exp += isLevels ? GadgetCoreAPI.GetGearExp(gearLevel + amount) - GadgetCoreAPI.GetGearExp(gearLevel) : amount;
+                            }
+                            InstanceTracker.GameScript.EXPGEAR(new int[] { 0, 0 });
+                            break;
+                        case 'o':
+                            if (!args[1].Equals("offhand".Substring(0, args[1].Length), StringComparison.OrdinalIgnoreCase)) return new GadgetConsoleMessage($"`{args[1]}` is not a valid exp target!", null, MessageSeverity.ERROR);
+                            typeName = "offhand";
+                            gearItem = GadgetCoreAPI.GetInventory()[37];
+                            Patches.Patch_GameScript_GetItemLevel.SpoofLevel(GadgetCoreAPI.GetGearLevel(gearItem));
+                            if (gearItem != null && gearItem.id != 0)
+                            {
+                                int gearLevel = GadgetCoreAPI.GetGearLevel(gearItem.exp, -1);
+                                gearItem.exp += isLevels ? GadgetCoreAPI.GetGearExp(gearLevel + amount) - GadgetCoreAPI.GetGearExp(gearLevel) : amount;
+                            }
+                            InstanceTracker.GameScript.EXPGEAR(new int[] { 1, 0 });
+                            break;
+                        case 'h':
+                            if (!args[1].Equals("helmet".Substring(0, args[1].Length), StringComparison.OrdinalIgnoreCase)) return new GadgetConsoleMessage($"`{args[1]}` is not a valid exp target!", null, MessageSeverity.ERROR);
+                            typeName = "helmet";
+                            gearItem = GadgetCoreAPI.GetInventory()[38];
+                            Patches.Patch_GameScript_GetItemLevel.SpoofLevel(GadgetCoreAPI.GetGearLevel(gearItem));
+                            if (gearItem != null && gearItem.id != 0)
+                            {
+                                int gearLevel = GadgetCoreAPI.GetGearLevel(gearItem.exp, -1);
+                                gearItem.exp += isLevels ? GadgetCoreAPI.GetGearExp(gearLevel + amount) - GadgetCoreAPI.GetGearExp(gearLevel) : amount;
+                            }
+                            InstanceTracker.GameScript.EXPGEAR(new int[] { 2, 0 });
+                            break;
+                        case 'a':
+                            if (!args[1].Equals("armor".Substring(0, args[1].Length), StringComparison.OrdinalIgnoreCase)) return new GadgetConsoleMessage($"`{args[1]}` is not a valid exp target!", null, MessageSeverity.ERROR);
+                            typeName = "armor";
+                            gearItem = GadgetCoreAPI.GetInventory()[39];
+                            Patches.Patch_GameScript_GetItemLevel.SpoofLevel(GadgetCoreAPI.GetGearLevel(gearItem));
+                            if (gearItem != null && gearItem.id != 0)
+                            {
+                                int gearLevel = GadgetCoreAPI.GetGearLevel(gearItem.exp, -1);
+                                gearItem.exp += isLevels ? GadgetCoreAPI.GetGearExp(gearLevel + amount) - GadgetCoreAPI.GetGearExp(gearLevel) : amount;
+                            }
+                            InstanceTracker.GameScript.EXPGEAR(new int[] { 3, 0 });
+                            break;
+                        case 'r':
+                            if (!args[1].Equals("rings".Substring(0, args[1].Length), StringComparison.OrdinalIgnoreCase)) return new GadgetConsoleMessage($"`{args[1]}` is not a valid exp target!", null, MessageSeverity.ERROR);
+                            typeName = "ring";
+                            gearItem = GadgetCoreAPI.GetInventory()[40];
+                            Patches.Patch_GameScript_GetItemLevel.SpoofLevel(GadgetCoreAPI.GetGearLevel(gearItem));
+                            if (gearItem != null && gearItem.id != 0)
+                            {
+                                int gearLevel = GadgetCoreAPI.GetGearLevel(gearItem.exp, -1);
+                                gearItem.exp += isLevels ? GadgetCoreAPI.GetGearExp(gearLevel + amount) - GadgetCoreAPI.GetGearExp(gearLevel) : amount;
+                            }
+                            gearItem = GadgetCoreAPI.GetInventory()[41];
+                            if (gearItem != null && gearItem.id != 0)
+                            {
+                                Patches.Patch_GameScript_GetItemLevel.SpoofLevel(GadgetCoreAPI.GetGearLevel(gearItem));
+                                int gearLevel = GadgetCoreAPI.GetGearLevel(gearItem.exp, -1);
+                                gearItem.exp += isLevels ? GadgetCoreAPI.GetGearExp(gearLevel + amount) - GadgetCoreAPI.GetGearExp(gearLevel) : amount;
+                            }
+                            InstanceTracker.GameScript.EXPGEAR(new int[] { 4, 0 });
+                            break;
+                        case 'd':
+                            if (!args[1].Equals("droids".Substring(0, args[1].Length), StringComparison.OrdinalIgnoreCase)) return new GadgetConsoleMessage($"`{args[1]}` is not a valid exp target!", null, MessageSeverity.ERROR);
+                            typeName = "droid";
+                            gearItem = GadgetCoreAPI.GetInventory()[42];
+                            if (gearItem != null && gearItem.id != 0)
+                            {
+                                int gearLevel = GadgetCoreAPI.GetGearLevel(gearItem.exp, -1);
+                                gearItem.exp += isLevels ? GadgetCoreAPI.GetGearExp(gearLevel + amount) - GadgetCoreAPI.GetGearExp(gearLevel) : amount;
+                            }
+                            gearItem = GadgetCoreAPI.GetInventory()[43];
+                            if (gearItem != null && gearItem.id != 0)
+                            {
+                                int gearLevel = GadgetCoreAPI.GetGearLevel(gearItem.exp, -1);
+                                gearItem.exp += isLevels ? GadgetCoreAPI.GetGearExp(gearLevel + amount) - GadgetCoreAPI.GetGearExp(gearLevel) : amount;
+                            }
+                            gearItem = GadgetCoreAPI.GetInventory()[44];
+                            if (gearItem != null && gearItem.id != 0)
+                            {
+                                int gearLevel = GadgetCoreAPI.GetGearLevel(gearItem.exp, -1);
+                                gearItem.exp += isLevels ? GadgetCoreAPI.GetGearExp(gearLevel + amount) - GadgetCoreAPI.GetGearExp(gearLevel) : amount;
+                            }
+                            InstanceTracker.GameScript.EXPGEAR(new int[] { -1, 0 });
+                            break;
+                        default:
+                            return new GadgetConsoleMessage($"`{args[1]}` is not a valid exp target!", null, MessageSeverity.ERROR);
+                    }
+                    return new GadgetConsoleMessage($"Given {(isLevels ? $"{amountString} levels of" : $"{amountString}")} {typeName} exp");
+                }
+                else
+                {
+                    return new GadgetConsoleMessage($"`{args[2]}` is not a valid exp amount!", null, MessageSeverity.ERROR);
+                }
+            }
+
+            /// <summary>
+            /// The /giveportals command
+            /// </summary>
+            public static GadgetConsoleMessage GivePortals(string sender, params string[] args)
+            {
+                if (InstanceTracker.PlayerScript == null) return new GadgetConsoleMessage("This command may only be used in-game!", null, MessageSeverity.ERROR);
+                if (args.Length != 3) return CommandSyntaxError(args[0], "<planet id> <amount>");
+                if (int.TryParse(args[1], out int planetID))
+                {
+                    if (string.IsNullOrEmpty(InstanceTracker.GameScript.GetPlanetName(planetID)))
+                    {
+                        return new GadgetConsoleMessage("There is no planet with the ID `" + planetID + "`", null, MessageSeverity.ERROR);
+                    }
+                }
+                else
+                {
+                    planetID = PlanetRegistry.GetPlanetIDByName(args[1]);
+                    if (planetID == -1)
+                    {
+                        planetID = PlanetRegistry.Singleton[args[1]]?.GetID() ?? -1;
+                    }
+                    if (planetID == -1)
+                    {
+                        return new GadgetConsoleMessage("There is no planet with the name `" + args[1] + "`", null, MessageSeverity.ERROR);
+                    }
+                }
+                if (args[2].Equals("Infinite", StringComparison.OrdinalIgnoreCase) || args[2].Equals("Unlimited", StringComparison.OrdinalIgnoreCase))
+                {
+                    if (PlanetRegistry.Singleton[planetID] is PlanetInfo planet)
+                    {
+                        planet.PortalUses = -1;
+                        planet.Relics = Math.Max(planet.Relics, 100);
+                        PreviewLabs.PlayerPrefs.SetInt("planetRelics" + planetID, planet.Relics);
+                    }
+                    else if (planetID >= 0 && planetID < GameScript.planetRelics.Length)
+                    {
+                        GadgetCoreAPI.GetPortalUses()[planetID] = -1;
+                        GameScript.planetRelics[planetID] = Math.Max(GameScript.planetRelics[planetID], 100);
+                        PreviewLabs.PlayerPrefs.SetInt("planetRelics" + planetID, GameScript.planetRelics[planetID]);
+                    }
+                    else return new GadgetConsoleMessage($"{planetID} is not a valid planet ID!", null, MessageSeverity.ERROR);
+                    PlanetRegistry.UpdatePlanetSelector();
+                    return new GadgetConsoleMessage($"Granted Infinite portal uses to {InstanceTracker.GameScript.GetPlanetName(planetID)}");
+                }
+                if (args[2].Equals("Finite", StringComparison.OrdinalIgnoreCase) || args[2].Equals("Limited", StringComparison.OrdinalIgnoreCase))
+                {
+                    if (PlanetRegistry.Singleton[planetID] is PlanetInfo planet)
+                    {
+                        if (planet.Relics > 99)
+                        {
+                            planet.PortalUses = 3;
+                            planet.Relics -= planet.Relics / 100 * 100;
+                            PreviewLabs.PlayerPrefs.SetInt("portalUses" + planetID, planet.PortalUses);
+                            PreviewLabs.PlayerPrefs.SetInt("planetRelics" + planetID, planet.Relics);
+                        }
+                    }
+                    else if (planetID >= 0 && planetID < GameScript.planetRelics.Length)
+                    {
+                        if (GameScript.planetRelics[planetID] > 99)
+                        {
+                            GadgetCoreAPI.GetPortalUses()[planetID] = 3;
+                            GameScript.planetRelics[planetID] -= GameScript.planetRelics[planetID] / 100 - 100;
+                            PreviewLabs.PlayerPrefs.SetInt("portalUses" + planetID, planet.PortalUses);
+                            PreviewLabs.PlayerPrefs.SetInt("planetRelics" + planetID, GameScript.planetRelics[planetID]);
+                        }
+                    }
+                    else return new GadgetConsoleMessage($"{planetID} is not a valid planet ID!", null, MessageSeverity.ERROR);
+                    PlanetRegistry.UpdatePlanetSelector();
+                    return new GadgetConsoleMessage($"Granted Finite portal uses to {InstanceTracker.GameScript.GetPlanetName(planetID)}");
+                }
+                else if (int.TryParse(args[2], out int uses))
+                {
+                    if (PlanetRegistry.Singleton[planetID] is PlanetInfo planet)
+                    {
+                        planet.PortalUses += uses;
+                        PreviewLabs.PlayerPrefs.SetInt("portalUses" + planetID, planet.PortalUses);
+                    }
+                    else if (planetID >= 0 && planetID < GadgetCoreAPI.GetPortalUses().Length)
+                    {
+                        GadgetCoreAPI.GetPortalUses()[planetID] += uses;
+                        PreviewLabs.PlayerPrefs.SetInt("portalUses" + planetID, GadgetCoreAPI.GetPortalUses()[planetID]);
+                    }
+                    else return new GadgetConsoleMessage($"{planetID} is not a valid planet ID!", null, MessageSeverity.ERROR);
+                    PlanetRegistry.UpdatePlanetSelector();
+                    return new GadgetConsoleMessage($"Granted {uses} portal uses to {InstanceTracker.GameScript.GetPlanetName(planetID)}");
+                }
+                else return new GadgetConsoleMessage($"{args[2]} is not a valid number!", null, MessageSeverity.ERROR);
+            }
+
+            /// <summary>
             /// The /reloadmod command.
             /// </summary>
             public static GadgetConsoleMessage ReloadMod(string sender, params string[] args)
@@ -1032,7 +1351,7 @@ namespace GadgetCore
                         PlayerPrefs.DeleteKey("GitHubAuthToken");
                         ModBrowser.gitHubAuthToken = null;
                         ModBrowser.gitHubAuthHeaders.Remove("Authorization");
-                        return new GadgetConsoleMessage("Succesfully deleted GitHub login information and logged you out.");
+                        return new GadgetConsoleMessage("Successfully deleted GitHub login information and logged you out.");
                     }
                     else
                     {
@@ -1075,6 +1394,294 @@ namespace GadgetCore
                     }
                 }
                 yield break;
+            }
+
+            /// <summary>
+            /// The /spawnentity command.
+            /// </summary>
+            public static GadgetConsoleMessage SpawnEntity(string sender, params string[] args)
+            {
+                if (InstanceTracker.PlayerScript == null) return new GadgetConsoleMessage("This command may only be used in-game!", null, MessageSeverity.ERROR);
+                if (args.Length < 2 || args.Length > 4) return CommandSyntaxError(args[0], "<entity> [x offset] [y offset]");
+                float xOffset = 0, yOffset = 0;
+                if (args.Length >= 3 && !float.TryParse(args[2], out xOffset))
+                {
+                    return new GadgetConsoleMessage("Invalid X Offset: " + args[2], null, MessageSeverity.ERROR);
+                }
+                if (args.Length >= 4 && !float.TryParse(args[3], out yOffset))
+                {
+                    return new GadgetConsoleMessage("Invalid Y Offset: " + args[2], null, MessageSeverity.ERROR);
+                }
+                GameObject entity = (GameObject) Instantiate((UnityEngine.Object) GadgetCoreAPI.GetEntityResource(args[1]), InstanceTracker.PlayerScript.transform.position + new Vector3(xOffset, yOffset), Quaternion.identity);
+                return new GadgetConsoleMessage("Spawned " + entity.name.Replace("(Clone)", "").Trim());
+            }
+
+            private static readonly Action<GameScript, bool> cantdyingSetter = typeof(GameScript).GetField("cantdying", BindingFlags.NonPublic | BindingFlags.Instance).CreateSetter<GameScript, bool>();
+            private static bool? godMode;
+            /// <summary>
+            /// The /godmode command.
+            /// </summary>
+            public static GadgetConsoleMessage GodMode(string sender, params string[] args)
+            {
+                if (!godMode.HasValue)
+                {
+                    godMode = true;
+                    CoroutineHooker.StartCoroutine(GodModeRoutine());
+                }
+                else godMode = !godMode;
+                Patches.Patch_GameScript_Die.godMode = godMode.Value;
+                return new GadgetConsoleMessage("God Mode is now " + (godMode.Value ? "ON" : "OFF"));
+            }
+            
+            private static IEnumerator GodModeRoutine()
+            {
+                int buildIndex = SceneManager.GetActiveScene().buildIndex;
+                while (godMode.HasValue && SceneManager.GetActiveScene().buildIndex == buildIndex)
+                {
+                    if (godMode.Value)
+                    {
+                        bool refresh = GameScript.hp != GameScript.maxhp;
+                        GameScript.hp = GameScript.maxhp;
+                        cantdyingSetter(InstanceTracker.GameScript, false);
+                        if (refresh) InstanceTracker.GameScript.UpdateHP();
+                    }
+                    yield return new WaitForEndOfFrame();
+                }
+                godMode = null;
+                Patches.Patch_GameScript_Die.godMode = false;
+            }
+
+            /// <summary>
+            /// The /execute command.
+            /// </summary>
+            public static GadgetConsoleMessage Execute(string sender, params string[] args)
+            {
+                if (args.Length < 3 || string.IsNullOrEmpty(args[2])) return CommandSyntaxError(args[0], "<player> <command> [args]...");
+                string command = args[2];
+                if (command[0] == '/') command = command.Substring(1);
+                if (!IsCommandExecuteBlacklisted(command))
+                {
+                    if (!commandAliases.ContainsKey(command))
+                    {
+                        return new GadgetConsoleMessage("`/" + command + "` is not a valid command! Enter `/help` for a list of commands.", null, MessageSeverity.ERROR);
+                    }
+                    string player = args[1];
+                    NetworkPlayer? netPlayer = GadgetNetwork.GetNetworkPlayerByName(player);
+                    if (netPlayer == null)
+                    {
+                        return new GadgetConsoleMessage($"There is no player with the name `{player}`", null, MessageSeverity.ERROR);
+                    }
+                    string message = $"/{command} {args.Skip(3).Concat(" ")}";
+                    RPCHooks.Singleton.SendConsoleMessage(message, netPlayer.Value);
+                    return new GadgetConsoleMessage($"Forced {args[1]} to execute the command: {message}");
+                }
+                else if (command.Equals("help", StringComparison.OrdinalIgnoreCase))
+                {
+                    return new GadgetConsoleMessage("Forces another player to execute a command. Some commands are blacklisted, such as the /reflect command.\n" +
+                                                    "If the affected player is an operator, then they will be notified that you used the command on them.\n" +
+                                                    "Uses the syntax: /execute <player> <command> [args]...");
+                }
+                else
+                {
+                    return new GadgetConsoleMessage($"The /{command} command is blacklisted!", null, MessageSeverity.ERROR);
+                }
+            }
+
+            private static Dictionary<string, ThreadedWatcher<string>> watchers = new Dictionary<string, ThreadedWatcher<string>>();
+            private static Reflector reflector;
+            /// <summary>
+            /// The /reflect command.
+            /// </summary>
+            public static GadgetConsoleMessage Reflect(string sender, params string[] args)
+            {
+                if (args.Length < 2 || args.Length == 2 && args[1].Equals("help", StringComparison.CurrentCultureIgnoreCase))
+                {
+                    return new GadgetConsoleMessage("Available Modes (Case Insensitive): Help, ResolveType, ResolveMember, ResolveRef/ResolveReference, Using, UnUsing, Read, Write, Watch, EndWatch, Invoke.");
+                }
+                if (reflector == null) reflector = new Reflector();
+                switch (args[1].ToLower())
+                {
+                    case "help":
+                        if (args.Length != 3) return CommandSyntaxError(args[0], args[1] + " [mode]");
+                        switch (args[2].ToLower())
+                        {
+                            case "help":
+                                return new GadgetConsoleMessage("Provides information about the usage and syntax of the different modes of the /reflect command.\nSyntax: /" + args[0] + " " + args[2] + " [mode]");
+                            case "resolvetype":
+                                return new GadgetConsoleMessage("Resolves a specified type by its full name, so that later references can identify it by only its type name.\nSyntax: /" + args[0] + " " + args[2] + " <identifier>");
+                            case "resolvemember":
+                                return new GadgetConsoleMessage("Resolves a specified class member as a part of its container type, so that later references can identify it by only its name.\nSyntax: /" + args[0] + " " + args[2] + " <identifier>");
+                            case "resolveref":
+                            case "resolvereference":
+                                return new GadgetConsoleMessage("Resolves a reference to a specified member, and optionally assigns it to a name to keep this reference for simpler access.\nTo use a reference by name, enter the reference's name prefixed by '$'\nThe container may be 'null' if the referenced member is static.\nSyntax: /" + args[0] + " " + args[2] + " <identifier> [container] [name]");
+                            case "using":
+                                return new GadgetConsoleMessage("Designates a namespace as being 'used', thereby simplyifing type resolution.\nSyntax: /" + args[0] + " " + args[2] + " <namespace>");
+                            case "unusing":
+                                return new GadgetConsoleMessage("Undesignates a namespace as bein 'used', and un-resolves all cached types from this namespace, even if the namespace was not previously 'used'.\nSyntax: /" + args[0] + " " + args[2] + " <namespace>");
+                            case "read":
+                                return new GadgetConsoleMessage("Reads the value of a field or reference and prints the value in the console.\nThe container may be omitted if the identifier is a reference, or 'null' if the referenced field is static.\nSyntax: /" + args[0] + " " + args[2] + " <identifier> [container]");
+                            case "write":
+                                return new GadgetConsoleMessage("Attempts to write the value of a field or reference from a string value. This is only possible for some types.\nThe container may be omitted if the identifier is a reference, or 'null' if the referenced field is static.\nSyntax: /" + args[0] + " " + args[2] + " <identifier> [container] <value>");
+                            case "watch":
+                                return new GadgetConsoleMessage("Starts watching the value of a member, and reports whenever the value changes.\nThe container may be omitted if the identifier is a reference, or 'null' if the referenced member is static.\nOptionally receives an interval to specify how many milliseconds between each change for changes in the member's value.\nUse EndWatch to stop receiving feedback on the value of the member.\nSyntax: /" + args[0] + " " + args[2] + " <identifier> [container] [interval]");
+                            case "endwatch":
+                                return new GadgetConsoleMessage("Stops watching the value of a member that was previously set to watch with the Watch mode.\nSyntax: /" + args[0] + " " + args[2] + " <identifier>");
+                            case "invoke":
+                                return new GadgetConsoleMessage("Attempts to invoke the specified method.\nThe container may be omitted if the identifier is a reference, or 'null' if the referenced member is static.\nReceives a list of zero or more arguments to pass to the method.\nThese arguments may be references prefixed with '$'\nSyntax: /" + args[0] + " " + args[2] + " <identifier> [container] [args]...");
+                            default:
+                                return new GadgetConsoleMessage("'" + args[2] + "' is not a valid mode of the /reflect command.", null, MessageSeverity.ERROR);
+                        }
+                    case "resolvetype":
+                        if (args.Length != 3) return CommandSyntaxError(args[0], args[1] + " <identifier>");
+                        try
+                        {
+                            Type t = reflector.ResolveType(args[2]);
+                            return new GadgetConsoleMessage("Successfully Resolved Type: " + t.Assembly.GetName().Name + ":" + t.FullName);
+                        }
+                        catch (Reflector.ReflectorException e)
+                        {
+                            return new GadgetConsoleMessage(e.Message, null, MessageSeverity.ERROR);
+                        }
+                    case "resolvemember":
+                        if (args.Length != 3) return CommandSyntaxError(args[0], args[1] + " <identifier>");
+                        try
+                        {
+                            MemberInfo m = reflector.ResolveMember(args[2]);
+                            return new GadgetConsoleMessage("Successfully Resolved Member: " + m.DeclaringType.Name + "." + m.Name);
+                        }
+                        catch (Reflector.ReflectorException e)
+                        {
+                            return new GadgetConsoleMessage(e.Message, null, MessageSeverity.ERROR);
+                        }
+                    case "resolveref":
+                    case "resolvereference":
+                        if (args.Length < 3 || args.Length > 5) return CommandSyntaxError(args[0], args[1] + " <identifier> [container] [name]");
+                        try
+                        {
+                            Tuple<MemberInfo, object> oRef = reflector.ResolveReference(args[2], args.Length >= 4 ? args[3] : "null", args.Length == 5 ? args[4] : null);
+                            return new GadgetConsoleMessage("Successfully Resolved Reference To: " + oRef.Item1.DeclaringType.Name + "." + oRef.Item1.Name + (args.Length == 5 ? " as $" + args[4].TrimStart('$') : string.Empty));
+                        }
+                        catch (Reflector.ReflectorException e)
+                        {
+                            return new GadgetConsoleMessage(e.Message, null, MessageSeverity.ERROR);
+                        }
+                    case "using":
+                        if (args.Length != 3) return CommandSyntaxError(args[0], args[1] + " <namespace>");
+                        try
+                        {
+                            reflector.UseNamespace(args[2]);
+                            return new GadgetConsoleMessage("Successfully Added Using Namespace: " + args[2]);
+                        }
+                        catch (Reflector.ReflectorException e)
+                        {
+                            return new GadgetConsoleMessage(e.Message, null, MessageSeverity.ERROR);
+                        }
+                    case "unusing":
+                        if (args.Length != 3) return CommandSyntaxError(args[0], args[1] + " <namespace>");
+                        try
+                        {
+                            reflector.UnuseNamespace(args[2]);
+                            return new GadgetConsoleMessage("Successfully Removed Using Namespace: " + args[2]);
+                        }
+                        catch (Reflector.ReflectorException e)
+                        {
+                            return new GadgetConsoleMessage(e.Message, null, MessageSeverity.ERROR);
+                        }
+                    case "read":
+                        if (args.Length < 3 || args.Length > 4) return CommandSyntaxError(args[0], args[1] + " <identifier> [container]");
+                        try
+                        {
+                            return new GadgetConsoleMessage("Read: " + args[2] + " = " + reflector.ReadValue(args[2], args.Length == 4 ? args[3] : "null"));
+                        }
+                        catch (Reflector.ReflectorException e)
+                        {
+                            return new GadgetConsoleMessage(e.Message, null, MessageSeverity.ERROR);
+                        }
+                    case "write":
+                        if (args.Length < 4 || args.Length > 5) return CommandSyntaxError(args[0], args[1] + " <identifier> [container] <value>");
+                        try
+                        {
+                            return new GadgetConsoleMessage("Write: " + args[2] + " = " + reflector.WriteValue(args[2], args.Length == 5 ? args[3] : "null", args[args.Length - 1]));
+                        }
+                        catch (Reflector.ReflectorException e)
+                        {
+                            return new GadgetConsoleMessage(e.Message, null, MessageSeverity.ERROR);
+                        }
+                    case "watch":
+                        if (args.Length < 3 || args.Length > 5) return CommandSyntaxError(args[0], args[1] + " <identifier> [container] [interval]");
+                        if (watchers.ContainsKey(args[2])) return new GadgetConsoleMessage("Already watching " + args[2] + "!", null, MessageSeverity.WARN);
+                        int interval;
+                        if (args.Length < 5 || !int.TryParse(args[4], out interval)) interval = 10;
+                        watchers.Add(args[2], new ThreadedWatcher<string>(() => reflector.ReadValue(args[2], args.Length >= 4 ? args[3] : "null"), (before, after) =>
+                        {
+                            Print(new GadgetConsoleMessage(args[2] + " Watch: " + before + " -> " + after));
+                            return true;
+                        }, sleepInterval: interval, exceptionHandler: (e) =>
+                        {
+                            if (e is Reflector.ReflectorException re)
+                            {
+                                Print(new GadgetConsoleMessage(args[2] + " Watch Error: " + re.Message + "\nAborting Watch.", null, MessageSeverity.ERROR));
+                            }
+                            else
+                            {
+                                Print(new GadgetConsoleMessage(args[2] + " Watch Exception: " + e + "\nAborting Watch.", null, MessageSeverity.ERROR));
+                            }
+                            return false;
+                        }));
+                        return new GadgetConsoleMessage("Started Watching " + args[2]);
+                    case "endwatch":
+                        if (args.Length != 3) return CommandSyntaxError(args[0], args[1] + " <namespace>");
+                        if (args[2].Equals("all", StringComparison.CurrentCultureIgnoreCase))
+                        {
+                            foreach (string key in watchers.Keys.ToArray())
+                            {
+                                watchers[key].Kill();
+                                watchers.Remove(key);
+                                Print(new GadgetConsoleMessage("Stopped Watching " + key + "..."));
+                            }
+                        }
+                        else
+                        {
+                            if (!watchers.ContainsKey(args[2])) return new GadgetConsoleMessage("Not watching " + args[2] + "!", null, MessageSeverity.WARN);
+                            watchers[args[2]].Kill();
+                            watchers.Remove(args[2]);
+                        }
+                        return new GadgetConsoleMessage("Stopped Watching " + args[2]);
+                    case "invoke":
+                        if (args.Length < 3) return CommandSyntaxError(args[0], args[1] + " <identifier> [container] [args]...");
+                        try
+                        {
+                            string returnTarget = null;
+                            if (args.Length > 4 && args[3].Trim() == "=")
+                            {
+                                returnTarget = args[2];
+                                string[] splicedArgs = new string[args.Length - 2];
+                                Array.Copy(args, 0, splicedArgs, 0, 2);
+                                Array.Copy(args, 4, splicedArgs, 2, splicedArgs.Length - 2);
+                                args = splicedArgs;
+                            }
+                            string[] invokeArgs = new string[args.Length > 4 ? args.Length - 4 : 0];
+                            if (invokeArgs.Length > 0)
+                            {
+                                Array.Copy(args, 4, invokeArgs, 0, invokeArgs.Length);
+                            }
+                            string val = returnTarget != null ? reflector.InvokeReturn(args[2], args.Length >= 4 ? args[3] : "null", returnTarget, invokeArgs) : reflector.Invoke(args[2], args.Length >= 4 ? args[3] : "null", invokeArgs);
+                            if (val != "void")
+                            {
+                                return new GadgetConsoleMessage("Invoke: " + args[2] + "(" + invokeArgs.Concat() + ") = " + val);
+                            }
+                            else
+                            {
+                                return new GadgetConsoleMessage("Invoke: " + args[2] + "(" + invokeArgs.Concat() + ")");
+                            }
+                        }
+                        catch (Reflector.ReflectorException e)
+                        {
+                            return new GadgetConsoleMessage(e.Message, null, MessageSeverity.ERROR);
+                        }
+                    default:
+                        return CommandSyntaxError(args[0], "<mode> [parameters]...");
+                }
             }
         }
 

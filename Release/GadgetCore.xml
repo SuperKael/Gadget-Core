@@ -1288,7 +1288,19 @@
             <summary>
             Generates a standard SlotValidator/CraftValidator/CraftPerformer trio using a simple set of input IDs and an output Item
             </summary>
-            <param name="recipes">A list of recipes consisting of the ingredient IDs, the item output, and the amount of possible random extra output.</param>
+            <param name="recipes">An array of recipes consisting of the ingredient IDs, the item output, and the amount of possible random extra output.</param>
+        </member>
+        <member name="M:GadgetCore.API.CraftMenuInfo.CreateSimpleCraftPerformer(GadgetCore.Util.Tuple{System.Int32[],Item,System.Int32,System.Boolean}[])">
+            <summary>
+            Generates a standard SlotValidator/CraftValidator/CraftPerformer trio using a simple set of input IDs and an output Item
+            </summary>
+            <param name="recipes">An array of recipes consisting of the ingredient IDs, the item output, the amount of possible random extra output, and whether to randomize the rarity of the output item.</param>
+        </member>
+        <member name="M:GadgetCore.API.CraftMenuInfo.CreateAdvancedCraftPerformer(GadgetCore.API.CraftMenuInfo.AdvancedRecipe[])">
+            <summary>
+            Generates a standard SlotValidator/CraftValidator/CraftPerformer trio using a more advanced structure of recipe components.
+            </summary>
+            <param name="recipes">An array of recipes represented by <see cref="T:GadgetCore.API.CraftMenuInfo.AdvancedRecipe"/>s.</param>
         </member>
         <member name="E:GadgetCore.API.CraftMenuInfo.OnCraftButton">
             <summary>
@@ -1313,6 +1325,91 @@
         <member name="T:GadgetCore.API.CraftMenuInfo.CraftFinalizer">
             <summary>
             A delegate used for finalizing crafting recipes.
+            </summary>
+        </member>
+        <member name="T:GadgetCore.API.CraftMenuInfo.AdvancedRecipe">
+            <summary>
+            Represents a recipe provided to <see cref="M:GadgetCore.API.CraftMenuInfo.CreateAdvancedCraftPerformer(GadgetCore.API.CraftMenuInfo.AdvancedRecipe[])"/>
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.CraftMenuInfo.AdvancedRecipe.Slots">
+            <summary>
+            Array of recipe components for this recipe. Will always be of length 4.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CraftMenuInfo.AdvancedRecipe.#ctor(GadgetCore.API.CraftMenuInfo.AdvancedRecipeComponent,GadgetCore.API.CraftMenuInfo.AdvancedRecipeComponent,GadgetCore.API.CraftMenuInfo.AdvancedRecipeComponent,GadgetCore.API.CraftMenuInfo.AdvancedRecipeComponent)">
+            <summary>
+            Constructs a new <see cref="T:GadgetCore.API.CraftMenuInfo.AdvancedRecipe"/> with the four specified slots. An unused slot can be null.
+            </summary>
+        </member>
+        <member name="T:GadgetCore.API.CraftMenuInfo.AdvancedRecipeComponent">
+            <summary>
+            Represents a component in a recipe provided to <see cref="M:GadgetCore.API.CraftMenuInfo.CreateAdvancedCraftPerformer(GadgetCore.API.CraftMenuInfo.AdvancedRecipe[])"/>
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.CraftMenuInfo.AdvancedRecipeComponent.UNUSED">
+            <summary>
+            Fill unused recipe slots with this.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.CraftMenuInfo.AdvancedRecipeComponent.Type">
+            <summary>
+            The type of this advanced recipe component.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.CraftMenuInfo.AdvancedRecipeComponent.Item">
+            <summary>
+            The Item associated with this slot.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.CraftMenuInfo.AdvancedRecipeComponent.Fuzzy">
+            <summary>
+            Whether or not the Item should be matched purely based on ID.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.CraftMenuInfo.AdvancedRecipeComponent.QuantityVariation">
+            <summary>
+            The maximum amount by which the quantity of the associated Item may by randomly increased by.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CraftMenuInfo.AdvancedRecipeComponent.#ctor(Item,GadgetCore.API.CraftMenuInfo.AdvancedRecipeComponentType,System.Int32)">
+            <summary>
+            Constructs a new <see cref="T:GadgetCore.API.CraftMenuInfo.AdvancedRecipeComponent"/>
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CraftMenuInfo.AdvancedRecipeComponent.#ctor(Item,GadgetCore.API.CraftMenuInfo.AdvancedRecipeComponentType,System.Boolean,System.Int32)">
+            <summary>
+            Constructs a new <see cref="T:GadgetCore.API.CraftMenuInfo.AdvancedRecipeComponent"/>
+            </summary>
+        </member>
+        <member name="T:GadgetCore.API.CraftMenuInfo.AdvancedRecipeComponentType">
+            <summary>
+            Represents the component type of an <see cref="T:GadgetCore.API.CraftMenuInfo.AdvancedRecipeComponent"/>
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.CraftMenuInfo.AdvancedRecipeComponentType.INPUT">
+            <summary>
+            Standard input component for a recipe.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.CraftMenuInfo.AdvancedRecipeComponentType.CORE_INPUT">
+            <summary>
+            Core input component for a recipe - there can only be one component of this type.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.CraftMenuInfo.AdvancedRecipeComponentType.OUTPUT">
+            <summary>
+            Standard output component for a recipe.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.CraftMenuInfo.AdvancedRecipeComponentType.CORE_OUTPUT">
+            <summary>
+            Core output component for a recipe - inherits all properties other than ID and quantity from the core input component.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.CraftMenuInfo.AdvancedRecipeComponentType.UNUSED">
+            <summary>
+            A component representing an unused slot.
             </summary>
         </member>
         <member name="T:GadgetCore.API.EntityInfo">
@@ -2269,6 +2366,12 @@
             Determines if two <see cref="T:Item"/>s are able to stack together. Ignores matters of quantity.
             </summary>
         </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.MatchItems(Item,Item)">
+            <summary>
+            Determines if <paramref name="item1"/> matches <paramref name="item2"/>.
+            <paramref name="item1"/>'s exp must be greater than or equal to <paramref name="item2"/>'s exp, while quantity is ignored.
+            </summary>
+        </member>
         <member name="M:GadgetCore.API.GadgetCoreAPI.CreateMarketStand(GadgetCore.API.ItemInfo,UnityEngine.Vector2,System.Int32,System.Boolean,System.Boolean,System.Boolean)">
             <summary>
             Creates a market stand. If called on the title screen, will return null but a stand will still be created upon ship load.
@@ -2306,6 +2409,11 @@
             </summary>
         </member>
         <member name="M:GadgetCore.API.GadgetCoreAPI.CopyItem(Item)">
+            <summary>
+            Creates a copy of an Item, including its extra data.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.CloneItem(Item)">
             <summary>
             Creates a copy of an Item, including its extra data.
             </summary>
@@ -2470,9 +2578,40 @@
             Adds a recipe to the Creation Machine.
             </summary>
         </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.GetRandomCraftTier">
+            <summary>
+            Generates a random gear item tier, factoring in the forgeblade and blacksmith uniform.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.GetInventory">
+            <summary>
+            Returns a reference to the inventory field in <see cref="T:GameScript"/>
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.GetPortalUses">
+            <summary>
+            Returns a reference to the portalUses field in <see cref="T:GameScript"/>
+            </summary>
+        </member>
         <member name="M:GadgetCore.API.GadgetCoreAPI.GetGearLevel(Item)">
             <summary>
             Gets the level of the given piece of gear.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.GetGearLevel(System.Int32,System.Int32)">
+            <summary>
+            Gets the resultant level from a given amount of gear exp.
+            If <paramref name="cap"/> is negative, then no cap will be used.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.GetGearExp(System.Int32)">
+            <summary>
+            Gets the total required gear exp for a given level.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.GetPlayerExp(System.Int32)">
+            <summary>
+            Gets the total required player exp for a given level.
             </summary>
         </member>
         <member name="M:GadgetCore.API.GadgetCoreAPI.GetTrueGearBaseStats(System.Int32)">
@@ -2882,6 +3021,16 @@
             Gets the local ID that matches the specified host ID. Returns -1 if there is no matching local ID for the specified host ID.
             </summary>
         </member>
+        <member name="M:GadgetCore.API.GadgetNetwork.GetNameByNetworkPlayer(UnityEngine.NetworkPlayer)">
+            <summary>
+            Returns the player name of the given <see cref="T:UnityEngine.NetworkPlayer"/>
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetNetwork.GetNetworkPlayerByName(System.String)">
+            <summary>
+            Returns the <see cref="T:UnityEngine.NetworkPlayer"/> with the given player name
+            </summary>
+        </member>
         <member name="M:GadgetCore.API.GadgetNetwork.RegisterSyncVar``1(System.String,``0)">
             <summary>
             Registers a new SyncVar. The value of this SyncVar can be updated using <see cref="M:GadgetCore.API.GadgetNetwork.UpdateSyncVar``1(System.String,``0)"/>,
@@ -2970,6 +3119,11 @@
             The path to the Logs directory.
             </summary>
         </member>
+        <member name="F:GadgetCore.API.GadgetPaths.LogArchivesPath">
+            <summary>
+            The path to the Log Archives directory.
+            </summary>
+        </member>
         <member name="F:GadgetCore.API.GadgetPaths.AssetsPath">
             <summary>
             The path to the Assets directory.
@@ -3002,7 +3156,7 @@
         </member>
         <member name="P:GadgetCore.API.Gadgets.LoadOrderTree">
             <summary>
-            A <see cref="T:GadgetCore.Util.MultiTreeList`1"/> representing the relationships between the installed Gadgets. It is read-only, so don't attempt to edit it. Note that this is just the parent of the structure, and its <see cref="F:GadgetCore.Util.MultiTreeList`1.Value"/> is null.
+            A <see cref="T:GadgetCore.Util.MultiTreeList`1"/> representing the relationships between the installed Gadgets. It is read-only, so do not attempt to edit it. Note that this is just the parent of the structure, and its <see cref="F:GadgetCore.Util.MultiTreeList`1.Value"/> is null.
             </summary>
         </member>
         <member name="M:GadgetCore.API.Gadgets.CountGadgets">
@@ -4722,6 +4876,26 @@
             Gets the name of this registry. Must be constant. Returns <see cref="F:GadgetCore.API.PlanetRegistry.REGISTRY_NAME"/>.
             </summary>
         </member>
+        <member name="M:GadgetCore.API.PlanetRegistry.GetPlanetIDByName(System.String)">
+            <summary>
+            Gets the planet ID for the given name. Case-insensitive. Returns -1 if there is no planet with the given name.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.PlanetRegistry.GetPlanetIDByRegistryName(System.String)">
+            <summary>
+            Gets the planet ID for the given registry name. Case-insensitive. Returns -1 if there is no planet with the given name.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.PlanetRegistry.PostRegistration(GadgetCore.API.PlanetInfo)">
+            <summary>
+            Called after the specified Registry Entry has been registered. You should never call this yourself. Note that this is called before <see cref="M:GadgetCore.API.RegistryEntry`2.PostRegister"/>
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.PlanetRegistry.OnUnregister(GadgetCore.API.PlanetInfo)">
+            <summary>
+            Called just before an entry is removed from the registry by <see cref="M:GadgetCore.API.Registry.UnregisterGadget(GadgetCore.API.GadgetInfo)"/>
+            </summary>
+        </member>
         <member name="M:GadgetCore.API.PlanetRegistry.GetIDStart">
             <summary>
             Gets the ID that modded IDs should start at for this registry. <see cref="T:GadgetCore.API.MenuRegistry"/> always returns 10000.
@@ -4775,6 +4949,11 @@
         <member name="P:GadgetCore.API.Registry`3.Singleton">
             <summary>
             Represents this Registry's singleton.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.Registry`3.IDMatchesType(System.Int32,`2,`2)">
+            <summary>
+            Checks if a given Registry ID matches the given Entry type. Optionally applies a flags mask to both the entry's type and the given type.
             </summary>
         </member>
         <member name="M:GadgetCore.API.Registry`3.Register(`1,System.String,System.Int32,System.Boolean)">
@@ -5343,6 +5522,21 @@
             Returns a value indicating whether the console is was open one frame ago.
             </summary>
         </member>
+        <member name="M:GadgetCore.GadgetConsole.DealiasCommand(System.String)">
+            <summary>
+            Dealiases the given command.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.GadgetConsole.IsCommandExecuteBlacklisted(System.String)">
+            <summary>
+            Returns whether the given command is on the /execute blacklist.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.GadgetConsole.RegisterCommand(System.String,System.Boolean,System.Boolean,GadgetCore.GadgetConsole.ConsoleCommand,System.String,System.String,System.String[])">
+            <summary>
+            Registers a command. If <paramref name="operatorOnly"/> is true, then only operators will be able to execute this command. If <paramref name="allowExecute"/> is false, then the /execute command cannot be used to force a player to run this command.
+            </summary>
+        </member>
         <member name="M:GadgetCore.GadgetConsole.RegisterCommand(System.String,System.Boolean,GadgetCore.GadgetConsole.ConsoleCommand,System.String,System.String,System.String[])">
             <summary>
             Registers a command. If <paramref name="operatorOnly"/> is true, then only operators will be able to execute this command.
@@ -5350,12 +5544,12 @@
         </member>
         <member name="M:GadgetCore.GadgetConsole.Print(System.String,System.String,GadgetCore.GadgetConsole.MessageSeverity)">
             <summary>
-            Prints the given text to the console. Returns the index of the message on the console, which can be used to change or remove it later. Will return null if a debug message is printed, but <see cref="P:GadgetCore.GadgetConsole.Debug"/> is false.
+            Prints the given text to the console. Returns the index of the message on the console, which can be used to change or remove it later. Will return -1 if the message is suppressed.
             </summary>
         </member>
         <member name="M:GadgetCore.GadgetConsole.Print(GadgetCore.GadgetConsole.GadgetConsoleMessage)">
             <summary>
-            Prints the given <see cref="T:GadgetCore.GadgetConsole.GadgetConsoleMessage"/> to the console. Returns the index of the message on the console, which can be used to change or remove it later. Will return null if a debug message is printed, but <see cref="P:GadgetCore.GadgetConsole.Debug"/> is false.
+            Prints the given <see cref="T:GadgetCore.GadgetConsole.GadgetConsoleMessage"/> to the console. Returns the index of the message on the console, which can be used to change or remove it later. Will return -1 if the message is suppressed.
             </summary>
         </member>
         <member name="M:GadgetCore.GadgetConsole.BroadcastMessage(GadgetCore.GadgetConsole.GadgetConsoleMessage)">
@@ -5400,7 +5594,12 @@
         </member>
         <member name="M:GadgetCore.GadgetConsole.SendConsoleMessage(System.String,System.String,System.Boolean)">
             <summary>
-            Sends a message to the console, as if it were typed by the player. Can trigger commands. If <paramref name="printCommandFeedback"/> is false, then response feedback from commands will be supressed.
+            Sends a message to the console, as if it were entered by the player. Can trigger commands. If <paramref name="printCommandFeedback"/> is false, then response feedback from commands will be supressed.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.GadgetConsole.SendConsoleMessage(System.String,System.String,System.Boolean,System.Boolean)">
+            <summary>
+            Sends a message to the console, as if it were entered by the player. Can trigger commands. If <paramref name="printCommandFeedback"/> is false, then response feedback from commands will be supressed.
             </summary>
         </member>
         <member name="M:GadgetCore.GadgetConsole.IsOperator(System.String)">
@@ -5502,6 +5701,16 @@
             The /givechip command
             </summary>
         </member>
+        <member name="M:GadgetCore.GadgetConsole.CoreCommands.GiveExp(System.String,System.String[])">
+            <summary>
+            The /giveexp command
+            </summary>
+        </member>
+        <member name="M:GadgetCore.GadgetConsole.CoreCommands.GivePortals(System.String,System.String[])">
+            <summary>
+            The /givechip command
+            </summary>
+        </member>
         <member name="M:GadgetCore.GadgetConsole.CoreCommands.ReloadMod(System.String,System.String[])">
             <summary>
             The /reloadmod command.
@@ -5520,6 +5729,26 @@
         <member name="M:GadgetCore.GadgetConsole.CoreCommands.GitHubLogin(System.String,System.String[])">
             <summary>
             The /githublogin command.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.GadgetConsole.CoreCommands.SpawnEntity(System.String,System.String[])">
+            <summary>
+            The /spawnentity command.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.GadgetConsole.CoreCommands.GodMode(System.String,System.String[])">
+            <summary>
+            The /godmode command.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.GadgetConsole.CoreCommands.Execute(System.String,System.String[])">
+            <summary>
+            The /execute command.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.GadgetConsole.CoreCommands.Reflect(System.String,System.String[])">
+            <summary>
+            The /reflect command.
             </summary>
         </member>
         <member name="T:GadgetCore.GadgetConsole.MessageSeverity">
@@ -5654,7 +5883,12 @@
         </member>
         <member name="P:GadgetCore.GadgetCoreConfig.MaxBackups">
             <summary>
-            The maximum number of save backups to have at any one time.
+            The maximum number of save backups to keep at any one time.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.GadgetCoreConfig.MaxLogArchives">
+            <summary>
+            The maximum number of log archives to keep at any one time.
             </summary>
         </member>
         <member name="T:GadgetCore.IGadgetCoreLib">
@@ -6178,6 +6412,16 @@
             Concatenates the strings in the given <see cref="T:System.Collections.Generic.IEnumerable`1"/> together. Uses ", " as the seperator if one is not explicitly specified.
             </summary>
         </member>
+        <member name="M:GadgetCore.Util.ExtensionUtils.Concat``1(System.Collections.Generic.IEnumerable{``0},System.Func{``0,System.String},System.String)">
+            <summary>
+            Concatenates the objects in the given <see cref="T:System.Collections.Generic.IEnumerable`1"/> together. Uses ", " as the seperator if one is not explicitly specified.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.ExtensionUtils.RecursiveConcat``1(System.Collections.Generic.IEnumerable{``0},System.Func{System.Object,System.String},System.String)">
+            <summary>
+            Recursively concatenates the objects in the given <see cref="T:System.Collections.Generic.IEnumerable`1"/> together. Uses ", " as the seperator if one is not explicitly specified.
+            </summary>
+        </member>
         <member name="M:GadgetCore.Util.ExtensionUtils.IndexOf``1(System.Collections.Generic.IEnumerable{``0},System.Func{``0,System.Boolean})">
             <summary>
             Finds the index of the given predicate, returns -1 if it is not found.
@@ -6460,8 +6704,40 @@
         </member>
         <member name="F:GadgetCore.Util.ReflectionUtils.ALL_BF">
             <summary>
-            Const value representative of the combination of the four standard <see cref="T:System.Reflection.BindingFlags"/>:
+            Const value representative of the combination of the four standard <see cref="T:System.Reflection.BindingFlags"/> uses for getting class members:
             BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.ReflectionUtils.IsStatic(System.Reflection.MemberInfo)">
+            <summary>
+            Determines if this <see cref="T:System.Reflection.MemberInfo"/> is static.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.ReflectionUtils.GetGetType(System.Reflection.MemberInfo)">
+            <summary>
+            Gets the Type of the value that would be returned by <see cref="M:GadgetCore.Util.ReflectionUtils.GetValue(System.Reflection.MemberInfo,System.Object)"/> for this <see cref="T:System.Reflection.MemberInfo"/>.
+            Returns null if <see cref="M:GadgetCore.Util.ReflectionUtils.GetValue(System.Reflection.MemberInfo,System.Object)"/> cannot function for this <see cref="T:System.Reflection.MemberInfo"/>.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.ReflectionUtils.GetSetType(System.Reflection.MemberInfo)">
+            <summary>
+            Gets the Type of the value that is required by <see cref="M:GadgetCore.Util.ReflectionUtils.SetValue(System.Reflection.MemberInfo,System.Object,System.Object)"/> for this <see cref="T:System.Reflection.MemberInfo"/>.
+            Returns null if <see cref="M:GadgetCore.Util.ReflectionUtils.SetValue(System.Reflection.MemberInfo,System.Object,System.Object)"/> cannot function for this <see cref="T:System.Reflection.MemberInfo"/>.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.ReflectionUtils.GetValue(System.Reflection.MemberInfo,System.Object)">
+            <summary>
+            Attempts to get a value from this <see cref="T:System.Reflection.MemberInfo"/> from the given <paramref name="obj"/>.
+            Can only work with Fields, Methods with a return value, and Properties with a getter. For methods, all parameters are passed their default values.
+            If retrieving a value from the member is not possible, simply returns <paramref name="memberInfo"/>.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.ReflectionUtils.SetValue(System.Reflection.MemberInfo,System.Object,System.Object)">
+            <summary>
+            Attempts to set a value to this <see cref="T:System.Reflection.MemberInfo"/> from the given <paramref name="obj"/>.
+            Can only work with Fields, Methods with a single parameter, and Properties with a setter.
+            Returns a value indicating whether the assignment was possible.
+            Throws an <see cref="T:System.ArgumentException"/> if value Type is not assignable to member Type.
             </summary>
         </member>
         <member name="M:GadgetCore.Util.ReflectionUtils.GetValue``1(System.Reflection.FieldInfo,System.Object)">
@@ -6484,7 +6760,7 @@
             Gets the value of a field with the specified name and parameters.
             </summary>
             <param name="type">The object instance to invoke upon.</param>
-            <param name="fieldName">The name of the field to invoke.</param>
+            <param name="fieldName">The name of the field to read from.</param>
             <returns>The value contained within the field.</returns>
         </member>
         <member name="M:GadgetCore.Util.ReflectionUtils.GetFieldValue(System.Object,System.String)">
@@ -6601,6 +6877,106 @@
             Creates an invoker delegate for the given MethodInfo, allowing you to repeatedly invoke it without repeated calls to MethodInfo's Invoke method.
             </summary>
         </member>
+        <member name="T:GadgetCore.Util.Reflector">
+            <summary>
+            Reflection utility used by the /reflect command.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.Reflector.ReadValue(System.String,System.String)">
+            <summary>
+            Reads the specified member or reference's value as a string.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.Reflector.WriteValue(System.String,System.String,System.String)">
+            <summary>
+            Attempts to write the specified member or reference's value as a string. <paramref name="value"/> can be a literal value, or a reference.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.Reflector.Invoke(System.String,System.String,System.String[])">
+            <summary>
+            Attempts to invoke a method or property with an array of args as strings.
+            Returns "void" if invoked method has a return type of void.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.Reflector.InvokeReturn(System.String,System.String,System.String,System.String[])">
+            <summary>
+            Attempts to invoke a method or property with an array of args as strings, and stores the return value at a given target.
+            Returns "void" if invoked method has a return type of void.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.Reflector.UseNamespace(System.String)">
+            <summary>
+            'Uses' a namespace, thereby simplifying the use of <see cref="M:GadgetCore.Util.Reflector.ResolveType(System.String)"/>.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.Reflector.UnuseNamespace(System.String)">
+            <summary>
+            'Unuses' a namespace, potentially resolving name conflicts with the use of <see cref="M:GadgetCore.Util.Reflector.ResolveType(System.String)"/>.
+            Also removes cached type resolutions from this namespace, even if this namespace was not previously 'Used'.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.Reflector.ResolveType(System.String)">
+            <summary>
+            Resolves a type using an identifier.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.Reflector.ResolveMember(System.String)">
+            <summary>
+            Resolves a member using an identifier
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.Reflector.ResolveReference(System.String,System.String,System.String)">
+            <summary>
+            Resolves a reference using an identifier, an optional reference to the container object if referencing a member identifier,
+            and an optional name to save the reference as in that case.
+            </summary>
+        </member>
+        <member name="T:GadgetCore.Util.Reflector.ReflectorException">
+            <summary>
+            The only exception that should ever be thrown by the Reflector. Will contain a message clearly explaining the problem.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.Reflector.ReflectorException.#ctor(System.String)">
+            <summary>
+            Constructs a new ReflectorException
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.Reflector.ReflectorException.#ctor(System.String,System.Exception)">
+            <summary>
+            Constructs a new ReflectorException
+            </summary>
+        </member>
+        <member name="T:GadgetCore.Util.ThreadedWatcher`1">
+            <summary>
+            Uses a dedicated thread to watch for changes in the value of a field.
+            </summary>
+            <typeparam name="T">The type of the value being watched</typeparam>
+        </member>
+        <member name="M:GadgetCore.Util.ThreadedWatcher`1.#ctor(System.Reflection.FieldInfo,System.Object,System.Func{`0,`0,System.Boolean},System.Int32,System.Collections.Generic.EqualityComparer{`0},System.Func{System.Exception,System.Boolean})">
+            <summary>
+            Constructs and initiates a new <see cref="T:GadgetCore.Util.ThreadedWatcher`1"/>. Use <see cref="M:GadgetCore.Util.ThreadedWatcher`1.Kill"/>, or return false from the <paramref name="listener"/>, to stop.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.ThreadedWatcher`1.#ctor(System.Func{System.Object,`0},System.Object,System.Func{`0,`0,System.Boolean},System.Int32,System.Collections.Generic.EqualityComparer{`0},System.Func{System.Exception,System.Boolean})">
+            <summary>
+            Constructs and initiates a new <see cref="T:GadgetCore.Util.ThreadedWatcher`1"/>. Use <see cref="M:GadgetCore.Util.ThreadedWatcher`1.Kill"/>, or return false from the <paramref name="listener"/>, to stop.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.ThreadedWatcher`1.#ctor(System.Func{`0},System.Func{`0,`0,System.Boolean},System.Int32,System.Collections.Generic.EqualityComparer{`0},System.Func{System.Exception,System.Boolean})">
+            <summary>
+            Constructs and initiates a new <see cref="T:GadgetCore.Util.ThreadedWatcher`1"/>. Use <see cref="M:GadgetCore.Util.ThreadedWatcher`1.Kill"/>, or return false from the <paramref name="listener"/>, to stop.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.ThreadedWatcher`1.Kill">
+            <summary>
+            Permanently kills this watcher.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.ThreadedWatcher`1.IsLive">
+            <summary>
+            Returns whether this watcher is currently live.
+            </summary>
+        </member>
         <member name="T:GadgetCore.Util.TopoSort">
             <summary>
             Utility class for performing topological sorts.
@@ -6702,7 +7078,19 @@
             Ignores the instruction's labels and exception blocks.
             </summary>
         </member>
+        <member name="M:GadgetCore.Util.TranspilerHelper.CILProcessor.FindRefByInsn(HarmonyLib.CodeInstruction,GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef)">
+            <summary>
+            Finds the first instruction that matches the given instruction's opcode and operand.
+            Ignores the instruction's labels and exception blocks.
+            </summary>
+        </member>
         <member name="M:GadgetCore.Util.TranspilerHelper.CILProcessor.FindLastRefByInsn(HarmonyLib.CodeInstruction)">
+            <summary>
+            Finds the last instruction that matches the given instruction's opcode and operand.
+            Ignores the instruction's labels and exception blocks.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.TranspilerHelper.CILProcessor.FindLastRefByInsn(HarmonyLib.CodeInstruction,GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef)">
             <summary>
             Finds the last instruction that matches the given instruction's opcode and operand.
             Ignores the instruction's labels and exception blocks.
@@ -6722,7 +7110,21 @@
             The <see cref="T:GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef"/> points to the first instruction in the block.
             </summary>
         </member>
+        <member name="M:GadgetCore.Util.TranspilerHelper.CILProcessor.FindRefByInsns(HarmonyLib.CodeInstruction[],GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef)">
+            <summary>
+            Finds the first instruction block that matches the given instructions' opcodes and operands.
+            Ignores the instruction's labels and exception blocks.
+            The <see cref="T:GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef"/> points to the first instruction in the block.
+            </summary>
+        </member>
         <member name="M:GadgetCore.Util.TranspilerHelper.CILProcessor.FindLastRefByInsns(HarmonyLib.CodeInstruction[])">
+            <summary>
+            Finds the last instruction block that matches the given instructions' opcodes and operands.
+            Ignores the instruction's labels and exception blocks.
+            The <see cref="T:GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef"/> points to the first instruction in the block.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.TranspilerHelper.CILProcessor.FindLastRefByInsns(HarmonyLib.CodeInstruction[],GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef)">
             <summary>
             Finds the last instruction block that matches the given instructions' opcodes and operands.
             Ignores the instruction's labels and exception blocks.
@@ -6739,7 +7141,17 @@
             Finds the first instruction that has the given opcode.
             </summary>
         </member>
+        <member name="M:GadgetCore.Util.TranspilerHelper.CILProcessor.FindRefByOpCode(System.Reflection.Emit.OpCode,GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef)">
+            <summary>
+            Finds the first instruction that has the given opcode.
+            </summary>
+        </member>
         <member name="M:GadgetCore.Util.TranspilerHelper.CILProcessor.FindLastRefByOpCode(System.Reflection.Emit.OpCode)">
+            <summary>
+            Finds the last instruction that has the given opcode.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.TranspilerHelper.CILProcessor.FindLastRefByOpCode(System.Reflection.Emit.OpCode,GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef)">
             <summary>
             Finds the last instruction that has the given opcode.
             </summary>
@@ -6747,7 +7159,7 @@
         <member name="M:GadgetCore.Util.TranspilerHelper.CILProcessor.FindRefByLabel(System.Reflection.Emit.Label)">
             <summary>
             Finds the instruction with the given label. Returns null if no instruction has the given label.
-            Returns the first instruction found with the given label - if multiple instructions have the same label, then that is an invalid state.
+            Returns the first instruction found with the given label - if multiple instructions have the same label, then that indicates an invalid state.
             </summary>
         </member>
         <member name="M:GadgetCore.Util.TranspilerHelper.CILProcessor.DumpInstructions(GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef,System.Int32)">
@@ -6769,6 +7181,11 @@
             Gets the <see cref="T:HarmonyLib.CodeInstruction"/> referenced by the given <see cref="T:GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef"/>
             </summary>
         </member>
+        <member name="M:GadgetCore.Util.TranspilerHelper.CILProcessor.MarkLabel(GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef)">
+            <summary>
+            Marks a label at the target instruction, for use in branch instructions.
+            </summary>
+        </member>
         <member name="M:GadgetCore.Util.TranspilerHelper.CILProcessor.SimplifyConditionalBranch(GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef)">
             <summary>
             Simplifies needlessly complicated conditional branch structures.
@@ -6777,12 +7194,13 @@
         <member name="M:GadgetCore.Util.TranspilerHelper.CILProcessor.InjectElseIf(GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef,System.Reflection.Emit.OpCode,GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef@,GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef@)">
             <summary>
             Injects an elseif structure onto the end of a specified if block specified by the <see cref="T:GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef"/> that is targeting a conditional branch instruction.
-            The returned <see cref="T:GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef"/>s will point to NOPs you can use and/or replace.
+            The out <see cref="T:GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef"/>s will point to NOPs you can use and/or replace.
             </summary>
         </member>
         <member name="M:GadgetCore.Util.TranspilerHelper.CILProcessor.InjectLoadField(GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef,System.Reflection.FieldInfo,System.Boolean)">
             <summary>
-            Injects a LDFLD instruction into the given <see cref="T:GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef"/>. Will fail to load a non-static field from a static method.
+            Injects a LDFLD instruction for a field in the same class as this method into the given <see cref="T:GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef"/>.
+            Will fail to load a non-static field from a static method, unless the first parameter of the method is an instance of the class.
             If <paramref name="insert"/> is false, it will replace the target instruction.
             If <paramref name="insert"/> is true, then it will insert the new instruction and push forward the instructions at
             and after the given <see cref="T:GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef"/>
@@ -6804,7 +7222,8 @@
         </member>
         <member name="M:GadgetCore.Util.TranspilerHelper.CILProcessor.InjectInsns(GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef,HarmonyLib.CodeInstruction[],System.Boolean)">
             <summary>
-            Injects a set of instructions into the block started by the given <see cref="T:GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef"/>. If <paramref name="insert"/> is false, it will replace the target instructions.
+            Injects a set of instructions into the block started by the given <see cref="T:GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef"/>.
+            If <paramref name="insert"/> is false, it will replace the target instructions.
             If <paramref name="insert"/> is true, then it will insert the new instructions and push forward the instructions at
             and after the given <see cref="T:GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef"/>
             </summary>
@@ -6853,6 +7272,26 @@
         <member name="P:GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef.Valid">
             <summary>
             Indicates whether this <see cref="T:GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef"/> is still valid - The reference will be invalidated if the instruction it references is removed.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef.GetInsn">
+            <summary>
+            Marks a label at the referenced instruction, for use in branch instructions.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef.MarkLabel">
+            <summary>
+            Marks a label at the referenced instruction, for use in branch instructions.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef.GetNextRef">
+            <summary>
+            Returns an <see cref="T:GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef"/> for the instruction immediately after this one.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef.GetPreviousRef">
+            <summary>
+            Returns an <see cref="T:GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef"/> for the instruction immediately before this one.
             </summary>
         </member>
         <member name="M:GadgetCore.Util.TranspilerHelper.CILProcessor.ILRef.GetRefByOffset(System.Int32)">

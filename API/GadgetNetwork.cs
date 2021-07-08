@@ -27,7 +27,7 @@ namespace GadgetCore.API
         private static readonly Dictionary<string, Dictionary<int, int>> IDConversionMatrixToLocal = new Dictionary<string, Dictionary<int, int>>();
         internal static float connectTime = -1;
 
-        internal static readonly Dictionary<string, NetworkPlayer> NetworkPlayersByName = new Dictionary<string, NetworkPlayer>();
+        internal static readonly Dictionary<string, NetworkPlayer> NetworkPlayersByName = new Dictionary<string, NetworkPlayer>(StringComparer.OrdinalIgnoreCase);
         internal static readonly Dictionary<NetworkPlayer, string> NamesByNetworkPlayer = new Dictionary<NetworkPlayer, string>();
 
         private static readonly Dictionary<string, SyncVar> SyncVars = new Dictionary<string, SyncVar>();
@@ -243,6 +243,22 @@ namespace GadgetCore.API
                 GadgetCore.CoreLogger.LogError("Exception that occured while parsing host ID conversion data:" + Environment.NewLine + e.ToString());
                 Network.Disconnect();
             }
+        }
+
+        /// <summary>
+        /// Returns the player name of the given <see cref="NetworkPlayer"/>
+        /// </summary>
+        public static string GetNameByNetworkPlayer(NetworkPlayer player)
+        {
+            return NamesByNetworkPlayer.TryGetValue(player, out string name) ? name : null;
+        }
+
+        /// <summary>
+        /// Returns the <see cref="NetworkPlayer"/> with the given player name
+        /// </summary>
+        public static NetworkPlayer? GetNetworkPlayerByName(string name)
+        {
+            return NetworkPlayersByName.TryGetValue(name, out NetworkPlayer player) ? (NetworkPlayer?)player : null;
         }
 
         /// <summary>

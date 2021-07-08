@@ -83,6 +83,7 @@ namespace GadgetCore.API.ConfigMenu
                 label.font = SceneInjector.ModConfigMenuText.GetComponent<TextMesh>().font;
                 label.fontSize = 12;
                 label.horizontalOverflow = HorizontalWrapMode.Wrap;
+                label.verticalOverflow = VerticalWrapMode.Overflow;
                 label.alignment = TextAnchor.MiddleLeft;
             }
             RectTransform button = new GameObject("Button", typeof(RectTransform), typeof(Button), typeof(CanvasRenderer), typeof(Image)).GetComponent<RectTransform>();

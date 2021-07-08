@@ -15,6 +15,9 @@ namespace GadgetCore.API
     {
         private static readonly FieldInfo portalUses = typeof(GameScript).GetField("portalUses", BindingFlags.NonPublic | BindingFlags.Instance);
 
+        private static Dictionary<string, int> planetIDsByName;
+        private static Dictionary<string, int> planetIDsByRegistryName;
+
         /// <summary>
         /// The number of pages that the planet selector has thanks to added planets.
         /// </summary>
@@ -105,12 +108,61 @@ namespace GadgetCore.API
         /// </summary>
         public const string REGISTRY_NAME = "Planet";
 
+        static PlanetRegistry()
+        {
+            InitializeVanillaPlanetIDNames();
+        }
+
         /// <summary>
         /// Gets the name of this registry. Must be constant. Returns <see cref="REGISTRY_NAME"/>.
         /// </summary>
         public override string GetRegistryName()
         {
             return REGISTRY_NAME;
+        }
+
+        /// <summary>
+        /// Gets the planet ID for the given name. Case-insensitive. Returns -1 if there is no planet with the given name.
+        /// </summary>
+        public static int GetPlanetIDByName(string name)
+        {
+            name = name.ToLowerInvariant();
+            if (planetIDsByName.ContainsKey(name))
+            {
+                return planetIDsByName[name];
+            }
+            return -1;
+        }
+
+        /// <summary>
+        /// Gets the planet ID for the given registry name. Case-insensitive. Returns -1 if there is no planet with the given name.
+        /// </summary>
+        public static int GetPlanetIDByRegistryName(string name)
+        {
+            name = name.ToLowerInvariant();
+            if (planetIDsByRegistryName.ContainsKey(name))
+            {
+                return planetIDsByRegistryName[name];
+            }
+            return -1;
+        }
+
+        /// <summary>
+        /// Called after the specified Registry Entry has been registered. You should never call this yourself. Note that this is called before <see cref="RegistryEntry{E, T}.PostRegister"/>
+        /// </summary>
+        protected override void PostRegistration(PlanetInfo entry)
+        {
+            planetIDsByName[entry.Name] = entry.ID;
+            planetIDsByRegistryName[entry.RegistryName] = entry.ID;
+        }
+
+        /// <summary>
+        /// Called just before an entry is removed from the registry by <see cref="Registry.UnregisterGadget(GadgetInfo)"/>
+        /// </summary>
+        protected override void OnUnregister(PlanetInfo entry)
+        {
+            planetIDsByName.Remove(entry.Name);
+            planetIDsByRegistryName.Remove(entry.RegistryName);
         }
 
         /// <summary>
@@ -297,12 +349,37 @@ namespace GadgetCore.API
                 oldPage = PlanetSelectorPage;
             }
         }
-    }
 
-    /// <summary>
-    /// Specifies what type of planet this is.
-    /// </summary>
-    public enum PlanetType
+        private static void InitializeVanillaPlanetIDNames()
+        {
+            planetIDsByName = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["Desolate Canyon"] = 0,
+                ["Deep Jungle"] = 1,
+                ["Hollow Caverns"] = 2,
+                ["Shroomtown"] = 3,
+                ["Ancient Ruins"] = 4,
+                ["Plaguelands"] = 5,
+                ["The Byfrost"] = 6,
+                ["Molten Crag"] = 7,
+                ["Mech City"] = 8,
+                ["Demon's Rift"] = 9,
+                ["The Whisperwood"] = 10,
+                ["Old Earth"] = 11,
+                ["Forbidden Arena"] = 12,
+                ["The Cathedral"] = 13
+            };
+            planetIDsByRegistryName = new Dictionary<string, int>(planetIDsByName.Comparer);
+            foreach (KeyValuePair<string, int> item in planetIDsByName)
+            {
+                planetIDsByRegistryName["Roguelands:" + item.Key] = item.Value;
+            }
+        }
+}
+/// <summary>
+/// Specifies what type of planet this is.
+/// </summary>
+public enum PlanetType
     {
         /// <summary>
         /// A standard planet with alternating worlds and towns.

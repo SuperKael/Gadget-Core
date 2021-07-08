@@ -22,11 +22,11 @@ namespace GadgetCore.API
         /// <summary>
         /// The version numbers for this version of Gadget Core. You generally shouldn't access this directly, instead use <see cref="GetRawVersion()"/>
         /// </summary>
-        public const string RAW_VERSION = "2.0.3.9";
+        public const string RAW_VERSION = "2.0.4.0";
         /// <summary>
         /// A slightly more informative version. You generally shouldn't access this directly, instead use <see cref="GetFullVersion()"/>
         /// </summary>
-        public const string FULL_VERSION = "2.0.3.9 - Mod Browser Edition";
+        public const string FULL_VERSION = "2.0.4.0 - Power Commands Edition";
         /// <summary>
         /// Indicates whether this version of GadgetCore is a beta version. You generally shouldn't access this directly, instead use <see cref="GetIsBeta()"/>
         /// </summary>
@@ -44,6 +44,12 @@ namespace GadgetCore.API
         private static readonly Func<int, string> GetChipNameInvoker = typeof(GameScript).GetMethod("GetChipName", BindingFlags.Public | BindingFlags.Instance).CreateInvoker<Func<int, string>>();
         private static readonly Func<int, string> GetChipDescInvoker = typeof(GameScript).GetMethod("GetChipDesc", BindingFlags.Public | BindingFlags.Instance).CreateInvoker<Func<int, string>>();
         private static readonly Func<int, int[]> GetGearBaseStatsInvoker = typeof(GameScript).GetMethod("GetGearBaseStats", BindingFlags.Public | BindingFlags.Instance).CreateInvoker<Func<int, int[]>>();
+
+        private static readonly Func<GameScript, Item[]> InventoryGetter = typeof(GameScript).GetField("inventory", BindingFlags.NonPublic | BindingFlags.Instance).CreateGetter<GameScript, Item[]>();
+        private static readonly Func<GameScript, int[]> PortalUsesGetter = typeof(GameScript).GetField("portalUses", BindingFlags.NonPublic | BindingFlags.Instance).CreateGetter<GameScript, int[]>();
+        
+        private static Item[] inventory;
+        private static int[] portalUses;
 
         private static readonly List<string> frozenInput = new List<string>();
 
@@ -75,6 +81,12 @@ namespace GadgetCore.API
         static GadgetCoreAPI()
         {
             if (currentVersionNums.Length != 4) Array.Resize(ref currentVersionNums, 4);
+        }
+
+        internal static void SceneReset()
+        {
+            inventory = null;
+            portalUses = null;
         }
 
         /// <summary>
@@ -210,6 +222,21 @@ namespace GadgetCore.API
         }
 
         /// <summary>
+        /// Determines if <paramref name="item1"/> matches <paramref name="item2"/>.
+        /// <paramref name="item1"/>'s exp must be greater than or equal to <paramref name="item2"/>'s exp, while quantity is ignored.
+        /// </summary>
+        public static bool MatchItems(Item item1, Item item2)
+        {
+            return item1.id == item2.id && item1.exp >= item2.exp && item1.tier == item2.tier && item1.corrupted == item2.corrupted &&
+                (item2.aspect[0] == 0 || item1.aspect[0] == item2.aspect[0] && item1.aspectLvl[0] >= item2.aspectLvl[0]) &&
+                (item2.aspect[1] == 0 || item1.aspect[1] == item2.aspect[1] && item1.aspectLvl[1] >= item2.aspectLvl[1]) &&
+                (item2.aspect[2] == 0 || item1.aspect[2] == item2.aspect[2] && item1.aspectLvl[2] >= item2.aspectLvl[2]) &&
+                ((item1.GetAllExtraData() == null && item2.GetAllExtraData() == null) || (item1.GetAllExtraData() != null && item2.GetAllExtraData() != null &&
+                item1.GetAllExtraData().Count == item2.GetAllExtraData().Count &&
+                item1.GetAllExtraData().All(keyValuePair => item2.GetAllExtraData().TryGetValue(keyValuePair.Key, out object value) && value.Equals(keyValuePair.Value))));
+        }
+
+        /// <summary>
         /// Creates a market stand. If called on the title screen, will return null but a stand will still be created upon ship load.
         /// </summary>
         /// <param name="item">The item to sell</param>
@@ -319,6 +346,14 @@ namespace GadgetCore.API
             Item copy = new Item(item.id, item.q, item.exp, item.tier, item.corrupted, item.aspect.ToArray(), item.aspectLvl.ToArray());
             copy.SetAllExtraData(item.GetAllExtraData());
             return copy;
+        }
+
+        /// <summary>
+        /// Creates a copy of an Item, including its extra data.
+        /// </summary>
+        public static Item CloneItem(this Item item)
+        {
+            return CopyItem(item);
         }
 
         /// <summary>
@@ -906,30 +941,95 @@ namespace GadgetCore.API
         }
 
         /// <summary>
+        /// Generates a random gear item tier, factoring in the forgeblade and blacksmith uniform.
+        /// </summary>
+        public static int GetRandomCraftTier()
+        {
+            return InstanceTracker.GameScript.GetRandomTier();
+        }
+
+        /// <summary>
+        /// Returns a reference to the inventory field in <see cref="GameScript"/>
+        /// </summary>
+        public static Item[] GetInventory()
+        {
+            return inventory != null ? inventory : (inventory = InventoryGetter(InstanceTracker.GameScript));
+        }
+
+        /// <summary>
+        /// Returns a reference to the portalUses field in <see cref="GameScript"/>
+        /// </summary>
+        public static int[] GetPortalUses()
+        {
+            return portalUses != null ? portalUses : (portalUses = PortalUsesGetter(InstanceTracker.GameScript));
+        }
+
+        /// <summary>
         /// Gets the level of the given piece of gear.
         /// </summary>
         public static int GetGearLevel(Item item)
         {
-            int num = 1;
+            int level = 1;
             int num2 = 100;
-            int i = item.exp;
+            int i = item?.exp ?? 0;
             int num3 = 0;
             while (i > num2)
             {
                 i -= num2;
                 num3++;
                 num2 += 75 + num3 * 100;
-                num++;
-                if (num == 10)
+                level++;
+                if (level == 10)
                 {
                     break;
                 }
             }
-            if (num > 10)
+            if (level > 10)
             {
-                num = 10;
+                level = 10;
             }
-            return num;
+            return level;
+        }
+
+        /// <summary>
+        /// Gets the resultant level from a given amount of gear exp.
+        /// If <paramref name="cap"/> is negative, then no cap will be used.
+        /// </summary>
+        public static int GetGearLevel(int exp, int cap = 10)
+        {
+            int level = 1;
+            int expForNextLevel = 100;
+            while (exp > expForNextLevel)
+            {
+                exp -= expForNextLevel;
+                expForNextLevel += 75 + level * 100;
+                level++;
+                if (cap >= 0 && level >= cap)
+                {
+                    break;
+                }
+            }
+            if (cap >= 0 && level > cap)
+            {
+                level = cap;
+            }
+            return level;
+        }
+
+        /// <summary>
+        /// Gets the total required gear exp for a given level.
+        /// </summary>
+        public static int GetGearExp(int level)
+        {
+            return (int)((4L * level * level + level + 6L) * (level - 1L) * 25L / 6L) + 1;
+        }
+
+        /// <summary>
+        /// Gets the total required player exp for a given level.
+        /// </summary>
+        public static int GetPlayerExp(int level)
+        {
+            return (int)(level * (level * (level + 3L) + 36L) / 2L - 10L);
         }
 
         /// <summary>

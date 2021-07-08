@@ -17,7 +17,7 @@ namespace GadgetCore
         /// <summary>
         /// The current version of Gadget Core's config.
         /// </summary>
-        public static readonly string configVersion = "2.2";
+        public static readonly string configVersion = "2.3";
 
         internal static Dictionary<string, bool> enabledMods = new Dictionary<string, bool>();
         internal static Dictionary<string, bool> enabledGadgets = new Dictionary<string, bool>();
@@ -39,13 +39,31 @@ namespace GadgetCore
         /// </summary>
         public static UnityEngine.KeyCode ConsoleKey { get; private set; } = UnityEngine.KeyCode.BackQuote;
         /// <summary>
-        /// The maximum number of save backups to have at any one time.
+        /// The maximum number of save backups to keep at any one time.
         /// </summary>
         public static int MaxBackups { get; private set; } = 30;
+        /// <summary>
+        /// The maximum number of log archives to keep at any one time.
+        /// </summary>
+        public static int MaxLogArchives { get; private set; } = 30;
 
         private static GadgetConfig cfg = new GadgetConfig(Path.Combine(GadgetPaths.ConfigsPath, "GadgetCore.ini"), "GadgetCore");
 
-        //Add your config vars here.
+        internal static void EarlyLoad()
+        {
+            cfg.Load();
+
+            string fileVersion = cfg.ReadString("ConfigVersion", configVersion, comments: "The Config Version (not to be confused with mod version)");
+
+            if (fileVersion != configVersion)
+            {
+                cfg.Reset();
+                cfg.WriteString("ConfigVersion", configVersion, comments: "The Config Version (not to be confused with mod version)");
+            }
+
+            MaxBackups = cfg.ReadInt("MaxBackups", 30, 0, false, 0, int.MaxValue, "The maximum number of save backups to keep at any one time. Disables backups if set to 0");
+            MaxLogArchives = cfg.ReadInt("MaxLogArchives", 30, 0, false, 0, int.MaxValue, "The maximum number of log archives to keep at any one time. Disables log archiving if set to 0");
+        }
 
         internal static void Load()
         {
@@ -53,24 +71,13 @@ namespace GadgetCore
             {
                 GadgetCoreAPI.UnregisterKeyDownListener(ConsoleKey, GadgetConsole.ShowConsole);
 
-                cfg.Load();
-
-                string fileVersion = cfg.ReadString("ConfigVersion", configVersion, comments: "The Config Version (not to be confused with mod version)");
-
-                if (fileVersion != configVersion)
-                {
-                    cfg.Reset();
-                    cfg.WriteString("ConfigVersion", configVersion, comments: "The Config Version (not to be confused with mod version)");
-                }
-
                 BetterDroidHover = cfg.ReadBool("BetterDroidHover", true, false, false, "Whether to use the standard hover box for droids, rather than the text-based description.");
                 MaxConnections = cfg.ReadInt("MaxConnections", 4, 4, false, 1, int.MaxValue, "The maximum number of connections allowed when using host-and-play. This setting only matters on the host.");
                 UseUPnP = cfg.ReadBool("UseUPnP", false, false, false, "If True, will attempt to use UPnP to bypass the need to port-forward to host-and-play over the internet. Not all routers support this. Disabled by default due to severe unresolved bugs that prevent the game from working at all sometimes.");
                 GadgetNetwork.MatrixTimeout = cfg.ReadFloat("NetworkTimeout", 2.5f, comments: "How long to wait for the host's game to respond to Gadget Core's ID synchronization. If the host's game does not respond in time, it will be assumed that the host does not have Gadget Core installed.");
                 ConsoleKey = cfg.ReadKeyCode("ConsoleKey", UnityEngine.KeyCode.BackQuote, comments: "The key to open the console.");
                 GadgetConsole.Debug = cfg.ReadBool("ConsoleDebug", false, comments: "If true, shows debug messages in the console.");
-                MaxBackups = cfg.ReadInt("MaxBackups", 30, 0, false, 0, int.MaxValue, "The maximum number of save backups to have at any one time. Disables backups if set to 0");
-
+                
                 cfg.Save();
 
                 GadgetCoreAPI.RegisterKeyDownListener(ConsoleKey, GadgetConsole.ShowConsole);
@@ -96,7 +103,7 @@ namespace GadgetCore
             }
             catch (Exception e)
             {
-                GadgetCore.CoreLogger.LogError("Error loading config: " + e.ToString());
+                GadgetCore.CoreLogger.LogError("Error loading GadgetCore config: " + e.ToString());
             }
         }
 

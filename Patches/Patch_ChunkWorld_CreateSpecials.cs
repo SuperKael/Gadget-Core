@@ -26,11 +26,11 @@ namespace GadgetCore.Patches
                                 {
                                     if (tile.Type == TileType.INTERACTIVE)
                                     {
-                                        ___gridSpecialObj[i, j] = (GameObject)Object.Instantiate(Resources.Load("npc/npc" + __instance.gridSpecial[i, j]), new Vector3((float)(i * 4 - 62), (float)(j * 4 - 62), 0.9f), Quaternion.identity);
+                                        ___gridSpecialObj[i, j] = (GameObject)Object.Instantiate(Resources.Load("npc/npc" + __instance.gridSpecial[i, j]), new Vector3(i * 4 - 62, j * 4 - 62, 0.9f), Quaternion.identity);
                                     }
                                     else
                                     {
-                                        ___gridSpecialObj[i, j] = (GameObject)Object.Instantiate(Resources.Load("prop/" + __instance.gridSpecial[i, j]), new Vector3((float)(i * 4 - 62), (float)(j * 4 - 62), 0.9f), Quaternion.identity);
+                                        ___gridSpecialObj[i, j] = (GameObject)Object.Instantiate(Resources.Load("prop/" + __instance.gridSpecial[i, j]), new Vector3(i * 4 - 62, j * 4 - 62, 0.9f), Quaternion.identity);
                                     }
                                 }
                                 catch (System.ArgumentException)
@@ -40,17 +40,22 @@ namespace GadgetCore.Patches
                             }
                             else
                             {
+                                Object obj;
                                 if (__instance.gridSpecial[i, j] < 2400)
                                 {
-                                    ___gridSpecialObj[i, j] = (GameObject)Object.Instantiate(Resources.Load("npc/npc" + __instance.gridSpecial[i, j]), new Vector3((float)(i * 4 - 62), (float)(j * 4 - 62), 0.9f), Quaternion.identity);
+                                    obj = Resources.Load("npc/npc" + __instance.gridSpecial[i, j]);
                                 }
                                 else
                                 {
-                                    ___gridSpecialObj[i, j] = (GameObject)Object.Instantiate(Resources.Load("prop/" + __instance.gridSpecial[i, j]), new Vector3((float)(i * 4 - 62), (float)(j * 4 - 62), 0.9f), Quaternion.identity);
+                                    obj = Resources.Load("prop/" + __instance.gridSpecial[i, j]);
                                 }
-                                if (__instance.gridSpecial[i, j] != 2106 && __instance.gridSpecial[i, j] != 2107 && __instance.gridSpecial[i, j] != 2105)
+                                if (obj != null)
                                 {
-                                    ___gridSpecialObj[i, j].transform.parent = __instance.transform;
+                                    ___gridSpecialObj[i, j] = (GameObject)Object.Instantiate(obj, new Vector3(i * 4 - 62, j * 4 - 62, 0.9f), Quaternion.identity);
+                                    if (__instance.gridSpecial[i, j] != 2106 && __instance.gridSpecial[i, j] != 2107 && __instance.gridSpecial[i, j] != 2105)
+                                    {
+                                        ___gridSpecialObj[i, j].transform.parent = __instance.transform;
+                                    }
                                 }
                             }
                         }

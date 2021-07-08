@@ -310,6 +310,46 @@ namespace GadgetCore
             GadgetCoreAPI.SpawnItemLocal(InstanceTracker.PlayerScript.transform.position, GadgetCoreAPI.ConstructItemFromIntArray(st, true, true), true).gameObject.SendMessage("Request");
         }
 
+        internal void SendConsoleMessage(string message, NetworkPlayer player)
+        {
+            if (Network.player == player)
+            {
+                RPCSendConsoleMessage(message, new NetworkMessageInfo());
+            }
+            else
+            {
+                view.RPC("RPCSendConsoleMessage", player, message);
+            }
+        }
+
+        [RPC]
+        internal void RPCSendConsoleMessage(string message, NetworkMessageInfo info)
+        {
+            if (string.IsNullOrEmpty(message)) return;
+            if (message.Length > 1 && message[0] == '/')
+            {
+                string command = GadgetConsole.ParseArgs(message.Substring(1))[0];
+                if (GadgetConsole.IsCommandExecuteBlacklisted(command))
+                {
+                    GadgetConsole.Print($"{GadgetNetwork.GetNameByNetworkPlayer(info.sender) ?? Menuu.curName} attempted to force you to execute the blacklisted command: {message}", null, GadgetConsole.MessageSeverity.WARN);
+                    return;
+                }
+            }
+            bool isOperator = GadgetConsole.IsOperator(Menuu.curName);
+            if (isOperator)
+            {
+                if (message.Length > 1 && message[0] == '/')
+                {
+                    GadgetConsole.Print($"{GadgetNetwork.GetNameByNetworkPlayer(info.sender) ?? Menuu.curName} forced you to execute the command: {message}");
+                }
+                else
+                {
+                    GadgetConsole.Print($"{GadgetNetwork.GetNameByNetworkPlayer(info.sender) ?? Menuu.curName} forced you to say: {message}");
+                }
+            }
+            GadgetConsole.SendConsoleMessage(message, Menuu.curName, isOperator, true);
+        }
+
         internal void CallGeneral(string name, RPCMode mode, params object[] args)
         {
             BinaryFormatter formatter = new BinaryFormatter();

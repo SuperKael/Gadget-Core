@@ -10,9 +10,6 @@ namespace GadgetCore
     /// </summary>
     public static class PatchMethods
     {
-        private static MethodInfo GetItemLevel2 = typeof(GameScript).GetMethod("GetItemLevel2", BindingFlags.Public | BindingFlags.Instance);
-        private static MethodInfo GetGearAspect = typeof(GameScript).GetMethod("GetGearAspect", BindingFlags.Public | BindingFlags.Instance);
-
         /// <summary>
         /// Displays the item-hover window on the cursor. For some reason, the base game has six different methods that all pretty much just do this.
         /// </summary>
@@ -40,7 +37,7 @@ namespace GadgetCore
                     if ((type & ItemType.LEVELING) == ItemType.LEVELING)
                     {
                         InstanceTracker.GameScript.itemexpbar.SetActive(true);
-                        float[] itemLevel = GetItemLevel2.Invoke(InstanceTracker.GameScript, new object[] { item.exp }) as float[];
+                        float[] itemLevel = InstanceTracker.GameScript.GetItemLevel2(item.exp);
                         int num = (int)itemLevel[0];
                         InstanceTracker.GameScript.itemexpbar.transform.localScale = new Vector3(itemLevel[1], 0.015f, 1f);
                         if (num < 10)
@@ -80,7 +77,7 @@ namespace GadgetCore
                         {
                             if (item.aspectLvl[i] > 0)
                             {
-                                InstanceTracker.GameScript.itemAspect[i].text = (GetGearAspect.Invoke(InstanceTracker.GameScript, new object[] { item.aspect[i] - 200 }) as string) + " " + item.aspectLvl[i];
+                                InstanceTracker.GameScript.itemAspect[i].text = InstanceTracker.GameScript.GetGearAspect(item.aspect[i] - 200) + " " + item.aspectLvl[i];
                             }
                             else
                             {

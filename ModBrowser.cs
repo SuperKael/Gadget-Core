@@ -582,7 +582,8 @@ namespace GadgetCore
                     {
                         JObject lastVersionJSON = null;
                         string downloadURL = null;
-                        JToken responseToken = JToken.Parse(gitWWW.text);
+                        string response = gitWWW.text;
+                        JToken responseToken = JToken.Parse(response);
                         if (responseToken is JArray responseArray)
                         {
                             foreach (JObject versionJSON in responseArray.Reverse())
@@ -639,6 +640,14 @@ namespace GadgetCore
                                 modEntry.Info["Error"] = "GitHub Rate Limit Exceeded!";
                                 Singleton.UnlimitButton.gameObject.SetActive(string.IsNullOrEmpty(gitHubAuthToken));
                             }
+                            else
+                            {
+                                GadgetCore.CoreLogger.LogWarning("Unexpected JSON response from GitHub API: " + responseObject.ToString());
+                            }
+                        }
+                        else
+                        {
+                            GadgetCore.CoreLogger.LogWarning("Unexpected response from GitHub API: " + response);
                         }
                     }
                     catch (Exception e)
