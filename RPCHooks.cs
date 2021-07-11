@@ -1,5 +1,7 @@
 ﻿using GadgetCore.API;
+using GadgetCore.Util;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
@@ -14,6 +16,9 @@ namespace GadgetCore
         public static RPCHooks Singleton { get; private set; }
         private static NetworkView view;
 
+        private HashSet<NetworkPlayer> initiatedClients = new HashSet<NetworkPlayer>();
+        private NetworkMessageInfo serverNMI = new NetworkMessageInfo();
+
         internal void Awake()
         {
             if (Singleton != null && Singleton != this) Destroy(Singleton);
@@ -21,15 +26,33 @@ namespace GadgetCore
             view = GetComponent<NetworkView>();
             if (Network.isServer)
             {
-                GadgetCore.CoreLogger.Log("Listening for client connections...");
-                IdentifyNewClients();
+                GadgetCore.CoreLogger.Log("Awaiting for client connections...");
             }
         }
 
-        internal void IdentifyNewClients()
+        internal static void InitiateGadgetNetwork()
         {
-            view.RPC("RequestModList", RPCMode.AllBuffered);
+            if (Network.isServer)
+            {
+                if (Singleton.initiatedClients.Contains(Network.player)) return;
+                Singleton.initiatedClients.Add(Network.player);
+                Singleton.RequestModList(Singleton.serverNMI);
+            }
+            else
+            {
+                view.RPC("InitiateGadgetNetwork", RPCMode.Server);
+            }
         }
+
+        [RPC]
+        internal void InitiateGadgetNetwork(NetworkMessageInfo info)
+        {
+            if (!Network.isServer || initiatedClients.Contains(info.sender)) return;
+            initiatedClients.Add(info.sender);
+            GadgetCore.CoreLogger.Log("Client reports ready. Requesting mod list...");
+            view.RPC("RequestModList", info.sender);
+        }
+
 
         [RPC]
         internal void RequestModList(NetworkMessageInfo info)
@@ -50,21 +73,25 @@ namespace GadgetCore
         [RPC]
         internal void SendRequiredModList(string modList, NetworkMessageInfo info)
         {
+            GadgetCore.CoreLogger.Log("Client has sent local mod list. Processing...");
             try
             {
                 bool isCompatible = true;
-                int modCount = 0;
+                List<string> incompatibleReasons = new List<string>();
+                HashSet<string> handledGadgets = new HashSet<string>();
                 string[][] splitModList = string.IsNullOrEmpty(modList) ? new string[0][] : modList.Split(',').Select(x => x.Split(':')).ToArray();
                 foreach (GadgetInfo mod in Gadgets.ListAllGadgetInfos().Where(x => x.Gadget.Enabled && x.Attribute.RequiredOnClients))
                 {
-                    modCount++;
-                    int[] hostVersionNums = mod.Gadget.GetModVersionString().Split('.').Select(x => int.Parse(x)).ToArray();
-                    int[] clientVersionNums = splitModList.SingleOrDefault(x => x[0] == mod.Attribute.Name)?[1].Split('.').Select(x => int.Parse(x)).Take(4).ToArray();
-                    if (clientVersionNums == null)
+                    handledGadgets.Add(mod.Attribute.Name);
+                    string clientVersion = splitModList.SingleOrDefault(x => x[0] == mod.Attribute.Name)?[1];
+                    if (clientVersion == null)
                     {
                         isCompatible = false;
-                        break;
+                        incompatibleReasons.Add($"The Gadget '{mod.Attribute.Name}' (From the mod '{mod.ModName}') is not present on the client");
+                        continue;
                     }
+                    int[] clientVersionNums = clientVersion.Split('.').Select(x => int.Parse(x)).Take(4).ToArray();
+                    int[] hostVersionNums = mod.Gadget.GetModVersionString().Split('.').Select(x => int.Parse(x)).ToArray();
                     hostVersionNums = hostVersionNums.Concat(Enumerable.Repeat(0, 4 - hostVersionNums.Length)).ToArray();
                     clientVersionNums = clientVersionNums.Concat(Enumerable.Repeat(0, 4 - clientVersionNums.Length)).ToArray();
                     if (!((mod.Attribute.GadgetCoreVersionSpecificity == VersionSpecificity.MAJOR && clientVersionNums[0] == hostVersionNums[0] && (clientVersionNums[1] > hostVersionNums[1] || (clientVersionNums[1] == hostVersionNums[1] && (clientVersionNums[2] > hostVersionNums[2] || (clientVersionNums[2] == hostVersionNums[2] && clientVersionNums[3] >= hostVersionNums[3]))))) ||
@@ -73,16 +100,21 @@ namespace GadgetCore
                         (mod.Attribute.GadgetCoreVersionSpecificity == VersionSpecificity.BUGFIX && clientVersionNums[0] == hostVersionNums[0] && clientVersionNums[1] == hostVersionNums[1] && clientVersionNums[2] == hostVersionNums[2] && clientVersionNums[3] == hostVersionNums[3])))
                     {
                         isCompatible = false;
-                        break;
+                        incompatibleReasons.Add($"The Gadget '{mod.Attribute.Name}' (From the mod '{mod.ModName}') is of incompatible versions: Host: {mod.Gadget.GetModVersionString()}, Client: {clientVersion}");
+                        continue;
                     }
                 }
-                if (isCompatible && modCount != splitModList.Length)
+                if (handledGadgets.Count != splitModList.Length)
                 {
                     isCompatible = false;
+                    foreach (string[] modEntry in splitModList.Where(x => !handledGadgets.Contains(x[0])))
+                    {
+                        incompatibleReasons.Add($"The Gadget '{modEntry[0]}' (From an unknown mod) is present on the client, but not on the host");
+                    }
                 }
                 if (isCompatible)
                 {
-                    if (string.IsNullOrEmpty(info.sender.ipAddress))
+                    if (info.Equals(serverNMI))
                     {
                         GadgetCore.CoreLogger.Log("Self-connection succesfully established and identified.");
                         ReceiveIDMatrixData(GadgetNetwork.GenerateIDMatrixData());
@@ -95,7 +127,8 @@ namespace GadgetCore
                 }
                 else
                 {
-                    GadgetCore.CoreLogger.LogWarning("A client tried to connect with incompatible mods: " + info.sender.ipAddress + Environment.NewLine + modList);
+                    GadgetCore.CoreLogger.LogWarning("A client tried to connect with incompatible mods: " + info.sender.ipAddress +
+                        Environment.NewLine + " - " + incompatibleReasons.Concat(Environment.NewLine + " - "));
                     if (Network.isServer)
                     {
                         Network.CloseConnection(info.sender, true);
@@ -261,7 +294,7 @@ namespace GadgetCore
                 if (!GadgetConsole.operators.Contains(name))
                 {
                     GadgetConsole.operators.Add(name);
-                    GadgetConsole.Print("You are now an operator!", null, GadgetConsole.MessageSeverity.INFO);
+                    if (name == GadgetCoreAPI.GetPlayerName()) GadgetConsole.Print("You are now an operator!", null, GadgetConsole.MessageSeverity.INFO);
                 }
             }
             else
@@ -269,7 +302,7 @@ namespace GadgetCore
                 if (GadgetConsole.operators.Contains(name))
                 {
                     GadgetConsole.operators.Remove(name);
-                    GadgetConsole.Print("You are no longer an operator!", null, GadgetConsole.MessageSeverity.WARN);
+                    if (name == GadgetCoreAPI.GetPlayerName()) GadgetConsole.Print("You are no longer an operator!", null, GadgetConsole.MessageSeverity.WARN);
                 }
             }
         }
@@ -331,23 +364,23 @@ namespace GadgetCore
                 string command = GadgetConsole.ParseArgs(message.Substring(1))[0];
                 if (GadgetConsole.IsCommandExecuteBlacklisted(command))
                 {
-                    GadgetConsole.Print($"{GadgetNetwork.GetNameByNetworkPlayer(info.sender) ?? Menuu.curName} attempted to force you to execute the blacklisted command: {message}", null, GadgetConsole.MessageSeverity.WARN);
+                    GadgetConsole.Print($"{GadgetNetwork.GetNameByNetworkPlayer(info.sender) ?? GadgetCoreAPI.GetPlayerName()} attempted to force you to execute the blacklisted command: {message}", null, GadgetConsole.MessageSeverity.WARN);
                     return;
                 }
             }
-            bool isOperator = GadgetConsole.IsOperator(Menuu.curName);
+            bool isOperator = GadgetConsole.IsOperator(GadgetCoreAPI.GetPlayerName());
             if (isOperator)
             {
                 if (message.Length > 1 && message[0] == '/')
                 {
-                    GadgetConsole.Print($"{GadgetNetwork.GetNameByNetworkPlayer(info.sender) ?? Menuu.curName} forced you to execute the command: {message}");
+                    GadgetConsole.Print($"{GadgetNetwork.GetNameByNetworkPlayer(info.sender) ?? GadgetCoreAPI.GetPlayerName()} forced you to execute the command: {message}");
                 }
                 else
                 {
-                    GadgetConsole.Print($"{GadgetNetwork.GetNameByNetworkPlayer(info.sender) ?? Menuu.curName} forced you to say: {message}");
+                    GadgetConsole.Print($"{GadgetNetwork.GetNameByNetworkPlayer(info.sender) ?? GadgetCoreAPI.GetPlayerName()} forced you to say: {message}");
                 }
             }
-            GadgetConsole.SendConsoleMessage(message, Menuu.curName, isOperator, true);
+            GadgetConsole.SendConsoleMessage(message, GadgetCoreAPI.GetPlayerName(), isOperator, true);
         }
 
         internal void CallGeneral(string name, RPCMode mode, params object[] args)

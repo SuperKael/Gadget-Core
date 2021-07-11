@@ -818,12 +818,13 @@ namespace GadgetCore.API
                         }
                         for (int i = 0; i < recipe.Slots.Length; i++)
                         {
+                            int oldQuantity = items[i]?.q ?? 0;
                             switch (recipe.Slots[i].Type)
                             {
                                 case AdvancedRecipeComponentType.CORE_OUTPUT:
                                     items[i] = coreItem.CloneItem();
                                     items[i].id = recipe.Slots[i].Item.id;
-                                    items[i].q = recipe.Slots[i].Item.q;
+                                    items[i].q = recipe.Slots[i].Item.q + oldQuantity;
                                     items[i].exp += recipe.Slots[i].Item.exp;
                                     items[i].tier += recipe.Slots[i].Item.tier;
                                     if (recipe.Slots[i].QuantityVariation > 0) items[i].q += UnityEngine.Random.Range(0, recipe.Slots[i].QuantityVariation + 1);
@@ -831,6 +832,7 @@ namespace GadgetCore.API
                                     break;
                                 case AdvancedRecipeComponentType.OUTPUT:
                                     items[i] = recipe.Slots[i].Item.CloneItem();
+                                    items[i].q += oldQuantity;
                                     if (items[i].tier < 0) items[i].tier = GadgetCoreAPI.GetRandomCraftTier();
                                     if (recipe.Slots[i].QuantityVariation > 0) items[i].q += UnityEngine.Random.Range(0, recipe.Slots[i].QuantityVariation + 1);
                                     if (recipe.Slots[i].QuantityVariation < 0) items[i].q -= UnityEngine.Random.Range(0, -recipe.Slots[i].QuantityVariation + 1);

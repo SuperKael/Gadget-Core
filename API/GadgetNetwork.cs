@@ -53,7 +53,7 @@ namespace GadgetCore.API
         {
             if (!MatrixReady)
             {
-                Debug.Log("Network ID conversion cannot be performed when the ID conversion matrix is not ready!");
+                GadgetCore.CoreLogger.LogWarning("Network ID conversion cannot be performed when the ID conversion matrix is not ready!", false);
                 return false;
             }
             return IDConversionMatrixToHost.ContainsKey(reg.GetRegistryName());
@@ -76,7 +76,7 @@ namespace GadgetCore.API
             int id = (int)ID;
             if (!MatrixReady)
             {
-                Debug.Log("Network ID conversion cannot be performed when the ID conversion matrix is not ready!");
+                GadgetCore.CoreLogger.LogWarning("Network ID conversion cannot be performed when the ID conversion matrix is not ready!", false);
                 return ID;
             }
             if (reg == null) return ID;
@@ -84,6 +84,7 @@ namespace GadgetCore.API
             {
                 return id;
             }
+            if (id >= reg.GetIDStart()) GadgetCore.CoreLogger.LogWarning($"ID Conversion to host failed: ID {ID} does not exist on the host. This has resulted in the corruption of {("aeiouAEIOU".Contains(reg.GetRegistryName()[0]) ? "an " : "a ") + reg.GetRegistryName()}!");
             return ((int)ID) < reg.GetIDStart() ? ID : (ID = -1);
         }
 
@@ -95,7 +96,7 @@ namespace GadgetCore.API
             if (Network.isServer) return ID;
             if (!MatrixReady)
             {
-                Debug.Log("Network ID conversion cannot be performed when the ID conversion matrix is not ready!");
+                GadgetCore.CoreLogger.LogWarning("Network ID conversion cannot be performed when the ID conversion matrix is not ready!", false);
                 return ID;
             }
             if (reg == null) return ID;
@@ -103,6 +104,7 @@ namespace GadgetCore.API
             {
                 return ID = newID;
             }
+            if (ID >= reg.GetIDStart()) GadgetCore.CoreLogger.LogWarning($"ID Conversion to host failed: ID {ID} does not exist on the host. This has resulted in the corruption of {("aeiouAEIOU".Contains(reg.GetRegistryName()[0]) ? "an " : "a ") + reg.GetRegistryName()}!");
             return ID < reg.GetIDStart() ? ID : (ID = -1);
         }
 
@@ -114,7 +116,7 @@ namespace GadgetCore.API
             if (Network.isServer) return ID;
             if (!MatrixReady)
             {
-                Debug.Log("Network ID conversion cannot be performed when the ID conversion matrix is not ready!");
+                GadgetCore.CoreLogger.LogWarning("Network ID conversion cannot be performed when the ID conversion matrix is not ready!", false);
                 return ID;
             }
             if (reg == null) return ID;
@@ -122,6 +124,7 @@ namespace GadgetCore.API
             {
                 return newID;
             }
+            if (ID >= reg.GetIDStart()) GadgetCore.CoreLogger.LogWarning($"ID Conversion to host failed: ID {ID} does not exist on the host. This has resulted in the corruption of {("aeiouAEIOU".Contains(reg.GetRegistryName()[0]) ? "an " : "a ") + reg.GetRegistryName()}!");
             return ID < reg.GetIDStart() ? ID : -1;
         }
 
@@ -134,7 +137,7 @@ namespace GadgetCore.API
             int id = (int)ID;
             if (!MatrixReady)
             {
-                Debug.Log("Network ID conversion cannot be performed when the ID conversion matrix is not ready!");
+                GadgetCore.CoreLogger.LogWarning("Network ID conversion cannot be performed when the ID conversion matrix is not ready!", false);
                 return ID;
             }
             if (reg == null) return ID;
@@ -142,6 +145,7 @@ namespace GadgetCore.API
             {
                 return id;
             }
+            if (id >= reg.GetIDStart()) GadgetCore.CoreLogger.LogWarning($"ID Conversion to local failed: ID {ID} does not exist on this client. This has resulted in the corruption of {("aeiouAEIOU".Contains(reg.GetRegistryName()[0]) ? "an " : "a ") + reg.GetRegistryName()}!");
             return ((int)ID) < reg.GetIDStart() ? ID : (ID = -1);
         }
 
@@ -153,7 +157,7 @@ namespace GadgetCore.API
             if (Network.isServer) return ID;
             if (!MatrixReady)
             {
-                Debug.Log("Network ID conversion cannot be performed when the ID conversion matrix is not ready!");
+                GadgetCore.CoreLogger.LogWarning("Network ID conversion cannot be performed when the ID conversion matrix is not ready!", false);
                 return ID;
             }
             if (reg == null) return ID;
@@ -161,6 +165,7 @@ namespace GadgetCore.API
             {
                 return ID = newID;
             }
+            if (ID >= reg.GetIDStart()) GadgetCore.CoreLogger.LogWarning($"ID Conversion to local failed: ID {ID} does not exist on this client. This has resulted in the corruption of {("aeiouAEIOU".Contains(reg.GetRegistryName()[0]) ? "an " : "a ") + reg.GetRegistryName()}!");
             return ID < reg.GetIDStart() ? ID : (ID = -1);
         }
 
@@ -172,7 +177,7 @@ namespace GadgetCore.API
             if (Network.isServer) return ID;
             if (!MatrixReady)
             {
-                Debug.Log("Network ID conversion cannot be performed when the ID conversion matrix is not ready!");
+                GadgetCore.CoreLogger.LogWarning("Network ID conversion cannot be performed when the ID conversion matrix is not ready!", false);
                 return ID;
             }
             if (reg == null) return ID;
@@ -180,6 +185,7 @@ namespace GadgetCore.API
             {
                 return newID;
             }
+            if (ID >= reg.GetIDStart()) GadgetCore.CoreLogger.LogWarning($"ID Conversion to local failed: ID {ID} does not exist on this client. This has resulted in the corruption of {("aeiouAEIOU".Contains(reg.GetRegistryName()[0]) ? "an " : "a ") + reg.GetRegistryName()}!");
             return ID < reg.GetIDStart() ? ID : -1;
         }
 

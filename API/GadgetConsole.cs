@@ -421,7 +421,7 @@ namespace GadgetCore
                     string[] args = ParseArgs(message.Substring(1));
                     if (commandAliases.ContainsKey(args[0]))
                     {
-                        if (force || SceneManager.GetActiveScene().buildIndex == 0 || Network.isServer || !isOperatorOnly[commandAliases[args[0]]] || operators.Contains(Menuu.curName))
+                        if (force || SceneManager.GetActiveScene().buildIndex == 0 || Network.isServer || !isOperatorOnly[commandAliases[args[0]]] || operators.Contains(GadgetCoreAPI.GetPlayerName()))
                         {
                             GadgetConsoleMessage feedback;
                             try
@@ -431,7 +431,7 @@ namespace GadgetCore
                             }
                             catch (Exception e)
                             {
-                                feedback = new GadgetConsoleMessage("Error executing command: " + e);
+                                feedback = new GadgetConsoleMessage("Error executing command: " + e, null, MessageSeverity.ERROR);
                             }
                             finally
                             {
@@ -523,7 +523,7 @@ namespace GadgetCore
                     InputField.text = "";
                     InputField.ActivateInputField();
                     InputField.Select();
-                    SendConsoleMessage(text, SceneManager.GetActiveScene().buildIndex == 0 ? "User" : Menuu.curName);
+                    SendConsoleMessage(text, SceneManager.GetActiveScene().buildIndex == 0 ? "User" : GadgetCoreAPI.GetPlayerName());
                     messageHistory.Add(text);
                     historyIndex = messageHistory.Count;
                 }

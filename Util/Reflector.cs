@@ -25,7 +25,6 @@ namespace GadgetCore.Util
             Tuple<MemberInfo, object> iRef;
             try
             {
-                MemberInfo m = ResolveMember(identifier);
                 iRef = ResolveReference(identifier, instance);
             }
             catch (ReflectorException e)
@@ -37,7 +36,7 @@ namespace GadgetCore.Util
                 object val = iRef.Item1.GetValue(iRef.Item2);
                 if (val == null) return "null";
                 else if (val == iRef.Item1) throw new ReflectorException(iRef.Item1.MemberType + " Read Failed: Reading Not Possible For " + iRef.Item1.MemberType);
-                return val is IEnumerable enumerable ? enumerable.Cast<object>().RecursiveConcat() : val.ToString();
+                return val is string str ? str : val is IEnumerable enumerable ? enumerable.Cast<object>().RecursiveConcat() : val.ToString();
             }
             catch (ReflectorException e)
             {
@@ -68,10 +67,36 @@ namespace GadgetCore.Util
             if (setType == null) throw new ReflectorException(iRef.Item1.MemberType + " Write Failed: Writing Not Possible For " + iRef.Item1.MemberType);
             try
             {
-                iRef.Item1.SetValue(iRef.Item2, Convert.ChangeType(value, setType));
+                object setValue;
+                if (string.IsNullOrEmpty(value) || value == "null")
+                {
+                    setValue = null;
+                }
+                else if (value[0] == '$')
+                {
+                    Tuple<MemberInfo, object> pRef;
+                    try
+                    {
+                        pRef = ResolveReference(value, null);
+                    }
+                    catch (ReflectorException e)
+                    {
+                        throw new ReflectorException("Method Invoke Failed: Parameter Resolution Failed: " + e.Message, e);
+                    }
+                    setValue = pRef.Item1.GetValue(pRef.Item2);
+                }
+                else
+                {
+                    setValue = value;
+                }
+                if (setValue != null && !setType.IsAssignableFrom(setValue.GetType()))
+                {
+                    setValue = Convert.ChangeType(setValue, setType);
+                }
+                iRef.Item1.SetValue(iRef.Item2, setValue);
                 object val = iRef.Item1.GetValue(iRef.Item2);
                 if (val == null) return "null";
-                return val is IEnumerable enumerable ? enumerable.Cast<object>().RecursiveConcat() : val.ToString();
+                return val is string str ? str : val is IEnumerable enumerable ? enumerable.Cast<object>().RecursiveConcat() : val.ToString();
             }
             catch (InvalidCastException e)
             {
@@ -130,7 +155,7 @@ namespace GadgetCore.Util
                         Tuple<MemberInfo, object> pRef;
                         try
                         {
-                            pRef = ResolveReference(identifier, instance);
+                            pRef = ResolveReference(args[i], null);
                         }
                         catch (ReflectorException e)
                         {
@@ -140,19 +165,23 @@ namespace GadgetCore.Util
                     }
                     else
                     {
-                        methodArgs[i] = Convert.ChangeType(args[i], methodParams[i].ParameterType);
+                        methodArgs[i] = args[i];
+                    }
+                    if (methodArgs[i] != null && !methodParams[i].ParameterType.IsAssignableFrom(methodArgs[i].GetType()))
+                    {
+                        methodArgs[i] = Convert.ChangeType(methodArgs[i], methodParams[i].ParameterType);
                     }
                 }
                 object val;
                 if (returnTarget != null)
                 {
-                    if (string.IsNullOrEmpty(identifier)) throw new ReflectorException("Method Invoke Failed: Return Reference Resolution Failed: Invalid Identifier");
+                    if (string.IsNullOrEmpty(returnTarget)) throw new ReflectorException("Method Invoke Failed: Return Reference Resolution Failed: Invalid Identifier");
                     MethodInfo methodInfo = method as MethodInfo;
                     if (methodInfo != null && methodInfo.ReturnType == typeof(void)) throw new ReflectorException("Method Invoke Failed: Method Returns Void");
                     Tuple<MemberInfo, object> oRef;
                     if (!resolvedRefs.TryGetValue(returnTarget, out oRef))
                     {
-                        if (identifier[0] == '$' && !string.IsNullOrEmpty(returnTarget = returnTarget?.TrimStart('$')))
+                        if (returnTarget[0] == '$' && !string.IsNullOrEmpty(returnTarget = returnTarget?.TrimStart('$')))
                         {
                             Type genericTemporaryReferenceContainerType = typeof(TemporaryReferenceContainer<>).MakeGenericType(methodInfo != null ? methodInfo.ReturnType : methodInfo.DeclaringType);
                             resolvedRefs.Add("$" + returnTarget, oRef = Tuple.Create<MemberInfo, object>(genericTemporaryReferenceContainerType.GetField("value"), Activator.CreateInstance(genericTemporaryReferenceContainerType)));
@@ -175,7 +204,7 @@ namespace GadgetCore.Util
                 }
                 if (method is MethodInfo mi && mi.ReturnType == typeof(void)) return "void";
                 if (val == null) return "null"; 
-                return val is IEnumerable enumerable ? enumerable.Cast<object>().RecursiveConcat() : val.ToString();
+                return val is string str ? str : val is IEnumerable enumerable ? enumerable.Cast<object>().RecursiveConcat() : val.ToString();
             }
             catch (InvalidCastException e)
             {

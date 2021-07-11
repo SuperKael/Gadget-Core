@@ -18,6 +18,7 @@ namespace GadgetCore.Patches
             if (!GadgetNetwork.MatrixReady && GadgetNetwork.GetTimeSinceConnect() < GadgetNetwork.MatrixTimeout)
             {
                 if (InstanceTracker.GameScript.gameObject.GetComponent<RPCHooks>() == null) InstanceTracker.GameScript.gameObject.AddComponent<RPCHooks>();
+                RPCHooks.InitiateGadgetNetwork();
                 __instance.StartCoroutine(WaitAndTryAgain(__instance));
                 return false;
             }

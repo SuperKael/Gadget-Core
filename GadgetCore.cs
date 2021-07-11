@@ -37,6 +37,26 @@ namespace GadgetCore
         }
 
         [SuppressMessage("Code Quality", "IDE0051:Remove unused private members", Justification = "Unity Event")]
+        private void Awake()
+        {
+            string updateTempFilePath = Path.Combine(GadgetPaths.GadgetCorePath, "Update.tmp");
+            if (File.Exists(updateTempFilePath))
+            {
+                try
+                {
+                    string oldVersion = File.ReadAllText(updateTempFilePath);
+                    GadgetCoreAPI.DisplayInfoDialog($"GadgetCore has been updated!\n{oldVersion} -> {GadgetCoreAPI.GetFullVersion()}");
+                }
+                catch (Exception) { }
+                try
+                {
+                    File.Delete(updateTempFilePath);
+                }
+                catch (Exception) { }
+            }
+        }
+
+        [SuppressMessage("Code Quality", "IDE0051:Remove unused private members", Justification = "Unity Event")]
         private void Update()
         {
             if (EventSystem.current?.currentSelectedGameObject == null || EventSystem.current.currentSelectedGameObject.GetComponent<InputField>()?.IsActive() != true)
@@ -127,8 +147,6 @@ namespace GadgetCore
             catch (Exception e)
             {
                 Debug.Log("GadgetCore Logger Initialization Failed: " + e);
-                GadgetCoreAPI.Quit();
-                return;
             }
             try
             {

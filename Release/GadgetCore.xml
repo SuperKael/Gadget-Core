@@ -2306,6 +2306,11 @@
             Returns whether the running version of GadgetCore is a beta version. Use this instead of directly accessing <see cref="F:GadgetCore.API.GadgetCoreAPI.IS_BETA"/>
             </summary>
         </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.GetPlayerName">
+            <summary>
+            Gets the name of the current player, potentially including the numeric afix in the case of multiple players with the same name in a multiplayer game.
+            </summary>
+        </member>
         <member name="M:GadgetCore.API.GadgetCoreAPI.GetPlayerByName(System.String)">
             <summary>
             Returns the <see cref="T:PlayerScript"/> for the player with the given name. Returns null if no player with that name exists.
@@ -2334,6 +2339,11 @@
         <member name="M:GadgetCore.API.GadgetCoreAPI.Quit">
             <summary>
             Quits the game. You should use this instead of <see cref="M:UnityEngine.Application.Quit"/>
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.QuitAndUpdate">
+            <summary>
+            Quits the game, and launches an update using an already-downloaded "Gadget Core Installer.exe" file in the Tools directory.
             </summary>
         </member>
         <member name="M:GadgetCore.API.GadgetCoreAPI.GetUMFAPI">
@@ -2641,6 +2651,11 @@
             Delegate used for stat modifiers.
             </summary>
             <param name="item">The item who's stats are being modified.</param>
+        </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.GeneratePlaneMesh(System.Single,System.Single)">
+            <summary>
+            Generates a plane-shaped mesh, with a specified width and height.
+            </summary>
         </member>
         <member name="M:GadgetCore.API.GadgetCoreAPI.IsResourceRegistered(System.String)">
             <summary>
@@ -6370,6 +6385,21 @@
         <member name="M:GadgetCore.Util.ComparisonComparer`1.GetHashCode(`0)">
             <summary>
             Calls T's GetHashCode.
+            </summary>
+        </member>
+        <member name="T:GadgetCore.Util.DebugTricks">
+            <summary>
+            Contains utility methods intended for debugging, perhaps through the /reflect command
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.DebugTricks.ListNetworkViews">
+            <summary>
+            Lists all NetworkViews, their IDs, and their names in the console.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.DebugTricks.SpawnRandomItem">
+            <summary>
+            Spawns a random modded item into the world using <see cref="M:GadgetCore.API.GadgetCoreAPI.SpawnItem(UnityEngine.Vector3,Item,System.Boolean)"/>
             </summary>
         </member>
         <member name="T:GadgetCore.Util.DelegateTraceListener">

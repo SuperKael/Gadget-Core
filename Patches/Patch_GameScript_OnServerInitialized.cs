@@ -16,6 +16,7 @@ namespace GadgetCore.Patches
         public static bool Prefix(GameScript __instance)
         {
             if (InstanceTracker.GameScript.gameObject.GetComponent<RPCHooks>() == null) InstanceTracker.GameScript.gameObject.AddComponent<RPCHooks>();
+            RPCHooks.InitiateGadgetNetwork();
             if (GadgetNetwork.connectTime < 0) GadgetNetwork.connectTime = Time.realtimeSinceStartup;
             if (!GadgetNetwork.MatrixReady && GadgetNetwork.GetTimeSinceConnect() < GadgetNetwork.MatrixTimeout)
             {

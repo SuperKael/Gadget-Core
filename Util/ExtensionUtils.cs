@@ -18,7 +18,7 @@ namespace GadgetCore.Util
         /// <summary>
         /// Replaces one component with another on a <see cref="GameObject"/>
         /// </summary>
-        public static NewComponent ReplaceComponent<OldComponent, NewComponent>(this GameObject obj) where OldComponent : MonoBehaviour where NewComponent : MonoBehaviour
+        public static NewComponent ReplaceComponent<OldComponent, NewComponent>(this GameObject obj) where OldComponent : Component where NewComponent : Component
         {
             OldComponent oldComponent = obj.GetComponent<OldComponent>();
             if (oldComponent == null) throw new InvalidOperationException("Object does not have a " + typeof(OldComponent).Name + " Component!");
@@ -34,6 +34,26 @@ namespace GadgetCore.Util
                     newField.SetValue(newComponent, field.GetValue(oldComponent));
                 }
             }
+
+            foreach (Component comp in obj.GetComponents(typeof(Component)))
+            {
+                fields = comp.GetType().GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
+                foreach (FieldInfo field in fields)
+                {
+                    if (field.FieldType.IsAssignableFrom(typeof(OldComponent)) && field.GetValue(comp) as Component == oldComponent)
+                    {
+                        if (field.FieldType.IsAssignableFrom(typeof(NewComponent)))
+                        {
+                            field.SetValue(comp, newComponent);
+                        }
+                        else
+                        {
+                            field.SetValue(comp, null);
+                        }
+                    }
+                }
+            }
+
             UnityEngine.Object.Destroy(oldComponent);
             if (isEnabled) obj.SetActive(true);
             return newComponent;
@@ -42,15 +62,15 @@ namespace GadgetCore.Util
         /// <summary>
         /// Replaces one component with another on a <see cref="GameObject"/>
         /// </summary>
-        public static MonoBehaviour ReplaceComponent(this GameObject obj, Type oldComponentType, Type newComponentType)
+        public static Component ReplaceComponent(this GameObject obj, Type oldComponentType, Type newComponentType)
         {
-            if (!typeof(MonoBehaviour).IsAssignableFrom(oldComponentType)) throw new ArgumentException("oldComponentType must be a MonoBehaviour!");
-            if (!typeof(MonoBehaviour).IsAssignableFrom(newComponentType)) throw new ArgumentException("newComponentType must be a MonoBehaviour!");
-            MonoBehaviour oldComponent = obj.GetComponent(oldComponentType) as MonoBehaviour;
+            if (!typeof(Component).IsAssignableFrom(oldComponentType)) throw new ArgumentException("oldComponentType must be a Component!");
+            if (!typeof(Component).IsAssignableFrom(newComponentType)) throw new ArgumentException("newComponentType must be a Component!");
+            Component oldComponent = obj.GetComponent(oldComponentType);
             if (oldComponent == null) throw new InvalidOperationException("Object does not have a " + oldComponentType.Name + " Component!");
             bool isEnabled = obj.activeSelf;
             if (isEnabled) obj.SetActive(false);
-            MonoBehaviour newComponent = obj.AddComponent(newComponentType) as MonoBehaviour;
+            Component newComponent = obj.AddComponent(newComponentType);
             FieldInfo[] fields = oldComponentType.GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
             foreach (FieldInfo field in fields)
             {
@@ -60,6 +80,26 @@ namespace GadgetCore.Util
                     newField.SetValue(newComponent, field.GetValue(oldComponent));
                 }
             }
+
+            foreach (Component comp in obj.GetComponents(typeof(Component)))
+            {
+                fields = comp.GetType().GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
+                foreach (FieldInfo field in fields)
+                {
+                    if (field.FieldType.IsAssignableFrom(oldComponentType) && field.GetValue(comp) as Component == oldComponent)
+                    {
+                        if (field.FieldType.IsAssignableFrom(newComponentType))
+                        {
+                            field.SetValue(comp, newComponent);
+                        }
+                        else
+                        {
+                            field.SetValue(comp, null);
+                        }
+                    }
+                }
+            }
+
             UnityEngine.Object.Destroy(oldComponent);
             if (isEnabled) obj.SetActive(true);
             return newComponent;

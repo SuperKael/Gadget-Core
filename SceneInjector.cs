@@ -16,6 +16,7 @@ namespace GadgetCore
     {
         public static Canvas PersistantCanvas { get; internal set; }
         public static GameObject ConfirmationDialog { get; internal set; }
+        public static GameObject ConfirmationDialogBackingPanel { get; internal set; }
         public static Text ConfirmationText { get; internal set; }
         public static Text ConfirmationYesText { get; internal set; }
         public static Text ConfirmationNoText { get; internal set; }
@@ -598,6 +599,29 @@ namespace GadgetCore
 
             ModBrowserPanel.BrowserButtonText = modBrowserButtonText;
 
+            ModBrowserPanel.UpdateGadgetCoreButton = new GameObject("Update GadgetCore Button", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Button)).GetComponent<Button>();
+            ModBrowserPanel.UpdateGadgetCoreButton.GetComponent<RectTransform>().SetParent(ModMenuCanvas.transform);
+            ModBrowserPanel.UpdateGadgetCoreButton.GetComponent<RectTransform>().anchorMin = new Vector2(0.025f, 0.80f);
+            ModBrowserPanel.UpdateGadgetCoreButton.GetComponent<RectTransform>().anchorMax = new Vector2(0.125f, 0.95f);
+            ModBrowserPanel.UpdateGadgetCoreButton.GetComponent<RectTransform>().offsetMin = new Vector2(0, 0);
+            ModBrowserPanel.UpdateGadgetCoreButton.GetComponent<RectTransform>().offsetMax = new Vector2(0, 0);
+            ModBrowserPanel.UpdateGadgetCoreButton.GetComponent<Image>().sprite = BoxSprite;
+            ModBrowserPanel.UpdateGadgetCoreButton.GetComponent<Image>().type = Image.Type.Sliced;
+            ModBrowserPanel.UpdateGadgetCoreButton.GetComponent<Image>().fillCenter = true;
+            ModBrowserPanel.UpdateGadgetCoreButton.targetGraphic = ModBrowserPanel.UpdateGadgetCoreButton.GetComponent<Image>();
+            ModBrowserPanel.UpdateGadgetCoreButton.onClick.AddListener(ModBrowserPanel.OnUpdateGadgetCoreButton);
+            Text updateGadgetCoreButtonText = new GameObject("Text", typeof(RectTransform), typeof(CanvasRenderer), typeof(Text)).GetComponent<Text>();
+            updateGadgetCoreButtonText.rectTransform.SetParent(ModBrowserPanel.UpdateGadgetCoreButton.transform);
+            updateGadgetCoreButtonText.rectTransform.anchorMin = new Vector2(0f, 0f);
+            updateGadgetCoreButtonText.rectTransform.anchorMax = new Vector2(1f, 1f);
+            updateGadgetCoreButtonText.rectTransform.offsetMin = Vector2.zero;
+            updateGadgetCoreButtonText.rectTransform.offsetMax = Vector2.zero;
+            updateGadgetCoreButtonText.alignment = TextAnchor.MiddleCenter;
+            updateGadgetCoreButtonText.font = modBrowserDescText.font;
+            updateGadgetCoreButtonText.fontSize = 12;
+            updateGadgetCoreButtonText.text = "Update GadgetCore";
+            ModBrowserPanel.UpdateGadgetCoreButton.gameObject.SetActive(false);
+
             ModBrowserPanel.UnlimitButton = new GameObject("Unlimit Button", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Button)).GetComponent<Button>();
             ModBrowserPanel.UnlimitButton.GetComponent<RectTransform>().SetParent(ModMenuCanvas.transform);
             ModBrowserPanel.UnlimitButton.GetComponent<RectTransform>().anchorMin = new Vector2(0.025f, 0.05f);
@@ -619,7 +643,6 @@ namespace GadgetCore
             unlimitButtonText.font = modBrowserDescText.font;
             unlimitButtonText.fontSize = 12;
             unlimitButtonText.text = "Login To GitHub\nTo Remove Limit";
-
             ModBrowserPanel.UnlimitButton.gameObject.SetActive(false);
 
             RectTransform listLoadingTextBackground = new GameObject("List Loading Panel", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image)).GetComponent<RectTransform>();
@@ -868,6 +891,11 @@ namespace GadgetCore
             ConfirmationText.font = ModMenuPanel.descText.font;
             ConfirmationText.fontSize = 24;
             ConfirmationText.text = "";
+
+            ConfirmationDialogBackingPanel = new GameObject("Backing Panel", typeof(MeshFilter), typeof(MeshCollider));
+            UnityEngine.Object.DontDestroyOnLoad(ConfirmationDialogBackingPanel);
+            ConfirmationDialogBackingPanel.transform.position = new Vector3(0, 0, -5);
+            ConfirmationDialogBackingPanel.GetComponent<MeshFilter>().mesh = GadgetCoreAPI.GeneratePlaneMesh(Camera.main.orthographicSize * 2 * Camera.main.aspect, Camera.main.orthographicSize * 2);
         }
     }
 }

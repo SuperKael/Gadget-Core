@@ -31,6 +31,8 @@ namespace GadgetCore
         public const string REPO_URL = @"https://github.com/SuperKael/Roguelands-Mods";
         public const string GIT_RAW_URL = @"https://raw.githubusercontent.com/SuperKael/Roguelands-Mods/master";
         public const string GIT_API_URL = @"https://api.github.com/repos/{0}/{1}/releases";
+        public const string GIT_GADGETCORE_API_URL = @"https://api.github.com/repos/SuperKael/Gadget-Core/releases/latest";
+        public const string GADGETCORE_INSTALLER_URL = @"https://github.com/SuperKael/Gadget-Core/releases/latest/download/Gadget.Core.Installer.exe";
         public const string MODS_URL = GIT_RAW_URL + @"/Mods.ini";
 
         internal static string gitHubAuthToken = PlayerPrefs.GetString("GitHubAuthToken", null);
@@ -49,8 +51,10 @@ namespace GadgetCore
         internal Button ActivateButton;
         internal Button VersionsButton;
         internal Button UnlimitButton;
+        internal Button UpdateGadgetCoreButton;
 
         internal static bool RestartNeeded { get; private set; } = false;
+        internal static bool UpdateOnRestart { get; private set; } = false;
 
         private readonly List<ModBrowserEntry> modEntries = new List<ModBrowserEntry>();
         private bool listLoading, descLoading, downloading, built;
@@ -125,12 +129,46 @@ namespace GadgetCore
                 }
                 Singleton.gameObject.SetActive(false);
                 Singleton.UnlimitButton.gameObject.SetActive(false);
+                Singleton.UpdateGadgetCoreButton.gameObject.SetActive(false);
                 Array.ForEach(SceneInjector.ModConfigMenuText.GetComponentsInChildren<TextMesh>(), x => { x.text = "MOD CONFIG MENU"; x.anchor = TextAnchor.UpperCenter; });
                 Singleton.BrowserButtonText.text = "Mod Browser";
                 SceneInjector.ModMenuPanel.Rebuild();
                 SceneInjector.ModMenuPanel.gameObject.SetActive(true);
                 Singleton.Clean();
             }
+        }
+
+        internal void OnUpdateGadgetCoreButton()
+        {
+            StartCoroutine(UpdateGadgetCore());
+        }
+
+        private IEnumerator UpdateGadgetCore()
+        {
+            if (downloading) yield break;
+            downloading = true;
+            GadgetCore.CoreLogger.LogConsole("Initiating download for the GadgetCore Installer!");
+            using (WWW installerFileWWW = new WWW(GADGETCORE_INSTALLER_URL))
+            {
+                yield return new WaitUntil(() => installerFileWWW.isDone);
+                if (installerFileWWW.text == "404: Not Found")
+                {
+                    downloading = false;
+                    GadgetCore.CoreLogger.LogWarning("Download Failed: File does not exist!");
+                    yield break;
+                }
+                string filePath = Path.Combine(GadgetPaths.ToolsPath, "Gadget Core Installer.exe");
+                File.Delete(filePath);
+                File.WriteAllBytes(filePath, installerFileWWW.bytes);
+                UpdateOnRestart = true;
+                RestartNeeded = true;
+                Array.ForEach(SceneInjector.ModMenuBackButtonHolder.GetComponentsInChildren<TextMesh>(), x => x.text = "QUIT");
+                BrowserButtonText.text = "Quit Game";
+                SceneInjector.ModMenuPanel.restartRequiredText.SetActive(RestartNeeded);
+            }
+            GadgetCore.CoreLogger.LogConsole("Download of the GadgetCore Installer complete!" + (RestartNeeded ? " Restart Required." : ""));
+            downloading = false;
+            UpdateInfo(toggle, modIndex);
         }
 
         internal void OnDownloadButton()
@@ -503,6 +541,60 @@ namespace GadgetCore
             modEntries.Sort((a, b) => string.Compare(a.Info["Name"], b.Info["Name"]));
             listLoading = false;
             Build();
+            yield return CheckForGadgetCoreUpdate();
+            yield break;
+        }
+
+        private IEnumerator CheckForGadgetCoreUpdate()
+        {
+            using (WWW gitWWW = new WWW(GIT_GADGETCORE_API_URL, null, gitHubAuthHeaders))
+            {
+                yield return new WaitUntil(() => gitWWW.isDone);
+                if (!string.IsNullOrEmpty(gitWWW.error))
+                {
+                    GadgetCore.CoreLogger.Log("An error occured while trying to fetch GitHub release data for the GadgetCore Installer: " + gitWWW.error);
+                    GadgetCore.CoreLogger.Log("Response Body: " + gitWWW.text);
+                    yield break;
+                }
+                try
+                {
+                    string response = gitWWW.text;
+                    JToken responseToken = JToken.Parse(response);
+                    if (responseToken is JObject responseObject)
+                    {
+                        string newVersion = responseObject.Value<string>("tag_name")?.TrimStart('v');
+                        if (!string.IsNullOrEmpty(newVersion))
+                        {
+                            if (newVersion != GadgetCoreAPI.GetRawVersion())
+                            {
+                                GadgetCore.CoreLogger.LogConsole($"A new version of GadgetCore is available: Version {newVersion}");
+                                Singleton.UpdateGadgetCoreButton.gameObject.SetActive(true);
+                            }
+                        }
+                        else
+                        {
+                            string message = responseObject.Value<string>("message");
+                            if (message != null && message.StartsWith("API rate limit exceeded"))
+                            {
+                                GadgetCore.CoreLogger.LogWarning("GitHub API Rate limit exceeded! Please wait one hour for it to reset.");
+                                Singleton.UnlimitButton.gameObject.SetActive(string.IsNullOrEmpty(gitHubAuthToken));
+                            }
+                            else
+                            {
+                                GadgetCore.CoreLogger.LogWarning("Unexpected JSON response from GitHub API: " + responseObject.ToString());
+                            }
+                        }
+                    }
+                    else
+                    {
+                        GadgetCore.CoreLogger.LogWarning("Unexpected response from GitHub API: " + response);
+                    }
+                }
+                catch (Exception e)
+                {
+                    GadgetCore.CoreLogger.Log("An error occured while trying to fetch GitHub release data for the GadgetCore Installer: " + e);
+                }
+            }
             yield break;
         }
 

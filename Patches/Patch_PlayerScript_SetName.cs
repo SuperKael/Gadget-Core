@@ -29,6 +29,7 @@ namespace GadgetCore.Patches
                         GadgetNetwork.NetworkPlayersByName.Remove(entry.Key);
                         GadgetNetwork.NamesByNetworkPlayer.Remove(entry.Value.GetComponent<NetworkView>().owner);
                     }
+                    if (InstanceTracker.PlayerScript == __instance) GadgetCoreAPI.playerName = n + "-1";
                     GadgetCoreAPI.playersByName[n + "-1"] = existingPlayer;
                     GadgetNetwork.NetworkPlayersByName[n + "-1"] = existingPlayer.GetComponent<NetworkView>().owner;
                     GadgetNetwork.NamesByNetworkPlayer[existingPlayer.GetComponent<NetworkView>().owner] = n + "-1";
@@ -64,6 +65,7 @@ namespace GadgetCore.Patches
                 GadgetNetwork.NetworkPlayersByName.Remove(entry.Key);
                 GadgetNetwork.NamesByNetworkPlayer.Remove(entry.Value.GetComponent<NetworkView>().owner);
             }
+            if (InstanceTracker.PlayerScript == __instance) GadgetCoreAPI.playerName = n;
             GadgetCoreAPI.playersByName[n] = __instance;
             GadgetNetwork.NetworkPlayersByName[n] = existingPlayer.GetComponent<NetworkView>().owner;
             GadgetNetwork.NamesByNetworkPlayer[existingPlayer.GetComponent<NetworkView>().owner] = n;

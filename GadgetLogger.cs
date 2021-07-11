@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using UnityEngine;
 
 namespace GadgetCore
 {
@@ -22,6 +23,9 @@ namespace GadgetCore
         /// </summary>
         public readonly string LoggerName;
 
+        private const int MaxLogLayers = 10;
+        private static int LogLayerCount = 1;
+
         private StreamWriter streamWriter;
 
         /// <summary>
@@ -37,9 +41,28 @@ namespace GadgetCore
             }
             else
             {
-                if (!Directory.Exists(GadgetPaths.LogsPath)) Directory.CreateDirectory(GadgetPaths.LogsPath);
-                streams.Add(LogName, streamWriter = new StreamWriter(Path.Combine(GadgetPaths.LogsPath, LogName + ".log")));
-                streamWriter.AutoFlush = true;
+                while (LogLayerCount <= MaxLogLayers)
+                {
+                    try
+                    {
+                        if (!Directory.Exists(GadgetPaths.LogsPath)) Directory.CreateDirectory(GadgetPaths.LogsPath);
+                        streams.Add(LogName, streamWriter = new StreamWriter(Path.Combine(GadgetPaths.LogsPath, LogName + (LogLayerCount > 1 ? $"-{LogLayerCount}.log" : ".log"))));
+                        streamWriter.AutoFlush = true;
+                        break;
+                    }
+                    catch (IOException e)
+                    {
+                        if (e.Message.StartsWith("Sharing violation"))
+                        {
+                            LogLayerCount++;
+                            if (LogLayerCount > 10) Debug.Log($"GadgetLogger [{LoggerName}].[{LogName}]: Logging exceeded the max of {MaxLogLayers} simultaneous layers!");
+                        }
+                        else
+                        {
+                            Debug.Log($"GadgetLogger [{LoggerName}].[{LogName}]: {e}");
+                        }
+                    }
+                }
             }
         }
 
@@ -69,7 +92,7 @@ namespace GadgetCore
         public void Log(object text)
         {
             foreach (string line in (text?.ToString() ?? "null").Replace('\r', '\n').Split(new char[] { '\n' }, StringSplitOptions.RemoveEmptyEntries))
-                streamWriter.WriteLine("[" + DateTime.Now + "]" + (!string.IsNullOrEmpty(LoggerName) ? "[" + LoggerName + "]" : "") + "[Info] " + line);
+                streamWriter?.WriteLine("[" + DateTime.Now + "]" + (!string.IsNullOrEmpty(LoggerName) ? "[" + LoggerName + "]" : "") + "[Info] " + line);
         }
 
         /// <summary>
@@ -79,7 +102,7 @@ namespace GadgetCore
         {
             if (includeConsole) GadgetConsole.Print(text?.ToString() ?? "null", LoggerName, GadgetConsole.MessageSeverity.WARN);
             foreach (string line in (text?.ToString() ?? "null").Replace('\r', '\n').Split(new char[] { '\n' }, StringSplitOptions.RemoveEmptyEntries))
-                streamWriter.WriteLine("[" + DateTime.Now + "]" + (!string.IsNullOrEmpty(LoggerName) ? "[" + LoggerName + "]" : "") + "[Warning] " + line);
+                streamWriter?.WriteLine("[" + DateTime.Now + "]" + (!string.IsNullOrEmpty(LoggerName) ? "[" + LoggerName + "]" : "") + "[Warning] " + line);
         }
 
         /// <summary>
@@ -89,7 +112,7 @@ namespace GadgetCore
         {
             if (includeConsole) GadgetConsole.Print(text?.ToString() ?? "null", LoggerName, GadgetConsole.MessageSeverity.ERROR);
             foreach (string line in (text?.ToString() ?? "null").Replace('\r', '\n').Split(new char[] { '\n' }, StringSplitOptions.RemoveEmptyEntries))
-                streamWriter.WriteLine("[" + DateTime.Now + "]" + (!string.IsNullOrEmpty(LoggerName) ? "[" + LoggerName + "]" : "") + "[Error] " + line);
+                streamWriter?.WriteLine("[" + DateTime.Now + "]" + (!string.IsNullOrEmpty(LoggerName) ? "[" + LoggerName + "]" : "") + "[Error] " + line);
         }
 
         /// <summary>
@@ -97,7 +120,7 @@ namespace GadgetCore
         /// </summary>
         public void Dispose()
         {
-            streamWriter.Dispose();
+            streamWriter?.Dispose();
         }
     }
 }

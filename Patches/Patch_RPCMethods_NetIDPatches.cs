@@ -17,7 +17,7 @@ namespace GadgetCore.Patches.NetIDPatches
             if (!GadgetNetwork.MatrixReady && GadgetNetwork.GetTimeSinceConnect() < GadgetNetwork.MatrixTimeout)
             {
                 __instance.StartCoroutine(GadgetUtils.WaitAndInvoke(RPCMethod, GadgetNetwork.MatrixTimeout - GadgetNetwork.GetTimeSinceConnect(), () => GadgetNetwork.MatrixReady, __instance, id, targ, dmg));
-                return false;
+                return true;
             }
             GadgetNetwork.ConvertIDToLocal(ItemRegistry.Singleton /* ProjectileRegistry */, ref id);
             return true;
@@ -36,7 +36,7 @@ namespace GadgetCore.Patches.NetIDPatches
             if (!GadgetNetwork.MatrixReady && GadgetNetwork.GetTimeSinceConnect() < GadgetNetwork.MatrixTimeout)
             {
                 __instance.StartCoroutine(GadgetUtils.WaitAndInvoke(RPCMethod, GadgetNetwork.MatrixTimeout - GadgetNetwork.GetTimeSinceConnect(), () => GadgetNetwork.MatrixReady, __instance, s));
-                return false;
+                return true;
             }
             GadgetNetwork.ConvertIDToLocal(PlanetRegistry.Singleton, ref s[0]);
             for (int i = 1;i < s.Length;i++)
@@ -59,7 +59,7 @@ namespace GadgetCore.Patches.NetIDPatches
             if (!GadgetNetwork.MatrixReady && GadgetNetwork.GetTimeSinceConnect() < GadgetNetwork.MatrixTimeout)
             {
                 __instance.StartCoroutine(GadgetUtils.WaitAndInvoke(RPCMethod, GadgetNetwork.MatrixTimeout - GadgetNetwork.GetTimeSinceConnect(), () => GadgetNetwork.MatrixReady, __instance, s));
-                return false;
+                return true;
             }
             GadgetNetwork.ConvertIDToLocal(PlanetRegistry.Singleton, ref s[0]);
             return true;
@@ -78,7 +78,7 @@ namespace GadgetCore.Patches.NetIDPatches
             if (!GadgetNetwork.MatrixReady && GadgetNetwork.GetTimeSinceConnect() < GadgetNetwork.MatrixTimeout)
             {
                 __instance.StartCoroutine(GadgetUtils.WaitAndInvoke(RPCMethod, GadgetNetwork.MatrixTimeout - GadgetNetwork.GetTimeSinceConnect(), () => GadgetNetwork.MatrixReady, __instance, viewID, id, targ, dmg));
-                return false;
+                return true;
             }
             GadgetNetwork.ConvertIDToLocal(ItemRegistry.Singleton /* ProjectileRegistry */, ref id);
             return true;
@@ -97,7 +97,7 @@ namespace GadgetCore.Patches.NetIDPatches
             if (!GadgetNetwork.MatrixReady && GadgetNetwork.GetTimeSinceConnect() < GadgetNetwork.MatrixTimeout)
             {
                 __instance.StartCoroutine(GadgetUtils.WaitAndInvoke(RPCMethod, GadgetNetwork.MatrixTimeout - GadgetNetwork.GetTimeSinceConnect(), () => GadgetNetwork.MatrixReady, __instance, dmg, id, dir));
-                return false;
+                return true;
             }
             GadgetNetwork.ConvertIDToLocal(ItemRegistry.Singleton /* ProjectileRegistry */, ref id);
             return true;
@@ -116,7 +116,7 @@ namespace GadgetCore.Patches.NetIDPatches
             if (!GadgetNetwork.MatrixReady && GadgetNetwork.GetTimeSinceConnect() < GadgetNetwork.MatrixTimeout)
             {
                 __instance.StartCoroutine(GadgetUtils.WaitAndInvoke(RPCMethod, GadgetNetwork.MatrixTimeout - GadgetNetwork.GetTimeSinceConnect(), () => GadgetNetwork.MatrixReady, __instance, a));
-                return false;
+                return true;
             }
             GadgetNetwork.ConvertIDToLocal(PlanetRegistry.Singleton, ref a);
             return true;
@@ -135,7 +135,7 @@ namespace GadgetCore.Patches.NetIDPatches
             if (!GadgetNetwork.MatrixReady && GadgetNetwork.GetTimeSinceConnect() < GadgetNetwork.MatrixTimeout)
             {
                 __instance.StartCoroutine(GadgetUtils.WaitAndInvoke(RPCMethod, GadgetNetwork.MatrixTimeout - GadgetNetwork.GetTimeSinceConnect(), () => GadgetNetwork.MatrixReady, __instance, b, h, num));
-                return false;
+                return true;
             }
             GadgetNetwork.ConvertIDToLocal(PlanetRegistry.Singleton, ref b);
             return true;
@@ -154,7 +154,7 @@ namespace GadgetCore.Patches.NetIDPatches
             if (!GadgetNetwork.MatrixReady && GadgetNetwork.GetTimeSinceConnect() < GadgetNetwork.MatrixTimeout)
             {
                 __instance.StartCoroutine(GadgetUtils.WaitAndInvoke(RPCMethod, GadgetNetwork.MatrixTimeout - GadgetNetwork.GetTimeSinceConnect(), () => GadgetNetwork.MatrixReady, __instance, id, dmg, pp));
-                return false;
+                return true;
             }
             GadgetNetwork.ConvertIDToLocal(ItemRegistry.Singleton /* ProjectileRegistry */, ref id);
             return true;
@@ -173,7 +173,7 @@ namespace GadgetCore.Patches.NetIDPatches
             if (!GadgetNetwork.MatrixReady && GadgetNetwork.GetTimeSinceConnect() < GadgetNetwork.MatrixTimeout)
             {
                 __instance.StartCoroutine(GadgetUtils.WaitAndInvoke(RPCMethod, GadgetNetwork.MatrixTimeout - GadgetNetwork.GetTimeSinceConnect(), () => GadgetNetwork.MatrixReady, __instance, id, targ, dmg));
-                return false;
+                return true;
             }
             GadgetNetwork.ConvertIDToLocal(ItemRegistry.Singleton /* ProjectileRegistry */, ref id);
             return true;
@@ -192,7 +192,7 @@ namespace GadgetCore.Patches.NetIDPatches
             if (!GadgetNetwork.MatrixReady && GadgetNetwork.GetTimeSinceConnect() < GadgetNetwork.MatrixTimeout)
             {
                 __instance.StartCoroutine(GadgetUtils.WaitAndInvoke(RPCMethod, GadgetNetwork.MatrixTimeout - GadgetNetwork.GetTimeSinceConnect(), () => GadgetNetwork.MatrixReady, __instance, id, targ, dmg));
-                return false;
+                return true;
             }
             GadgetNetwork.ConvertIDToLocal(ItemRegistry.Singleton /* ProjectileRegistry */, ref id);
             return true;
@@ -217,7 +217,7 @@ namespace GadgetCore.Patches.NetIDPatches
             if (!GadgetNetwork.MatrixReady && GadgetNetwork.GetTimeSinceConnect() < GadgetNetwork.MatrixTimeout)
             {
                 __instance.StartCoroutine(GadgetUtils.WaitAndInvoke(RPCMethod, GadgetNetwork.MatrixTimeout - GadgetNetwork.GetTimeSinceConnect(), () => GadgetNetwork.MatrixReady, __instance, id, targ, dmg, burst));
-                return false;
+                return true;
             }
             GadgetNetwork.ConvertIDToLocal(ItemRegistry.Singleton /* ProjectileRegistry */, ref id);
             return true;
@@ -242,7 +242,7 @@ namespace GadgetCore.Patches.NetIDPatches
             if (!GadgetNetwork.MatrixReady && GadgetNetwork.GetTimeSinceConnect() < GadgetNetwork.MatrixTimeout)
             {
                 __instance.StartCoroutine(GadgetUtils.WaitAndInvoke(RPCMethod, GadgetNetwork.MatrixTimeout - GadgetNetwork.GetTimeSinceConnect(), () => GadgetNetwork.MatrixReady, __instance, id, dmg, pp, dir));
-                return false;
+                return true;
             }
             GadgetNetwork.ConvertIDToLocal(ItemRegistry.Singleton /* ProjectileRegistry */, ref id);
             return true;
@@ -261,7 +261,7 @@ namespace GadgetCore.Patches.NetIDPatches
             if (!GadgetNetwork.MatrixReady && GadgetNetwork.GetTimeSinceConnect() < GadgetNetwork.MatrixTimeout)
             {
                 __instance.StartCoroutine(GadgetUtils.WaitAndInvoke(RPCMethod, GadgetNetwork.MatrixTimeout - GadgetNetwork.GetTimeSinceConnect(), () => GadgetNetwork.MatrixReady, __instance, ei, a, dead));
-                return false;
+                return true;
             }
             GadgetNetwork.ConvertIDToLocal(ItemRegistry.Singleton, ref ei[0]);
             GadgetNetwork.ConvertIDToLocal(ItemRegistry.Singleton, ref ei[1]);
@@ -287,7 +287,7 @@ namespace GadgetCore.Patches.NetIDPatches
             if (!GadgetNetwork.MatrixReady && GadgetNetwork.GetTimeSinceConnect() < GadgetNetwork.MatrixTimeout)
             {
                 __instance.StartCoroutine(GadgetUtils.WaitAndInvoke(RPCMethod, GadgetNetwork.MatrixTimeout - GadgetNetwork.GetTimeSinceConnect(), () => GadgetNetwork.MatrixReady, __instance, p));
-                return false;
+                return true;
             }
             GadgetNetwork.ConvertIDToLocal(ItemRegistry.Singleton, ref p[0]);
             return true;
@@ -306,7 +306,7 @@ namespace GadgetCore.Patches.NetIDPatches
             if (!GadgetNetwork.MatrixReady && GadgetNetwork.GetTimeSinceConnect() < GadgetNetwork.MatrixTimeout)
             {
                 __instance.StartCoroutine(GadgetUtils.WaitAndInvoke(RPCMethod, GadgetNetwork.MatrixTimeout - GadgetNetwork.GetTimeSinceConnect(), () => GadgetNetwork.MatrixReady, __instance, p));
-                return false;
+                return true;
             }
             GadgetNetwork.ConvertIDToLocal(__instance.isChipStand ? (Registry)ChipRegistry.Singleton : ItemRegistry.Singleton, ref p[0]);
             return true;
@@ -325,7 +325,7 @@ namespace GadgetCore.Patches.NetIDPatches
             if (!GadgetNetwork.MatrixReady && GadgetNetwork.GetTimeSinceConnect() < GadgetNetwork.MatrixTimeout)
             {
                 __instance.StartCoroutine(GadgetUtils.WaitAndInvoke(RPCMethod, GadgetNetwork.MatrixTimeout - GadgetNetwork.GetTimeSinceConnect(), () => GadgetNetwork.MatrixReady, __instance, id));
-                return false;
+                return true;
             }
             GadgetNetwork.ConvertIDToLocal(ChipRegistry.Singleton, ref id);
             return true;
@@ -344,7 +344,7 @@ namespace GadgetCore.Patches.NetIDPatches
             if (!GadgetNetwork.MatrixReady && GadgetNetwork.GetTimeSinceConnect() < GadgetNetwork.MatrixTimeout)
             {
                 __instance.StartCoroutine(GadgetUtils.WaitAndInvoke(RPCMethod, GadgetNetwork.MatrixTimeout - GadgetNetwork.GetTimeSinceConnect(), () => GadgetNetwork.MatrixReady, __instance, st, pos));
-                return false;
+                return true;
             }
             GadgetNetwork.ConvertIDToLocal(ItemRegistry.Singleton, ref st[0]);
             GadgetNetwork.ConvertIDToLocal(ItemRegistry.Singleton, ref st[5]);
@@ -366,7 +366,7 @@ namespace GadgetCore.Patches.NetIDPatches
             if (!GadgetNetwork.MatrixReady && GadgetNetwork.GetTimeSinceConnect() < GadgetNetwork.MatrixTimeout)
             {
                 __instance.StartCoroutine(GadgetUtils.WaitAndInvoke(RPCMethod, GadgetNetwork.MatrixTimeout - GadgetNetwork.GetTimeSinceConnect(), () => GadgetNetwork.MatrixReady, __instance, a, challenge));
-                return false;
+                return true;
             }
             GadgetNetwork.ConvertIDToLocal(PlanetRegistry.Singleton, ref a);
             return true;
@@ -385,7 +385,7 @@ namespace GadgetCore.Patches.NetIDPatches
             if (!GadgetNetwork.MatrixReady && GadgetNetwork.GetTimeSinceConnect() < GadgetNetwork.MatrixTimeout)
             {
                 __instance.StartCoroutine(GadgetUtils.WaitAndInvoke(RPCMethod, GadgetNetwork.MatrixTimeout - GadgetNetwork.GetTimeSinceConnect(), () => GadgetNetwork.MatrixReady, __instance, a, challenge));
-                return false;
+                return true;
             }
             GadgetNetwork.ConvertIDToLocal(PlanetRegistry.Singleton, ref a);
             return true;
@@ -404,7 +404,7 @@ namespace GadgetCore.Patches.NetIDPatches
             if (!GadgetNetwork.MatrixReady && GadgetNetwork.GetTimeSinceConnect() < GadgetNetwork.MatrixTimeout)
             {
                 __instance.StartCoroutine(GadgetUtils.WaitAndInvoke(RPCMethod, GadgetNetwork.MatrixTimeout - GadgetNetwork.GetTimeSinceConnect(), () => GadgetNetwork.MatrixReady, __instance, id, targ, dmg));
-                return false;
+                return true;
             }
             GadgetNetwork.ConvertIDToLocal(ItemRegistry.Singleton /* ProjectileRegistry */, ref id);
             return true;
@@ -423,7 +423,8 @@ namespace GadgetCore.Patches.NetIDPatches
             if (!GadgetNetwork.MatrixReady && GadgetNetwork.GetTimeSinceConnect() < GadgetNetwork.MatrixTimeout)
             {
                 __instance.StartCoroutine(GadgetUtils.WaitAndInvoke(RPCMethod, GadgetNetwork.MatrixTimeout - GadgetNetwork.GetTimeSinceConnect(), () => GadgetNetwork.MatrixReady, __instance, d));
-                return false;
+                d = new int[] { 1000, 1000, 1000 }; // Fix to bug with host droids in multiplayer
+                return true;
             }
             GadgetNetwork.ConvertIDToLocal(ItemRegistry.Singleton, ref d[0]);
             GadgetNetwork.ConvertIDToLocal(ItemRegistry.Singleton, ref d[1]);
@@ -444,7 +445,7 @@ namespace GadgetCore.Patches.NetIDPatches
             if (!GadgetNetwork.MatrixReady && GadgetNetwork.GetTimeSinceConnect() < GadgetNetwork.MatrixTimeout)
             {
                 __instance.StartCoroutine(GadgetUtils.WaitAndInvoke(RPCMethod, GadgetNetwork.MatrixTimeout - GadgetNetwork.GetTimeSinceConnect(), () => GadgetNetwork.MatrixReady, __instance, gg));
-                return false;
+                return true;
             }
             for (int i = 0;i < gg.Length;i++)
             {
@@ -466,7 +467,7 @@ namespace GadgetCore.Patches.NetIDPatches
             if (!GadgetNetwork.MatrixReady && GadgetNetwork.GetTimeSinceConnect() < GadgetNetwork.MatrixTimeout)
             {
                 __instance.StartCoroutine(GadgetUtils.WaitAndInvoke(RPCMethod, GadgetNetwork.MatrixTimeout - GadgetNetwork.GetTimeSinceConnect(), () => GadgetNetwork.MatrixReady, __instance, gg, ggs));
-                return false;
+                return true;
             }
             for (int i = 0; i < gg.Length; i++)
             {
@@ -492,7 +493,7 @@ namespace GadgetCore.Patches.NetIDPatches
             if (!GadgetNetwork.MatrixReady && GadgetNetwork.GetTimeSinceConnect() < GadgetNetwork.MatrixTimeout)
             {
                 __instance.StartCoroutine(GadgetUtils.WaitAndInvoke(RPCMethod, GadgetNetwork.MatrixTimeout - GadgetNetwork.GetTimeSinceConnect(), () => GadgetNetwork.MatrixReady, __instance, a));
-                return false;
+                return true;
             }
             GadgetNetwork.ConvertIDToLocal(PlanetRegistry.Singleton, ref a);
             return true;

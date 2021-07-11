@@ -22,11 +22,11 @@ namespace GadgetCore.API
         /// <summary>
         /// The version numbers for this version of Gadget Core. You generally shouldn't access this directly, instead use <see cref="GetRawVersion()"/>
         /// </summary>
-        public const string RAW_VERSION = "2.0.4.0";
+        public const string RAW_VERSION = "2.0.4.1";
         /// <summary>
         /// A slightly more informative version. You generally shouldn't access this directly, instead use <see cref="GetFullVersion()"/>
         /// </summary>
-        public const string FULL_VERSION = "2.0.4.0 - Power Commands Edition";
+        public const string FULL_VERSION = "2.0.4.1 - Power Commands Edition";
         /// <summary>
         /// Indicates whether this version of GadgetCore is a beta version. You generally shouldn't access this directly, instead use <see cref="GetIsBeta()"/>
         /// </summary>
@@ -77,6 +77,7 @@ namespace GadgetCore.API
         internal static int spriteSheetSize = -1;
         internal static Texture2D spriteSheet;
         internal static int[][] equippedGearStats = new int[9][];
+        internal static string playerName;
 
         static GadgetCoreAPI()
         {
@@ -85,8 +86,10 @@ namespace GadgetCore.API
 
         internal static void SceneReset()
         {
+            playersByName.Clear();
             inventory = null;
             portalUses = null;
+            playerName = Menuu.curName;
         }
 
         /// <summary>
@@ -112,11 +115,19 @@ namespace GadgetCore.API
         }
 
         /// <summary>
+        /// Gets the name of the current player, potentially including the numeric afix in the case of multiple players with the same name in a multiplayer game.
+        /// </summary>
+        public static string GetPlayerName()
+        {
+            return playerName;
+        }
+
+        /// <summary>
         /// Returns the <see cref="PlayerScript"/> for the player with the given name. Returns null if no player with that name exists.
         /// </summary>
         public static PlayerScript GetPlayerByName(string name)
         {
-            return playersByName.ContainsKey(name) ? playersByName[name] : name == Menuu.curName ? InstanceTracker.PlayerScript : null;
+            return playersByName.ContainsKey(name) ? playersByName[name] : name == Menuu.curName || name == GetPlayerName() ? InstanceTracker.PlayerScript : null;
         }
 
         /// <summary>
@@ -163,7 +174,34 @@ namespace GadgetCore.API
         /// </summary>
         public static void Quit()
         {
+            if (ModBrowser.UpdateOnRestart)
+            {
+                QuitAndUpdate();
+                return;
+            }
             GadgetCore.Quitting = true;
+            Application.Quit();
+        }
+
+        /// <summary>
+        /// Quits the game, and launches an update using an already-downloaded "Gadget Core Installer.exe" file in the Tools directory.
+        /// </summary>
+        public static void QuitAndUpdate()
+        {
+            GadgetCore.Quitting = true;
+            try
+            {
+                using (StreamWriter stream = File.CreateText(Path.Combine(GadgetPaths.GadgetCorePath, "Update.tmp")))
+                {
+                    stream.Write(GetFullVersion());
+                }
+            }
+            catch (Exception) { }
+            try
+            {
+                Process.Start(Path.Combine(GadgetPaths.ToolsPath, "Gadget Core Installer.exe"), $"--update \"{GadgetPaths.GamePath}\"");
+            }
+            catch (Exception) { }
             Application.Quit();
         }
 
@@ -290,6 +328,7 @@ namespace GadgetCore.API
             SceneInjector.ConfirmationText.text = text;
             SceneInjector.ConfirmationYesAction = onYes;
             SceneInjector.ConfirmationNoAction = onNo;
+            SceneInjector.ConfirmationDialogBackingPanel.SetActive(true);
             SceneInjector.ConfirmationDialog.SetActive(true);
         }
 
@@ -303,6 +342,7 @@ namespace GadgetCore.API
             SceneInjector.ConfirmationNoAction = onCancel;
             SceneInjector.ConfirmationYesText.text = "OK";
             SceneInjector.ConfirmationNoText.text = "Cancel";
+            SceneInjector.ConfirmationDialogBackingPanel.SetActive(true);
             SceneInjector.ConfirmationDialog.SetActive(true);
         }
 
@@ -314,6 +354,7 @@ namespace GadgetCore.API
             SceneInjector.ConfirmationText.text = text;
             SceneInjector.ConfirmationYesText.transform.parent.gameObject.SetActive(false);
             SceneInjector.ConfirmationNoText.text = "OK";
+            SceneInjector.ConfirmationDialogBackingPanel.SetActive(true);
             SceneInjector.ConfirmationDialog.SetActive(true);
         }
 
@@ -323,6 +364,7 @@ namespace GadgetCore.API
         public static void CloseDialog()
         {
             SceneInjector.ConfirmationDialog.SetActive(false);
+            SceneInjector.ConfirmationDialogBackingPanel.SetActive(false);
             SceneInjector.ConfirmationText.text = "";
             SceneInjector.ConfirmationYesText.text = "Yes";
             SceneInjector.ConfirmationNoText.text = "No";
@@ -446,7 +488,7 @@ namespace GadgetCore.API
         {
             if (!isChip)
             {
-                int[] st = ConstructIntArrayFromItem(item);
+                int[] st = ConstructIntArrayFromItem(item, true, false);
                 if (Network.isServer)
                 {
                     ItemScript itemScript = ((GameObject)Network.Instantiate(Resources.Load("i"), pos, Quaternion.identity, 0)).GetComponent<ItemScript>();
@@ -464,7 +506,7 @@ namespace GadgetCore.API
             else
             {
                 ItemScript itemScript = ((GameObject)Network.Instantiate(Resources.Load("i"), pos, Quaternion.identity, 0)).GetComponent<ItemScript>();
-                itemScript.gameObject.GetComponent<NetworkView>().RPC("Chip", RPCMode.AllBuffered, item.id);
+                itemScript.gameObject.GetComponent<NetworkView>().RPC("Chip", RPCMode.AllBuffered, ChipRegistry.Singleton.ConvertIDToHost(item.id));
             }
         }
 
@@ -689,7 +731,7 @@ namespace GadgetCore.API
         {
             if (!isChip)
             {
-                int[] st = ConstructIntArrayFromItem(item);
+                int[] st = ConstructIntArrayFromItem(item, true, false);
                 ItemScript itemScript = ((GameObject)Network.Instantiate(Resources.Load("i2"), pos, Quaternion.identity, 0)).GetComponent<ItemScript>();
                 itemScript.gameObject.GetComponent<NetworkView>().RPC("Init", RPCMode.AllBuffered, st);
                 if ((ItemRegistry.GetItem(item.id)?.Type & ItemType.LEVELING) == ItemType.LEVELING) itemScript.back.SetActive(true);
@@ -698,7 +740,7 @@ namespace GadgetCore.API
             else
             {
                 ItemScript itemScript = ((GameObject)Network.Instantiate(Resources.Load("i2"), pos, Quaternion.identity, 0)).GetComponent<ItemScript>();
-                itemScript.gameObject.GetComponent<NetworkView>().RPC("Chip", RPCMode.AllBuffered, item.id);
+                itemScript.gameObject.GetComponent<NetworkView>().RPC("Chip", RPCMode.AllBuffered, ChipRegistry.Singleton.ConvertIDToHost(item.id));
                 return itemScript;
             }
         }
@@ -1205,6 +1247,42 @@ namespace GadgetCore.API
         /// </summary>
         /// <param name="item">The item who's stats are being modified.</param>
         public delegate EquipStatsDouble StatModifier(Item item);
+
+        /// <summary>
+        /// Generates a plane-shaped mesh, with a specified width and height.
+        /// </summary>
+        public static Mesh GeneratePlaneMesh(float width, float height)
+        {
+            return new Mesh
+            {
+                name = "Plane",
+                vertices = new Vector3[]
+                {
+                    new Vector3(width / -2, height / -2, 0),
+                    new Vector3(width / -2, height / 2, 0),
+                    new Vector3(width / 2, height / 2, 0),
+                    new Vector3(width / 2, height / -2, 0)
+                },
+                uv = new Vector2[]
+                {
+                    new Vector2(0, 0),
+                    new Vector2(0, 1),
+                    new Vector2(1, 1),
+                    new Vector2(1, 0)
+                },
+                normals = new Vector3[]
+                {
+                    new Vector3(0, 0, -1),
+                    new Vector3(0, 0, -1),
+                    new Vector3(0, 0, -1),
+                    new Vector3(0, 0, -1)
+                },
+                triangles = new int[]
+                {
+                    0, 1, 2, 2, 3, 0
+                }
+            };
+        }
 
         /// <summary>
         /// Use to check if there is a resource registered at the specified path. This includes resources registered by the base game.
