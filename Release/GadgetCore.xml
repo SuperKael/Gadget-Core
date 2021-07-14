@@ -2201,6 +2201,11 @@
             Reads a <see cref="T:System.String"/> value from the config.
             </summary>
         </member>
+        <member name="M:GadgetCore.API.GadgetConfig.ReadStringArray(System.String,System.String[],System.String[],System.Boolean,System.String[][],System.String[])">
+            <summary>
+            Reads a <see cref="T:System.String"/> array value from the config.
+            </summary>
+        </member>
         <member name="M:GadgetCore.API.GadgetConfig.ReadKeyCode(System.String,UnityEngine.KeyCode,UnityEngine.KeyCode,System.Boolean,UnityEngine.KeyCode[],System.String[])">
             <summary>
             Reads a <see cref="T:UnityEngine.KeyCode"/> value from the config.
@@ -2249,6 +2254,11 @@
         <member name="M:GadgetCore.API.GadgetConfig.WriteString(System.String,System.String,System.String,System.String,System.Boolean,System.String[],System.String[])">
             <summary>
             Writes a <see cref="T:System.String"/> value to the config.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetConfig.WriteStringArray(System.String,System.String[],System.String[],System.String[],System.Boolean,System.String[][],System.String[])">
+            <summary>
+            Writes a <see cref="T:System.String"/> array value to the config.
             </summary>
         </member>
         <member name="M:GadgetCore.API.GadgetConfig.WriteKeyCode(System.String,UnityEngine.KeyCode,UnityEngine.KeyCode,UnityEngine.KeyCode,System.Boolean,UnityEngine.KeyCode[],System.String[])">
@@ -5595,6 +5605,16 @@
         <member name="M:GadgetCore.GadgetConsole.RemoveMessage(System.Single)">
             <summary>
             Permanently removes a message using the exact time of its sending. Since message send-times are synchronized across the network, this can be used to remove broadcasts.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.GadgetConsole.ReplaceBroadcast(System.Int32,GadgetCore.GadgetConsole.GadgetConsoleMessage)">
+            <summary>
+            Like <see cref="M:GadgetCore.GadgetConsole.ReplaceMessage(System.Int32,GadgetCore.GadgetConsole.GadgetConsoleMessage)"/>, but replaces a broadcast from every player's console.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.GadgetConsole.ReplaceBroadcast(System.Int32,System.String,System.String,GadgetCore.GadgetConsole.MessageSeverity,System.Single)">
+            <summary>
+            Like <see cref="M:GadgetCore.GadgetConsole.ReplaceMessage(System.Int32,GadgetCore.GadgetConsole.GadgetConsoleMessage)"/>, but replaces a broadcast from every player's console.
             </summary>
         </member>
         <member name="M:GadgetCore.GadgetConsole.RemoveBroadcast(System.Int32)">

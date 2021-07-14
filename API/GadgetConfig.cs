@@ -153,6 +153,19 @@ namespace GadgetCore.API
         }
 
         /// <summary>
+        /// Reads a <see cref="string"/> array value from the config.
+        /// </summary>
+        public string[] ReadStringArray(string key, string[] defaultValue, string[] vanillaValue = default, bool requiresRestart = false, string[][] allowed = null, params string[] comments)
+        {
+            List<string> commentList = new List<string>();
+            commentList.AddRange(comments);
+            GenerateMetaComments(commentList, defaultValue, vanillaValue, requiresRestart, allowed);
+            if (!ConfigData.ContainsKey(key)) ConfigData[key] = defaultValue.ToString();
+            ConfigData.GetKeyData(key).Comments = commentList;
+            return ConfigData[key].Split(',');
+        }
+
+        /// <summary>
         /// Reads a <see cref="KeyCode"/> value from the config.
         /// </summary>
         public KeyCode ReadKeyCode(string key, KeyCode defaultValue, KeyCode vanillaValue = default, bool requiresRestart = false, KeyCode[] allowed = null, params string[] comments)
@@ -277,6 +290,18 @@ namespace GadgetCore.API
         }
 
         /// <summary>
+        /// Writes a <see cref="string"/> array value to the config.
+        /// </summary>
+        public void WriteStringArray(string key, string[] value, string[] defaultValue = default, string[] vanillaValue = default, bool requiresRestart = false, string[][] allowed = null, params string[] comments)
+        {
+            List<string> commentList = new List<string>();
+            commentList.AddRange(comments);
+            GenerateMetaComments(commentList, defaultValue, vanillaValue, requiresRestart, allowed);
+            ConfigData[key] = value.Concat(",");
+            ConfigData.GetKeyData(key).Comments = commentList;
+        }
+
+        /// <summary>
         /// Writes a <see cref="KeyCode"/> value to the config.
         /// </summary>
         public void WriteKeyCode(string key, KeyCode value, KeyCode defaultValue = default, KeyCode vanillaValue = default, bool requiresRestart = false, KeyCode[] allowed = null, params string[] comments)
@@ -314,9 +339,9 @@ namespace GadgetCore.API
 
         private void GenerateMetaComments<T>(List<string> commentList, T defaultValue = default, T vanillaValue = default, bool requiresRestart = false, T[] allowed = null, params T[] range)
         {
-            if (EqualityComparer<T>.Default.Equals(defaultValue, default) && defaultValue != null)
+            if (!EqualityComparer<T>.Default.Equals(defaultValue, default) && defaultValue != null)
             {
-                if (EqualityComparer<T>.Default.Equals(vanillaValue, default) && vanillaValue != null)
+                if (!EqualityComparer<T>.Default.Equals(vanillaValue, default) && vanillaValue != null)
                 {
                     commentList.Add("[Default(s): " + defaultValue + " | Vanilla: " + vanillaValue + "]");
                 }
@@ -325,7 +350,7 @@ namespace GadgetCore.API
                     commentList.Add("[Default(s): " + defaultValue + "]");
                 }
             }
-            else if (EqualityComparer<T>.Default.Equals(vanillaValue, default) && vanillaValue != null)
+            else if (!EqualityComparer<T>.Default.Equals(vanillaValue, default) && vanillaValue != null)
             {
                 commentList.Add("[Vanilla: " + vanillaValue + "]");
             }

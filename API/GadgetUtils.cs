@@ -48,10 +48,9 @@ namespace GadgetCore.API
                     {
                         RenderTexture renderTex = RenderTexture.GetTemporary(src.width, src.height, 0, RenderTextureFormat.Default, RenderTextureReadWrite.Linear);
                         Graphics.Blit(src, renderTex);
-                        RenderTexture previous = RenderTexture.active;
                         RenderTexture.active = renderTex;
                         dst.ReadPixels(new Rect(srcX, srcY, srcWidth, srcHeight), dstX, dstY);
-                        RenderTexture.active = previous;
+                        RenderTexture.active = null;
                         RenderTexture.ReleaseTemporary(renderTex);
                     }
                     else

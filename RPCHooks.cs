@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using UnityEngine;
@@ -16,13 +17,14 @@ namespace GadgetCore
         public static RPCHooks Singleton { get; private set; }
         private static NetworkView view;
 
-        private HashSet<NetworkPlayer> initiatedClients = new HashSet<NetworkPlayer>();
-        private NetworkMessageInfo serverNMI = new NetworkMessageInfo();
+        private readonly HashSet<NetworkPlayer> initiatedClients = new HashSet<NetworkPlayer>();
+        private readonly NetworkMessageInfo serverNMI = new NetworkMessageInfo();
 
         internal void Awake()
         {
             if (Singleton != null && Singleton != this) Destroy(Singleton);
             Singleton = this;
+            initiatedClients.Clear();
             view = GetComponent<NetworkView>();
             if (Network.isServer)
             {
@@ -238,6 +240,11 @@ namespace GadgetCore
         [RPC]
         internal void RPCCreateMarketStand(int itemID, Vector3 pos, int cost, bool isBuild, bool isCredits, bool isTrophies, NetworkViewID viewID)
         {
+            if (!GadgetNetwork.MatrixReady && GadgetNetwork.GetTimeSinceConnect() < GadgetNetwork.MatrixTimeout)
+            {
+                StartCoroutine(GadgetUtils.WaitAndInvoke(typeof(RPCHooks).GetMethod("RPCCreateMarketStand", BindingFlags.NonPublic | BindingFlags.Instance), GadgetNetwork.MatrixTimeout - GadgetNetwork.GetTimeSinceConnect(), () => GadgetNetwork.MatrixReady, this, itemID, pos, cost, isBuild, isCredits, isTrophies, viewID));
+                return;
+            }
             ItemInfo item = ItemRegistry.Singleton[ItemRegistry.Singleton.ConvertIDToLocal(itemID)];
             GameObject shopStand = Instantiate(SceneInjector.BuildStand, SceneInjector.BuildStand.transform.parent);
             NetworkView view = shopStand.GetComponent<NetworkView>();
@@ -259,15 +266,32 @@ namespace GadgetCore
             standScript.txtCost[1].text = standScript.txtCost[0].text;
         }
 
-        internal void BroadcastConsoleMessage(string text, string sender, GadgetConsole.MessageSeverity severity, float sendTime)
+        internal void BroadcastConsoleMessage(int index, string text, string sender, GadgetConsole.MessageSeverity severity, float sendTime)
         {
-            view.RPC("RPCBroadcastConsoleMessage", RPCMode.Others, text, sender, (int)severity, sendTime);
+            view.RPC("RPCBroadcastConsoleMessage", RPCMode.Others, index, text, sender, (int)severity, sendTime);
+        }
+
+        private Dictionary<int, int> broadcastMessageIndices = new Dictionary<int, int>();
+
+        [RPC]
+        internal void RPCBroadcastConsoleMessage(int index, string text, string sender, int severity, float sendTime)
+        {
+            int messageIndex = GadgetConsole.Print(text, sender, (GadgetConsole.MessageSeverity)severity);
+            GadgetConsole.GetMessage(messageIndex).SendTime = sendTime;
+            broadcastMessageIndices[index] = messageIndex;
+        }
+
+        internal void ReplaceConsoleBroadcast(int index, string text, string sender, GadgetConsole.MessageSeverity severity, float sendTime)
+        {
+            view.RPC("RPCReplaceConsoleBroadcast", RPCMode.Others, index, text, sender, (int)severity, sendTime);
         }
 
         [RPC]
-        internal void RPCBroadcastConsoleMessage(string text, string sender, int severity, float sendTime)
+        internal void RPCReplaceConsoleBroadcast(int index, string text, string sender, int severity, float sendTime)
         {
-            GadgetConsole.GetMessage(GadgetConsole.Print(text, sender, (GadgetConsole.MessageSeverity)severity)).SendTime = sendTime;
+            index = broadcastMessageIndices[index];
+            GadgetConsole.ReplaceMessage(index, new GadgetConsole.GadgetConsoleMessage(text, sender, (GadgetConsole.MessageSeverity)severity));
+            if (sendTime >= 0) GadgetConsole.GetMessage(index).SendTime = sendTime;
         }
 
         internal void RemoveConsoleBroadcast(float sendTime)

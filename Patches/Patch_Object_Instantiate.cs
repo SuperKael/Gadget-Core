@@ -29,13 +29,13 @@ namespace GadgetCore.Patches
             if ((__state & HideFlags.HideInInspector) == HideFlags.HideInInspector)
             {
                 __result.hideFlags &= ~(HideFlags.HideAndDontSave | HideFlags.HideInInspector);
-                if (__result is GameObject obj)
+                /*if (__result is GameObject obj)
                 {
                     foreach (Component comp in obj.GetComponents(typeof(Component)))
                     {
                         if (!(comp is Transform) && !(comp is Rigidbody)) obj.ReplaceComponent(comp.GetType(), comp.GetType());
                     }
-                }
+                }*/
                 (__result as GameObject)?.SetActive(true);
             }
         }

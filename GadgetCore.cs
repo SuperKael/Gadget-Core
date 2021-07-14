@@ -134,10 +134,7 @@ namespace GadgetCore
             {
                 if (GadgetCoreConfig.MaxLogArchives > 0) BackupLogFiles();
             }
-            catch (Exception e)
-            {
-                Debug.Log("Failed to backup old log files: " + e);
-            }
+            catch (Exception) { }
             try
             {
                 CoreLogger = new GadgetLogger("GadgetCore", "Core");

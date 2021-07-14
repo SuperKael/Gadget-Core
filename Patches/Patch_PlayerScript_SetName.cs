@@ -14,7 +14,8 @@ namespace GadgetCore.Patches
         public static void Prefix(PlayerScript __instance, ref string n)
         {
             PlayerScript existingPlayer = null;
-            if (n == Menuu.curName)
+            bool isSelf = n == Menuu.curName;
+            if (isSelf)
             {
                 existingPlayer = GadgetCoreAPI.GetPlayerByName(n);
                 if (existingPlayer != null && existingPlayer != __instance)
@@ -70,6 +71,7 @@ namespace GadgetCore.Patches
             GadgetNetwork.NetworkPlayersByName[n] = existingPlayer.GetComponent<NetworkView>().owner;
             GadgetNetwork.NamesByNetworkPlayer[existingPlayer.GetComponent<NetworkView>().owner] = n;
             if (__instance.GetComponent<NetworkView>().owner == RPCHooks.Singleton.GetComponent<NetworkView>().owner) GadgetNetwork.ServerPlayerName = n;
+            if (!isSelf) GadgetConsole.Print($"{n} has joined the game.");
         }
     }
 }

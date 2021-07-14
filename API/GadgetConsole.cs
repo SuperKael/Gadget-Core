@@ -233,7 +233,7 @@ namespace GadgetCore
         public static int BroadcastMessage(string text, string sender = null, MessageSeverity severity = MessageSeverity.RAW)
         {
             int ID = Print(text, sender, severity);
-            RPCHooks.Singleton.BroadcastConsoleMessage(text, sender, severity, GetMessage(ID).SendTime);
+            RPCHooks.Singleton.BroadcastConsoleMessage(ID, text, sender, severity, GetMessage(ID).SendTime);
             return ID;
         }
 
@@ -302,6 +302,22 @@ namespace GadgetCore
         }
 
         /// <summary>
+        /// Like <see cref="ReplaceMessage(int, GadgetConsoleMessage)"/>, but replaces a broadcast from every player's console.
+        /// </summary>
+        public static void ReplaceBroadcast(int index, GadgetConsoleMessage message)
+        {
+            ReplaceBroadcast(index, message.Text, message.Sender, message.Severity, message.SendTime);
+        }
+
+        /// <summary>
+        /// Like <see cref="ReplaceMessage(int, GadgetConsoleMessage)"/>, but replaces a broadcast from every player's console.
+        /// </summary>
+        public static void ReplaceBroadcast(int index, string text, string sender = null, MessageSeverity severity = MessageSeverity.RAW, float sendTime = -1)
+        {
+            RPCHooks.Singleton.ReplaceConsoleBroadcast(index, text, sender, severity, sendTime);
+        }
+
+        /// <summary>
         /// Like <see cref="RemoveMessage(int)"/>, but removes a broadcast from every player's console.
         /// </summary>
         public static void RemoveBroadcast(int index)
@@ -334,7 +350,7 @@ namespace GadgetCore
                 if (messages[messages.IndexOf(message)]?.Component != null) Destroy(messages[messages.IndexOf(message)].Component.gameObject);
                 messages[messages.IndexOf(message)] = null;
             }
-            for (int i = 0;i < 2;i++)
+            for (int i = 0; i < 2; i++)
             {
                 message.SendTime = Time.realtimeSinceStartup;
                 Text textComponent = new GameObject("Message " + messages.IndexOf(message) + ", sent at time: " + message.SendTime, typeof(RectTransform), typeof(CanvasRenderer), typeof(Text)).GetComponent<Text>();
