@@ -1,5 +1,4 @@
-﻿using GadgetCore.Loader;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -150,6 +149,14 @@ namespace GadgetCore.API
         public static Registry<R, E, T> GetSingleton()
         {
             return Singleton;
+        }
+
+        /// <summary>
+        /// Returns the number of entries in this registry.
+        /// </summary>
+        public int GetEntryCount()
+        {
+            return IDRegistry.Count;
         }
 
         /// <summary>

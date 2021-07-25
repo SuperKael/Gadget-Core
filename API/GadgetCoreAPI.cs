@@ -22,11 +22,11 @@ namespace GadgetCore.API
         /// <summary>
         /// The version numbers for this version of Gadget Core. You generally shouldn't access this directly, instead use <see cref="GetRawVersion()"/>
         /// </summary>
-        public const string RAW_VERSION = "2.0.4.2";
+        public const string RAW_VERSION = "2.0.4.3";
         /// <summary>
         /// A slightly more informative version. You generally shouldn't access this directly, instead use <see cref="GetFullVersion()"/>
         /// </summary>
-        public const string FULL_VERSION = "2.0.4.2 - Power Commands Edition";
+        public const string FULL_VERSION = "2.0.4.3 - Power Commands Edition";
         /// <summary>
         /// Indicates whether this version of GadgetCore is a beta version. You generally shouldn't access this directly, instead use <see cref="GetIsBeta()"/>
         /// </summary>
@@ -839,41 +839,6 @@ namespace GadgetCore.API
         }
 
         /// <summary>
-        /// Use to manually add new resources to the game, or overwrite existing ones. May only be called from the Initialize method of a Gadget.
-        /// </summary>
-        /// <param name="path">The pseudo-file-path to place the resource on.</param>
-        /// <param name="resource">The resource to register.</param>
-        public static void AddCustomResource(string path, UnityEngine.Object resource)
-        {
-            if (!Registry.registeringVanilla && Registry.gadgetRegistering < 0) throw new InvalidOperationException("Data registration may only be performed by the Initialize method of a Gadget!");
-            if (resource is GameObject obj)
-            {
-                if (obj.transform.parent != null) throw new InvalidOperationException("Cannot add an object with a parent as a custom resource!");
-                UnityEngine.Object.DontDestroyOnLoad(obj);
-                if (obj.activeSelf)
-                {
-                    obj.SetActive(false);
-                }
-            }
-            resource.hideFlags |= HideFlags.HideInInspector;
-            resources[path] = resource;
-            resourcePaths[resource.GetInstanceID()] = path;
-            if (!modResources.ContainsKey(Registry.gadgetRegistering)) modResources.Add(Registry.gadgetRegistering, new List<int>());
-            if (!modResources[Registry.gadgetRegistering].Contains(resource.GetInstanceID())) modResources[Registry.gadgetRegistering].Add(resource.GetInstanceID());
-        }
-
-        internal static void RemoveModResources(int modID)
-        {
-            if (!modResources.ContainsKey(modID)) return;
-            foreach (int resourceID in modResources[modID])
-            {
-                resources.Remove(resourcePaths[resourceID]);
-                resourcePaths.Remove(resourceID);
-            }
-            modResources.Remove(modID);
-        }
-
-        /// <summary>
         /// Use to register a texture for the tile spritesheet. The texture must be 32x32 in size. You probably shouldn't use this yourself - it is automatically called by <see cref="TileInfo"/> after registration. May only be called from <see cref="Gadget.Initialize"/>.
         /// </summary>
         /// <param name="sprite">The Texture2D to register to the spritesheet</param>
@@ -1063,7 +1028,7 @@ namespace GadgetCore.API
         /// </summary>
         public static int GetGearExp(int level)
         {
-            return (int)((4L * level * level + level + 6L) * (level - 1L) * 25L / 6L) + 1;
+            return level > 1 ? (int)((4L * level * level + level + 6L) * (level - 1L) * 25L / 6L) + 1 : 0;
         }
 
         /// <summary>
@@ -1285,6 +1250,41 @@ namespace GadgetCore.API
         }
 
         /// <summary>
+        /// Use to manually add new resources to the game, or overwrite existing ones. May only be called from the Initialize method of a Gadget.
+        /// </summary>
+        /// <param name="path">The pseudo-file-path to place the resource on.</param>
+        /// <param name="resource">The resource to register.</param>
+        public static void AddCustomResource(string path, UnityEngine.Object resource)
+        {
+            if (!Registry.registeringVanilla && Registry.gadgetRegistering < 0) throw new InvalidOperationException("Data registration may only be performed by the Initialize method of a Gadget!");
+            if (resource is GameObject obj)
+            {
+                if (obj.transform.parent != null) throw new InvalidOperationException("Cannot add an object with a parent as a custom resource!");
+                UnityEngine.Object.DontDestroyOnLoad(obj);
+                if (obj.activeSelf)
+                {
+                    obj.SetActive(false);
+                }
+            }
+            resource.hideFlags |= HideFlags.HideInInspector;
+            resources[path] = resource;
+            resourcePaths[resource.GetInstanceID()] = path;
+            if (!modResources.ContainsKey(Registry.gadgetRegistering)) modResources.Add(Registry.gadgetRegistering, new List<int>());
+            if (!modResources[Registry.gadgetRegistering].Contains(resource.GetInstanceID())) modResources[Registry.gadgetRegistering].Add(resource.GetInstanceID());
+        }
+
+        internal static void RemoveModResources(int modID)
+        {
+            if (!modResources.TryGetValue(modID, out List<int> resourceList)) return;
+            foreach (int resourceID in resourceList)
+            {
+                if (resourcePaths.TryGetValue(resourceID, out string path)) resources.Remove(path);
+                resourcePaths.Remove(resourceID);
+            }
+            modResources.Remove(modID);
+        }
+
+        /// <summary>
         /// Use to check if there is a resource registered at the specified path. This includes resources registered by the base game.
         /// </summary>
         /// <param name="path"></param>
@@ -1465,9 +1465,9 @@ namespace GadgetCore.API
         }
 
         /// <summary>
-        /// Gets the faction flag material with the specified ID. This refers to the allegiance icon shown in the character creation screen. In vanilla, it is either The Galactic Fleet, the Starlight Rebellion, the Church of Faust, or the Gray Enigma. There are two additional unused flags with the IDs of 4 and 5: 4 is for the Junkbelt Mercenaries, and 5 is for the Droidtech Enterprise.
+        /// Gets the allegiance flag material with the specified ID. This refers to the allegiance icon shown in the character creation screen. In vanilla, it is either The Galactic Fleet, the Starlight Rebellion, the Church of Faust, or the Gray Enigma. There are two additional unused flags with the IDs of 4 and 5: 4 is for the Junkbelt Mercenaries, and 5 is for the Droidtech Enterprise.
         /// </summary>
-        public static Material GetFactionFlagMaterial(int ID)
+        public static Material GetAllegianceFlagMaterial(int ID)
         {
             return (Material)Resources.Load("flag/flag" + ID);
         }
@@ -1481,9 +1481,9 @@ namespace GadgetCore.API
         }
 
         /// <summary>
-        /// Gets the chat portrait material with the specified ID. This is the character portrait shown when in dialog with an NPC, and the ID is not necessarily related to the NPC being spoken to in any way, although NPCs added with Gadget Core will have the same portrait ID.
+        /// Gets the talk portrait material with the specified ID. This is the character portrait shown when in dialog with an NPC, and the ID is not necessarily related to the NPC being spoken to in any way, although NPCs added with Gadget Core will have the same portrait ID.
         /// </summary>
-        public static Material GetChatPortraitMaterial(int ID)
+        public static Material GetTalkPortraitMaterial(int ID)
         {
             return (Material)Resources.Load("mat/por/portrait" + ID);
         }

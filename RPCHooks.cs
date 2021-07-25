@@ -14,11 +14,14 @@ namespace GadgetCore
     [RequireComponent(typeof(NetworkView))]
     internal class RPCHooks : MonoBehaviour
     {
+        public const int MaxChunkSize = 2048;
+
         public static RPCHooks Singleton { get; private set; }
         private static NetworkView view;
 
         private readonly HashSet<NetworkPlayer> initiatedClients = new HashSet<NetworkPlayer>();
         private readonly NetworkMessageInfo serverNMI = new NetworkMessageInfo();
+        private string[] IDMatrixDataChunks;
 
         internal void Awake()
         {
@@ -68,6 +71,7 @@ namespace GadgetCore
                 GadgetCore.CoreLogger.Log("Host is requesting local mod list. Sending...");
                 GadgetNetwork.connectTime = Time.realtimeSinceStartup;
                 if (view == null) view = GetComponent<NetworkView>();
+                IDMatrixDataChunks = null;
                 view.RPC("SendRequiredModList", RPCMode.Server, Gadgets.ListAllGadgetInfos().Where(x => x.Gadget.Enabled && x.Attribute.RequiredOnClients).Select(x => x.Attribute.Name + ":" + x.Gadget.GetModVersionString()).Aggregate(new StringBuilder(), (x, y) => { if (x.Length > 0) x.Append(","); x.Append(y); return x; }).ToString());
             }
         }
@@ -124,7 +128,19 @@ namespace GadgetCore
                     else
                     {
                         GadgetCore.CoreLogger.Log("A client connected with compatible mods: " + info.sender.ipAddress);
-                        view.RPC("ReceiveIDMatrixData", info.sender, GadgetNetwork.GenerateIDMatrixData());
+                        string matrixData = GadgetNetwork.GenerateIDMatrixData();
+                        if (matrixData.Length <= 4096)
+                        {
+                            view.RPC("ReceiveIDMatrixData", info.sender, matrixData);
+                        }
+                        else
+                        {
+                            string[] splitMatrixData = matrixData.SplitOnLength(MaxChunkSize).ToArray();
+                            for (int i = 0; i < splitMatrixData.Length; i++)
+                            {
+                                view.RPC("ReceiveIDMatrixDataChunk", info.sender, splitMatrixData[i], i, splitMatrixData.Length);
+                            }
+                        }
                     }
                 }
                 else
@@ -164,6 +180,41 @@ namespace GadgetCore
                 GadgetNetwork.connectTime = Time.realtimeSinceStartup;
             }
             GadgetNetwork.ParseIDMatrixData(IDMatrixData);
+        }
+
+        [RPC]
+        internal void ReceiveIDMatrixDataChunk(string IDMatrixData, int chunkIndex, int chunkCount)
+        {
+            if (IDMatrixDataChunks == null)
+            {
+                if (!Network.isServer)
+                {
+                    GadgetCore.CoreLogger.Log($"Receiving Host ID Conversion Matrix data chunks. {chunkCount} chunks expected.");
+                }
+                IDMatrixDataChunks = new string[chunkCount];
+            }
+            else if (IDMatrixDataChunks.Length != chunkCount)
+            {
+                GadgetCore.CoreLogger.LogError("Received Host ID Conversion Matrix data chunk with invalid chunk count.");
+                Network.Disconnect();
+                return;
+            }
+            else if (IDMatrixDataChunks[chunkIndex] != null)
+            {
+                GadgetCore.CoreLogger.LogError("Received Host ID Conversion Matrix data chunk with duplicate chunk index.");
+                Network.Disconnect();
+                return;
+            }
+            IDMatrixDataChunks[chunkIndex] = IDMatrixData;
+            if (IDMatrixDataChunks.All(x => x != null))
+            {
+                if (!Network.isServer)
+                {
+                    GadgetCore.CoreLogger.Log("Finished Receiving Host ID Conversion Matrix data chunks.");
+                    GadgetNetwork.connectTime = Time.realtimeSinceStartup;
+                }
+                GadgetNetwork.ParseIDMatrixData(IDMatrixDataChunks.Concat(string.Empty));
+            }
         }
 
         internal static GameObject Instantiate(string path, Vector3 position, Quaternion rotation, int group)

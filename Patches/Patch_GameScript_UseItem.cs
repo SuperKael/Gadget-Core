@@ -43,11 +43,21 @@ namespace GadgetCore.Patches
             GameScript.equippedIDs[0] = inventory[slot].id;
             if (usingItem)
             {
+                int[] convertedIDs = new int[]
+                {
+                    GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton, GameScript.equippedIDs[0]),
+                    GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton, GameScript.equippedIDs[1]),
+                    GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton, GameScript.equippedIDs[2]),
+                    GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton, GameScript.equippedIDs[3]),
+                    GadgetNetwork.ConvertIDToHost(null /* RaceRegistry */, GameScript.equippedIDs[4]),
+                    GadgetNetwork.ConvertIDToHost(null /* UniformRegistry */, GameScript.equippedIDs[6]),
+                    GadgetNetwork.ConvertIDToHost(null /* AugmentRegistry */, GameScript.equippedIDs[7])
+                };
                 MenuScript.playerAppearance.GetComponent<NetworkView>().RPC("UA", RPCMode.AllBuffered, new object[]
                 {
-            GameScript.equippedIDs,
-            2,  
-            GameScript.dead
+                    convertedIDs,
+                    2,
+                    GameScript.dead
                 });
                 MenuScript.player.SendMessage("Use");
                 yield return new WaitForSeconds(0.5f);
@@ -87,12 +97,22 @@ namespace GadgetCore.Patches
             }
             else
             {
+                int[] convertedIDs = new int[]
+                {
+                    GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton, GameScript.equippedIDs[0]),
+                    GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton, GameScript.equippedIDs[1]),
+                    GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton, GameScript.equippedIDs[2]),
+                    GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton, GameScript.equippedIDs[3]),
+                    GadgetNetwork.ConvertIDToHost(null /* RaceRegistry */, GameScript.equippedIDs[4]),
+                    GadgetNetwork.ConvertIDToHost(null /* UniformRegistry */, GameScript.equippedIDs[6]),
+                    GadgetNetwork.ConvertIDToHost(null /* AugmentRegistry */, GameScript.equippedIDs[7])
+                };
                 MenuScript.playerAppearance.GetComponent<NetworkView>().RPC("UA", RPCMode.AllBuffered, new object[]
-               {
-            GameScript.equippedIDs,
-            2,
-            GameScript.dead
-               });
+                {
+                    convertedIDs,
+                    2,
+                    GameScript.dead
+                });
                 MenuScript.player.SendMessage("Use");
                 yield return new WaitForSeconds(0.5f);
                 instance.StartCoroutine(UsingItem(instance));

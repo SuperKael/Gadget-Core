@@ -11,7 +11,11 @@ namespace GadgetCore.Patches
         [HarmonyPrefix]
         public static void Prefix(PlayerScript __instance)
         {
-            if (__instance.GetComponent<NetworkView>().isMine) InstanceTracker.PlayerScript = __instance;
+            if (__instance.GetComponent<NetworkView>().isMine)
+            {
+                InstanceTracker.PlayerScript = __instance;
+                InstanceTracker.SpawnerScript = Camera.main.gameObject.GetComponent<SpawnerScript>();
+            }
         }
     }
 }

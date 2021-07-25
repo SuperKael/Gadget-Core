@@ -4,6 +4,100 @@
         <name>GadgetCore</name>
     </assembly>
     <members>
+        <member name="T:GadgetCore.API.AllegianceInfo">
+            <summary>
+            Defines a custom Allegiance. Make sure to call Register on it to register your Object.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.AllegianceInfo.Name">
+            <summary>
+            The name of this Allegiance
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.AllegianceInfo.FlagTex">
+            <summary>
+            The Texture associated with this Object. May be null.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.AllegianceInfo.FlagMat">
+            <summary>
+            The Material associated with this Object. May be null.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.AllegianceInfo.#ctor(System.String,UnityEngine.Texture)">
+            <summary>
+            Use to create a new AllegianceInfo. Make sure to call Register on it to register your Allegiance.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.AllegianceInfo.#ctor(System.String,UnityEngine.Material)">
+            <summary>
+            Use to create a new AllegianceInfo. Make sure to call Register on it to register your Allegiance.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.AllegianceInfo.Register(System.String,System.Int32,System.Boolean)">
+            <summary>
+            Registers this AllegianceInfo to the AllegianceRegistry.
+            </summary>
+            <param name="name">The registry name to use.</param>
+            <param name="preferredID">If specified, will use this registry ID.</param>
+            <param name="overrideExisting">If false, will not register if the preferred ID is already used. Ignored if no preferred ID is specified.</param>
+        </member>
+        <member name="M:GadgetCore.API.AllegianceInfo.PostRegister">
+            <summary>
+            Called after this Registry Entry has been registered to its Registry. You should never call this yourself.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.AllegianceInfo.GetRegistry">
+            <summary>
+            Returns the singleton of the registry used for storing this type of Registry Entry.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.AllegianceInfo.IsValidID(System.Int32)">
+            <summary>
+            Returns whether the specified ID is valid for this Registry.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.AllegianceInfo.GetNextID(System.Int32)">
+            <summary>
+            Returns the next valid ID for this Registry, after the provided lastValidID. Should skip the vanilla ID range.
+            </summary>
+        </member>
+        <member name="T:GadgetCore.API.AllegianceRegistry">
+            <summary>
+            This registry is filled with AllegianceInfos, and is used for registering custom allegiances to the game.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.AllegianceRegistry.REGISTRY_NAME">
+            <summary>
+            The name of this registry.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.AllegianceRegistry.GetRegistryName">
+            <summary>
+            Gets the name of this registry. Must be constant. Returns <see cref="F:GadgetCore.API.AllegianceRegistry.REGISTRY_NAME"/>.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.AllegianceRegistry.GetIDStart">
+            <summary>
+            Gets the ID that modded IDs should start at for this registry. <see cref="T:GadgetCore.API.AllegianceRegistry"/> always returns 6.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.AllegianceRegistry.GetAllegianceCount">
+            <summary>
+            Returns the total number of allegiances, which is the registered amount plus the 4 vanilla allegiances.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:GadgetCore.API.AllegianceRegistry.RebuildAllegianceArray">
+            <summary>
+            Rebuilds the allegiance array, used for the allegiance selection on the character creation screen.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.AllegianceRegistry.CycleAllegianceSelection(System.Boolean)">
+            <summary>
+            Cycles the value of <see cref="F:Menuu.curAllegiance"/>, for use during character creation.
+            </summary>
+        </member>
         <member name="T:GadgetCore.API.ChipInfo">
             <summary>
             Defines a custom Chip. Make sure to call Register on it to register your Chip.
@@ -1412,6 +1506,245 @@
             A component representing an unused slot.
             </summary>
         </member>
+        <member name="T:GadgetCore.API.Dialog.DialogActions">
+            <summary>
+            Static class containing commonly-used <see cref="T:GadgetCore.API.Dialog.DialogMessage"/> trigger actions.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.Dialog.DialogActions.ComboAction(System.Action[])">
+            <summary>
+            Combines multiple trigger actions together.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.Dialog.DialogActions.RandomAction(System.Action[])">
+            <summary>
+            Triggers a random trigger action.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.Dialog.DialogActions.WeightedRandomAction(GadgetCore.Util.Tuple{System.Action,System.Int32}[])">
+            <summary>
+            Triggers a weighted random trigger action.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.Dialog.DialogActions.PlayAudioClip(UnityEngine.AudioClip)">
+            <summary>
+            Plays a given audio clip.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.Dialog.DialogActions.IncrementAllegianceLevel">
+            <summary>
+            Increments the <see cref="F:GameScript.allegianceQuest"/> value.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.Dialog.DialogActions.SetAllegianceLevel(System.Int32)">
+            <summary>
+            Sets the <see cref="F:GameScript.allegianceQuest"/> value.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.Dialog.DialogActions.GrantItem(Item,System.Boolean,System.Int32)">
+            <summary>
+            Gives the player an item.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.Dialog.DialogActions.TakeItem(System.Int32,System.Int32)">
+            <summary>
+            Takes an item from the player.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.Dialog.DialogActions.StoryChoiceMenu">
+            <summary>
+            Activates the story choice menu.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.Dialog.DialogActions.ExitDialog">
+            <summary>
+            Immediately exits dialog.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.Dialog.DialogActions.BranchDialog(GadgetCore.API.Dialog.DialogChain)">
+            <summary>
+            Branches to another dialog chain as long as the chain's trigger condition is met.
+            This chain does not need to have been registered with <see cref="M:GadgetCore.API.Dialog.DialogChains.RegisterDialogChain(GadgetCore.API.Dialog.DialogChain)"/>
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.Dialog.DialogActions.BranchStoryChoice(GadgetCore.API.Dialog.DialogChain,GadgetCore.API.Dialog.DialogChain,GadgetCore.API.Dialog.DialogChain,System.Boolean)">
+            <summary>
+            Branches to another dialog chain based on the story choice.
+            If the matching dialog chain parameter is null, then does nothing.
+            </summary>
+        </member>
+        <member name="T:GadgetCore.API.Dialog.DialogChain">
+            <summary>
+            Represents a complete chain of dialog.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.Dialog.DialogChain.GadgetID">
+            <summary>
+            The ID of the Gadget that registered this dialog chain.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.Dialog.DialogChain.NPCID">
+            <summary>
+            The NPC ID ('a' parameter to the Talk method) of this dialog chain.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.Dialog.DialogChain.NPCName">
+            <summary>
+            The name of the NPC to display in the dialog box.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.Dialog.DialogChain.NPCPortrait">
+            <summary>
+            The portrait of the NPC to display in the dialog box.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.Dialog.DialogChain.TriggerCondition">
+            <summary>
+            Returns true if this dialog chain should be triggered under the current circumstances.
+            The int parameter is is the 'b' parameter to the Talk method.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.Dialog.DialogChain.Messages">
+            <summary>
+            The array of <see cref="T:GadgetCore.API.Dialog.DialogMessage"/>s that will be displayed for this dialog chain.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.Dialog.DialogChain.#ctor(System.Int32,System.String,UnityEngine.Material,System.Func{System.Int32,System.Boolean},GadgetCore.API.Dialog.DialogMessage[])">
+            <summary>
+            Constructs a new DialogChain
+            </summary>
+        </member>
+        <member name="T:GadgetCore.API.Dialog.DialogChains">
+            <summary>
+            Helper class for adding custom dialog chains.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.Dialog.DialogChains.InitiateDialog(System.Int32)">
+            <summary>
+            Initiates dialog.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.Dialog.DialogChains.InitiateDialog(System.Int32,System.Int32)">
+            <summary>
+            Initiates dialog.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.Dialog.DialogChains.InitiateDialog(GadgetCore.API.Dialog.DialogChain)">
+            <summary>
+            Initiates dialog for the given chain.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.Dialog.DialogChains.RegisterDialogChain(System.Int32,System.String,UnityEngine.Material,System.Func{System.Int32,System.Boolean},GadgetCore.API.Dialog.DialogMessage[])">
+            <summary>
+            Registers a new dialog chain.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.Dialog.DialogChains.RegisterDialogChain(GadgetCore.API.Dialog.DialogChain)">
+            <summary>
+            Registers a new dialog chain.
+            </summary>
+        </member>
+        <member name="T:GadgetCore.API.Dialog.DialogConditions">
+            <summary>
+            Static class containing commonly-used <see cref="T:GadgetCore.API.Dialog.DialogChain"/> trigger conditions.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.Dialog.DialogConditions.AllConditions(System.Func{System.Int32,System.Boolean}[])">
+            <summary>
+            Combines multiple conditions together, requiring all of them to be met.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.Dialog.DialogConditions.AnyCondition(System.Func{System.Int32,System.Boolean}[])">
+            <summary>
+            Combines multiple conditions together, requiring any of them to be met.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.Dialog.DialogConditions.MatchBValue(System.Int32)">
+            <summary>
+            Checks for a particular value of the 'b' parameter to the Talk method.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.Dialog.DialogConditions.MatchAllegianceAndLevel(System.Int32,System.Int32)">
+            <summary>
+            Checks that the player has a particular allegiance and is at a particualar level.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.Dialog.DialogConditions.MatchStoryChoice(System.Int32)">
+            <summary>
+            Checks that the player made a particular story choice (<see cref="F:GameScript.choice"/>);
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.Dialog.DialogConditions.MatchAllegiance(System.Int32)">
+            <summary>
+            Checks that the player has a particular allegiance.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.Dialog.DialogConditions.MatchAllegianceLevel(System.Int32)">
+            <summary>
+            Checks that the player has a particular allegiance level.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.Dialog.DialogConditions.MatchMinimumPlayerLevel(System.Int32)">
+            <summary>
+            Checks that the player has a particular minimum player level.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.Dialog.DialogConditions.MatchMaximumPlayerLevel(System.Int32)">
+            <summary>
+            Checks that the player has a particular minimum player level.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.Dialog.DialogConditions.HasItem(System.Int32,System.Int32)">
+            <summary>
+            Checks whether the player has an item.
+            </summary>
+        </member>
+        <member name="T:GadgetCore.API.Dialog.DialogMessage">
+            <summary>
+            Represents a single dialog message within a dialog chain.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.Dialog.DialogMessage.Text">
+            <summary>
+            The text to display in the dialog box when this message is displayed.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.Dialog.DialogMessage.Trigger">
+            <summary>
+            An action to trigger when thisa dialog message is displayed.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.Dialog.DialogMessage.DisplayMessage">
+            <summary>
+            Displays this dialog message, if it exists, and triggers this message's action, if it exists.
+            Also returns whether an actual dialog box was displayed, for convenience's sake.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.Dialog.DialogMessage.#ctor(System.String,System.Action)">
+            <summary>
+            Constructs a new DialogMessage
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.Dialog.DialogMessage.#ctor(System.String)">
+            <summary>
+            Constructs a new DialogMessage
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.Dialog.DialogMessage.#ctor(System.Action)">
+            <summary>
+            Constructs a new DialogMessage
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.Dialog.DialogMessage.op_Implicit(System.String)~GadgetCore.API.Dialog.DialogMessage">
+            <summary>
+            Implicitly converts a string to a DialogMessage
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.Dialog.DialogMessage.op_Implicit(GadgetCore.API.Dialog.DialogMessage)~System.String">
+            <summary>
+            Implicitly converts a DialogMessage to a string
+            </summary>
+        </member>
         <member name="T:GadgetCore.API.EntityInfo">
             <summary>
             Defines a custom Entity. Make sure to call Register on it to register your Entity.
@@ -2535,13 +2868,6 @@
             <param name="materialPath">The pseudo-file-path to the material to override.</param>
             <param name="tex">The new texture to use for the Material override.</param>
         </member>
-        <member name="M:GadgetCore.API.GadgetCoreAPI.AddCustomResource(System.String,UnityEngine.Object)">
-            <summary>
-            Use to manually add new resources to the game, or overwrite existing ones. May only be called from the Initialize method of a Gadget.
-            </summary>
-            <param name="path">The pseudo-file-path to place the resource on.</param>
-            <param name="resource">The resource to register.</param>
-        </member>
         <member name="M:GadgetCore.API.GadgetCoreAPI.AddTextureToSheet(UnityEngine.Texture2D)">
             <summary>
             Use to register a texture for the tile spritesheet. The texture must be 32x32 in size. You probably shouldn't use this yourself - it is automatically called by <see cref="T:GadgetCore.API.TileInfo"/> after registration. May only be called from <see cref="M:GadgetCore.API.Gadget.Initialize"/>.
@@ -2667,6 +2993,13 @@
             Generates a plane-shaped mesh, with a specified width and height.
             </summary>
         </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.AddCustomResource(System.String,UnityEngine.Object)">
+            <summary>
+            Use to manually add new resources to the game, or overwrite existing ones. May only be called from the Initialize method of a Gadget.
+            </summary>
+            <param name="path">The pseudo-file-path to place the resource on.</param>
+            <param name="resource">The resource to register.</param>
+        </member>
         <member name="M:GadgetCore.API.GadgetCoreAPI.IsResourceRegistered(System.String)">
             <summary>
             Use to check if there is a resource registered at the specified path. This includes resources registered by the base game.
@@ -2781,9 +3114,9 @@
             Gets the world parallax material with the specified world ID. This is a vertical color gradient used to create the background parallax effect.
             </summary>
         </member>
-        <member name="M:GadgetCore.API.GadgetCoreAPI.GetFactionFlagMaterial(System.Int32)">
+        <member name="M:GadgetCore.API.GadgetCoreAPI.GetAllegianceFlagMaterial(System.Int32)">
             <summary>
-            Gets the faction flag material with the specified ID. This refers to the allegiance icon shown in the character creation screen. In vanilla, it is either The Galactic Fleet, the Starlight Rebellion, the Church of Faust, or the Gray Enigma. There are two additional unused flags with the IDs of 4 and 5: 4 is for the Junkbelt Mercenaries, and 5 is for the Droidtech Enterprise.
+            Gets the allegiance flag material with the specified ID. This refers to the allegiance icon shown in the character creation screen. In vanilla, it is either The Galactic Fleet, the Starlight Rebellion, the Church of Faust, or the Gray Enigma. There are two additional unused flags with the IDs of 4 and 5: 4 is for the Junkbelt Mercenaries, and 5 is for the Droidtech Enterprise.
             </summary>
         </member>
         <member name="M:GadgetCore.API.GadgetCoreAPI.GetDifficultyFlagMaterial(System.Int32)">
@@ -2791,9 +3124,9 @@
             Gets the difficulty flag material with the specified ID. This refers to the difficulty icon shown in the character creation screen. In vanilla, it is either Standard or Ironman. For some reason, IDs 2 through 5 are also used by the vanilla game, and are copies of the 'Standard' flag. (ID 0)
             </summary>
         </member>
-        <member name="M:GadgetCore.API.GadgetCoreAPI.GetChatPortraitMaterial(System.Int32)">
+        <member name="M:GadgetCore.API.GadgetCoreAPI.GetTalkPortraitMaterial(System.Int32)">
             <summary>
-            Gets the chat portrait material with the specified ID. This is the character portrait shown when in dialog with an NPC, and the ID is not necessarily related to the NPC being spoken to in any way, although NPCs added with Gadget Core will have the same portrait ID.
+            Gets the talk portrait material with the specified ID. This is the character portrait shown when in dialog with an NPC, and the ID is not necessarily related to the NPC being spoken to in any way, although NPCs added with Gadget Core will have the same portrait ID.
             </summary>
         </member>
         <member name="M:GadgetCore.API.GadgetCoreAPI.GetMiscellaneousMaterial(System.String)">
@@ -3292,19 +3625,14 @@
             The master registry of all other registries.
             </summary>
         </member>
-        <member name="M:GadgetCore.API.GameRegistry.GetRegistry(System.Type)">
+        <member name="M:GadgetCore.API.GameRegistry.RegisterRegistry(GadgetCore.API.Registry)">
             <summary>
-            Gets the registry with the specified entry type.
+            Registers a registry.
             </summary>
         </member>
         <member name="M:GadgetCore.API.GameRegistry.GetRegistry(System.String)">
             <summary>
             Gets the registry with the specified name.
-            </summary>
-        </member>
-        <member name="M:GadgetCore.API.GameRegistry.IsRegistryRegistered(System.Type)">
-            <summary>
-            Checks if a registry with the specified entry type is registered.
             </summary>
         </member>
         <member name="M:GadgetCore.API.GameRegistry.IsRegistryRegistered(System.String)">
@@ -3363,6 +3691,11 @@
         <member name="P:GadgetCore.API.InstanceTracker.PlayerScript">
             <summary>
             The PlayerScript. Note that there may be multiple PlayerScripts at one time in multiplayer, but this one is for your own player. Only valid when in scene 1.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.InstanceTracker.SpawnerScript">
+            <summary>
+            The SpawnerScript. Only valid when in scene 1.
             </summary>
         </member>
         <member name="P:GadgetCore.API.InstanceTracker.MenuScript">
@@ -5011,6 +5344,11 @@
             Deprecated: Use the Singleton property instead.
             </summary>
         </member>
+        <member name="M:GadgetCore.API.Registry`3.GetEntryCount">
+            <summary>
+            Returns the number of entries in this registry.
+            </summary>
+        </member>
         <member name="M:GadgetCore.API.Registry`3.HasEntry(System.Int32)">
             <summary>
             Checks if the given ID is used in this registry.
@@ -5348,6 +5686,11 @@
             Called when this tile's item is about to be placed using Build Mode. Return false to prevent it from being placed.
             </summary>
         </member>
+        <member name="M:GadgetCore.API.TileInfo.InitiateDialogRoutine">
+            <summary>
+            Register this to the <see cref="E:GadgetCore.API.TileInfo.OnInteract"/> event to cause this tile to initiate dialog when interacted with.
+            </summary>
+        </member>
         <member name="E:GadgetCore.API.TileInfo.OnInteract">
             <summary>
             Called when this tile is interacted with. Will only ever be called if the Prop's layer is 12, which it will automatically be set to if the Type is specified as INTERACTIVE
@@ -5416,6 +5759,54 @@
         <member name="F:GadgetCore.API.TileType.WALL">
             <summary>
             This tile is a background wall.
+            </summary>
+        </member>
+        <member name="T:GadgetCore.API.UnaryTypedRegistry`2">
+            <summary>
+            Represents a registry filled with <see cref="T:GadgetCore.API.UnaryTypedRegistryEntry`1"/>s. You can extend this to create your own typeless registries, and then you should return their singletons in <see cref="M:GadgetCore.API.Gadget.CreateRegistries"/>
+            </summary>
+            <typeparam name="R">Registry Type</typeparam>
+            <typeparam name="E">Entry Type</typeparam>
+        </member>
+        <member name="T:GadgetCore.API.UnaryTypedRegistryEntry`1">
+            <summary>
+            Abstract classed used for typeless Registry Entries. Extend to create Registry Entries for your own custom Registry.
+            </summary>
+            <typeparam name="E">Entry Type</typeparam>
+        </member>
+        <member name="M:GadgetCore.API.UnaryTypedRegistryEntry`1.IsValidIDForType(System.Int32)">
+            <summary>
+            Returns whether the specified ID is valid for this Registry Entry's Type.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.UnaryTypedRegistryEntry`1.GetNextIDForType(System.Int32)">
+            <summary>
+            Returns the next valid ID for this Registry Entry's Type, after the provided lastValidID.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.UnaryTypedRegistryEntry`1.GetEntryType">
+            <summary>
+            Returns the Registry Entry's Type. Used in the registration process.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.UnaryTypedRegistryEntry`1.IsValidID(System.Int32)">
+            <summary>
+            Returns whether the specified ID is valid for this Registry.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.UnaryTypedRegistryEntry`1.GetNextID(System.Int32)">
+            <summary>
+            Returns the next valid ID for this Registry, after the provided lastValidID.
+            </summary>
+        </member>
+        <member name="T:GadgetCore.API.UnaryRegistryType">
+            <summary>
+            Enum containing only one value intended for use in typeless registries. A placeholder of sorts for backwards-compatibility reasons.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.UnaryRegistryType.Type">
+            <summary>
+            The one and only value for this enum.
             </summary>
         </member>
         <member name="T:GadgetCore.API.VanillaItemInfo">
@@ -6470,6 +6861,11 @@
         <member name="M:GadgetCore.Util.ExtensionUtils.RecursiveConcat``1(System.Collections.Generic.IEnumerable{``0},System.Func{System.Object,System.String},System.String)">
             <summary>
             Recursively concatenates the objects in the given <see cref="T:System.Collections.Generic.IEnumerable`1"/> together. Uses ", " as the seperator if one is not explicitly specified.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.ExtensionUtils.SplitOnLength(System.String,System.Int32)">
+            <summary>
+            Splits a string into substrings of maximum lengths.
             </summary>
         </member>
         <member name="M:GadgetCore.Util.ExtensionUtils.IndexOf``1(System.Collections.Generic.IEnumerable{``0},System.Func{``0,System.Boolean})">

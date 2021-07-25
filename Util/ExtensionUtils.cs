@@ -135,6 +135,24 @@ namespace GadgetCore.Util
         }
 
         /// <summary>
+        /// Splits a string into substrings of maximum lengths.
+        /// </summary>
+        public static IEnumerable<string> SplitOnLength(this string input, int length)
+        {
+            for (int i = 0; i < input.Length; i += length)
+            {
+                if (i + length < input.Length)
+                {
+                    yield return input.Substring(i, length);
+                }
+                else
+                {
+                    yield return input.Substring(i);
+                }
+            }
+        }
+
+        /// <summary>
         /// Finds the index of the given predicate, returns -1 if it is not found.
         /// </summary>
         public static int IndexOf<TSource>(this IEnumerable<TSource> source, Func<TSource, bool> predicate)
@@ -309,7 +327,7 @@ namespace GadgetCore.Util
         /// </summary>
         public static Transform GetHighestParent(this Transform t)
         {
-            while (t.parent != null) t = t.parent;
+            while (t.parent is object) t = t.parent;
             return t;
         }
 

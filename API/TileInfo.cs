@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GadgetCore.API.Dialog;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -131,6 +132,7 @@ namespace GadgetCore.API
                 {
                     Prop.layer = 12;
                     GadgetCoreAPI.AddCustomResource("npc/npc" + ID, Prop);
+                    if (Mat != null) GadgetCoreAPI.AddCustomResource("mat/por/portrait" + ID, Mat);
                 }
                 else
                 {
@@ -180,6 +182,15 @@ namespace GadgetCore.API
         /// Called when this tile's item is about to be placed using Build Mode. Return false to prevent it from being placed.
         /// </summary>
         public virtual bool TryPlaceTile() { return true; }
+
+        /// <summary>
+        /// Register this to the <see cref="OnInteract"/> event to cause this tile to initiate dialog when interacted with.
+        /// </summary>
+        public IEnumerator InitiateDialogRoutine()
+        {
+            DialogChains.InitiateDialog(GetID());
+            yield break;
+        }
 
         /// <summary>
         /// Called when this tile is interacted with. Will only ever be called if the Prop's layer is 12, which it will automatically be set to if the Type is specified as INTERACTIVE

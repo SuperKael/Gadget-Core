@@ -20,6 +20,10 @@ namespace GadgetCore.API
         /// </summary>
         public static PlayerScript PlayerScript { get; internal set; }
         /// <summary>
+        /// The SpawnerScript. Only valid when in scene 1.
+        /// </summary>
+        public static SpawnerScript SpawnerScript { get; internal set; }
+        /// <summary>
         /// The MenuScript. Note that this is used for the in-game pause menu, and the singleplayer/multiplayer choice. Only valid when in scene 1.
         /// </summary>
         public static MenuScript MenuScript { get; internal set; }

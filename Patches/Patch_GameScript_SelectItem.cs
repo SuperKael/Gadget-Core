@@ -64,9 +64,19 @@ namespace GadgetCore.Patches
                 GadgetCoreAPI.equippedGearStats[slot - 36] = new int[] { 0, 0, 0, 0, 0, 0 };
                 RefreshStats.Invoke(__instance, new object[] { });
                 Network.RemoveRPCs(MenuScript.playerAppearance.GetComponent<NetworkView>().viewID);
+                int[] convertedIDs = new int[]
+                {
+                    GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton, GameScript.equippedIDs[0]),
+                    GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton, GameScript.equippedIDs[1]),
+                    GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton, GameScript.equippedIDs[2]),
+                    GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton, GameScript.equippedIDs[3]),
+                    GadgetNetwork.ConvertIDToHost(null /* RaceRegistry */, GameScript.equippedIDs[4]),
+                    GadgetNetwork.ConvertIDToHost(null /* UniformRegistry */, GameScript.equippedIDs[6]),
+                    GadgetNetwork.ConvertIDToHost(null /* AugmentRegistry */, GameScript.equippedIDs[7])
+                };
                 MenuScript.playerAppearance.GetComponent<NetworkView>().RPC("UA", RPCMode.AllBuffered, new object[]
                 {
-                        GameScript.equippedIDs,
+                        convertedIDs,
                         0,
                         GameScript.dead
                 });

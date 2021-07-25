@@ -10,10 +10,12 @@ namespace GadgetCore.API
     /// </summary>
     public static class GameRegistry
     {
-        private static Dictionary<Type, Registry> registries = new Dictionary<Type, Registry>();
-        private static Dictionary<string, Registry> registriesByName = new Dictionary<string, Registry>();
+        private static Dictionary<string, Registry> registries = new Dictionary<string, Registry>(StringComparer.OrdinalIgnoreCase);
 
-        internal static void RegisterRegistry(Registry registry)
+        /// <summary>
+        /// Registers a registry.
+        /// </summary>
+        public static void RegisterRegistry(Registry registry)
         {
             if (registries.Any(x => x.Value.GetRegistryName() == registry.GetRegistryName()))
             {
@@ -21,8 +23,7 @@ namespace GadgetCore.API
                 return;
             }
             GadgetCore.CoreLogger.Log("Initializing " + registry.GetRegistryName() + " Registry");
-            registries.Add(registry.GetEntryType(), registry);
-            registriesByName.Add(registry.GetRegistryName(), registry);
+            registries.Add(registry.GetRegistryName(), registry);
             if (registry.reservedIDs == null)
             {
                 try
@@ -37,27 +38,11 @@ namespace GadgetCore.API
         }
 
         /// <summary>
-        /// Gets the registry with the specified entry type.
-        /// </summary>
-        public static Registry GetRegistry(Type entryType)
-        {
-            return registries[entryType];
-        }
-
-        /// <summary>
         /// Gets the registry with the specified name.
         /// </summary>
         public static Registry GetRegistry(string name)
         {
-            return registriesByName[name];
-        }
-
-        /// <summary>
-        /// Checks if a registry with the specified entry type is registered.
-        /// </summary>
-        public static bool IsRegistryRegistered(Type entryType)
-        {
-            return registries.ContainsKey(entryType);
+            return registries.TryGetValue(name, out Registry reg) ? reg : null;
         }
 
         /// <summary>
@@ -65,7 +50,7 @@ namespace GadgetCore.API
         /// </summary>
         public static bool IsRegistryRegistered(string name)
         {
-            return registriesByName.ContainsKey(name);
+            return registries.ContainsKey(name);
         }
 
         /// <summary>

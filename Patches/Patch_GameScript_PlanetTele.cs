@@ -35,8 +35,8 @@ namespace GadgetCore.Patches
 						{
 							__instance.GetComponent<NetworkView>().RPC("ChangePortal", RPCMode.Server, new object[]
 							{
-							planet.ID,
-							GameScript.challengeLevel
+								GadgetNetwork.ConvertIDToHost(PlanetRegistry.Singleton, planet.ID),
+								GameScript.challengeLevel
 							});
 						}
 						if (planet.PortalUses != -1)
@@ -62,7 +62,7 @@ namespace GadgetCore.Patches
 					{
 						__instance.GetComponent<NetworkView>().RPC("ChangePortal", RPCMode.Server, new object[]
 						{
-							GameScript.curPlanet,
+							GadgetNetwork.ConvertIDToHost(PlanetRegistry.Singleton, GameScript.curPlanet),
 							GameScript.challengeLevel
 						});
 					}

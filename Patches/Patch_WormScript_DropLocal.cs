@@ -19,7 +19,7 @@ namespace GadgetCore.Patches
         [HarmonyPostfix]
         public static void Postfix(WormScript __instance)
         {
-            LootTables.DropLoot("entity:" + __instance.wormDisassemble.transform.GetHighestParent().name.Split(' ', '(')[0], __instance.transform.position);
+            LootTables.DropLoot("entity:" + (__instance.wormDisassemble != null ? __instance.wormDisassemble.transform : __instance.transform).GetHighestParent().name.Split('(')[0], __instance.transform.position);
         }
 
         [HarmonyTranspiler]

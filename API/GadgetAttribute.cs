@@ -72,7 +72,7 @@ namespace GadgetCore.API
         /// <param name="GadgetVersionSpecificity">The point at which a difference between the mod versions of the host and client should flag an incompatibility.</param>
         /// <param name="GadgetCoreVersionSpecificity">The point at which a change to GadgetCore should flag this Gadget as incompatible.</param>
         /// <param name="TargetGCVersion">The version of GadgetCore your Gadget is made for. This is automatically assigned to the version of GadgetCore you are building with, so you should always leave this at default.</param>
-        public GadgetAttribute(string Name, bool RequiredOnClients = true, bool EnableByDefault = true, string[] LoadAfter = null, string[] LoadBefore = null, int LoadPriority = 0, string[] Dependencies = null, bool AllowRuntimeReloading = true, bool AllowConfigReloading = true, VersionSpecificity GadgetVersionSpecificity = VersionSpecificity.MINOR, VersionSpecificity GadgetCoreVersionSpecificity = VersionSpecificity.MINOR, string TargetGCVersion = GadgetCoreAPI.RAW_VERSION)
+        public GadgetAttribute(string Name, bool RequiredOnClients, bool EnableByDefault = true, string[] LoadAfter = null, string[] LoadBefore = null, int LoadPriority = 0, string[] Dependencies = null, bool AllowRuntimeReloading = true, bool AllowConfigReloading = true, VersionSpecificity GadgetVersionSpecificity = VersionSpecificity.MINOR, VersionSpecificity GadgetCoreVersionSpecificity = VersionSpecificity.MINOR, string TargetGCVersion = GadgetCoreAPI.RAW_VERSION)
         {
             this.Name = Name;
             this.RequiredOnClients = RequiredOnClients;

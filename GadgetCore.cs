@@ -401,7 +401,7 @@ namespace GadgetCore
                 {
                     if (loadedBackup)
                     {
-                        CoreLogger.LogWarning("There was an error loading the save file, but a save backup was succesfully loaded!\n" +
+                        CoreLogger.LogWarning("There was an error loading the save file, but a save backup was successfully loaded!\n" +
                                               "Be prepared for lost progress due to loading the backup. The backup that was loaded was created at: " +
                                               time);
                     }
@@ -454,7 +454,7 @@ namespace GadgetCore
                         {
                             " : "
                         }, StringSplitOptions.None);
-                        if (array3.Length < 3) throw new Exception();
+                        if (array3.Length < 3) return false;
                     }
                 }
                 return true;
@@ -482,6 +482,7 @@ namespace GadgetCore
             GameRegistry.RegisterRegistry(MenuRegistry.Singleton);
             GameRegistry.RegisterRegistry(ObjectRegistry.Singleton);
             GameRegistry.RegisterRegistry(PlanetRegistry.Singleton);
+            GameRegistry.RegisterRegistry(AllegianceRegistry.Singleton);
 
             GadgetCoreAPI.MissingTexSprite = GadgetCoreAPI.AddTextureToSheet(GadgetCoreAPI.LoadTexture2D("missing_tex"));
 

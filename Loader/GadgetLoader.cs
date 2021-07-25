@@ -1,4 +1,5 @@
 ﻿using GadgetCore.API;
+using GadgetCore.API.Dialog;
 using GadgetCore.Util;
 using HarmonyLib;
 using IniParser;
@@ -535,6 +536,7 @@ namespace GadgetCore.Loader
                 GadgetConsole.UnregisterGadgetCommands(gadget.Gadget.ModID);
                 GadgetNetwork.UnregisterSyncVars(gadget.Gadget.ModID);
                 PlanetRegistry.UnregisterGadget(gadget.Gadget.ModID);
+                DialogChains.UnregisterGadgetChains(gadget.Gadget.ModID);
                 foreach (Registry reg in GameRegistry.ListAllRegistries())
                 {
                     reg.UnregisterGadget(gadget);

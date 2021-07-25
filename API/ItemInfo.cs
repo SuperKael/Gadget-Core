@@ -698,7 +698,7 @@ namespace GadgetCore.API
                 gameObject.SendMessage("Set", value);
                 script.GetComponent<NetworkView>().RPC("ShootProjectile", RPCMode.Others, new object[]
                 {
-                    ProjectileID,
+                    GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton /* ProjectileRegistry */, ProjectileID),
                     vector,
                     dmg
                 });
@@ -767,7 +767,7 @@ namespace GadgetCore.API
                     gameObject2.SendMessage("Set", value2);
                     script.GetComponent<NetworkView>().RPC("ShootProjectile", RPCMode.Others, new object[]
                     {
-                        ProjectileID,
+                        GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton /* ProjectileRegistry */, ProjectileID),
                         targ,
                         (int)dmgdmg
                     });
@@ -784,7 +784,7 @@ namespace GadgetCore.API
                 gameObject3.SendMessage("Set", value3);
                 script.GetComponent<NetworkView>().RPC("ShootProjectile", RPCMode.Others, new object[]
                 {
-                    ProjectileID,
+                    GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton /* ProjectileRegistry */, ProjectileID),
                     targ,
                     dmg
                 });
@@ -797,7 +797,7 @@ namespace GadgetCore.API
                 gameObject4.SendMessage("Set", value4);
                 script.GetComponent<NetworkView>().RPC("ShootProjectile", RPCMode.Others, new object[]
                 {
-                    ProjectileID,
+                    GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton /* ProjectileRegistry */, ProjectileID),
                     targ,
                     dmg
                 });
@@ -810,7 +810,7 @@ namespace GadgetCore.API
                 gameObject4.SendMessage("Set", value5);
                 script.GetComponent<NetworkView>().RPC("ShootProjectile", RPCMode.Others, new object[]
                 {
-                    ProjectileID,
+                    GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton /* ProjectileRegistry */, ProjectileID),
                     targ,
                     dmg
                 });
@@ -823,7 +823,7 @@ namespace GadgetCore.API
                 gameObject4.SendMessage("Set", value6);
                 script.GetComponent<NetworkView>().RPC("ShootProjectile", RPCMode.Others, new object[]
                 {
-                    ProjectileID,
+                    GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton /* ProjectileRegistry */, ProjectileID),
                     targ,
                     dmg
                 });
@@ -839,7 +839,7 @@ namespace GadgetCore.API
                 gameObject5.SendMessage("Set", value7);
                 script.GetComponent<NetworkView>().RPC("ShootProjectile", RPCMode.Others, new object[]
                 {
-                    ProjectileID,
+                    GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton /* ProjectileRegistry */, ProjectileID),
                     targ,
                     dmg
                 });
@@ -864,7 +864,7 @@ namespace GadgetCore.API
                 gameObject6.SendMessage("Set", value8);
                 script.GetComponent<NetworkView>().RPC("ShootProjectile", RPCMode.Others, new object[]
                 {
-                    ProjectileID,
+                    GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton /* ProjectileRegistry */, ProjectileID),
                     targ,
                     dmg
                 });
@@ -878,7 +878,7 @@ namespace GadgetCore.API
                 gameObject7.SendMessage("Set", value9);
                 script.GetComponent<NetworkView>().RPC("ShootProjectile", RPCMode.Others, new object[]
                 {
-                    ProjectileID,
+                    GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton /* ProjectileRegistry */, ProjectileID),
                     targ,
                     dmg
                 });
@@ -897,7 +897,7 @@ namespace GadgetCore.API
                 {
                     script.GetComponent<NetworkView>().RPC("Staff", RPCMode.Server, new object[]
                     {
-                        ProjectileID,
+                        GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton /* ProjectileRegistry */, ProjectileID),
                         dmg,
                         Network.player
                     });
@@ -912,7 +912,7 @@ namespace GadgetCore.API
                     gameObject8.SendMessage("Set", value10);
                     script.GetComponent<NetworkView>().RPC("ShootProjectile", RPCMode.Others, new object[]
                     {
-                        ProjectileID,
+                        GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton /* ProjectileRegistry */, ProjectileID),
                         targ,
                         dmg
                     });
@@ -925,7 +925,7 @@ namespace GadgetCore.API
                     gameObject9.SendMessage("Set", value11);
                     script.GetComponent<NetworkView>().RPC("ShootProjectile", RPCMode.Others, new object[]
                     {
-                        ProjectileID,
+                        GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton /* ProjectileRegistry */, ProjectileID),
                         targ,
                         dmg
                     });
@@ -948,7 +948,7 @@ namespace GadgetCore.API
                 gameObject10.SendMessage("Set", value12);
                 script.GetComponent<NetworkView>().RPC("ShootProjectile", RPCMode.Others, new object[]
                 {
-                    ProjectileID,
+                    GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton /* ProjectileRegistry */, ProjectileID),
                     targ,
                     dmg
                 });
@@ -1000,7 +1000,7 @@ namespace GadgetCore.API
                 gameObject11.SendMessage("Set", value13);
                 script.GetComponent<NetworkView>().RPC("ShootProjectile", RPCMode.Others, new object[]
                 {
-                    ProjectileID,
+                    GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton /* ProjectileRegistry */, ProjectileID),
                     vector2,
                     dmg
                 });
@@ -1014,7 +1014,7 @@ namespace GadgetCore.API
                 gameObject12.SendMessage("Set", value14);
                 script.GetComponent<NetworkView>().RPC("ShootProjectile", RPCMode.Others, new object[]
                 {
-                    ProjectileID,
+                    GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton /* ProjectileRegistry */, ProjectileID),
                     vector3,
                     dmg
                 });
@@ -1028,7 +1028,7 @@ namespace GadgetCore.API
                 gameObject13.SendMessage("Set", value15);
                 script.GetComponent<NetworkView>().RPC("ShootProjectile", RPCMode.Others, new object[]
                 {
-                    ProjectileID,
+                    GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton /* ProjectileRegistry */, ProjectileID),
                     vector3,
                     dmg
                 });
@@ -1046,7 +1046,7 @@ namespace GadgetCore.API
                 gameObject14.SendMessage("Set2", value16);
                 script.GetComponent<NetworkView>().RPC("ShootProjectile2", RPCMode.Others, new object[]
                 {
-                    ProjectileID,
+                    GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton /* ProjectileRegistry */, ProjectileID),
                     vector5,
                     dmg,
                     vector4
@@ -1058,7 +1058,7 @@ namespace GadgetCore.API
                 gameObject15.SendMessage("Set2", value17);
                 script.GetComponent<NetworkView>().RPC("ShootProjectile2", RPCMode.Others, new object[]
                 {
-                    ProjectileID,
+                    GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton /* ProjectileRegistry */, ProjectileID),
                     vector7,
                     dmg,
                     vector6
@@ -1073,7 +1073,7 @@ namespace GadgetCore.API
                 gameObject16.SendMessage("Set2", value18);
                 script.GetComponent<NetworkView>().RPC("ShootProjectile2", RPCMode.Others, new object[]
                 {
-                    ProjectileID,
+                    GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton /* ProjectileRegistry */, ProjectileID),
                     vector9,
                     dmg,
                     vector8
@@ -1092,7 +1092,7 @@ namespace GadgetCore.API
                 gameObject17.SendMessage("Set2", value19);
                 script.GetComponent<NetworkView>().RPC("ShootProjectile2", RPCMode.Others, new object[]
                 {
-                    ProjectileID,
+                    GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton /* ProjectileRegistry */, ProjectileID),
                     vector11,
                     dmg,
                     vector10
@@ -1104,7 +1104,7 @@ namespace GadgetCore.API
                 gameObject18.SendMessage("Set2", value20);
                 script.GetComponent<NetworkView>().RPC("ShootProjectile2", RPCMode.Others, new object[]
                 {
-                    ProjectileID,
+                    GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton /* ProjectileRegistry */, ProjectileID),
                     vector13,
                     dmg,
                     vector12
@@ -1116,7 +1116,7 @@ namespace GadgetCore.API
                 gameObject19.SendMessage("Set2", value21);
                 script.GetComponent<NetworkView>().RPC("ShootProjectile2", RPCMode.Others, new object[]
                 {
-                    ProjectileID,
+                    GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton /* ProjectileRegistry */, ProjectileID),
                     vector15,
                     dmg,
                     vector14
@@ -1135,7 +1135,7 @@ namespace GadgetCore.API
                 gameObject20.SendMessage("Set2", value22);
                 script.GetComponent<NetworkView>().RPC("ShootProjectile2", RPCMode.Others, new object[]
                 {
-                    ProjectileID,
+                    GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton /* ProjectileRegistry */, ProjectileID),
                     vector17,
                     dmg,
                     vector16
@@ -1208,7 +1208,7 @@ namespace GadgetCore.API
                 gameObject21.SendMessage("Set", value23);
                 script.GetComponent<NetworkView>().RPC("ShootProjectile", RPCMode.Others, new object[]
                 {
-                    ProjectileID,
+                    GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton /* ProjectileRegistry */, ProjectileID),
                     vector18,
                     dmg
                 });
@@ -1226,7 +1226,7 @@ namespace GadgetCore.API
                 gameObject22.SendMessage("Set2", value24);
                 script.GetComponent<NetworkView>().RPC("ShootProjectile2", RPCMode.Others, new object[]
                 {
-                    ProjectileID,
+                    GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton /* ProjectileRegistry */, ProjectileID),
                     vector20,
                     dmg,
                     vector19
@@ -1250,7 +1250,7 @@ namespace GadgetCore.API
                 {
                     script.GetComponent<NetworkView>().RPC("Staff", RPCMode.Server, new object[]
                     {
-                        ProjectileID,
+                        GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton /* ProjectileRegistry */, ProjectileID),
                         dmg,
                         Network.player
                     });

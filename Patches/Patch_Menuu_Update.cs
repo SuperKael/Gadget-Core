@@ -3,6 +3,9 @@ using GadgetCore.API;
 using UnityEngine;
 using System.Collections;
 using GadgetCore.API.ConfigMenu;
+using System.Collections.Generic;
+using System.Reflection.Emit;
+using GadgetCore.Util;
 
 namespace GadgetCore.Patches
 {
@@ -35,6 +38,7 @@ namespace GadgetCore.Patches
             }
             return true;
         }
+
         private static IEnumerator ModMenu(Menuu instance)
         {
             ModBrowser.CloseModBrowser();
@@ -59,6 +63,46 @@ namespace GadgetCore.Patches
             yield return new WaitForEndOfFrame();
             GadgetModConfigs.ResetAllConfigMenus();
             yield break;
+        }
+
+        [HarmonyTranspiler]
+        public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator generator)
+        {
+            var p = TranspilerHelper.CreateProcessor(instructions, generator);
+
+            var allegianceUpRef = p.FindRefByInsns(new CodeInstruction[]
+            {
+                new CodeInstruction(OpCodes.Ldsfld, "System.Int32 curAllegiance"),
+                new CodeInstruction(OpCodes.Ldc_I4_1),
+                new CodeInstruction(OpCodes.Add),
+                new CodeInstruction(OpCodes.Stsfld, "System.Int32 curAllegiance"),
+                new CodeInstruction(OpCodes.Ldsfld, "System.Int32 curAllegiance"),
+                new CodeInstruction(OpCodes.Ldc_I4_3),
+                new CodeInstruction(OpCodes.Ble),
+                new CodeInstruction(OpCodes.Ldc_I4_0),
+                new CodeInstruction(OpCodes.Stsfld, "System.Int32 curAllegiance"),
+            });
+            p.InjectInsn(allegianceUpRef, new CodeInstruction(OpCodes.Ldc_I4_1));
+            p.InjectHook(allegianceUpRef, typeof(AllegianceRegistry).GetMethod("CycleAllegianceSelection"));
+            p.RemoveInsns(allegianceUpRef, 9);
+
+            var allegianceDownRef = p.FindRefByInsns(new CodeInstruction[]
+            {
+                new CodeInstruction(OpCodes.Ldsfld, "System.Int32 curAllegiance"),
+                new CodeInstruction(OpCodes.Ldc_I4_1),
+                new CodeInstruction(OpCodes.Sub),
+                new CodeInstruction(OpCodes.Stsfld, "System.Int32 curAllegiance"),
+                new CodeInstruction(OpCodes.Ldsfld, "System.Int32 curAllegiance"),
+                new CodeInstruction(OpCodes.Ldc_I4_0),
+                new CodeInstruction(OpCodes.Bge),
+                new CodeInstruction(OpCodes.Ldc_I4_3),
+                new CodeInstruction(OpCodes.Stsfld, "System.Int32 curAllegiance"),
+            });
+            p.InjectInsn(allegianceDownRef, new CodeInstruction(OpCodes.Ldc_I4_0));
+            p.InjectHook(allegianceDownRef, typeof(AllegianceRegistry).GetMethod("CycleAllegianceSelection"));
+            p.RemoveInsns(allegianceDownRef, 9);
+
+            return p.GetInstructions();
         }
     }
 }

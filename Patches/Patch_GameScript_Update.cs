@@ -291,7 +291,7 @@ namespace GadgetCore.Patches
                                     InstanceTracker.GameScript.planetObj.GetComponent<Animation>().Play();
                                     InstanceTracker.GameScript.txtPlanetName[0].text = planet.Name;
                                     InstanceTracker.GameScript.txtPlanetName[1].text = InstanceTracker.GameScript.txtPlanetName[0].text;
-                                    InstanceTracker.GameScript.txtHostile[0].text = "Hostile Lv." + InstanceTracker.GameScript.InvokeMethod("GetPlanetHostile", planet.ID);
+                                    InstanceTracker.GameScript.txtHostile[0].text = "Hostile Lv." + InstanceTracker.GameScript.GetPlanetHostile(planet.ID);
                                     InstanceTracker.GameScript.txtHostile[1].text = InstanceTracker.GameScript.txtHostile[0].text;
                                     if (planet.PortalUses > 0)
                                     {
