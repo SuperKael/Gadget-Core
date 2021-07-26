@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GadgetCore.Util;
+using System;
 
 namespace GadgetCore.API.Dialog
 {
@@ -7,6 +8,7 @@ namespace GadgetCore.API.Dialog
     /// </summary>
     public class DialogMessage
     {
+        public static TextMeshSize textboxSize { get; private set; }
         /// <summary>
         /// The text to display in the dialog box when this message is displayed.
         /// </summary>
@@ -23,7 +25,15 @@ namespace GadgetCore.API.Dialog
         public virtual bool DisplayMessage()
         {
             bool displayText = Text != null;
-            if (displayText) InstanceTracker.GameScript.menuTalking.SendMessage("Set", Text);
+            if (displayText)
+            {
+                if (textboxSize == null || !textboxSize.IsValid())
+                {
+                    textboxSize = new TextMeshSize(InstanceTracker.GameScript.menuTalking.GetComponent<MenuTalking>().txtTalkingText[0]);
+                }
+                string wordWrappedText = textboxSize.InsertNewlines(Text, 22f);
+                InstanceTracker.GameScript.menuTalking.SendMessage("Set", wordWrappedText);
+            }
             Trigger?.Invoke();
             return displayText;
         }

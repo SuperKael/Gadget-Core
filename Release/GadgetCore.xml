@@ -7392,6 +7392,41 @@
             Constructs a new ReflectorException
             </summary>
         </member>
+        <member name="T:GadgetCore.Util.TextMeshSize">
+            <summary>
+            Utility class used for calculating the size of text in a <see cref="T:UnityEngine.TextMesh"/>
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.TextMeshSize.#ctor(UnityEngine.TextMesh)">
+            <summary>
+            Constructs a new <see cref="T:GadgetCore.Util.TextMeshSize"/> for the given <see cref="T:UnityEngine.TextMesh"/>
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.TextMeshSize.IsValid">
+            <summary>
+            Returns whether the associated <see cref="T:UnityEngine.TextMesh"/> still exists.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.TextMeshSize.GetTextWidth(System.String)">
+            <summary>
+            Gets the width of the given string when displayed inside the <see cref="T:UnityEngine.TextMesh"/>.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.TextMeshSize.InsertNewlines(System.String,System.Single)">
+            <summary>
+            Automatically inserts newlines into the given string in order to make it word wrap properly in the <see cref="T:UnityEngine.TextMesh"/> of a given maximum width.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.Util.TextMeshSize.Width">
+            <summary>
+            The width of the TextMesh
+            </summary>
+        </member>
+        <member name="P:GadgetCore.Util.TextMeshSize.Height">
+            <summary>
+            The height of the TextMesh
+            </summary>
+        </member>
         <member name="T:GadgetCore.Util.ThreadedWatcher`1">
             <summary>
             Uses a dedicated thread to watch for changes in the value of a field.
