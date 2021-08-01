@@ -11,8 +11,14 @@ namespace GadgetCore.API
     {
         internal static Dictionary<int, VanillaItemInfo> Wrappers = new Dictionary<int, VanillaItemInfo>();
 
-        internal static bool Using;
-        internal static bool Attacking;
+        /// <summary>
+        /// Indicates whether the player is currently using a vanilla-wrapped item.
+        /// </summary>
+        public static bool Using { get; internal set; }
+        /// <summary>
+        /// Indicates whether the player is currently attacking with a vanilla-wrapped weapon.
+        /// </summary>
+        public static bool Attacking { get; internal set; }
 
         /// <summary>
         /// Constructs a new VanillaItemInfo based upon the given ID. Do not try to call this yourself - use <see cref="Wrap"/>

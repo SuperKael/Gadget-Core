@@ -8,7 +8,10 @@ namespace GadgetCore.API.Dialog
     /// </summary>
     public class DialogMessage
     {
-        public static TextMeshSize textboxSize { get; private set; }
+        /// <summary>
+        /// The <see cref="TextMeshSize"/> object used for applying word-wrapping to the text in the dialog box.
+        /// </summary>
+        public static TextMeshSize TextboxSize { get; private set; }
         /// <summary>
         /// The text to display in the dialog box when this message is displayed.
         /// </summary>
@@ -27,11 +30,11 @@ namespace GadgetCore.API.Dialog
             bool displayText = Text != null;
             if (displayText)
             {
-                if (textboxSize == null || !textboxSize.IsValid())
+                if (TextboxSize == null || !TextboxSize.IsValid())
                 {
-                    textboxSize = new TextMeshSize(InstanceTracker.GameScript.menuTalking.GetComponent<MenuTalking>().txtTalkingText[0]);
+                    TextboxSize = new TextMeshSize(InstanceTracker.GameScript.menuTalking.GetComponent<MenuTalking>().txtTalkingText[0]);
                 }
-                string wordWrappedText = textboxSize.InsertNewlines(Text, 22f);
+                string wordWrappedText = TextboxSize.InsertNewlines(Text, 22f);
                 InstanceTracker.GameScript.menuTalking.SendMessage("Set", wordWrappedText);
             }
             Trigger?.Invoke();

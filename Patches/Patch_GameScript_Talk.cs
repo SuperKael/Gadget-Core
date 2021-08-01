@@ -69,17 +69,14 @@ namespace GadgetCore.Patches
                 __instance.txtTalkingName[0].text = tile?.Item?.Name ?? tile?.RegistryName.Split(':')[1].Trim() ?? string.Empty;
                 __instance.txtTalkingName[1].text = __instance.txtTalkingName[0].text;
 
-                if (b == 0)
+                if (c == 0)
                 {
-                    if (c == 0)
-                    {
-                        __instance.menuTalking.SendMessage("Set", "...");
-                        ___curC++;
-                    }
-                    else
-                    {
-                        __instance.StartCoroutine(__instance.ExitTalking());
-                    }
+                    __instance.menuTalking.SendMessage("Set", "...");
+                    ___curC++;
+                }
+                else
+                {
+                    __instance.StartCoroutine(__instance.ExitTalking());
                 }
                 return false;
             }

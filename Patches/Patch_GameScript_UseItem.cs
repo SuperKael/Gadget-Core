@@ -41,15 +41,17 @@ namespace GadgetCore.Patches
         {
             int tempID = GameScript.equippedIDs[0];
             GameScript.equippedIDs[0] = inventory[slot].id;
+            int[] convertedIDs;
             if (usingItem)
             {
-                int[] convertedIDs = new int[]
+                convertedIDs = new int[]
                 {
                     GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton, GameScript.equippedIDs[0]),
                     GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton, GameScript.equippedIDs[1]),
                     GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton, GameScript.equippedIDs[2]),
                     GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton, GameScript.equippedIDs[3]),
                     GadgetNetwork.ConvertIDToHost(null /* RaceRegistry */, GameScript.equippedIDs[4]),
+                    GameScript.equippedIDs[5],
                     GadgetNetwork.ConvertIDToHost(null /* UniformRegistry */, GameScript.equippedIDs[6]),
                     GadgetNetwork.ConvertIDToHost(null /* AugmentRegistry */, GameScript.equippedIDs[7])
                 };
@@ -97,13 +99,14 @@ namespace GadgetCore.Patches
             }
             else
             {
-                int[] convertedIDs = new int[]
+                convertedIDs = new int[]
                 {
                     GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton, GameScript.equippedIDs[0]),
                     GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton, GameScript.equippedIDs[1]),
                     GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton, GameScript.equippedIDs[2]),
                     GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton, GameScript.equippedIDs[3]),
                     GadgetNetwork.ConvertIDToHost(null /* RaceRegistry */, GameScript.equippedIDs[4]),
+                    GameScript.equippedIDs[5],
                     GadgetNetwork.ConvertIDToHost(null /* UniformRegistry */, GameScript.equippedIDs[6]),
                     GadgetNetwork.ConvertIDToHost(null /* AugmentRegistry */, GameScript.equippedIDs[7])
                 };
@@ -120,11 +123,22 @@ namespace GadgetCore.Patches
             }
             yield return new WaitForSeconds(0.1f);
             GameScript.equippedIDs[0] = tempID;
+            convertedIDs = new int[]
+            {
+                GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton, GameScript.equippedIDs[0]),
+                GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton, GameScript.equippedIDs[1]),
+                GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton, GameScript.equippedIDs[2]),
+                GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton, GameScript.equippedIDs[3]),
+                GadgetNetwork.ConvertIDToHost(null /* RaceRegistry */, GameScript.equippedIDs[4]),
+                GameScript.equippedIDs[5],
+                GadgetNetwork.ConvertIDToHost(null /* UniformRegistry */, GameScript.equippedIDs[6]),
+                GadgetNetwork.ConvertIDToHost(null /* AugmentRegistry */, GameScript.equippedIDs[7])
+            };
             MenuScript.playerAppearance.GetComponent<NetworkView>().RPC("UA", RPCMode.AllBuffered, new object[]
             {
-        GameScript.equippedIDs,
-        0,
-        GameScript.dead
+                convertedIDs,
+                0,
+                GameScript.dead
             });
             yield break;
         }

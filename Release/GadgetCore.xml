@@ -1704,6 +1704,11 @@
             Represents a single dialog message within a dialog chain.
             </summary>
         </member>
+        <member name="P:GadgetCore.API.Dialog.DialogMessage.TextboxSize">
+            <summary>
+            The <see cref="T:GadgetCore.Util.TextMeshSize"/> object used for applying word-wrapping to the text in the dialog box.
+            </summary>
+        </member>
         <member name="F:GadgetCore.API.Dialog.DialogMessage.Text">
             <summary>
             The text to display in the dialog box when this message is displayed.
@@ -5812,6 +5817,16 @@
         <member name="T:GadgetCore.API.VanillaItemInfo">
             <summary>
             This is a wrapper for vanilla Item IDs to a Gadget Core ItemInfo. Use to get in-depth info about a vanilla item, in Gadget Core's terms. Can also be used to register events to occur upon firing vanilla weapons.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.VanillaItemInfo.Using">
+            <summary>
+            Indicates whether the player is currently using a vanilla-wrapped item.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.VanillaItemInfo.Attacking">
+            <summary>
+            Indicates whether the player is currently attacking with a vanilla-wrapped weapon.
             </summary>
         </member>
         <member name="M:GadgetCore.API.VanillaItemInfo.#ctor(System.Int32,System.Boolean)">

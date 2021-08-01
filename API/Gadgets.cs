@@ -21,6 +21,7 @@ namespace GadgetCore.API
 
         internal static void RegisterGadget(GadgetInfo mod)
         {
+            if (gadgets.ContainsKey(mod.Attribute.Name)) throw new InvalidOperationException("Failed to register Gadget: Another Gadget by the same name has already been registered!");
             mod.Gadget.Enabled = GadgetCoreConfig.enabledGadgets.ContainsKey(mod.Attribute.Name) ? GadgetCoreConfig.enabledGadgets[mod.Attribute.Name] : (GadgetCoreConfig.enabledGadgets[mod.Attribute.Name] = mod.Attribute.EnableByDefault);
             gadgets.Add(mod.Attribute.Name, mod);
             foreach (string name in mod.Gadget.GetPreviousModNames()) previousNames[name] = mod;

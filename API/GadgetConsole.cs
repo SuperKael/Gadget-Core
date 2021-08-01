@@ -533,7 +533,7 @@ namespace GadgetCore
         {
             TextSubmitAction = () =>
             {
-                if (wasSelected)
+                if (wasOpen && wasSelected)
                 {
                     string text = InputField.text;
                     InputField.text = "";
@@ -547,7 +547,7 @@ namespace GadgetCore
 
             HistoryUpAction = () =>
             {
-                if (wasSelected)
+                if (wasOpen && wasSelected)
                 {
                     if (historyIndex > 0) historyIndex--;
                     InputField.text = historyIndex < messageHistory.Count ? messageHistory[historyIndex] : "";
@@ -557,7 +557,7 @@ namespace GadgetCore
 
             HistoryDownAction = () =>
             {
-                if (wasSelected)
+                if (wasOpen && wasSelected)
                 {
                     if (historyIndex < messageHistory.Count) historyIndex++;
                     InputField.text = historyIndex < messageHistory.Count ? messageHistory[historyIndex] : "";
