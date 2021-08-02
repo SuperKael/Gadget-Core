@@ -46,6 +46,22 @@ namespace GadgetCore.API.Dialog
             this.NPCPortrait = NPCPortrait;
             this.TriggerCondition = TriggerCondition;
             this.Messages = Messages;
+            this.NPCPortrait.mainTextureScale = new Vector2(0.5f, 1);
+        }
+
+        /// <summary>
+        /// Constructs a new DialogChain
+        /// </summary>
+        public DialogChain(int NPCID, string NPCName, Texture2D NPCPortrait, Func<int, bool> TriggerCondition, params DialogMessage[] Messages)
+        {
+            if (!Registry.registeringVanilla && Registry.gadgetRegistering < 0) throw new InvalidOperationException("Dialog chain registration may only be performed by the Initialize method of a Gadget!");
+            GadgetID = Registry.gadgetRegistering;
+            this.NPCID = NPCID;
+            this.NPCName = NPCName;
+            this.NPCPortrait = new Material(Shader.Find("Unlit/Transparent")) { mainTexture = NPCPortrait };
+            this.TriggerCondition = TriggerCondition;
+            this.Messages = Messages;
+            this.NPCPortrait.mainTextureScale = new Vector2(0.5f, 1);
         }
     }
 }

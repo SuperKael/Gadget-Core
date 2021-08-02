@@ -228,7 +228,7 @@ namespace GadgetCore.API
         /// </summary>
         public static string GetNameByNetworkPlayer(NetworkPlayer player)
         {
-            return NamesByNetworkPlayer.TryGetValue(player, out string name) ? name : null;
+            return NamesByNetworkPlayer.TryGetValue(player, out string name) ? name : player == Network.player ? GadgetCoreAPI.GetPlayerName() : null;
         }
 
         /// <summary>
@@ -236,7 +236,7 @@ namespace GadgetCore.API
         /// </summary>
         public static NetworkPlayer? GetNetworkPlayerByName(string name)
         {
-            return NetworkPlayersByName.TryGetValue(name, out NetworkPlayer player) ? (NetworkPlayer?)player : null;
+            return NetworkPlayersByName.TryGetValue(name, out NetworkPlayer player) ? (NetworkPlayer?)player : name == GadgetCoreAPI.GetPlayerName() ? (NetworkPlayer?)Network.player : null;
         }
 
         /// <summary>

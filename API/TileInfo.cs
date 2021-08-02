@@ -132,7 +132,20 @@ namespace GadgetCore.API
                 {
                     Prop.layer = 12;
                     GadgetCoreAPI.AddCustomResource("npc/npc" + ID, Prop);
-                    if (Mat != null) GadgetCoreAPI.AddCustomResource("mat/por/portrait" + ID, Mat);
+                    if (Mat != null)
+                    {
+                        if (Item != null && Item.ID > 0)
+                        {
+                            GadgetCoreAPI.AddCustomResource("mat/por/portrait" + ID, Mat);
+                        }
+                        else
+                        {
+                            Material portraitMat = new Material(Mat.shader);
+                            portraitMat.CopyPropertiesFromMaterial(Mat);
+                            portraitMat.mainTextureScale = new Vector2(0.5f, 1);
+                            GadgetCoreAPI.AddCustomResource("mat/por/portrait" + ID, portraitMat);
+                        }
+                    }
                 }
                 else
                 {

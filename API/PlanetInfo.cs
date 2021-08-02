@@ -516,6 +516,16 @@ namespace GadgetCore.API
         /// <summary>
         /// Adds a weighted spawn to the world spawn slots.
         /// </summary>
+        public virtual void AddWeightedWorldSpawn(TileInfo tileInfo, int weight)
+        {
+            if (weightedWorldSlotSpawns == null) AddWeightedBiomeSpawnEvent();
+            weightedWorldSlotSpawns.Add(Tuple.Create<Func<Vector3, GameObject[]>, int>((pos) => new GameObject[] { (GameObject)Network.Instantiate(tileInfo.Prop, pos, Quaternion.identity, 0) }, weight));
+            weightedWorldSlotSpawnsCache = null;
+        }
+
+        /// <summary>
+        /// Adds a weighted spawn to the world spawn slots.
+        /// </summary>
         public virtual void AddWeightedWorldSpawn(string resourcePath, int weight)
         {
             if (weightedWorldSlotSpawns == null) AddWeightedBiomeSpawnEvent();

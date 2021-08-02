@@ -1614,6 +1614,11 @@
             Constructs a new DialogChain
             </summary>
         </member>
+        <member name="M:GadgetCore.API.Dialog.DialogChain.#ctor(System.Int32,System.String,UnityEngine.Texture2D,System.Func{System.Int32,System.Boolean},GadgetCore.API.Dialog.DialogMessage[])">
+            <summary>
+            Constructs a new DialogChain
+            </summary>
+        </member>
         <member name="T:GadgetCore.API.Dialog.DialogChains">
             <summary>
             Helper class for adding custom dialog chains.
@@ -5124,6 +5129,11 @@
             Adds a weighted spawn to the world spawn slots.
             </summary>
         </member>
+        <member name="M:GadgetCore.API.PlanetInfo.AddWeightedWorldSpawn(GadgetCore.API.TileInfo,System.Int32)">
+            <summary>
+            Adds a weighted spawn to the world spawn slots.
+            </summary>
+        </member>
         <member name="M:GadgetCore.API.PlanetInfo.AddWeightedWorldSpawn(System.String,System.Int32)">
             <summary>
             Adds a weighted spawn to the world spawn slots.
@@ -5295,6 +5305,13 @@
             </summary>
         </member>
         <member name="M:GadgetCore.API.PlayerGearModsTracker.GetGearMods(PlayerScript)">
+            <summary>
+            In theory, returns the gear mods that the given player has, in the same format as GameScript.MODS. In practice, it currently just returns GameScript.MODS.
+            This exists so that Gadget Core can later add this functionality without it being a breaking change.
+            As such, whenever you need to query what gear mods the player has, you should use this.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.PlayerGearModsTracker.GetGearMods(UnityEngine.NetworkPlayer)">
             <summary>
             In theory, returns the gear mods that the given player has, in the same format as GameScript.MODS. In practice, it currently just returns GameScript.MODS.
             This exists so that Gadget Core can later add this functionality without it being a breaking change.

@@ -155,7 +155,7 @@ namespace GadgetCore
                     mainTexture = emptyTex
                 };
 
-                PlanetRegistry.selectorPlanets = PlanetRegistry.Singleton.ToArray();
+                PlanetRegistry.selectorPlanets = PlanetRegistry.Singleton.Where(x => x.SelectorButtonMat != null).ToArray();
                 PlanetRegistry.planetButtonIcons = new GameObject[totalPages - 1][];
                 for (int i = 0; i < 14; i++)
                 {
