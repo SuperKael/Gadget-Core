@@ -19,6 +19,7 @@ namespace GadgetCore.Patches
         public static readonly MethodInfo RefreshSlot = typeof(GameScript).GetMethod("RefreshSlot", BindingFlags.Public | BindingFlags.Instance);
 
         [HarmonyPrefix]
+        [HarmonyPriority(1000)]
         public static void Prefix(ref Item ___holdingItem, ref Item __state)
         {
             __state = GadgetCoreAPI.CopyItem(___holdingItem);

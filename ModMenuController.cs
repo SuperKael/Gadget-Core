@@ -6,6 +6,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -30,7 +31,11 @@ namespace GadgetCore
         private int modIndex = 0;
         private int gadgetIndex = -1;
         private float scrollPositionCache = -1;
+        private string searchTextCache = string.Empty;
+        internal InputField searchField;
         internal Text descText;
+        internal RectTransform modList;
+        internal Scrollbar modListScrollbar;
         internal GameObject restartRequiredText;
         internal Button umfConfigButton;
         internal Button enableButton;
@@ -44,6 +49,7 @@ namespace GadgetCore
         internal void Build()
         {
             string modInfo = null;
+            modEntries.Clear();
             foreach (GadgetMod mod in GadgetMods.ListAllMods().Where(x => x.LoadedGadgets.Count > 0))
             {
                 if (mod.Name == "GadgetCore") modInfo = CoreMod.GadgetCoreMod.GetDesc();
@@ -171,76 +177,113 @@ namespace GadgetCore
 
             int modCount = modEntries.Count + modEntries.Where(x => x.Type == ModMenuEntryType.GADGET).SelectMany(x => x.Gadgets).Count();
 
+            searchField = new GameObject("Search Field", typeof(RectTransform), typeof(InputField), typeof(CanvasRenderer), typeof(Image)).GetComponent<InputField>();
+            searchField.GetComponent<RectTransform>().SetParent(transform);
+            searchField.GetComponent<RectTransform>().anchorMin = new Vector2(0f, 1f);
+            searchField.GetComponent<RectTransform>().anchorMax = new Vector2(0.375f, 1f);
+            searchField.GetComponent<RectTransform>().offsetMin = new Vector2(10, -30);
+            searchField.GetComponent<RectTransform>().offsetMax = new Vector2(0, -10);
+            searchField.GetComponent<Image>().sprite = SceneInjector.BoxSprite;
+            searchField.GetComponent<Image>().type = Image.Type.Sliced;
+            searchField.GetComponent<Image>().fillCenter = true;
+            Text inputText = new GameObject("Text", typeof(RectTransform), typeof(CanvasRenderer), typeof(Text)).GetComponent<Text>();
+            inputText.rectTransform.SetParent(searchField.transform);
+            inputText.rectTransform.anchorMin = new Vector2(0f, 0f);
+            inputText.rectTransform.anchorMax = new Vector2(1f, 1f);
+            inputText.rectTransform.offsetMin = new Vector2(10f, 0f);
+            inputText.rectTransform.offsetMax = new Vector2(-10f, 0f);
+            inputText.alignment = TextAnchor.MiddleLeft;
+            inputText.horizontalOverflow = HorizontalWrapMode.Overflow;
+            inputText.font = descText.font;
+            inputText.fontSize = 12;
+            Text placeholderText = new GameObject("Placeholder", typeof(RectTransform), typeof(CanvasRenderer), typeof(Text)).GetComponent<Text>();
+            placeholderText.rectTransform.SetParent(searchField.transform);
+            placeholderText.rectTransform.anchorMin = new Vector2(0f, 0f);
+            placeholderText.rectTransform.anchorMax = new Vector2(1f, 1f);
+            placeholderText.rectTransform.offsetMin = new Vector2(10f, 0f);
+            placeholderText.rectTransform.offsetMax = new Vector2(-10f, 0f);
+            placeholderText.alignment = TextAnchor.MiddleLeft;
+            placeholderText.horizontalOverflow = HorizontalWrapMode.Overflow;
+            placeholderText.font = descText.font;
+            placeholderText.fontSize = 12;
+            placeholderText.text = "Search...";
+            placeholderText.color = Color.gray;
+            searchField.textComponent = inputText;
+            searchField.placeholder = placeholderText;
+            searchField.text = searchTextCache;
+            searchField.onValueChanged.AddListener(FilterModList);
+
             ScrollRect modListScrollView = new GameObject("Scroll View", typeof(RectTransform), typeof(ScrollRect), typeof(CanvasRenderer), typeof(Image)).GetComponent<ScrollRect>();
             modListScrollView.GetComponent<RectTransform>().SetParent(transform);
             modListScrollView.GetComponent<RectTransform>().anchorMin = new Vector2(0f, 0f);
             modListScrollView.GetComponent<RectTransform>().anchorMax = new Vector2(0.3f, 1f);
             modListScrollView.GetComponent<RectTransform>().offsetMin = new Vector2(10, 10);
-            modListScrollView.GetComponent<RectTransform>().offsetMax = new Vector2(0, -10);
+            modListScrollView.GetComponent<RectTransform>().offsetMax = new Vector2(0, -30);
             modListScrollView.GetComponent<Image>().sprite = SceneInjector.BoxSprite;
             modListScrollView.GetComponent<Image>().type = Image.Type.Sliced;
             modListScrollView.GetComponent<Image>().fillCenter = true;
-            Mask modListScrollViewMask = new GameObject("Mask", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Mask)).GetComponent<Mask>();
+            RectMask2D modListScrollViewMask = new GameObject("Mask", typeof(RectTransform), typeof(CanvasRenderer), typeof(RectMask2D)).GetComponent<RectMask2D>();
             modListScrollViewMask.GetComponent<RectTransform>().SetParent(modListScrollView.transform);
             modListScrollViewMask.GetComponent<RectTransform>().anchorMin = new Vector2(0f, 0f);
             modListScrollViewMask.GetComponent<RectTransform>().anchorMax = new Vector2(1f, 1f);
-            modListScrollViewMask.GetComponent<RectTransform>().offsetMin = Vector2.zero;
-            modListScrollViewMask.GetComponent<RectTransform>().offsetMax = Vector2.zero;
-            modListScrollViewMask.GetComponent<Image>().sprite = SceneInjector.BoxMask;
-            modListScrollViewMask.GetComponent<Image>().type = Image.Type.Sliced;
-            modListScrollViewMask.GetComponent<Image>().fillCenter = true;
-            modListScrollViewMask.showMaskGraphic = false;
+            modListScrollViewMask.GetComponent<RectTransform>().offsetMin = new Vector2(5, 5);
+            modListScrollViewMask.GetComponent<RectTransform>().offsetMax = new Vector2(-5, -5);
+            //modListScrollViewMask.GetComponent<Image>().sprite = SceneInjector.BoxMask;
+            //modListScrollViewMask.GetComponent<Image>().type = Image.Type.Sliced;
+            //modListScrollViewMask.GetComponent<Image>().fillCenter = true;
+            //modListScrollViewMask.showMaskGraphic = false;
             RectTransform modListViewport = new GameObject("Viewport", typeof(RectTransform)).GetComponent<RectTransform>();
             modListViewport.SetParent(modListScrollViewMask.transform);
             modListViewport.anchorMin = new Vector2(0f, 0f);
             modListViewport.anchorMax = new Vector2(1f, 1f);
-            modListViewport.offsetMin = new Vector2(10, 10);
-            modListViewport.offsetMax = new Vector2(-10, -10);
-            RectTransform modList = new GameObject("ModList", typeof(RectTransform), typeof(ToggleGroup)).GetComponent<RectTransform>();
+            modListViewport.offsetMin = new Vector2(5, 5);
+            modListViewport.offsetMax = new Vector2(-5, -5);
+            modList = new GameObject("ModList", typeof(RectTransform), typeof(ToggleGroup)).GetComponent<RectTransform>();
             modList.SetParent(modListViewport);
             modList.anchorMin = new Vector2(0f, modCount <= 6 ? 0f : (1f - (modCount / 6f)));
             modList.anchorMax = new Vector2(1f, 1f);
             modList.offsetMin = Vector2.zero;
             modList.offsetMax = Vector2.zero;
-            Scrollbar modListScrollBar = new GameObject("Scrollbar", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Scrollbar)).GetComponent<Scrollbar>();
-            modListScrollBar.GetComponent<RectTransform>().SetParent(modListScrollView.transform);
-            modListScrollBar.GetComponent<RectTransform>().anchorMin = new Vector2(1f, 0f);
-            modListScrollBar.GetComponent<RectTransform>().anchorMax = new Vector2(1.25f, 1f);
-            modListScrollBar.GetComponent<RectTransform>().offsetMin = Vector2.zero;
-            modListScrollBar.GetComponent<RectTransform>().offsetMax = Vector2.zero;
-            modListScrollBar.GetComponent<Image>().sprite = SceneInjector.BoxSprite;
-            modListScrollBar.GetComponent<Image>().type = Image.Type.Sliced;
-            modListScrollBar.GetComponent<Image>().fillCenter = true;
-            RectTransform modListScrollBarHandle = new GameObject("Handle", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image)).GetComponent<RectTransform>();
-            modListScrollBarHandle.SetParent(modListScrollBar.transform);
-            modListScrollBarHandle.anchorMin = new Vector2(0.05f, 0.05f);
-            modListScrollBarHandle.anchorMax = new Vector2(0.95f, 0.95f);
-            modListScrollBarHandle.offsetMin = Vector2.zero;
-            modListScrollBarHandle.offsetMax = Vector2.zero;
-            modListScrollBarHandle.GetComponent<Image>().sprite = SceneInjector.BoxSprite;
-            modListScrollBarHandle.GetComponent<Image>().type = Image.Type.Sliced;
-            modListScrollBarHandle.GetComponent<Image>().fillCenter = true;
-            modListScrollBar.targetGraphic = modListScrollBarHandle.GetComponent<Image>();
-            modListScrollBar.handleRect = modListScrollBarHandle;
-            modListScrollBar.direction = Scrollbar.Direction.BottomToTop;
-            if (modCount <= 5) modListScrollBar.interactable = false;
+            modListScrollbar = new GameObject("Scrollbar", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Scrollbar)).GetComponent<Scrollbar>();
+            modListScrollbar.GetComponent<RectTransform>().SetParent(modListScrollView.transform);
+            modListScrollbar.GetComponent<RectTransform>().anchorMin = new Vector2(1f, 0f);
+            modListScrollbar.GetComponent<RectTransform>().anchorMax = new Vector2(1.25f, 1f);
+            modListScrollbar.GetComponent<RectTransform>().offsetMin = Vector2.zero;
+            modListScrollbar.GetComponent<RectTransform>().offsetMax = Vector2.zero;
+            modListScrollbar.GetComponent<Image>().sprite = SceneInjector.BoxSprite;
+            modListScrollbar.GetComponent<Image>().type = Image.Type.Sliced;
+            modListScrollbar.GetComponent<Image>().fillCenter = true;
+            RectTransform modListScrollbarHandle = new GameObject("Handle", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image)).GetComponent<RectTransform>();
+            modListScrollbarHandle.SetParent(modListScrollbar.transform);
+            modListScrollbarHandle.anchorMin = new Vector2(0.05f, 0.05f);
+            modListScrollbarHandle.anchorMax = new Vector2(0.95f, 0.95f);
+            modListScrollbarHandle.offsetMin = Vector2.zero;
+            modListScrollbarHandle.offsetMax = Vector2.zero;
+            modListScrollbarHandle.GetComponent<Image>().sprite = SceneInjector.BoxSprite;
+            modListScrollbarHandle.GetComponent<Image>().type = Image.Type.Sliced;
+            modListScrollbarHandle.GetComponent<Image>().fillCenter = true;
+            modListScrollbar.targetGraphic = modListScrollbarHandle.GetComponent<Image>();
+            modListScrollbar.handleRect = modListScrollbarHandle;
+            modListScrollbar.direction = Scrollbar.Direction.BottomToTop;
+            if (modCount <= 5) modListScrollbar.interactable = false;
             modListScrollView.content = modList;
             modListScrollView.horizontal = false;
             modListScrollView.scrollSensitivity = 5;
             modListScrollView.movementType = ScrollRect.MovementType.Clamped;
             modListScrollView.viewport = modListViewport;
-            modListScrollView.verticalScrollbar = modListScrollBar;
+            modListScrollView.verticalScrollbar = modListScrollbar;
             float entryHeight = modCount <= 6 ? (1f / 6f) : (1f / modCount);
             Toggle selectedToggle = null;
             int bonusOffset = 0;
             for (int i = 0; i < modEntries.Count; i++)
             {
                 ModMenuEntry modEntry = modEntries[i];
-                if (modEntry.Gadgets.Length > 0)
+                int gadgetCount = modEntry.Gadgets.Length;
+                if (gadgetCount > 0)
                 {
-                    int gadgetCount = modEntry.Gadgets.Count();
                     float gadgetHeight = 1f / (gadgetCount + 1);
                     RectTransform modEntryRect = new GameObject("Gadget-Containing Mod Entry: " + modEntry.Name, typeof(RectTransform), typeof(Toggle), typeof(CanvasRenderer), typeof(Image), typeof(Mask)).GetComponent<RectTransform>();
+                    modEntry.Transform = modEntryRect;
                     modEntryRect.SetParent(modList);
                     modEntryRect.anchorMin = new Vector2(0f, 1 - ((i + bonusOffset + 1 + gadgetCount) * entryHeight));
                     modEntryRect.anchorMax = new Vector2(1f, 1 - ((i + bonusOffset) * entryHeight));
@@ -261,7 +304,7 @@ namespace GadgetCore
                     modLabel.rectTransform.anchorMax = new Vector2(1f, 1f);
                     modLabel.rectTransform.offsetMin = new Vector2(10, 10);
                     modLabel.rectTransform.offsetMax = new Vector2(-10, -10);
-                    modLabel.font = SceneInjector.ModConfigMenuText.GetComponent<TextMesh>().font;
+                    modLabel.font = descText.font;
                     modLabel.fontSize = 12;
                     modLabel.horizontalOverflow = HorizontalWrapMode.Overflow;
                     modLabel.verticalOverflow = VerticalWrapMode.Overflow;
@@ -371,6 +414,7 @@ namespace GadgetCore
                 else
                 {
                     RectTransform modEntryRect = new GameObject("Mod Entry: " + modEntry.Name, typeof(RectTransform), typeof(Toggle), typeof(CanvasRenderer), typeof(Image), typeof(Mask)).GetComponent<RectTransform>();
+                    modEntry.Transform = modEntryRect;
                     modEntryRect.SetParent(modList);
                     modEntryRect.anchorMin = new Vector2(0f, 1 - ((i + bonusOffset + 1) * entryHeight));
                     modEntryRect.anchorMax = new Vector2(1f, 1 - ((i + bonusOffset) * entryHeight));
@@ -449,6 +493,7 @@ namespace GadgetCore
                 }
             }
 
+            searchField.GetComponent<RectTransform>().localScale = Vector3.one;
             modListScrollView.GetComponent<RectTransform>().localScale = Vector3.one;
             if (scrollPositionCache >= 0) modListScrollView.verticalNormalizedPosition = 1 - (scrollPositionCache / (modList.anchorMax.y - modList.anchorMin.y));
             scrollPositionCache = -1;
@@ -466,6 +511,71 @@ namespace GadgetCore
             {
                 UpdateInfo(selectedToggle, modIndex, gadgetIndex);
             }
+
+            if (!string.IsNullOrEmpty(searchField.text))
+            {
+                FilterModList(searchField.text);
+            }
+        }
+
+        internal void FilterModList(string filterText)
+        {
+            filterText = filterText?.Trim();
+
+            List<int> oldVisibleEntries = modEntries.Select((x, i) => Tuple.Create(x, i)).Where(x => x.Item1.Transform.gameObject.activeSelf).Select(x => x.Item2).ToList();
+            List<int> visibleEntries = new List<int>();
+
+            if (!string.IsNullOrEmpty(filterText))
+            {
+                for (int i = 0; i < modEntries.Count; i++)
+                {
+                    bool visible = CultureInfo.CurrentCulture.CompareInfo.IndexOf(modEntries[i].Name, filterText, CompareOptions.IgnoreCase) >= 0 || modEntries[i].Gadgets.Any(x => CultureInfo.CurrentCulture.CompareInfo.IndexOf(x.Attribute.Name, filterText, CompareOptions.IgnoreCase) >= 0);
+                    modEntries[i].Transform.gameObject.SetActive(visible);
+                    if (visible) visibleEntries.Add(i);
+                }
+            }
+            else
+            {
+                for (int i = 0; i < modEntries.Count; i++)
+                {
+                    modEntries[i].Transform.gameObject.SetActive(true);
+                    visibleEntries.Add(i);
+                }
+            }
+
+            if (!visibleEntries.SequenceEqual(oldVisibleEntries))
+            {
+                int modCount = visibleEntries.Count + modEntries.Where(x => x.Transform.gameObject.activeSelf && x.Type == ModMenuEntryType.GADGET).SelectMany(x => x.Gadgets).Count();
+
+                modList.anchorMin = new Vector2(0f, modCount <= 6 ? 0f : (1f - (modCount / 6f)));
+                modList.anchorMax = new Vector2(1f, 1f);
+                modList.offsetMin = Vector2.zero;
+                modList.offsetMax = Vector2.zero;
+
+                modListScrollbar.interactable = modCount > 5;
+
+                float entryHeight = modCount <= 6 ? (1f / 6f) : (1f / modCount);
+                int bonusOffset = 0;
+
+                for (int i = 0; i < visibleEntries.Count; i++)
+                {
+                    ModMenuEntry modEntry = modEntries[visibleEntries[i]];
+
+                    int gadgetCount = modEntry.Gadgets.Length;
+                    if (gadgetCount > 0)
+                    {
+                        modEntry.Transform.anchorMin = new Vector2(0f, 1 - ((i + bonusOffset + 1 + gadgetCount) * entryHeight));
+                        modEntry.Transform.anchorMax = new Vector2(1f, 1 - ((i + bonusOffset) * entryHeight));
+
+                        bonusOffset += gadgetCount;
+                    }
+                    else
+                    {
+                        modEntry.Transform.anchorMin = new Vector2(0f, 1 - ((i + bonusOffset + 1) * entryHeight));
+                        modEntry.Transform.anchorMax = new Vector2(1f, 1 - ((i + bonusOffset) * entryHeight));
+                    }
+                }
+            }
         }
 
         internal void Rebuild()
@@ -477,9 +587,9 @@ namespace GadgetCore
                 {
                     RectTransform modList = modListScrollView.Find("Mask").Find("Viewport").Find("ModList") as RectTransform;
                     scrollPositionCache = (1 - modListScrollView.GetComponent<ScrollRect>().verticalNormalizedPosition) * (modList.anchorMax.y - modList.anchorMin.y);
+                    searchTextCache = searchField.text;
                     Destroy(modListScrollView.gameObject);
                 }
-                modEntries.Clear();
             }
             Build();
         }

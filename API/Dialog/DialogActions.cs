@@ -10,6 +10,11 @@ namespace GadgetCore.API.Dialog
     /// </summary>
     public static class DialogActions
     {
+        internal static string storyChoiceOverrideDesc, storyChoiceOverrideChoice1, storyChoiceOverrideChoice2, storyChoiceOverrideChoice3;
+        internal static DialogChain autoDialogAfterChoice;
+        internal static bool autoDialogForce;
+        internal static Action<int> afterChoiceAction;
+
         /// <summary>
         /// Combines multiple trigger actions together.
         /// </summary>
@@ -81,6 +86,17 @@ namespace GadgetCore.API.Dialog
         }
 
         /// <summary>
+        /// Sets the <see cref="GameScript.choice"/> value.
+        /// </summary>
+        public static Action SetStoryChoice(int choice)
+        {
+            return () =>
+            {
+                GameScript.choice = choice;
+            };
+        }
+
+        /// <summary>
         /// Gives the player an item.
         /// </summary>
         public static Action GrantItem(Item item, bool randomizeTier = false, int randomQuantityVariation = 0)
@@ -120,7 +136,27 @@ namespace GadgetCore.API.Dialog
         {
             return () =>
             {
+                InstanceTracker.GameScript.StartCoroutine(InstanceTracker.GameScript.ExitTalking());
                 InstanceTracker.GameScript.MenuStory();
+            };
+        }
+
+        /// <summary>
+        /// Activates the story choice menu, with specified description and choice texts, as well as an optional dialog chain to start after a choice is selected.
+        /// </summary>
+        public static Action StoryChoiceMenu(string desc, string choice1, string choice2, string choice3 = null, DialogChain afterChoice = null, bool force = false, Action<int> afterChoiceEvent = null)
+        {
+            return () =>
+            {
+                storyChoiceOverrideDesc = desc;
+                storyChoiceOverrideChoice1 = choice1;
+                storyChoiceOverrideChoice2 = choice2;
+                storyChoiceOverrideChoice3 = choice3;
+                InstanceTracker.GameScript.StartCoroutine(InstanceTracker.GameScript.ExitTalking());
+                InstanceTracker.GameScript.MenuStory();
+                autoDialogAfterChoice = afterChoice;
+                autoDialogForce = force;
+                afterChoiceAction = afterChoiceEvent;
             };
         }
 
@@ -131,7 +167,7 @@ namespace GadgetCore.API.Dialog
         {
             return () =>
             {
-                InstanceTracker.GameScript.ExitTalking();
+                InstanceTracker.GameScript.StartCoroutine(InstanceTracker.GameScript.ExitTalking());
             };
         }
 

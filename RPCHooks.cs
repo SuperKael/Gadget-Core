@@ -1,6 +1,7 @@
 ﻿using GadgetCore.API;
 using GadgetCore.Util;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -131,11 +132,13 @@ namespace GadgetCore
                         string matrixData = GadgetNetwork.GenerateIDMatrixData();
                         if (matrixData.Length <= 4096)
                         {
+                            GadgetCore.CoreLogger.Log("Sending ID Matrix data as a single block...");
                             view.RPC("ReceiveIDMatrixData", info.sender, matrixData);
                         }
                         else
                         {
                             string[] splitMatrixData = matrixData.SplitOnLength(MaxChunkSize).ToArray();
+                            GadgetCore.CoreLogger.Log($"Sending ID Matrix data as {splitMatrixData.Length} chunks...");
                             for (int i = 0; i < splitMatrixData.Length; i++)
                             {
                                 view.RPC("ReceiveIDMatrixDataChunk", info.sender, splitMatrixData[i], i, splitMatrixData.Length);
@@ -149,7 +152,7 @@ namespace GadgetCore
                         Environment.NewLine + " - " + incompatibleReasons.Concat(Environment.NewLine + " - "));
                     if (Network.isServer)
                     {
-                        Network.CloseConnection(info.sender, true);
+                        DisconnectWithMessage(info.sender, "Your mods are incompatible with the server:" + Environment.NewLine + " - " + incompatibleReasons.Concat(Environment.NewLine + " - "));
                     }
                     else
                     {
@@ -162,7 +165,7 @@ namespace GadgetCore
                 GadgetCore.CoreLogger.LogWarning("The following error occured processing an incoming client's mod list: " + info.sender.ipAddress + Environment.NewLine + modList + Environment.NewLine + e.ToString());
                 if (Network.isServer)
                 {
-                    Network.CloseConnection(info.sender, true);
+                    DisconnectWithMessage(info.sender, "An error occured processing your mod list:" + Environment.NewLine + modList + Environment.NewLine + e.ToString());
                 }
                 else
                 {
@@ -215,6 +218,28 @@ namespace GadgetCore
                 }
                 GadgetNetwork.ParseIDMatrixData(IDMatrixDataChunks.Concat(string.Empty));
             }
+        }
+
+        internal static void DisconnectWithMessage(NetworkPlayer target, string message)
+        {
+            Singleton.StartCoroutine(DisconnectWithMessageRoutine(target, message));
+        }
+
+        private static IEnumerator DisconnectWithMessageRoutine(NetworkPlayer target, string message)
+        {
+            view.RPC("RPCDisconnectWithMessage", target, message);
+            yield return new WaitForSecondsRealtime(GadgetNetwork.MatrixTimeout);
+            if (Network.connections.Contains(target))
+            {
+                Network.CloseConnection(target, true);
+            }
+        }
+
+        [RPC]
+        internal void RPCDisconnectWithMessage(string message)
+        {
+            GadgetCore.CoreLogger.LogWarning("You have been disconnected with the following message: " + message);
+            Network.Disconnect((int)(GadgetNetwork.MatrixTimeout * 1000));
         }
 
         internal static GameObject Instantiate(string path, Vector3 position, Quaternion rotation, int group)

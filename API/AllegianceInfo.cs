@@ -13,20 +13,33 @@ namespace GadgetCore.API
         /// The name of this Allegiance
         /// </summary>
         public readonly string Name;
+        /// <summary>
+        /// The name of the player as a member of this Allegiance. For example, for "The Galactic Fleet", the member name is "Galactic Cadet".
+        /// </summary>
+        public readonly string MemberName;
 
         /// <summary>
         /// The Texture associated with this Object. May be null.
         /// </summary>
         public virtual Texture FlagTex { get; protected set; }
+        /// <summary>
+        /// The Texture associated with this Object. May be null.
+        /// </summary>
+        public virtual Texture InvIconTex { get; protected set; }
 
         /// <summary>
         /// The Material associated with this Object. May be null.
         /// </summary>
         public virtual Material FlagMat { get; protected set; }
+        /// <summary>
+        /// The Material associated with this Object. May be null.
+        /// </summary>
+        public virtual Material InvIconMat { get; protected set; }
 
         /// <summary>
         /// Use to create a new AllegianceInfo. Make sure to call Register on it to register your Allegiance.
         /// </summary>
+        [Obsolete("This constructor does not set the InvIconTex, and should not be used.", true)]
         public AllegianceInfo(string Name, Texture FlagTex)
         {
             this.Name = Name;
@@ -36,10 +49,56 @@ namespace GadgetCore.API
         /// <summary>
         /// Use to create a new AllegianceInfo. Make sure to call Register on it to register your Allegiance.
         /// </summary>
+        [Obsolete("This constructor does not set the InvIconMat, and should not be used.", true)]
         public AllegianceInfo(string Name, Material FlagMat)
         {
             this.Name = Name;
             this.FlagMat = FlagMat;
+            MemberName = Name;
+        }
+
+        /// <summary>
+        /// Use to create a new AllegianceInfo. Make sure to call Register on it to register your Allegiance.
+        /// </summary>
+        public AllegianceInfo(string Name, Texture FlagTex, Texture InvIconTex)
+        {
+            this.Name = Name;
+            this.FlagTex = FlagTex;
+            this.InvIconTex = InvIconTex;
+            MemberName = Name;
+        }
+
+        /// <summary>
+        /// Use to create a new AllegianceInfo. Make sure to call Register on it to register your Allegiance.
+        /// </summary>
+        public AllegianceInfo(string Name, string MemberName, Texture FlagTex, Texture InvIconTex)
+        {
+            this.Name = Name;
+            this.MemberName = MemberName;
+            this.FlagTex = FlagTex;
+            this.InvIconTex = InvIconTex;
+        }
+
+        /// <summary>
+        /// Use to create a new AllegianceInfo. Make sure to call Register on it to register your Allegiance.
+        /// </summary>
+        public AllegianceInfo(string Name, Material FlagMat, Material InvIconMat)
+        {
+            this.Name = Name;
+            this.FlagMat = FlagMat;
+            this.InvIconMat = InvIconMat;
+            MemberName = Name;
+        }
+
+        /// <summary>
+        /// Use to create a new AllegianceInfo. Make sure to call Register on it to register your Allegiance.
+        /// </summary>
+        public AllegianceInfo(string Name, string MemberName, Material FlagMat, Material InvIconMat)
+        {
+            this.Name = Name;
+            this.MemberName = MemberName;
+            this.FlagMat = FlagMat;
+            this.InvIconMat = InvIconMat;
         }
 
         /// <summary>
@@ -71,6 +130,18 @@ namespace GadgetCore.API
                 FlagTex = FlagMat.mainTexture;
             }
             GadgetCoreAPI.AddCustomResource("flag/flag" + GetID(), FlagMat);
+            if (InvIconMat == null)
+            {
+                InvIconMat = new Material(Shader.Find("Unlit/Transparent Cutout"))
+                {
+                    mainTexture = InvIconTex
+                };
+                InvIconMat.SetFloat("_Cutoff", 0.5f);
+            }
+            else
+            {
+                InvIconTex = InvIconMat.mainTexture;
+            }
         }
 
         /// <summary>

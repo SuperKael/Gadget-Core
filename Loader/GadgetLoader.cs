@@ -452,7 +452,7 @@ namespace GadgetCore.Loader
             Logger.Log("Patching Gadgets...");
             foreach (GadgetInfo gadget in QueuedGadgets.ToList())
             {
-                int patches = 0;
+                int patches = 0, totalMethods = 0, errorPatching = 0, targetMissing = 0;
                 try
                 {
                     gadget.Mod.Assembly.GetExportedTypes().Do(delegate (Type type)
@@ -462,16 +462,34 @@ namespace GadgetCore.Loader
                         {
                             try
                             {
-                                gadget.Gadget.HarmonyInstance.CreateClassProcessor(type).Patch();
-                                patches++;
+                                List<MethodInfo> methods = gadget.Gadget.HarmonyInstance.CreateClassProcessor(type).Patch();
+                                totalMethods += methods?.Count ?? 0;
+                                if (methods == null || methods.Count == 0)
+                                {
+                                    Logger.Log("Skipping patch '" + type.Name + "' for Gadget '" + gadget.Attribute.Name + "': Attribute target does not exist.");
+                                    targetMissing++;
+                                }
+                                else
+                                {
+                                    patches++;
+                                }
                             }
                             catch (Exception e)
                             {
-                                Logger.LogError("Exception running patch '" + type.Name + "' for Gadget '" + gadget.Attribute.Name + "': " + Environment.NewLine + e.ToString());
+                                if (e.InnerException == null || !e.InnerException.Message.EndsWith("returned an unexpected result: null"))
+                                {
+                                    Logger.LogError("Exception running patch '" + type.Name + "' for Gadget '" + gadget.Attribute.Name + "': " + Environment.NewLine + e.ToString());
+                                    errorPatching++;
+                                }
+                                else
+                                {
+                                    Logger.Log("Skipping patch '" + type.Name + "' for Gadget '" + gadget.Attribute.Name + "': TargetMethod returned null.");
+                                    targetMissing++;
+                                }
                             }
                         }
                     });
-                    Logger.Log("Performed " + patches + " patches for " + gadget.Attribute.Name);
+                    Logger.Log("Performed " + patches + " patches for '" + gadget.Attribute.Name + "'" + (totalMethods > 0 ? $" ({totalMethods} total methods patched)" : string.Empty) + (errorPatching > 0 ? targetMissing > 0 ? $" ({errorPatching} skipped due to errors, {targetMissing} skipped due to missing targets)" : $" ({errorPatching} skipped due to errors)" : targetMissing > 0 ? $" ({targetMissing} skipped due to missing targets)" : string.Empty));
                 }
                 catch (Exception e)
                 {
@@ -483,6 +501,83 @@ namespace GadgetCore.Loader
                 }
             }
             Logger.Log("Done patching Gadgets.");
+            bool logOverrideWarnings = false;
+            foreach (MethodBase patchedMethod in Harmony.GetAllPatchedMethods())
+            {
+                HarmonyLib.Patches patches = Harmony.GetPatchInfo(patchedMethod);
+                if (patches == null) continue;
+                Dictionary<string, string> owners = new Dictionary<string, string>();
+                List<Patch> overridingPrefixes = patches.Prefixes.Where(x => x.PatchMethod.ReturnType == typeof(bool) && (x.PatchMethod.GetCustomAttributes(true).FirstOrDefault(a => a.GetType() == typeof(HarmonyOverridesAttribute)) as HarmonyOverridesAttribute)?.Overrides.Length != 0).ToList();
+                if (overridingPrefixes != null && overridingPrefixes.Count > 0)
+                {
+                    foreach (string ownerID in patches.Owners)
+                    {
+                        if (ownerID == GadgetCore.HarmonyInstance.Id)
+                        {
+                            owners[ownerID] = "GadgetCore";
+                        }
+                        else
+                        {
+                            string[] splitOwnerID = ownerID.Split('.');
+                            if (splitOwnerID.Length == 3 && splitOwnerID[2] == "gadget")
+                            {
+                                GadgetMod mod = GadgetMods.GetModByName(splitOwnerID[0]);
+                                GadgetInfo gadget = mod?.LoadedGadgets.SingleOrDefault(x => x.Attribute.Name == splitOwnerID[1]);
+                                if (gadget != null)
+                                {
+                                    owners[ownerID] = $"'{splitOwnerID[1]}' from the mod {{{splitOwnerID[0]}}}";
+                                }
+                                else
+                                {
+                                    owners[ownerID] = $"Unrecognized patcher '{ownerID}'";
+                                }
+                            }
+                            else
+                            {
+                                owners[ownerID] = $"Unrecognized patcher '{ownerID}'";
+                            }
+                        }
+                    }
+                    IEnumerable<Patch> problematicPrefixes = patches.Prefixes.Where(x => !overridingPrefixes.Contains(x) && (x.PatchMethod.GetCustomAttributes(true).FirstOrDefault(a => a.GetType() == typeof(HarmonyOverriddenAttribute)) as HarmonyOverriddenAttribute)?.Overrides.Length != 0 && overridingPrefixes.Any(
+                        p => x.owner != p.owner &&
+                        (x.PatchMethod.GetCustomAttributes(true).FirstOrDefault(a => a.GetType() == typeof(HarmonyOverriddenAttribute)) as HarmonyOverriddenAttribute)?.Overrides.Contains(p.owner) != true &&
+                        (p.PatchMethod.GetCustomAttributes(true).FirstOrDefault(a => a.GetType() == typeof(HarmonyOverridesAttribute)) as HarmonyOverridesAttribute)?.Overrides.Contains(x.owner) != true && 
+                        x.priority <= p.priority && 
+                        !x.before.Contains(p.owner) && 
+                        !p.after.Contains(x.owner)));
+                    IEnumerable<Patch> problematicTranspilers = patches.Transpilers.Where(x => (x.PatchMethod.GetCustomAttributes(true).FirstOrDefault(a => a.GetType() == typeof(HarmonyOverriddenAttribute)) as HarmonyOverriddenAttribute)?.Overrides.Length != 0 && overridingPrefixes.Any(
+                        p => x.owner != p.owner &&
+                        (x.PatchMethod.GetCustomAttributes(true).FirstOrDefault(a => a.GetType() == typeof(HarmonyOverriddenAttribute)) as HarmonyOverriddenAttribute)?.Overrides.Contains(p.owner) != true &&
+                        (p.PatchMethod.GetCustomAttributes(true).FirstOrDefault(a => a.GetType() == typeof(HarmonyOverridesAttribute)) as HarmonyOverridesAttribute)?.Overrides.Contains(x.owner) != true));
+                    if (problematicPrefixes != null && problematicPrefixes.Any() || problematicTranspilers != null && problematicTranspilers.Any())
+                    {
+                        if (!logOverrideWarnings)
+                        {
+                            logOverrideWarnings = true;
+                            Logger.LogWarning("Possibly problematic patch overrides detected!", false);
+                        }
+                        Logger.Log($"Patches to {patchedMethod.DeclaringType.FullName}.{patchedMethod.Name} by {overridingPrefixes.Select(x => owners[x.owner]).Concat()} may override the following patch{(problematicPrefixes.Count() + problematicTranspilers.Count() > 1 ? "es" : "")}:");
+                        if (problematicPrefixes != null)
+                        {
+                            foreach (Patch patch in problematicPrefixes)
+                            {
+                                Logger.Log($" - Prefix from {owners[patch.owner]}");
+                            }
+                        }
+                        if (problematicTranspilers != null)
+                        {
+                            foreach (Patch patch in problematicTranspilers)
+                            {
+                                Logger.Log($" - Transpiler from {owners[patch.owner]}");
+                            }
+                        }
+                    }
+                }
+            }
+            if (logOverrideWarnings)
+            {
+                Logger.Log("End of possibly problematic patch overrides.");
+            }
             Logger.Log("Creating registries...");
             foreach (GadgetInfo gadget in QueuedGadgets.ToList())
             {

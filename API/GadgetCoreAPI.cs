@@ -22,11 +22,11 @@ namespace GadgetCore.API
         /// <summary>
         /// The version numbers for this version of Gadget Core. You generally shouldn't access this directly, instead use <see cref="GetRawVersion()"/>
         /// </summary>
-        public const string RAW_VERSION = "2.0.4.6";
+        public const string RAW_VERSION = "2.0.5.0";
         /// <summary>
         /// A slightly more informative version. You generally shouldn't access this directly, instead use <see cref="GetFullVersion()"/>
         /// </summary>
-        public const string FULL_VERSION = "2.0.4.6 - Power Commands Edition";
+        public const string FULL_VERSION = "2.0.5.0 - Content Overhaul Edition";
         /// <summary>
         /// Indicates whether this version of GadgetCore is a beta version. You generally shouldn't access this directly, instead use <see cref="GetIsBeta()"/>
         /// </summary>
@@ -424,7 +424,7 @@ namespace GadgetCore.API
             });
             if (st.Length > 11)
             {
-                item.DeserializeExtraData(Encoding.Default.GetString(st.Where((x, i) => i > 10).SelectMany(x => BitConverter.GetBytes(x)).ToArray()));
+                item.DeserializeExtraData(Encoding.Default.GetString(st.Where((x, i) => i > 10).SelectMany(x => BitConverter.GetBytes(x)).ToArray()).TrimEnd('\0'));
             }
             return item;
         }

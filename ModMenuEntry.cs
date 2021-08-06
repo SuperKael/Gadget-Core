@@ -1,5 +1,6 @@
 ﻿using GadgetCore.API;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace GadgetCore
 {
@@ -28,6 +29,10 @@ namespace GadgetCore
         /// The <see cref="GadgetInfo"/>s from the mod represented by this entry.
         /// </summary>
         public readonly GadgetInfo[] Gadgets;
+        /// <summary>
+        /// This ModMenuEntry's transform, if applicable.
+        /// </summary>
+        public RectTransform Transform { get; internal set; }
 
         internal ModMenuEntry(string Name, ModMenuEntryType Type, string Description, Dictionary<string, string> Info = null, params GadgetInfo[] Gadgets)
         {

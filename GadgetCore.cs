@@ -29,7 +29,7 @@ namespace GadgetCore
 
         internal static Dictionary<string, Assembly> LoadedAssemblies = new Dictionary<string, Assembly>();
         internal static GadgetLogger CoreLogger;
-        private static Harmony HarmonyInstance;
+        internal static Harmony HarmonyInstance;
 
         static GadgetCore()
         {
@@ -186,7 +186,14 @@ namespace GadgetCore
                     object[] attributes = type.GetCustomAttributes(true);
                     if (!attributes.Any(x => x.GetType() == typeof(HarmonyGadgetAttribute)))
                     {
-                        HarmonyInstance.CreateClassProcessor(type).Patch();
+                        try
+                        {
+                            HarmonyInstance.CreateClassProcessor(type).Patch();
+                        }
+                        catch (HarmonyException e)
+                        {
+                            if (e.InnerException == null || !e.InnerException.Message.EndsWith("returned an unexpected result: null")) throw e;
+                        }
                     }
                 });
                 new Thread(new ThreadStart(() => {

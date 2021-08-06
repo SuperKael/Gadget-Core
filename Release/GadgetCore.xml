@@ -14,12 +14,27 @@
             The name of this Allegiance
             </summary>
         </member>
+        <member name="F:GadgetCore.API.AllegianceInfo.MemberName">
+            <summary>
+            The name of the player as a member of this Allegiance. For example, for "The Galactic Fleet", the member name is "Galactic Cadet".
+            </summary>
+        </member>
         <member name="P:GadgetCore.API.AllegianceInfo.FlagTex">
             <summary>
             The Texture associated with this Object. May be null.
             </summary>
         </member>
+        <member name="P:GadgetCore.API.AllegianceInfo.InvIconTex">
+            <summary>
+            The Texture associated with this Object. May be null.
+            </summary>
+        </member>
         <member name="P:GadgetCore.API.AllegianceInfo.FlagMat">
+            <summary>
+            The Material associated with this Object. May be null.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.AllegianceInfo.InvIconMat">
             <summary>
             The Material associated with this Object. May be null.
             </summary>
@@ -30,6 +45,26 @@
             </summary>
         </member>
         <member name="M:GadgetCore.API.AllegianceInfo.#ctor(System.String,UnityEngine.Material)">
+            <summary>
+            Use to create a new AllegianceInfo. Make sure to call Register on it to register your Allegiance.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.AllegianceInfo.#ctor(System.String,UnityEngine.Texture,UnityEngine.Texture)">
+            <summary>
+            Use to create a new AllegianceInfo. Make sure to call Register on it to register your Allegiance.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.AllegianceInfo.#ctor(System.String,System.String,UnityEngine.Texture,UnityEngine.Texture)">
+            <summary>
+            Use to create a new AllegianceInfo. Make sure to call Register on it to register your Allegiance.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.AllegianceInfo.#ctor(System.String,UnityEngine.Material,UnityEngine.Material)">
+            <summary>
+            Use to create a new AllegianceInfo. Make sure to call Register on it to register your Allegiance.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.AllegianceInfo.#ctor(System.String,System.String,UnityEngine.Material,UnityEngine.Material)">
             <summary>
             Use to create a new AllegianceInfo. Make sure to call Register on it to register your Allegiance.
             </summary>
@@ -1506,6 +1541,463 @@
             A component representing an unused slot.
             </summary>
         </member>
+        <member name="T:GadgetCore.API.CustomEntityScript`1">
+            <summary>
+            Base class to extend when making custom entities as an alterative to the vanilla entity classes.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.CustomEntityScript`1.HP">
+            <summary>
+            This entity's HP.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.CustomEntityScript`1.MaxHP">
+            <summary>
+            This entity's max HP.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.CustomEntityScript`1.IsDead">
+            <summary>
+            Indicates whether this entity is currently considered to be dead.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.CustomEntityScript`1.EXP">
+            <summary>
+            The amount of EXP that this entity will drop.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.CustomEntityScript`1.EnemyID">
+            <summary>
+            This entity's "Enemy ID", as used by the base game's quest system.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.CustomEntityScript`1.IsFlying">
+            <summary>
+            Indicates whether this enemy is flying, and thereby able to ignore terrain collision.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.CustomEntityScript`1.IsBoss">
+            <summary>
+            Indicates whether this enemy is a boss.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.CustomEntityScript`1.ContactDamage">
+            <summary>
+            This entity's contact damage. Will not cause contact damage at all if value is 0.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.CustomEntityScript`1.PoisonEffect">
+            <summary>
+            How much poison effect this entity inflicts with its contact damage. Note that this is specific to this script - it is not inherited from the master script, if applicable.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.CustomEntityScript`1.FrostEffect">
+            <summary>
+            How much poison effect this entity inflicts with its contact damage. Note that this is specific to this script - it is not inherited from the master script, if applicable.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.CustomEntityScript`1.BurnEffect">
+            <summary>
+            How much poison effect this entity inflicts with its contact damage. Note that this is specific to this script - it is not inherited from the master script, if applicable.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.CustomEntityScript`1.ConfuseEffect">
+            <summary>
+            How much poison effect this entity inflicts with its contact damage. Note that this is specific to this script - it is not inherited from the master script, if applicable.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.CustomEntityScript`1.SilenceEffect">
+            <summary>
+            How much poison effect this entity inflicts with its contact damage. Note that this is specific to this script - it is not inherited from the master script, if applicable.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.CustomEntityScript`1.PetrifyEffect">
+            <summary>
+            How much poison effect this entity inflicts with its contact damage. Note that this is specific to this script - it is not inherited from the master script, if applicable.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.CustomEntityScript`1.KnockbackImmune">
+            <summary>
+            Indicates whether this entity is immune to knockback.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.CustomEntityScript`1.AttackTarget">
+            <summary>
+            The current target that this entity is trying to attack, or null if it is not currently trying to attack anything.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.CustomEntityScript`1.StunTime">
+            <summary>
+            Represents whether this entity is stunned, and for how long, if it is a value greater than 0.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.CustomEntityScript`1.Master">
+            <summary>
+            The master script for this entity, if applicable.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.CustomEntityScript`1.FollowTarget">
+            <summary>
+            The script that this entity is set to follow, usually assigned by <see cref="!:SetMaster(T)"/>
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.CustomEntityScript`1.IsMaster">
+            <summary>
+            Indicates whether this script is the master of its own entity.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.CustomEntityScript`1.LootTableID">
+            <summary>
+            The ID of this entity's loot table.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.CustomEntityScript`1.currencyDrops">
+            <summary>
+            List of this entity's currency drops. Represented by ID, Quantity, and Quantity Variation in that order.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.CustomEntityScript`1.vanillaStyleDrops">
+            <summary>
+            An array used for vanilla-style drops.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.CustomEntityScript`1.Subordinates">
+            <summary>
+            The list of subordinate scripts that this script is the master of, if applicable.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.CustomEntityScript`1.trig">
+            <summary>
+            An array of two triggers that the vanilla game uses for many entities to assist in their targeting AI.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.CustomEntityScript`1.Initialized">
+            <summary>
+            Indicates whether this entity has been initialized with either <see cref="M:GadgetCore.API.CustomEntityScript`1.Initialize(System.Int32,System.Int32,System.Int32,System.Boolean,System.Boolean,System.Boolean,System.Int32)"/> or <see cref="M:GadgetCore.API.CustomEntityScript`1.SetMaster(`0,System.Boolean)"/> yet.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.CustomEntityScript`1.TrackedPositionTransform">
+            <summary>
+            The object who's position is tracked and synchronized by the network.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.CustomEntityScript`1.TrackedRotationTransform">
+            <summary>
+            The object who's position is tracked and synchronized by the network.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.CustomEntityScript`1.AnimatedComponent">
+            <summary>
+            The Animation component that is controlled by this entity's animation mode.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.CustomEntityScript`1.networkReady">
+            <summary>
+            Once true, indicates that this entity is ready for network position and rotation synchronization.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.CustomEntityScript`1.networkPosition">
+            <summary>
+            Field used for syncing the entity's position between clients.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.CustomEntityScript`1.networkRotation">
+            <summary>
+            Field used for syncing the entity's position between clients.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.CustomEntityScript`1.animMode">
+            <summary>
+            The current animation mode, which is synced between clients.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.CustomEntityScript`1.animModes">
+            <summary>
+            The list of possible animation modes for this entity.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.CustomEntityScript`1.resettingModes">
+            <summary>
+            The set of <see cref="F:GadgetCore.API.CustomEntityScript`1.animModes"/> that reset back to 0 after playing once.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CustomEntityScript`1.Initialize(System.Int32,System.Int32,System.Int32,System.Boolean,System.Boolean,System.Boolean,System.Int32)">
+            <summary>
+            Initializes this <see cref="T:GadgetCore.API.CustomEntityScript`1"/> with the given properties.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CustomEntityScript`1.SetMaster(UnityEngine.GameObject,System.Boolean)">
+            <summary>
+            Sets the given GameObject as the master of this GameObject, so that most events and properties will be handled by it.
+            If this method is called, then there is no need to call <see cref="M:GadgetCore.API.CustomEntityScript`1.Initialize(System.Int32,System.Int32,System.Int32,System.Boolean,System.Boolean,System.Boolean,System.Int32)"/>.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CustomEntityScript`1.SetMaster(`0,System.Boolean)">
+            <summary>
+            Sets the given GameObject as the master of this GameObject, so that most events and properties will be handled by it.
+            If this method is called, then there is no need to call <see cref="M:GadgetCore.API.CustomEntityScript`1.Initialize(System.Int32,System.Int32,System.Int32,System.Boolean,System.Boolean,System.Boolean,System.Int32)"/>.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CustomEntityScript`1.InternalInit">
+            <summary>
+            Method for initialization called by both <see cref="M:GadgetCore.API.CustomEntityScript`1.Initialize(System.Int32,System.Int32,System.Int32,System.Boolean,System.Boolean,System.Boolean,System.Int32)"/> and <see cref="M:GadgetCore.API.CustomEntityScript`1.SetMaster(`0,System.Boolean)"/>
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CustomEntityScript`1.Ready">
+            <summary>
+            Sets <see cref="F:GadgetCore.API.CustomEntityScript`1.networkReady"/> after a delay.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CustomEntityScript`1.AddLootTableDrop(Item,System.Single,System.Int32,System.Int32,System.Func{UnityEngine.Vector3,System.Boolean},System.Func{Item,UnityEngine.Vector3,System.Boolean})">
+            <summary>
+            Adds an item to this entity's loot table.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CustomEntityScript`1.AddCurrencyDrop(System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Adds a quantity of currency to this entity's drops.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CustomEntityScript`1.SetVanillaStyleDrops(System.Int32,System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Sets a vanilla-style drops array to be used for this entity's drops.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CustomEntityScript`1.AddAnimationMode(System.String)">
+            <summary>
+            Adds a new animation mode, and returns the index of the new mode. The mode with an index of 0 will be the default mode.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CustomEntityScript`1.AddVanillaR2Animations">
+            <summary>
+            Adds the vanilla animation modes supported by <see cref="T:NetworkR2"/>.
+            If this method is to be used, it should be used before calling <see cref="M:GadgetCore.API.CustomEntityScript`1.AddAnimationMode(System.String)"/>.
+            Be aware that any and all animations previously added by <see cref="M:GadgetCore.API.CustomEntityScript`1.AddAnimationMode(System.String)"/> will be offset by 6 after using this method.
+            Additionally, the animation "i" will become the default mode with an index of 0.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CustomEntityScript`1.UpdateFollowTarget(`0)">
+            <summary>
+            Updates the entity's position and rotation to follow its <see cref="P:GadgetCore.API.CustomEntityScript`1.FollowTarget"/>
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CustomEntityScript`1.SeperateSubordinate(`0,System.Boolean,System.Boolean)">
+            <summary>
+            Breaks the master/subordinate relationship between this script and the specified subordinate.
+            Optionally physically detaches the subordinate object to convert it into an independent object.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CustomEntityScript`1.TD(System.Single[])">
+            <summary>
+            Called to make this entity take damage from player attacks.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CustomEntityScript`1.TDTEXT(System.Int32)">
+            <summary>
+            Called to display damage numbers on all clients when the entity takes damage.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CustomEntityScript`1.Damage(System.Int32,System.Single)">
+            <summary>
+            Damages this entity by the given amount, and with knockback from the given X coordinate.
+            A knockback value of exactly -100f is a special value that prevents any knockback from being applied.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CustomEntityScript`1.Wipe">
+            <summary>
+            Called when the planet this entity is in unloads.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CustomEntityScript`1.HandleDamage(System.Int32@,System.Single@)">
+            <summary>
+            Called whenever this entity takes damage - the damage and knockback amount can be modified by this method.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CustomEntityScript`1.Knockback(UnityEngine.Vector3)">
+            <summary>
+            Knocks the enemy back in the specified direction.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CustomEntityScript`1.Stun(System.Single)">
+            <summary>
+            Stuns the enemy for a specific period of time.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CustomEntityScript`1.Kill(System.Boolean)">
+            <summary>
+            Causes this entity to die.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CustomEntityScript`1.Die(System.Int32)">
+            <summary>
+            RPC to facilitate the entity's death. An 'a' value of 1 indicates that it was killed by the player, a value of 0 indicates that it was erased by the game.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CustomEntityScript`1.DieInternal(System.Int32)">
+            <summary>
+            Recursive function to destroy this object, as well as all subordinate objects.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CustomEntityScript`1.Hide">
+            <summary>
+            Hides this object without actually destroying or disabling it, to ensure that RPCs can still be sent.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CustomEntityScript`1.Exile">
+            <summary>
+            Truly destroys this object on the server, after a delay to allow RPCs to be sent first.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CustomEntityScript`1.DropLocal">
+            <summary>
+            Spawns this entity's drops locally.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CustomEntityScript`1.OnCollisionEnter(UnityEngine.Collision)">
+            <summary>
+            Called when a collider for this entity collides with something. Generally used for dealing contact damage to players.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CustomEntityScript`1.OnTriggerEnter(UnityEngine.Collider)">
+            <summary>
+            Called when a trigger for this entity is triggered by something. Generally used for detecting players to target.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CustomEntityScript`1.OnSerializeNetworkView(UnityEngine.BitStream,UnityEngine.NetworkMessageInfo)">
+            <summary>
+            Handles data serialization for this entity.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CustomEntityScript`1.OnSerializeExtra(UnityEngine.BitStream,UnityEngine.NetworkMessageInfo)">
+            <summary>
+            Can be overriden to perform extra network serialization beyond the standard position, rotation, and animation mode.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CustomEntityScript`1.HandleDeath(System.Boolean)">
+            <summary>
+            Called when this entity is about to die - return false to prevent it.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CustomEntityScript`1.HandleDeathClient(System.Boolean)">
+            <summary>
+            Called when this entity dies, on all clients.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CustomEntityScript`1.#ctor">
+            <summary>
+            Instantiates a CustomEntityScript. Do not use this, let Unity handle instantiation of the script.
+            </summary>
+        </member>
+        <member name="T:GadgetCore.API.CustomEntityScript">
+            <summary>
+            Non-generic base class for custom entities using <see cref="T:GadgetCore.API.CustomEntityScript`1"/>. Do not extend this class directly.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.CustomEntityScript.rigidbody">
+            <summary>
+            Provides a quick reference to this GameObject's rigidbody, if it exists.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.CustomEntityScript.HP">
+            <summary>
+            This entity's HP.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.CustomEntityScript.MaxHP">
+            <summary>
+            This entity's max HP.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.CustomEntityScript.IsDead">
+            <summary>
+            Indicates whether this entity is currently considered to be dead.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.CustomEntityScript.EXP">
+            <summary>
+            The amount of EXP that this entity will drop.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.CustomEntityScript.EnemyID">
+            <summary>
+            This entity's "Enemy ID", as used by the vanilla quest system.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.CustomEntityScript.IsFlying">
+            <summary>
+            Indicates whether this enemy is flying, and thereby able to ignore terrain collision.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.CustomEntityScript.IsBoss">
+            <summary>
+            Indicates whether this enemy is a boss.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.CustomEntityScript.ContactDamage">
+            <summary>
+            This entity's contact damage. Will not cause contact damage at all if value is 0.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.CustomEntityScript.PoisonEffect">
+            <summary>
+            How much poison effect this entity inflicts with its contact damage. Note that this is specific to this script - it is not inherited from the master script, if applicable.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.CustomEntityScript.FrostEffect">
+            <summary>
+            How much poison effect this entity inflicts with its contact damage. Note that this is specific to this script - it is not inherited from the master script, if applicable.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.CustomEntityScript.BurnEffect">
+            <summary>
+            How much poison effect this entity inflicts with its contact damage. Note that this is specific to this script - it is not inherited from the master script, if applicable.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.CustomEntityScript.ConfuseEffect">
+            <summary>
+            How much poison effect this entity inflicts with its contact damage. Note that this is specific to this script - it is not inherited from the master script, if applicable.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.CustomEntityScript.SilenceEffect">
+            <summary>
+            How much poison effect this entity inflicts with its contact damage. Note that this is specific to this script - it is not inherited from the master script, if applicable.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.CustomEntityScript.PetrifyEffect">
+            <summary>
+            How much poison effect this entity inflicts with its contact damage. Note that this is specific to this script - it is not inherited from the master script, if applicable.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.CustomEntityScript.KnockbackImmune">
+            <summary>
+            Indicates whether this entity is immune to knockback.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.CustomEntityScript.AttackTarget">
+            <summary>
+            The current target that this entity is trying to attack, or null if it is not currently trying to attack anything.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.CustomEntityScript.StunTime">
+            <summary>
+            Represents whether this entity is stunned, and for how long, if it is a value greater than 0.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.CustomEntityScript.MaxFollowDistance">
+            <summary>
+            The distance at which this component will follow its follow target component, if it is a value greater than 0.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.CustomEntityScript.MinFollowDistance">
+            <summary>
+            The distance at which this component will follow its follow target component, if it is a value greater than 0.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.CustomEntityScript.DamageSound">
+            <summary>
+            The sound that plays when this entity is damaged.
+            </summary>
+        </member>
         <member name="T:GadgetCore.API.Dialog.DialogActions">
             <summary>
             Static class containing commonly-used <see cref="T:GadgetCore.API.Dialog.DialogMessage"/> trigger actions.
@@ -1541,6 +2033,11 @@
             Sets the <see cref="F:GameScript.allegianceQuest"/> value.
             </summary>
         </member>
+        <member name="M:GadgetCore.API.Dialog.DialogActions.SetStoryChoice(System.Int32)">
+            <summary>
+            Sets the <see cref="F:GameScript.choice"/> value.
+            </summary>
+        </member>
         <member name="M:GadgetCore.API.Dialog.DialogActions.GrantItem(Item,System.Boolean,System.Int32)">
             <summary>
             Gives the player an item.
@@ -1554,6 +2051,11 @@
         <member name="M:GadgetCore.API.Dialog.DialogActions.StoryChoiceMenu">
             <summary>
             Activates the story choice menu.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.Dialog.DialogActions.StoryChoiceMenu(System.String,System.String,System.String,System.String,GadgetCore.API.Dialog.DialogChain,System.Boolean,System.Action{System.Int32})">
+            <summary>
+            Activates the story choice menu, with specified description and choice texts, as well as an optional dialog chain to start after a choice is selected.
             </summary>
         </member>
         <member name="M:GadgetCore.API.Dialog.DialogActions.ExitDialog">
@@ -3389,6 +3891,11 @@
             Gets the local ID that matches the specified host ID. Returns -1 if there is no matching local ID for the specified host ID.
             </summary>
         </member>
+        <member name="M:GadgetCore.API.GadgetNetwork.DisconnectPlayerWithMessage(UnityEngine.NetworkPlayer,System.String)">
+            <summary>
+            Disconnects the target player from this server with a provided message.
+            </summary>
+        </member>
         <member name="M:GadgetCore.API.GadgetNetwork.GetNameByNetworkPlayer(UnityEngine.NetworkPlayer)">
             <summary>
             Returns the player name of the given <see cref="T:UnityEngine.NetworkPlayer"/>
@@ -3683,6 +4190,54 @@
             <param name="Gadget">The name of the <see cref="T:GadgetCore.API.Gadget"/> that owns this patch.</param>
             <param name="RequiredGadgets">Other <see cref="T:GadgetCore.API.Gadget"/>s that must be present for this patch to run.</param>
         </member>
+        <member name="T:GadgetCore.API.HarmonyOverriddenAttribute">
+            <summary>
+            Indicates that this Prefix is intentionally overridden by patches from one or more other mods.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.HarmonyOverriddenAttribute.Overrides">
+            <summary>
+            The patcher IDs to flag this method as being intentionally overridden by.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.HarmonyOverriddenAttribute.#ctor">
+            <summary>
+            Indicates that this Prefix is intentionally overriding patches from any and all other mods.
+            Carefully consider whether it is truly appropriate to use this before doing so.
+            Alternatively, use the <see cref="M:GadgetCore.API.HarmonyOverriddenAttribute.#ctor(System.String[])"/> version.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.HarmonyOverriddenAttribute.#ctor(System.String[])">
+            <summary>
+            Indicates that this Prefix is intentionally overridden by patches from one or more other mods.
+            Uses the same syntax as <see cref="T:HarmonyLib.HarmonyBefore"/> and <see cref="T:HarmonyLib.HarmonyAfter"/>, I.E. "ModName.GadgetName.gadget"
+            </summary>
+            <param name="Overrides">The patcher IDs to flag this method as being intentionally overridden by.</param>
+        </member>
+        <member name="T:GadgetCore.API.HarmonyOverridesAttribute">
+            <summary>
+            Indicates that this Prefix is intentionally overriding patches from one or more other mods.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.HarmonyOverridesAttribute.Overrides">
+            <summary>
+            The patcher IDs to flag this method as intentionally overriding.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.HarmonyOverridesAttribute.#ctor">
+            <summary>
+            Indicates that this Prefix is intentionally overriding patches from any and all other mods.
+            Carefully consider whether it is truly appropriate to use this before doing so.
+            Alternatively, use the <see cref="M:GadgetCore.API.HarmonyOverridesAttribute.#ctor(System.String[])"/> version.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.HarmonyOverridesAttribute.#ctor(System.String[])">
+            <summary>
+            Indicates that this Prefix is intentionally overriding patches from one or more other mods.
+            Uses the same syntax as <see cref="T:HarmonyLib.HarmonyBefore"/> and <see cref="T:HarmonyLib.HarmonyAfter"/>, I.E. "ModName.GadgetName.gadget"
+            </summary>
+            <param name="Overrides">The patcher IDs to flag this method as intentionally overriding.</param>
+        </member>
         <member name="T:GadgetCore.API.InstanceTracker">
             <summary>
             Provides access to instances of some commonly used scripts. Be wary of using these during scene load, as it may take a moment for their values to get set.
@@ -3728,6 +4283,11 @@
             Extends the Item class to add additional data to it.
             </summary>
         </member>
+        <member name="M:GadgetCore.API.ItemExtension.RegisterTypeSerializer(System.Type,System.Func{System.Object,System.String},System.Func{System.String,System.Object})">
+            <summary>
+            Registers a serializer/deserializer pair to use when handling a given Type.
+            </summary>
+        </member>
         <member name="M:GadgetCore.API.ItemExtension.HasAnyExtraData(Item)">
             <summary>
             Returns true of the Item has any extra data at all.
@@ -3740,12 +4300,22 @@
         </member>
         <member name="M:GadgetCore.API.ItemExtension.PutExtraData``1(Item,System.String,``0)">
             <summary>
-            Adds or replaces a piece of extra data to this Item. The data key should be of the format ModName:Key, and the data value must be a serializable type. If adding an ID as extra data, make sure to use GadgetNetwork.ConvertIDToHost on it first.
+            Adds or replaces a piece of extra data on this Item. The data key should be of the format GadgetName:Key, and the data value must be a serializable type or a type serializer must have been registered for it. If adding an ID as extra data, <see cref="M:GadgetCore.API.ItemExtension.PutExtraData(Item,System.String,System.Int32,GadgetCore.API.Registry)"/> should be used instead.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ItemExtension.PutExtraData(Item,System.String,System.Int32,GadgetCore.API.Registry)">
+            <summary>
+            Adds or replaces a piece of extra data on this Item. The data key should be of the format GadgetName:Key. If the provided Registry is not null, then it will be used for automatic conversion of IDs.
             </summary>
         </member>
         <member name="M:GadgetCore.API.ItemExtension.GetExtraData``1(Item,System.String)">
             <summary>
-            Gets a piece of extra data from this Item. If retrieving an ID as extra data, make sure to use GadgetNetwork.ConvertIDToLocal on it first.
+            Gets a piece of extra data from this Item. If retrieving an ID as extra data, <see cref="M:GadgetCore.API.ItemExtension.GetExtraData(Item,System.String,GadgetCore.API.Registry)"/> should be used instead.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ItemExtension.GetExtraData(Item,System.String,GadgetCore.API.Registry)">
+            <summary>
+            Gets a piece of extra data from this Item. If the provided Registry is not null, then it will be used for automatic conversion of IDs.
             </summary>
         </member>
         <member name="M:GadgetCore.API.ItemExtension.GetAllExtraData(Item)">
@@ -6740,6 +7310,11 @@
             The <see cref="T:GadgetCore.API.GadgetInfo"/>s from the mod represented by this entry.
             </summary>
         </member>
+        <member name="P:GadgetCore.ModMenuEntry.Transform">
+            <summary>
+            This ModMenuEntry's transform, if applicable.
+            </summary>
+        </member>
         <member name="T:GadgetCore.ModMenuEntryType">
             <summary>
             Represents the type of entry that a <see cref="T:GadgetCore.ModMenuEntry"/> represents.
@@ -6953,6 +7528,26 @@
         <member name="M:GadgetCore.Util.ExtensionUtils.AllIndexesOfSublist``1(System.Collections.Generic.List{``0},System.Collections.Generic.List{``0},System.Int32,GadgetCore.Util.EqualityComparison{``0}[])">
             <summary>
             Finds the indexes of all instances of the sublist within a list.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.ExtensionUtils.MinBy``2(System.Collections.Generic.IEnumerable{``0},System.Func{``0,``1})">
+            <summary>
+            Selects the value for which the selector predicate returns the lowest value.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.ExtensionUtils.MinBy``2(System.Collections.Generic.IEnumerable{``0},System.Func{``0,``1},System.Collections.Generic.IComparer{``1})">
+            <summary>
+            Selects the value for which the selector predicate returns the lowest value.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.ExtensionUtils.MaxBy``2(System.Collections.Generic.IEnumerable{``0},System.Func{``0,``1})">
+            <summary>
+            Selects the value for which the selector predicate returns the highest value.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.Util.ExtensionUtils.MaxBy``2(System.Collections.Generic.IEnumerable{``0},System.Func{``0,``1},System.Collections.Generic.IComparer{``1})">
+            <summary>
+            Selects the value for which the selector predicate returns the highest value.
             </summary>
         </member>
         <member name="M:GadgetCore.Util.ExtensionUtils.GetHighestParent(UnityEngine.GameObject)">

@@ -224,6 +224,21 @@ namespace GadgetCore.API
         }
 
         /// <summary>
+        /// Disconnects the target player from this server with a provided message.
+        /// </summary>
+        public static void DisconnectPlayerWithMessage(NetworkPlayer player, string message)
+        {
+            if (Network.isServer)
+            {
+                RPCHooks.DisconnectWithMessage(player, message);
+            }
+            else
+            {
+                throw new InvalidOperationException("Only the server may disconnect other players!");
+            }
+        }
+
+        /// <summary>
         /// Returns the player name of the given <see cref="NetworkPlayer"/>
         /// </summary>
         public static string GetNameByNetworkPlayer(NetworkPlayer player)

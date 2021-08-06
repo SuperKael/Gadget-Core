@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GadgetCore.Util;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -14,6 +15,15 @@ namespace GadgetCore.API
     public static class ItemExtension
     {
         private static Dictionary<Item, Dictionary<string, object>> extraItemData = new Dictionary<Item, Dictionary<string, object>>();
+        private static Dictionary<Type, Tuple<Func<object, string>, Func<string, object>>> typeSerializers = new Dictionary<Type, Tuple<Func<object, string>, Func<string, object>>>();
+        
+        /// <summary>
+        /// Registers a serializer/deserializer pair to use when handling a given Type.
+        /// </summary>
+        public static void RegisterTypeSerializer(Type type, Func<object, string> serializer, Func<string, object> deserializer)
+        {
+            typeSerializers[type] = Tuple.Create(serializer, deserializer);
+        }
 
         /// <summary>
         /// Returns true of the Item has any extra data at all.
@@ -28,30 +38,54 @@ namespace GadgetCore.API
         /// </summary>
         public static bool HasExtraData(this Item item, string dataKey)
         {
-            if (dataKey.IndexOf(':') == -1) throw new ArgumentException("dataKey must be of the format ModName:Key");
             return extraItemData.ContainsKey(item) && extraItemData[item].ContainsKey(dataKey);
         }
 
         /// <summary>
-        /// Adds or replaces a piece of extra data to this Item. The data key should be of the format ModName:Key, and the data value must be a serializable type. If adding an ID as extra data, make sure to use GadgetNetwork.ConvertIDToHost on it first.
+        /// Adds or replaces a piece of extra data on this Item. The data key should be of the format GadgetName:Key, and the data value must be a serializable type or a type serializer must have been registered for it. If adding an ID as extra data, <see cref="PutExtraData(Item, string, int, Registry)"/> should be used instead.
         /// </summary>
         public static void PutExtraData<T>(this Item item, string dataKey, T dataValue)
         {
-            if (dataKey.IndexOf(':') == -1) throw new ArgumentException("dataKey must be of the format ModName:Key");
-            if (!typeof(T).IsSerializable && !typeof(ISerializable).IsAssignableFrom(typeof(T))) throw new ArgumentException("dataValue must be serializable!");
+            if (dataKey.IndexOf(':') == -1) throw new ArgumentException("dataKey must be of the format GadgetName:Key");
+            Type type = typeof(T);
+            if (!typeSerializers.ContainsKey(type) && !type.IsSerializable && !typeof(ISerializable).IsAssignableFrom(type)) throw new ArgumentException("dataValue must be serializable!");
             if (!extraItemData.ContainsKey(item)) extraItemData.Add(item, new Dictionary<string, object>());
             extraItemData[item][dataKey] = dataValue;
         }
 
         /// <summary>
-        /// Gets a piece of extra data from this Item. If retrieving an ID as extra data, make sure to use GadgetNetwork.ConvertIDToLocal on it first.
+        /// Adds or replaces a piece of extra data on this Item. The data key should be of the format GadgetName:Key. If the provided Registry is not null, then it will be used for automatic conversion of IDs.
+        /// </summary>
+        public static void PutExtraData(this Item item, string dataKey, int dataValue, Registry reg)
+        {
+            if (dataKey.IndexOf(':') == -1) throw new ArgumentException("dataKey must be of the format GadgetName:Key");
+            if (!extraItemData.ContainsKey(item)) extraItemData.Add(item, new Dictionary<string, object>());
+            extraItemData[item][dataKey] = reg != null ? reg.ConvertIDToHost(dataValue) : dataValue;
+        }
+
+        /// <summary>
+        /// Gets a piece of extra data from this Item. If retrieving an ID as extra data, <see cref="GetExtraData(Item, string, Registry)"/> should be used instead.
         /// </summary>
         public static T GetExtraData<T>(this Item item, string dataKey)
         {
-            if (dataKey.IndexOf(':') == -1) throw new ArgumentException("dataKey must be of the format ModName:Key");
             if (extraItemData.ContainsKey(item) && extraItemData[item].TryGetValue(dataKey, out object value))
             {
                 return (T) value;
+            }
+            else
+            {
+                return default;
+            }
+        }
+
+        /// <summary>
+        /// Gets a piece of extra data from this Item. If the provided Registry is not null, then it will be used for automatic conversion of IDs.
+        /// </summary>
+        public static int GetExtraData(this Item item, string dataKey, Registry reg)
+        {
+            if (extraItemData.ContainsKey(item) && extraItemData[item].TryGetValue(dataKey, out object value))
+            {
+                return reg != null ? reg.ConvertIDToLocal((int)value) : (int)value;
             }
             else
             {
@@ -79,7 +113,6 @@ namespace GadgetCore.API
         /// </summary>
         public static bool RemoveExtraData(this Item item, string dataKey)
         {
-            if (dataKey.IndexOf(':') == -1) throw new ArgumentException("dataKey must be of the format ModName:Key");
             if (extraItemData.ContainsKey(item))
             {
                 Dictionary<string, object> existingDic = extraItemData[item];
@@ -116,7 +149,7 @@ namespace GadgetCore.API
             existingDic.Clear();
             foreach (KeyValuePair<string, object> entry in dic)
             {
-                if (!entry.Value.GetType().IsSerializable && !typeof(ISerializable).IsAssignableFrom(entry.Value.GetType()))
+                if (!typeSerializers.ContainsKey(entry.Value.GetType()) && !entry.Value.GetType().IsSerializable && !typeof(ISerializable).IsAssignableFrom(entry.Value.GetType()))
                 {
                     existingDic.Clear();
                     throw new ArgumentException("Dictionary contains non-serializable values!");
@@ -132,12 +165,25 @@ namespace GadgetCore.API
         {
             BinaryFormatter br = new BinaryFormatter();
             return GetAllExtraData(item)?.Select(x => {
-                using (MemoryStream ms = new MemoryStream())
+                string serializedString;
+                if (x.Value == null)
                 {
-                    br.Serialize(ms, x.Value);
-                    return x.Key + "=" + Convert.ToBase64String(ms.ToArray()).Replace("\"", "\"\"");
+                    serializedString = "Null";
                 }
-            }).Aggregate(string.Empty, (x, y) => x + "," + y) ?? string.Empty;
+                else if (typeSerializers.TryGetValue(x.Value.GetType(), out Tuple<Func<object, string>, Func<string, object>> serializerPair))
+                {
+                    serializedString = x.Value.GetType().FullName + "\",\" " + x.Value.GetType().Assembly.GetName().Name + ":" + serializerPair.Item1(x.Value);
+                }
+                else
+                {
+                    using (MemoryStream ms = new MemoryStream())
+                    {
+                        br.Serialize(ms, x.Value);
+                        serializedString = "Raw:" + Convert.ToBase64String(ms.ToArray());
+                    }
+                }
+                return x.Key + "=" + serializedString.Replace("\"", "\"\"");
+            }).Aggregate(new StringBuilder(), (x, y) => { if (x.Length > 0) x.Append(','); x.Append(y); return x; }).ToString() ?? string.Empty;
         }
 
         /// <summary>
@@ -152,7 +198,7 @@ namespace GadgetCore.API
             }
             Dictionary<string, object> extraData = new Dictionary<string, object>();
             StringBuilder builder = new StringBuilder();
-            string key = null;
+            string key = null, type = null;
             bool inQuotes = false;
             IFormatter br = new BinaryFormatter();
             for (int i = 0;i < serializedData.Length;i++)
@@ -173,13 +219,66 @@ namespace GadgetCore.API
                         builder = new StringBuilder();
                         continue;
                     }
-                    else if (serializedData[i] == ',')
+                    else if (key != null && type == null && serializedData[i] == ':')
                     {
-                        using (MemoryStream ms = new MemoryStream(Convert.FromBase64String(builder.ToString())))
+                        type = builder.ToString();
+                        builder = new StringBuilder();
+                        continue;
+                    }
+                    else if (serializedData[i] == ',' || i == serializedData.Length - 1)
+                    {
+                        if (serializedData[i] != ',') builder.Append(serializedData[i]);
+                        if (key != null)
                         {
-                            extraData[key] = br.Deserialize(ms);
+                            string value = builder.ToString();
+                            if (type == null)
+                            {
+                                if (value == "Null")
+                                {
+                                    extraData[key] = null;
+                                }
+                            }
+                            else if (type == "Raw")
+                            {
+                                try
+                                {
+                                    using (MemoryStream ms = new MemoryStream(Convert.FromBase64String(value)))
+                                    {
+                                        extraData[key] = br.Deserialize(ms);
+                                    }
+                                }
+                                catch (Exception e)
+                                {
+                                    GadgetCore.CoreLogger.LogWarning($"Deserialization error for Item '{GadgetCoreAPI.GetItemName(item.id)}'! Check GadgetCore.log for more details.");
+                                    GadgetCore.CoreLogger.LogWarning($"Error deserializing data: '{key}={type}:{value}'. Exception: {e}", false);
+                                }
+                            }
+                            else
+                            {
+                                Type t = Type.GetType(type);
+                                if (t != null && typeSerializers.TryGetValue(t, out Tuple<Func<object, string>, Func<string, object>> serializerPair))
+                                {
+                                    extraData[key] = serializerPair.Item2(value);
+                                }
+                                else
+                                {
+                                    try
+                                    {
+                                        using (MemoryStream ms = new MemoryStream(Convert.FromBase64String(value)))
+                                        {
+                                            extraData[key] = br.Deserialize(ms);
+                                        }
+                                    }
+                                    catch (Exception e)
+                                    {
+                                        GadgetCore.CoreLogger.LogWarning($"Deserialization error for Item '{GadgetCoreAPI.GetItemName(item.id)}'! Check GadgetCore.log for more details.");
+                                        GadgetCore.CoreLogger.LogWarning($"Error deserializing data: '{key}={type}:{value}'. Exception: {e}", false);
+                                    }
+                                }
+                            }
                         }
                         key = null;
+                        type = null;
                         builder = new StringBuilder();
                         continue;
                     }

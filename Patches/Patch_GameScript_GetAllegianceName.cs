@@ -12,7 +12,7 @@ namespace GadgetCore.Patches
         {
             if (AllegianceRegistry.Singleton.TryGetEntry(i, out AllegianceInfo entry))
             {
-                __result = entry.Name;
+                __result = entry.MemberName;
                 return false;
             }
             return true;

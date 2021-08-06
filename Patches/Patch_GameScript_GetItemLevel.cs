@@ -1,22 +1,26 @@
 using HarmonyLib;
 using GadgetCore.API;
+using System.Collections.Generic;
 
 namespace GadgetCore.Patches
 {
     [HarmonyPatch(typeof(GameScript))]
-    [HarmonyPatch("Die")]
-    static class Patch_GameScript_Die
+    [HarmonyPatch("GetItemLevel")]
+    static class Patch_GameScript_GetItemLevel
     {
-        internal static bool godMode;
+        private static Queue<int> spoofLevels = new Queue<int>();
+
+        public static void SpoofLevel(int level)
+        {
+            spoofLevels.Enqueue(level);
+        }
 
         [HarmonyPrefix]
-        public static bool Prefix()
+        public static bool Prefix(ref int __result)
         {
-            if (godMode)
+            if (spoofLevels.Count > 0)
             {
-                GameScript.dead = false;
-                GameScript.hp = GameScript.maxhp;
-                InstanceTracker.GameScript.UpdateHP();
+                __result = spoofLevels.Dequeue();
                 return false;
             }
             return true;

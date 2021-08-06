@@ -193,6 +193,31 @@ namespace GadgetCore
                     }
                 }
             }
+
+            MeshRenderer menuStoryRenderer = InstanceTracker.GameScript.menuStory.GetComponent<MeshRenderer>();
+            Texture2D menuStoryTex = (Texture2D) menuStoryRenderer.material.mainTexture;
+
+            RenderTexture renderTex = RenderTexture.GetTemporary(menuStoryTex.width, menuStoryTex.height, 0, RenderTextureFormat.Default, RenderTextureReadWrite.Linear);
+            Graphics.Blit(menuStoryTex, renderTex);
+            RenderTexture.active = renderTex;
+
+            Texture2D menuStoryCustomTex = new Texture2D(menuStoryTex.width, menuStoryTex.height, TextureFormat.RGBA32, false)
+            {
+                filterMode = FilterMode.Point
+            };
+            menuStoryCustomTex.ReadPixels(new Rect(0, 0, menuStoryTex.width, menuStoryTex.height), 0, 0);
+            Color32[] pixels = menuStoryCustomTex.GetPixels32();
+            for (int i = 0; i < menuStoryCustomTex.width * 136; i++)
+            {
+                pixels[i] = new Color32(0, 0, 0, 0);
+            }
+            menuStoryCustomTex.SetPixels32(pixels);
+            menuStoryCustomTex.Apply();
+
+            RenderTexture.active = null;
+            RenderTexture.ReleaseTemporary(renderTex);
+
+            menuStoryRenderer.material.mainTexture = menuStoryCustomTex;
         }
 
         private static AnimationClip BuildModMenuButtonAnimClip(bool reverse)
@@ -274,22 +299,22 @@ namespace GadgetCore
             ModMenuDescPanel.GetComponent<Image>().sprite = BoxSprite;
             ModMenuDescPanel.GetComponent<Image>().type = Image.Type.Sliced;
             ModMenuDescPanel.GetComponent<Image>().fillCenter = true;
-            Mask modMenuDescPanelMask = new GameObject("Mask", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Mask)).GetComponent<Mask>();
+            RectMask2D modMenuDescPanelMask = new GameObject("Mask", typeof(RectTransform), typeof(CanvasRenderer), typeof(RectMask2D)).GetComponent<RectMask2D>();
             modMenuDescPanelMask.GetComponent<RectTransform>().SetParent(ModMenuDescPanel.transform);
             modMenuDescPanelMask.GetComponent<RectTransform>().anchorMin = new Vector2(0f, 0f);
             modMenuDescPanelMask.GetComponent<RectTransform>().anchorMax = new Vector2(1f, 1f);
-            modMenuDescPanelMask.GetComponent<RectTransform>().offsetMin = Vector2.zero;
-            modMenuDescPanelMask.GetComponent<RectTransform>().offsetMax = Vector2.zero;
-            modMenuDescPanelMask.GetComponent<Image>().sprite = BoxMask;
-            modMenuDescPanelMask.GetComponent<Image>().type = Image.Type.Sliced;
-            modMenuDescPanelMask.GetComponent<Image>().fillCenter = true;
-            modMenuDescPanelMask.showMaskGraphic = false;
+            modMenuDescPanelMask.GetComponent<RectTransform>().offsetMin = new Vector2(5, 5);
+            modMenuDescPanelMask.GetComponent<RectTransform>().offsetMax = new Vector2(-5, -5);
+            //modMenuDescPanelMask.GetComponent<Image>().sprite = BoxMask;
+            //modMenuDescPanelMask.GetComponent<Image>().type = Image.Type.Sliced;
+            //modMenuDescPanelMask.GetComponent<Image>().fillCenter = true;
+            //modMenuDescPanelMask.showMaskGraphic = false;
             RectTransform modMenuDescViewport = new GameObject("Viewport", typeof(RectTransform)).GetComponent<RectTransform>();
             modMenuDescViewport.SetParent(modMenuDescPanelMask.transform);
             modMenuDescViewport.anchorMin = new Vector2(0f, 0f);
             modMenuDescViewport.anchorMax = new Vector2(1f, 1f);
-            modMenuDescViewport.offsetMin = new Vector2(10, 10);
-            modMenuDescViewport.offsetMax = new Vector2(-10, -10);
+            modMenuDescViewport.offsetMin = new Vector2(5, 5);
+            modMenuDescViewport.offsetMax = new Vector2(-5, -5);
             Text modMenuDescText = new GameObject("Description", typeof(RectTransform), typeof(CanvasRenderer), typeof(Text), typeof(ContentSizeFitter)).GetComponent<Text>();
             modMenuDescText.rectTransform.SetParent(modMenuDescViewport);
             modMenuDescText.rectTransform.anchorMin = new Vector2(0f, 0f);
@@ -463,22 +488,22 @@ namespace GadgetCore
             ModBrowserDescPanel.GetComponent<Image>().sprite = BoxSprite;
             ModBrowserDescPanel.GetComponent<Image>().type = Image.Type.Sliced;
             ModBrowserDescPanel.GetComponent<Image>().fillCenter = true;
-            Mask modBrowserDescPanelMask = new GameObject("Mask", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Mask)).GetComponent<Mask>();
+            RectMask2D modBrowserDescPanelMask = new GameObject("Mask", typeof(RectTransform), typeof(CanvasRenderer), typeof(RectMask2D)).GetComponent<RectMask2D>();
             modBrowserDescPanelMask.GetComponent<RectTransform>().SetParent(ModBrowserDescPanel.transform);
             modBrowserDescPanelMask.GetComponent<RectTransform>().anchorMin = new Vector2(0f, 0f);
             modBrowserDescPanelMask.GetComponent<RectTransform>().anchorMax = new Vector2(1f, 1f);
-            modBrowserDescPanelMask.GetComponent<RectTransform>().offsetMin = Vector2.zero;
-            modBrowserDescPanelMask.GetComponent<RectTransform>().offsetMax = Vector2.zero;
-            modBrowserDescPanelMask.GetComponent<Image>().sprite = BoxMask;
-            modBrowserDescPanelMask.GetComponent<Image>().type = Image.Type.Sliced;
-            modBrowserDescPanelMask.GetComponent<Image>().fillCenter = true;
-            modBrowserDescPanelMask.showMaskGraphic = false;
+            modBrowserDescPanelMask.GetComponent<RectTransform>().offsetMin = new Vector2(5, 5);
+            modBrowserDescPanelMask.GetComponent<RectTransform>().offsetMax = new Vector2(-5, -5);
+            //modBrowserDescPanelMask.GetComponent<Image>().sprite = BoxMask;
+            //modBrowserDescPanelMask.GetComponent<Image>().type = Image.Type.Sliced;
+            //modBrowserDescPanelMask.GetComponent<Image>().fillCenter = true;
+            //modBrowserDescPanelMask.showMaskGraphic = false;
             RectTransform modBrowserDescViewport = new GameObject("Viewport", typeof(RectTransform)).GetComponent<RectTransform>();
             modBrowserDescViewport.SetParent(modBrowserDescPanelMask.transform);
             modBrowserDescViewport.anchorMin = new Vector2(0f, 0f);
             modBrowserDescViewport.anchorMax = new Vector2(1f, 1f);
-            modBrowserDescViewport.offsetMin = new Vector2(10, 10);
-            modBrowserDescViewport.offsetMax = new Vector2(-10, -10);
+            modBrowserDescViewport.offsetMin = new Vector2(5, 5);
+            modBrowserDescViewport.offsetMax = new Vector2(-5, -5);
             Text modBrowserDescText = new GameObject("Description", typeof(RectTransform), typeof(CanvasRenderer), typeof(Text), typeof(ContentSizeFitter)).GetComponent<Text>();
             modBrowserDescText.rectTransform.SetParent(modBrowserDescViewport);
             modBrowserDescText.rectTransform.anchorMin = new Vector2(0f, 0f);
@@ -621,6 +646,29 @@ namespace GadgetCore
             updateGadgetCoreButtonText.fontSize = 12;
             updateGadgetCoreButtonText.text = "Update GadgetCore";
             ModBrowserPanel.UpdateGadgetCoreButton.gameObject.SetActive(false);
+
+            ModBrowserPanel.RefreshButton = new GameObject("Refresh Button", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Button)).GetComponent<Button>();
+            ModBrowserPanel.RefreshButton.GetComponent<RectTransform>().SetParent(ModMenuCanvas.transform);
+            ModBrowserPanel.RefreshButton.GetComponent<RectTransform>().anchorMin = new Vector2(0.875f, 0.80f);
+            ModBrowserPanel.RefreshButton.GetComponent<RectTransform>().anchorMax = new Vector2(0.975f, 0.95f);
+            ModBrowserPanel.RefreshButton.GetComponent<RectTransform>().offsetMin = new Vector2(0, 0);
+            ModBrowserPanel.RefreshButton.GetComponent<RectTransform>().offsetMax = new Vector2(0, 0);
+            ModBrowserPanel.RefreshButton.GetComponent<Image>().sprite = BoxSprite;
+            ModBrowserPanel.RefreshButton.GetComponent<Image>().type = Image.Type.Sliced;
+            ModBrowserPanel.RefreshButton.GetComponent<Image>().fillCenter = true;
+            ModBrowserPanel.RefreshButton.targetGraphic = ModBrowserPanel.RefreshButton.GetComponent<Image>();
+            ModBrowserPanel.RefreshButton.onClick.AddListener(ModBrowserPanel.OnRefreshButton);
+            Text refreshButtonText = new GameObject("Text", typeof(RectTransform), typeof(CanvasRenderer), typeof(Text)).GetComponent<Text>();
+            refreshButtonText.rectTransform.SetParent(ModBrowserPanel.RefreshButton.transform);
+            refreshButtonText.rectTransform.anchorMin = new Vector2(0f, 0f);
+            refreshButtonText.rectTransform.anchorMax = new Vector2(1f, 1f);
+            refreshButtonText.rectTransform.offsetMin = Vector2.zero;
+            refreshButtonText.rectTransform.offsetMax = Vector2.zero;
+            refreshButtonText.alignment = TextAnchor.MiddleCenter;
+            refreshButtonText.font = modBrowserDescText.font;
+            refreshButtonText.fontSize = 12;
+            refreshButtonText.text = "Refresh";
+            ModBrowserPanel.RefreshButton.gameObject.SetActive(false);
 
             ModBrowserPanel.UnlimitButton = new GameObject("Unlimit Button", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Button)).GetComponent<Button>();
             ModBrowserPanel.UnlimitButton.GetComponent<RectTransform>().SetParent(ModMenuCanvas.transform);
@@ -774,23 +822,23 @@ namespace GadgetCore
             chatScrollBar.targetGraphic = charScrollBarHandle.GetComponent<Image>();
             chatScrollBar.handleRect = charScrollBarHandle;
             chatScrollBar.direction = Scrollbar.Direction.BottomToTop;
-            Mask chatViewport = new GameObject("Viewport", typeof(RectTransform), typeof(Mask), typeof(CanvasRenderer), typeof(Image)).GetComponent<Mask>();
+            RectMask2D chatViewport = new GameObject("Viewport", typeof(RectTransform), typeof(RectMask2D), typeof(CanvasRenderer)).GetComponent<RectMask2D>();
             chatViewport.rectTransform.SetParent(scrollableChat.transform);
             chatViewport.rectTransform.anchorMin = new Vector2(0f, 0f);
             chatViewport.rectTransform.anchorMax = new Vector2(1f, 1f);
-            chatViewport.rectTransform.offsetMin = new Vector2(0f, 0f);
-            chatViewport.rectTransform.offsetMax = new Vector2(0f, 0f);
+            chatViewport.rectTransform.offsetMin = new Vector2(5f, 5f);
+            chatViewport.rectTransform.offsetMax = new Vector2(-5f, -5f);
             chatViewport.rectTransform.pivot = Vector2.zero;
-            chatViewport.showMaskGraphic = false;
-            chatViewport.GetComponent<Image>().sprite = BoxSprite;
-            chatViewport.GetComponent<Image>().type = Image.Type.Sliced;
-            chatViewport.GetComponent<Image>().fillCenter = true;
+            //chatViewport.showMaskGraphic = false;
+            //chatViewport.GetComponent<Image>().sprite = BoxSprite;
+            //chatViewport.GetComponent<Image>().type = Image.Type.Sliced;
+            //chatViewport.GetComponent<Image>().fillCenter = true;
             console.TextPanel = new GameObject("Content", typeof(RectTransform), typeof(VerticalLayoutGroup), typeof(ContentSizeFitter)).GetComponent<RectTransform>();
             console.TextPanel.SetParent(chatViewport.rectTransform);
             console.TextPanel.anchorMin = new Vector2(0f, 0f);
             console.TextPanel.anchorMax = new Vector2(1f, 1f);
-            console.TextPanel.offsetMin = new Vector2(0f, 0f);
-            console.TextPanel.offsetMax = new Vector2(0f, 0f);
+            console.TextPanel.offsetMin = new Vector2(5f, 5f);
+            console.TextPanel.offsetMax = new Vector2(-5f, -5f);
             console.TextPanel.pivot = Vector2.zero;
             console.TextPanel.GetComponent<VerticalLayoutGroup>().padding = new RectOffset(10, 10, 10, 10);
             console.TextPanel.GetComponent<VerticalLayoutGroup>().spacing = 10;

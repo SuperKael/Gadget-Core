@@ -65,7 +65,8 @@ namespace GadgetCore.Patches
                 ___curB = b;
                 ___curC = c;
 
-                __instance.talkingPortrait.GetComponent<Renderer>().material = (Material)Resources.Load("mat/por/portrait" + a);
+                Material portraitMat = (Material)Resources.Load("mat/por/portrait" + a);
+                if (portraitMat != null) __instance.talkingPortrait.GetComponent<Renderer>().material = portraitMat;
                 __instance.txtTalkingName[0].text = tile?.Item?.Name ?? tile?.RegistryName.Split(':')[1].Trim() ?? string.Empty;
                 __instance.txtTalkingName[1].text = __instance.txtTalkingName[0].text;
 

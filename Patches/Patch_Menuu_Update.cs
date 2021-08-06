@@ -14,6 +14,7 @@ namespace GadgetCore.Patches
     static class Patch_Menuu_Update
     {
         [HarmonyPrefix]
+        [HarmonyOverrides]
         public static bool Prefix(Menuu __instance, ref Ray ___ray, ref RaycastHit ___hit)
         {
             if (Input.GetMouseButtonDown(0) || Input.GetMouseButtonDown(1))
