@@ -31,6 +31,17 @@ namespace GadgetCore.API.Dialog
         }
 
         /// <summary>
+        /// Combines multiple conditions together, requiring none of them to be met.
+        /// </summary>
+        public static Func<int, bool> NotConditions(params Func<int, bool>[] conditions)
+        {
+            return (b) =>
+            {
+                return conditions.All(x => !x(b));
+            };
+        }
+
+        /// <summary>
         /// Checks for a particular value of the 'b' parameter to the Talk method.
         /// </summary>
         public static Func<int, bool> MatchBValue(int bValue)

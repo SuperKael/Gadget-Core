@@ -652,7 +652,7 @@ namespace GadgetCore.Loader
                     Logger.LogError("Exception Unpatching Gadget '" + gadget.Attribute.Name + "':" + Environment.NewLine + e.ToString());
                 }
             }
-            Logger.Log("Done patching Gadgets.");
+            Logger.Log("Done unpatching Gadgets.");
             Logger.Log("Sorting Gadgets...");
             Gadgets.SortGadgets();
             Logger.Log("Done sorting Gadgets.");

@@ -2166,6 +2166,11 @@
             Combines multiple conditions together, requiring any of them to be met.
             </summary>
         </member>
+        <member name="M:GadgetCore.API.Dialog.DialogConditions.NotConditions(System.Func{System.Int32,System.Boolean}[])">
+            <summary>
+            Combines multiple conditions together, requiring none of them to be met.
+            </summary>
+        </member>
         <member name="M:GadgetCore.API.Dialog.DialogConditions.MatchBValue(System.Int32)">
             <summary>
             Checks for a particular value of the 'b' parameter to the Talk method.

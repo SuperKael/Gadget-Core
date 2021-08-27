@@ -1,18 +1,10 @@
-﻿using GadgetCore.API;
-using HarmonyLib;
-using JetBrains.Annotations;
+﻿using HarmonyLib;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
-using System.Runtime.InteropServices;
 using System.Text;
-using System.Web.Compilation;
-using UnityEngine;
-using UnityEngine.Networking.Match;
 
 namespace GadgetCore.Util
 {
