@@ -1638,7 +1638,7 @@
         </member>
         <member name="P:GadgetCore.API.CustomEntityScript`1.FollowTarget">
             <summary>
-            The script that this entity is set to follow, usually assigned by <see cref="!:SetMaster(T)"/>
+            The script that this entity is set to follow, usually assigned by <see cref="M:GadgetCore.API.CustomEntityScript`1.SetMaster(`0,System.Boolean)"/>
             </summary>
         </member>
         <member name="P:GadgetCore.API.CustomEntityScript`1.IsMaster">
@@ -6922,6 +6922,11 @@
         <member name="P:GadgetCore.GadgetCoreConfig.MaxLogArchives">
             <summary>
             The maximum number of log archives to keep at any one time.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.GadgetCoreConfig.UseCopyTexture">
+            <summary>
+            Whether to use Graphics.CopyTexture to speed up texture handling. Disabling may fix graphical issues, at the cost of performance.
             </summary>
         </member>
         <member name="T:GadgetCore.IGadgetCoreLib">

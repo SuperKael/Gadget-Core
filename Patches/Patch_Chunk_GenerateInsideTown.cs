@@ -13,8 +13,8 @@ namespace GadgetCore.Patches
     [HarmonyPatch("GenerateInsideTown")]
     static class Patch_Chunk_GenerateInsideTown
     {
-        public static readonly FieldInfo networkStuffField = typeof(Chunk).GetField("networkStuff", BindingFlags.Public | BindingFlags.Instance);
-        public static readonly FieldInfo tempField = typeof(Chunk).GetField("temp", BindingFlags.Public | BindingFlags.Instance);
+        public static readonly FieldInfo networkStuffField = typeof(Chunk).GetField("networkStuff", BindingFlags.NonPublic | BindingFlags.Instance);
+        public static readonly FieldInfo tempField = typeof(Chunk).GetField("temp", BindingFlags.NonPublic | BindingFlags.Instance);
 
         [HarmonyPostfix]
         public static void Postfix(Chunk __instance, ref IEnumerator __result)

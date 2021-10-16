@@ -148,7 +148,7 @@ namespace GadgetCore.API
         {
             get
             {
-                return m_ContactDamage.HasValue ? m_ContactDamage.Value : IsMaster ? 0 : Master.ContactDamage;
+                return m_ContactDamage ?? (IsMaster ? 0 : Master.ContactDamage);
             }
 
             protected set
@@ -260,7 +260,7 @@ namespace GadgetCore.API
         private T m_Master;
 
         /// <summary>
-        /// The script that this entity is set to follow, usually assigned by <see cref="SetMaster(T)"/>
+        /// The script that this entity is set to follow, usually assigned by <see cref="SetMaster(T, bool)"/>
         /// </summary>
         public T FollowTarget { get; protected set; }
 
@@ -301,7 +301,7 @@ namespace GadgetCore.API
             }
         }
         private ReadOnlyCollection<T> m_Subordinates;
-        private List<T> SubordinatesInternal = new List<T>();
+        private readonly List<T> SubordinatesInternal = new List<T>();
 
         /// <summary>
         /// An array of two triggers that the vanilla game uses for many entities to assist in their targeting AI.
@@ -367,7 +367,9 @@ namespace GadgetCore.API
 
             TrackedPositionTransform = transform.GetHighestParent();
             Transform eTransform = transform.Find("e");
+#pragma warning disable IDE0029 // Use coalesce expression
             TrackedRotationTransform = eTransform != null ? eTransform : transform;
+#pragma warning restore IDE0029 // Use coalesce expression
             AnimatedComponent = GetComponentInChildren<Animation>();
 
             InternalInit();
@@ -1032,6 +1034,7 @@ namespace GadgetCore.API
         /// <summary>
         /// Provides a quick reference to this GameObject's rigidbody, if it exists.
         /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Unity Field")]
         public Rigidbody rigidbody
         {
             get

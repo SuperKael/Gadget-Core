@@ -106,6 +106,7 @@ namespace GadgetCore
             BuildStand = GameObject.Find("Ship").transform.Find("SHIPPLACES").Find("buildStand").gameObject;
 
             PlanetRegistry.PlanetSelectorPage = 1;
+            PlanetRegistry.selectorPlanets = PlanetRegistry.Singleton.Where(x => x.SelectorButtonMat != null).ToArray();
             int totalPages = PlanetRegistry.PlanetSelectorPages;
 
             if (totalPages > 1)
@@ -155,7 +156,6 @@ namespace GadgetCore
                     mainTexture = emptyTex
                 };
 
-                PlanetRegistry.selectorPlanets = PlanetRegistry.Singleton.Where(x => x.SelectorButtonMat != null).ToArray();
                 PlanetRegistry.planetButtonIcons = new GameObject[totalPages - 1][];
                 for (int i = 0; i < 14; i++)
                 {

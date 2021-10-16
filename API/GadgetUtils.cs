@@ -11,6 +11,8 @@ namespace GadgetCore.API
     /// </summary>
     public static class GadgetUtils
     {
+        private const UnityEngine.Rendering.CopyTextureSupport requiredCopyTexSupport = UnityEngine.Rendering.CopyTextureSupport.Basic | UnityEngine.Rendering.CopyTextureSupport.DifferentTypes;
+
         /// <summary>
         /// WaitAndInvoke is a coroutine that will wait for the specified timeout or condition, and then invoke the given method.
         /// </summary>
@@ -32,7 +34,7 @@ namespace GadgetCore.API
         /// </summary>
         public static void SafeCopyTexture(Texture2D src, int srcElement, int srcMip, int srcX, int srcY, int srcWidth, int srcHeight, Texture2D dst, int dstElement, int dstMip, int dstX, int dstY)
         {
-            if (SystemInfo.copyTextureSupport != UnityEngine.Rendering.CopyTextureSupport.None)
+            if (GadgetCoreConfig.UseCopyTexture && (SystemInfo.copyTextureSupport & requiredCopyTexSupport) == requiredCopyTexSupport)
             {
                 Graphics.CopyTexture(src, srcElement, srcMip, srcX, srcY, srcWidth, srcHeight, dst, dstElement, dstMip, dstX, dstY);
             }

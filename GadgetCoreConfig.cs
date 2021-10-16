@@ -17,7 +17,7 @@ namespace GadgetCore
         /// <summary>
         /// The current version of Gadget Core's config.
         /// </summary>
-        public static readonly string configVersion = "2.3";
+        public static readonly string configVersion = "2.4";
 
         internal static Dictionary<string, bool> enabledMods = new Dictionary<string, bool>();
         internal static Dictionary<string, bool> enabledGadgets = new Dictionary<string, bool>();
@@ -46,6 +46,10 @@ namespace GadgetCore
         /// The maximum number of log archives to keep at any one time.
         /// </summary>
         public static int MaxLogArchives { get; private set; } = 30;
+        /// <summary>
+        /// Whether to use Graphics.CopyTexture to speed up texture handling. Disabling may fix graphical issues, at the cost of performance.
+        /// </summary>
+        public static bool UseCopyTexture { get; private set; } = true;
 
         private static GadgetConfig cfg = new GadgetConfig(Path.Combine(GadgetPaths.ConfigsPath, "GadgetCore.ini"), "GadgetCore");
 
@@ -77,7 +81,8 @@ namespace GadgetCore
                 GadgetNetwork.MatrixTimeout = cfg.ReadFloat("NetworkTimeout", 2.5f, comments: "How long to wait for the host's game to respond to Gadget Core's ID synchronization. If the host's game does not respond in time, it will be assumed that the host does not have Gadget Core installed.");
                 ConsoleKey = cfg.ReadKeyCode("ConsoleKey", UnityEngine.KeyCode.BackQuote, comments: "The key to open the console.");
                 GadgetConsole.Debug = cfg.ReadBool("ConsoleDebug", false, comments: "If true, shows debug messages in the console.");
-                
+                UseCopyTexture = cfg.ReadBool("UseCopyTexture", true, comments: "If True, uses Graphics.CopyTexture to speed up texture handling. Disabling may fix graphical issues, at the cost of performance.");
+
                 cfg.Save();
 
                 GadgetCoreAPI.RegisterKeyDownListener(ConsoleKey, GadgetConsole.ShowConsole);

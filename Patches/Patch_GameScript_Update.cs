@@ -281,7 +281,7 @@ namespace GadgetCore.Patches
                                 PlanetRegistry.UpdatePlanetSelector();
                             }
                             int planetIndex = (PlanetRegistry.PlanetSelectorPage - 2) * 14 + ___slotID;
-                            if (planetIndex >= 0 && planetIndex < PlanetRegistry.selectorPlanets.Length && PlanetRegistry.selectorPlanets[planetIndex] is PlanetInfo planet)
+                            if (planetIndex >= 0 && planetIndex < (PlanetRegistry.selectorPlanets?.Length ?? 0) && PlanetRegistry.selectorPlanets[planetIndex] is PlanetInfo planet)
                             {
                                 if (planet.PortalUses > 0 || planet.PortalUses == -1)
                                 {

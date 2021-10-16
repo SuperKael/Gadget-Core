@@ -26,23 +26,23 @@ namespace GadgetCore
         /// Indicates whether the console should show debug messages.
         /// </summary>
         public static bool Debug { get; internal set; } = false;
-        private static GadgetLogger Logger = new GadgetLogger("GadgetCore", "Console");
+        private static readonly GadgetLogger Logger = new GadgetLogger("GadgetCore", "Console");
         private static Thread mainThread;
 
         /// <summary>
         /// The Console object in the scene
         /// </summary>
         public static GadgetConsole Console { get; private set; }
-        private static List<GadgetConsoleMessage> messages = new List<GadgetConsoleMessage>();
-        private static Dictionary<string, ConsoleCommand> commands = new Dictionary<string, ConsoleCommand>(StringComparer.OrdinalIgnoreCase);
-        private static Dictionary<int, List<string>> gadgetCommands = new Dictionary<int, List<string>>();
-        private static Dictionary<string, bool> isOperatorOnly = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
-        private static Dictionary<string, string> helpDescriptions = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-        private static Dictionary<string, string> fullHelps = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-        private static Dictionary<string, string> commandAliases = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-        private static List<GadgetConsoleMessage> queuedMessages = new List<GadgetConsoleMessage>();
-        private static List<string> messageHistory = new List<string>();
-        private static HashSet<string> executeBlacklist = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        private static readonly List<GadgetConsoleMessage> messages = new List<GadgetConsoleMessage>();
+        private static readonly Dictionary<string, ConsoleCommand> commands = new Dictionary<string, ConsoleCommand>(StringComparer.OrdinalIgnoreCase);
+        private static readonly Dictionary<int, List<string>> gadgetCommands = new Dictionary<int, List<string>>();
+        private static readonly Dictionary<string, bool> isOperatorOnly = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
+        private static readonly Dictionary<string, string> helpDescriptions = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        private static readonly Dictionary<string, string> fullHelps = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        private static readonly Dictionary<string, string> commandAliases = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        private static readonly List<GadgetConsoleMessage> queuedMessages = new List<GadgetConsoleMessage>();
+        private static readonly List<string> messageHistory = new List<string>();
+        private static readonly HashSet<string> executeBlacklist = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         private static int historyIndex;
 
         internal static List<string> operators = new List<string>();
@@ -64,8 +64,9 @@ namespace GadgetCore
         /// </summary>
         public RectTransform AlwaysActivePanel;
 
-        private Action TextSubmitAction, HistoryUpAction, HistoryDownAction;
+        private readonly Action TextSubmitAction, HistoryUpAction, HistoryDownAction;
 
+        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Unity Event")]
         private void Awake()
         {
             mainThread = Thread.CurrentThread;
@@ -1503,7 +1504,7 @@ namespace GadgetCore
                 }
             }
 
-            private static Dictionary<string, ThreadedWatcher<string>> watchers = new Dictionary<string, ThreadedWatcher<string>>();
+            private static readonly Dictionary<string, ThreadedWatcher<string>> watchers = new Dictionary<string, ThreadedWatcher<string>>();
             private static Reflector reflector;
             /// <summary>
             /// The /reflect command.
