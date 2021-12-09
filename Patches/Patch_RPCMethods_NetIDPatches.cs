@@ -267,9 +267,9 @@ namespace GadgetCore.Patches.NetIDPatches
             GadgetNetwork.ConvertIDToLocal(ItemRegistry.Singleton, ref ei[1]);
             GadgetNetwork.ConvertIDToLocal(ItemRegistry.Singleton, ref ei[2]);
             GadgetNetwork.ConvertIDToLocal(ItemRegistry.Singleton, ref ei[3]);
-            GadgetNetwork.ConvertIDToLocal(null /* RaceRegistry */, ref ei[4]);
-            GadgetNetwork.ConvertIDToLocal(null /* UniformRegistry */, ref ei[6]);
-            GadgetNetwork.ConvertIDToLocal(null /* AugmentRegistry */, ref ei[7]);
+            GadgetNetwork.ConvertIDToLocal(CharacterRaceRegistry.Singleton, ref ei[4]);
+            GadgetNetwork.ConvertIDToLocal(CharacterUniformRegistry.Singleton, ref ei[6]);
+            GadgetNetwork.ConvertIDToLocal(CharacterAugmentRegistry.Singleton, ref ei[7]);
             return true;
         }
     }

@@ -87,10 +87,10 @@ namespace GadgetCore.Patches
                                     GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton, arr[1]),
                                     GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton, arr[2]),
                                     GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton, arr[3]),
-                                    GadgetNetwork.ConvertIDToHost(null /* RaceRegistry */, arr[4]),
+                                    GadgetNetwork.ConvertIDToHost(CharacterRaceRegistry.Singleton, arr[4]),
                                     arr[5],
-                                    GadgetNetwork.ConvertIDToHost(null /* UniformRegistry */, arr[6]),
-                                    GadgetNetwork.ConvertIDToHost(null /* AugmentRegistry */, arr[7])
+                                    GadgetNetwork.ConvertIDToHost(CharacterUniformRegistry.Singleton, arr[6]),
+                                    GadgetNetwork.ConvertIDToHost(CharacterAugmentRegistry.Singleton, arr[7])
                                 };
                             }
                         }
