@@ -560,7 +560,7 @@ namespace GadgetCore.API
                 float distance = fromTo.magnitude;
                 if (distance > MaxFollowDistance)
                 {
-                    Vector3 oldPos = transform.position;
+                    transform.rotation = Quaternion.AngleAxis(Mathf.Atan2(fromTo.y, fromTo.x) * Mathf.Rad2Deg, Vector3.forward);
                     if (rigidbody != null)
                     {
                         rigidbody.MovePosition(FollowTarget.transform.position - fromTo * (MaxFollowDistance / distance));
@@ -569,11 +569,10 @@ namespace GadgetCore.API
                     {
                         transform.position = FollowTarget.transform.position - fromTo * (MaxFollowDistance / distance);
                     }
-                    transform.rotation = Quaternion.AngleAxis(Mathf.Atan2(transform.position.y - oldPos.y, transform.position.x - oldPos.x) * Mathf.Rad2Deg, Vector3.forward);
                 }
                 else if (distance < MinFollowDistance)
                 {
-                    Vector3 oldPos = transform.position;
+                    transform.rotation = Quaternion.AngleAxis(Mathf.Atan2(fromTo.y, fromTo.x) * Mathf.Rad2Deg, Vector3.forward);
                     if (rigidbody != null)
                     {
                         rigidbody.MovePosition(FollowTarget.transform.position - fromTo * (MinFollowDistance / distance));
@@ -582,7 +581,6 @@ namespace GadgetCore.API
                     {
                         transform.position = FollowTarget.transform.position - fromTo * (MinFollowDistance / distance);
                     }
-                    transform.rotation = Quaternion.AngleAxis(Mathf.Atan2(oldPos.y - transform.position.y, oldPos.x - transform.position.x) * Mathf.Rad2Deg, Vector3.forward);
                 }
                 yield return new WaitForFixedUpdate();
             }
