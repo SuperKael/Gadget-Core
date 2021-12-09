@@ -78,6 +78,15 @@ namespace GadgetCore.API
         }
 
         /// <summary>
+        /// Sets this feature's UnlockChecker, which is invoked when the player dies to see if they should get an unlock chest for this feature.
+        /// </summary>
+        public CharacterFeatureRegistryEntry<E> SetUnlockChecker(Func<bool> UnlockChecker)
+        {
+            this.UnlockChecker = UnlockChecker;
+            return this;
+        }
+
+        /// <summary>
         /// Returns the ID of this feature for use in GameScript.AddChest
         /// </summary>
         public int GetChestID()
@@ -153,7 +162,7 @@ namespace GadgetCore.API
         /// </summary>
         public virtual bool ShouldUnlock()
         {
-            return CanUnlock() && (UnlockChecker == null || UnlockChecker());
+            return CanUnlock() && UnlockChecker != null && UnlockChecker();
         }
 
         /// <summary>

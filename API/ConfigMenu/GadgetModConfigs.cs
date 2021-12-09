@@ -21,7 +21,7 @@ namespace GadgetCore.API.ConfigMenu
 
             if (GadgetCoreAPI.GetUMFAPI() != null)
             {
-                if (UMFConfigMenu == null)
+                if (UMFConfigMenu == null || UMFConfigMenu.Item2 == null)
                 {
                     UMFConfigMenu umfConfigMenu = new UMFConfigMenu();
                     RectTransform menuParent = new GameObject("uModFramework", typeof(RectTransform)).GetComponent<RectTransform>();

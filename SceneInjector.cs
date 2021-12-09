@@ -796,6 +796,8 @@ namespace GadgetCore
             ModBrowserPanel.DescLoadingText.font = ModConfigMenuText.GetComponent<TextMesh>().font;
             ModBrowserPanel.DescLoadingText.fontSize = 20;
             ModBrowserPanel.DescLoadingText.text = string.Empty;
+
+            ModBrowserPanel.gameObject.SetActive(false);
         }
 
         private static void BuildPersistantCanvas()

@@ -494,6 +494,11 @@
             Base constructor for character features.
             </summary>
         </member>
+        <member name="M:GadgetCore.API.CharacterFeatureRegistryEntry`1.SetUnlockChecker(System.Func{System.Boolean})">
+            <summary>
+            Sets this feature's UnlockChecker, which is invoked when the player dies to see if they should get an unlock chest for this feature.
+            </summary>
+        </member>
         <member name="M:GadgetCore.API.CharacterFeatureRegistryEntry`1.GetChestID">
             <summary>
             Returns the ID of this feature for use in GameScript.AddChest
