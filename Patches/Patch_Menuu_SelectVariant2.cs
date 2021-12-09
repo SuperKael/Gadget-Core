@@ -20,7 +20,7 @@ namespace GadgetCore.Patches
 				}
 				else
 				{
-					Menuu.curVariant = Math.Min(entry.GetFeatureUnlockLevel(), entry.GetVariantCount() - 1);
+					Menuu.curVariant = Math.Min(entry.GetFeatureUnlockLevel(), entry.GetVariantCount()) - 1;
 				}
 				__instance.txtVariant[0].text = "Variant: " + (Menuu.curVariant + 1);
 				__instance.txtVariant[1].text = __instance.txtVariant[0].text;

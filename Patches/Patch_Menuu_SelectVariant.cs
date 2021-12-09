@@ -14,7 +14,7 @@ namespace GadgetCore.Patches
         {
             if (CharacterRaceRegistry.Singleton.TryGetEntry(Menuu.curRace, out CharacterRaceInfo entry))
             {
-				if (Menuu.curVariant < Math.Min(entry.GetFeatureUnlockLevel(), entry.GetVariantCount() - 1))
+				if (Menuu.curVariant < Math.Min(entry.GetFeatureUnlockLevel(), entry.GetVariantCount()) - 1)
 				{
 					Menuu.curVariant++;
 				}
