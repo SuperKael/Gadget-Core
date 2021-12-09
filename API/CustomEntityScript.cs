@@ -560,26 +560,28 @@ namespace GadgetCore.API
                 float distance = fromTo.magnitude;
                 if (distance > MaxFollowDistance)
                 {
-                    transform.rotation = Quaternion.AngleAxis(Mathf.Atan2(fromTo.y, fromTo.x) * Mathf.Rad2Deg, Vector3.forward);
+                    Vector3 newPos = FollowTarget.transform.position - fromTo * (MaxFollowDistance / distance);
+                    transform.rotation = Quaternion.AngleAxis(Mathf.Atan2(newPos.y - transform.position.y, newPos.x - transform.position.x) * Mathf.Rad2Deg, Vector3.forward);
                     if (rigidbody != null)
                     {
-                        rigidbody.MovePosition(FollowTarget.transform.position - fromTo * (MaxFollowDistance / distance));
+                        rigidbody.MovePosition(newPos);
                     }
                     else
                     {
-                        transform.position = FollowTarget.transform.position - fromTo * (MaxFollowDistance / distance);
+                        transform.position = newPos;
                     }
                 }
                 else if (distance < MinFollowDistance)
                 {
-                    transform.rotation = Quaternion.AngleAxis(Mathf.Atan2(fromTo.y, fromTo.x) * Mathf.Rad2Deg, Vector3.forward);
+                    Vector3 newPos = FollowTarget.transform.position - fromTo * (MinFollowDistance / distance);
+                    transform.rotation = Quaternion.AngleAxis(Mathf.Atan2(newPos.y - transform.position.y, newPos.x - transform.position.x) * Mathf.Rad2Deg, Vector3.forward);
                     if (rigidbody != null)
                     {
-                        rigidbody.MovePosition(FollowTarget.transform.position - fromTo * (MinFollowDistance / distance));
+                        rigidbody.MovePosition(newPos);
                     }
                     else
                     {
-                        transform.position = FollowTarget.transform.position - fromTo * (MinFollowDistance / distance);
+                        transform.position = newPos;
                     }
                 }
                 yield return new WaitForFixedUpdate();
