@@ -11,7 +11,7 @@
     <FileAlignment>512</FileAlignment>
 	  <TargetFrameworks>net35</TargetFrameworks>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <Configurations>Release</Configurations>
+    <Configurations>Release;Debug</Configurations>
     <Authors>HaneyDev</Authors>
     <ApplicationIcon />
     <StartupObject />
@@ -30,8 +30,38 @@
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugType>none</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>Debug\</OutputPath>
+    <DefineConstants>TRACE,DEBUG</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net35|x86'">
     <DocumentationFile>Release\GadgetCore.xml</DocumentationFile>
+    <NoWarn>1701;1702;IDE0060</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net35|x86'">
+    <DocumentationFile>Debug\GadgetCore.xml</DocumentationFile>
+    <NoWarn>1701;1702;IDE0060</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugType>none</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>Debug\</OutputPath>
+    <DefineConstants>TRACE,DEBUG</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net35|x86'">
+    <DocumentationFile>Debug\GadgetCore.xml</DocumentationFile>
     <NoWarn>1701;1702;IDE0060</NoWarn>
   </PropertyGroup>
   <ItemGroup>
@@ -90,66 +120,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <None Update="Assets\GadgetCore\barsprite.png">
+	<None Update="Assets\**">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Assets\GadgetCore\boxmask.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Assets\GadgetCore\boxsprite.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Assets\GadgetCore\Core Mod\Universal Crafter\bar_tex.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Assets\GadgetCore\Core Mod\Universal Crafter\button0_tex.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Assets\GadgetCore\Core Mod\Universal Crafter\button1_tex.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Assets\GadgetCore\Core Mod\Universal Crafter\button2_tex.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Assets\GadgetCore\Core Mod\Universal Crafter\craft_au.wav">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Assets\GadgetCore\Core Mod\Universal Crafter\item_tex.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Assets\GadgetCore\Core Mod\Universal Crafter\menu_tex.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Assets\GadgetCore\Core Mod\Universal Crafter\tile_tex.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Assets\GadgetCore\left_arrow.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Assets\GadgetCore\left_arrow2.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Assets\GadgetCore\menu_tile.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Assets\GadgetCore\missing_tex.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Assets\GadgetCore\modmenu.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Assets\GadgetCore\modmenu.png.meta">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Assets\GadgetCore\right_arrow.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Assets\GadgetCore\right_arrow2.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Assets\Shared\gadgetcore.assets">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+	</None>
     <None Update="CoreLibs\0Harmony.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

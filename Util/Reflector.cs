@@ -178,8 +178,7 @@ namespace GadgetCore.Util
                     if (string.IsNullOrEmpty(returnTarget)) throw new ReflectorException("Method Invoke Failed: Return Reference Resolution Failed: Invalid Identifier");
                     MethodInfo methodInfo = method as MethodInfo;
                     if (methodInfo != null && methodInfo.ReturnType == typeof(void)) throw new ReflectorException("Method Invoke Failed: Method Returns Void");
-                    Tuple<MemberInfo, object> oRef;
-                    if (!resolvedRefs.TryGetValue(returnTarget, out oRef))
+                    if (!resolvedRefs.TryGetValue(returnTarget, out Tuple<MemberInfo, object> oRef))
                     {
                         if (returnTarget[0] == '$' && !string.IsNullOrEmpty(returnTarget = returnTarget?.TrimStart('$')))
                         {

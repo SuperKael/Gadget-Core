@@ -21,7 +21,7 @@ namespace GadgetCore.Patches
             if (chain != null)
             {
                 if (DialogActions.autoDialogForce || chain.TriggerCondition == null || chain.TriggerCondition(GameScript.allegianceQuest)) DialogChains.InitiateDialog(chain);
-                if (DialogActions.afterChoiceAction != null) DialogActions.afterChoiceAction(a + 1);
+                DialogActions.afterChoiceAction?.Invoke(a + 1);
             }
             DialogActions.autoDialogAfterChoice = null;
             DialogActions.afterChoiceAction = null;

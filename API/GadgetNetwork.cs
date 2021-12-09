@@ -69,14 +69,14 @@ namespace GadgetCore.API
         public static object ConvertIDToHost(this Registry reg, ref object ID)
         {
             if (Network.isServer) return ID;
-            int id = (int)ID;
+            if (!(ID is int id)) throw new ArgumentException("ID must be an int!", "ID");
             if (!MatrixReady) throw new InvalidOperationException("Network ID conversion cannot be performed when the ID conversion matrix is not ready!");
             if (reg == null) return ID;
             if (IDConversionMatrixToHost.ContainsKey(reg.GetRegistryName()) && IDConversionMatrixToHost[reg.GetRegistryName()].TryGetValue(id, out id))
             {
-                return id;
+                return ID = id;
             }
-            if (id >= reg.GetIDStart()) GadgetCore.CoreLogger.LogWarning($"ID Conversion to host failed: ID {ID} does not exist on the host. This has resulted in the corruption of {("aeiouAEIOU".Contains(reg.GetRegistryName()[0]) ? "an " : "a ") + reg.GetRegistryName()}!");
+            if (id >= reg.GetIDStart()) GadgetCore.CoreLogger.LogWarning($"ID Conversion to host failed: ID {id} does not exist on the host. This has resulted in the corruption of {("aeiouAEIOU".Contains(reg.GetRegistryName()[0]) ? "an " : "a ") + reg.GetRegistryName()}!");
             return ((int)ID) < reg.GetIDStart() ? ID : (ID = -1);
         }
 
@@ -118,14 +118,14 @@ namespace GadgetCore.API
         public static object ConvertIDToLocal(this Registry reg, ref object ID)
         {
             if (Network.isServer) return ID;
-            int id = (int)ID;
+            if (!(ID is int id)) throw new ArgumentException("ID must be an int!", "ID");
             if (!MatrixReady) throw new InvalidOperationException("Network ID conversion cannot be performed when the ID conversion matrix is not ready!");
             if (reg == null) return ID;
             if (IDConversionMatrixToLocal.ContainsKey(reg.GetRegistryName()) && IDConversionMatrixToLocal[reg.GetRegistryName()].TryGetValue(id, out id))
             {
-                return id;
+                return ID = id;
             }
-            if (id >= reg.GetIDStart()) GadgetCore.CoreLogger.LogWarning($"ID Conversion to local failed: ID {ID} does not exist on this client. This has resulted in the corruption of {("aeiouAEIOU".Contains(reg.GetRegistryName()[0]) ? "an " : "a ") + reg.GetRegistryName()}!");
+            if (id >= reg.GetIDStart()) GadgetCore.CoreLogger.LogWarning($"ID Conversion to local failed: ID {id} does not exist on this client. This has resulted in the corruption of {("aeiouAEIOU".Contains(reg.GetRegistryName()[0]) ? "an " : "a ") + reg.GetRegistryName()}!");
             return ((int)ID) < reg.GetIDStart() ? ID : (ID = -1);
         }
 

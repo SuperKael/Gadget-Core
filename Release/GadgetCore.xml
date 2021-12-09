@@ -133,6 +133,701 @@
             Cycles the value of <see cref="F:Menuu.curAllegiance"/>, for use during character creation.
             </summary>
         </member>
+        <member name="T:GadgetCore.API.CharacterAugmentInfo">
+            <summary>
+            Defines a custom character Augment. Make sure to call Register on it to register your Augment.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CharacterAugmentInfo.#ctor(System.String,System.String,System.String,UnityEngine.Texture,UnityEngine.Texture)">
+            <summary>
+            Use to create a new AugmentInfo. Make sure to call Register on it to register your Augment. Note that there must be at least one variant provided, as this is the default form of the augment.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CharacterAugmentInfo.#ctor(System.String,System.String,System.String,UnityEngine.Material,UnityEngine.Material)">
+            <summary>
+            Use to create a new AugmentInfo. Make sure to call Register on it to register your Augment. Note that there must be at least one variant provided, as this is the default form of the augment.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CharacterAugmentInfo.GetLockedName">
+            <summary>
+            Gets the name of this character feature as it appears when it has not yet been unlocked.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CharacterAugmentInfo.GetLockedDesc">
+            <summary>
+            Gets the description of this character feature as it appears when it has not yet been unlocked.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CharacterAugmentInfo.Register(System.Int32,System.Boolean)">
+            <summary>
+            Registers this CharacterAugmentInfo to the CharacterAugmentRegistry.
+            </summary>
+            <param name="preferredID">If specified, will use this registry ID.</param>
+            <param name="overrideExisting">If false, will not register if the preferred ID is already used. Ignored if no preferred ID is specified.</param>
+        </member>
+        <member name="M:GadgetCore.API.CharacterAugmentInfo.Register(System.String,System.Int32,System.Boolean)">
+            <summary>
+            Registers this CharacterAugmentInfo to the CharacterAugmentRegistry.
+            </summary>
+            <param name="name">The registry name to use.</param>
+            <param name="preferredID">If specified, will use this registry ID.</param>
+            <param name="overrideExisting">If false, will not register if the preferred ID is already used. Ignored if no preferred ID is specified.</param>
+        </member>
+        <member name="M:GadgetCore.API.CharacterAugmentInfo.PostRegister">
+            <summary>
+            Called after this Registry Entry has been registered to its Registry. You should never call this yourself.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CharacterAugmentInfo.GetRegistry">
+            <summary>
+            Returns the singleton of the registry used for storing this type of Registry Entry.
+            </summary>
+        </member>
+        <member name="T:GadgetCore.API.CharacterAugmentRegistry">
+            <summary>
+            This registry is filled with CharacterAugmentInfos, and is used for registering custom character augments to the game.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.CharacterAugmentRegistry.REGISTRY_NAME">
+            <summary>
+            The name of this registry.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.CharacterAugmentRegistry.REGISTRY_TYPE">
+            <summary>
+            The name of this registry.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CharacterAugmentRegistry.SelectFeature(System.Int32)">
+            <summary>
+            Called when a feature within this character feature registry is selected during character creation. Generally, you should not call this yourself.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CharacterAugmentRegistry.GetRegistryName">
+            <summary>
+            Gets the name of this registry. Must be constant. Returns <see cref="F:GadgetCore.API.CharacterAugmentRegistry.REGISTRY_NAME"/>.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CharacterAugmentRegistry.GetFeatureType">
+            <summary>
+            Gets the type of this registry. Must be constant. Returns <see cref="F:GadgetCore.API.CharacterAugmentRegistry.REGISTRY_TYPE"/>.
+            </summary>
+        </member>
+        <member name="T:GadgetCore.API.CharacterFeatureRegistry`2">
+            <summary>
+            This registry is an abstract base class for registries that add custom character features, such as races, uniforms, and augments.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.CharacterFeatureRegistry`2.MaxPage">
+            <summary>
+            Represents the highest-numbered page for this feature on the character creation screen - this is generally auto-calculated based on the IDs of the registered entries.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.CharacterFeatureRegistry`2.PageRows">
+            <summary>
+            Represents the number of rows on each page for this feature on the character creation screen. By the default implementation of <see cref="T:GadgetCore.API.CharacterFeatureRegistry`2"/>, this must be 4.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.CharacterFeatureRegistry`2.PageColumns">
+            <summary>
+            Represents the number of rows on each page for this feature on the character creation screen. By the default implementation of <see cref="T:GadgetCore.API.CharacterFeatureRegistry`2"/>, this must be 12.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.CharacterFeatureRegistry`2.PageSize">
+            <summary>
+            Represents the number of entries on each page for this feature on the character creation screen. By the default implementation of <see cref="T:GadgetCore.API.CharacterFeatureRegistry`2"/>, this must be 48.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.CharacterFeatureRegistry`2.CurrentPage">
+            <summary>
+            The current page for this feature on the character creation screen. Setting this value will update the character feature selector.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.CharacterFeatureRegistry`2.unlockedFeatures">
+            <summary>
+            Represents currently unlocked features. May be null.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CharacterFeatureRegistry`2.GetFeatureType">
+            <summary>
+            Gets the type of this registry. Must be constant.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CharacterFeatureRegistry`2.#ctor">
+            <summary>
+            Constructs a CharacterFeatureRegistry. Registers the <see cref="M:GadgetCore.API.CharacterFeatureRegistry`2.OnSceneLoaded(UnityEngine.SceneManagement.Scene,UnityEngine.SceneManagement.LoadSceneMode)"/> handler.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CharacterFeatureRegistry`2.Finalize">
+            <summary>
+            Finalizes this CharacterFeatureRegistry. Unregisters the <see cref="M:GadgetCore.API.CharacterFeatureRegistry`2.OnSceneLoaded(UnityEngine.SceneManagement.Scene,UnityEngine.SceneManagement.LoadSceneMode)"/> handler.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CharacterFeatureRegistry`2.GetSelectorID">
+            <summary>
+            Returns the ID of this feature for use in Menuu.stuffSelecting
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CharacterFeatureRegistry`2.GetPageSize">
+            <summary>
+            Gets the page size for this feature on the character creation screen.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CharacterFeatureRegistry`2.GetCurrentPage">
+            <summary>
+            Gets the current page for this feature on the character creation screen.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CharacterFeatureRegistry`2.GetMaxPage">
+            <summary>
+            Gets the highest-numbered page for this feature on the character creation screen.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CharacterFeatureRegistry`2.SetCurrentPage(System.Int32)">
+            <summary>
+            Sets the current page for this feature on the character creation screen. Calling this will update the character feature selector.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CharacterFeatureRegistry`2.OnLevelUp(System.Int32)">
+            <summary>
+            Triggers this registry's entries' OnLevelUp events. You should never call this yourself.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CharacterFeatureRegistry`2.OnSceneLoaded(UnityEngine.SceneManagement.Scene,UnityEngine.SceneManagement.LoadSceneMode)">
+            <summary>
+            Sets up the unlocked features tracking. Do not call this yourself.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CharacterFeatureRegistry`2.SelectFeature(System.Int32)">
+            <summary>
+            Called when a feature within this character feature registry is selected during character creation. Generally, you should not call this yourself.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CharacterFeatureRegistry`2.GetSelectedFeature">
+            <summary>
+            Gets the feature currently selected for this feature during character creation.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CharacterFeatureRegistry`2.GetEntryInterface(System.Int32)">
+            <summary>
+            Gets an entry as an <see cref="T:GadgetCore.API.ICharacterFeatureRegistryEntry"/>
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CharacterFeatureRegistry`2.TryGetEntryInterface(System.Int32,GadgetCore.API.ICharacterFeatureRegistryEntry@)">
+            <summary>
+            Tries to get an entry as an <see cref="T:GadgetCore.API.ICharacterFeatureRegistryEntry"/>
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CharacterFeatureRegistry`2.GetFeatureUnlockLevel(System.Int32)">
+            <summary>
+            Returns the unlock level of the specified feature.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CharacterFeatureRegistry`2.IsFeatureUnlocked(System.Int32)">
+            <summary>
+            Returns whether the character feature with the specified ID is unlocked.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CharacterFeatureRegistry`2.SetFeatureUnlocked(System.Int32,System.Int32)">
+            <summary>
+            Sets the unlock level of the specified feature. Setting it to 0 locks the feature.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CharacterFeatureRegistry`2.PostRegistration(`1)">
+            <summary>
+            Called after the specified Registry Entry has been registered. You should never call this yourself. Note that this is called before <see cref="M:GadgetCore.API.RegistryEntry`2.PostRegister"/>
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CharacterFeatureRegistry`2.GetIDStart">
+            <summary>
+            Gets the ID that modded IDs should start at for this registry. Always returns 48 for default <see cref="T:GadgetCore.API.CharacterFeatureType"/>s, and 0 for <see cref="F:GadgetCore.API.CharacterFeatureType.OTHER"/>.
+            </summary>
+        </member>
+        <member name="T:GadgetCore.API.ICharacterFeatureRegistry">
+            <summary>
+            CharacterFeatureRegistry interface without the self-referencing supertype.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ICharacterFeatureRegistry.GetSelectorID">
+            <summary>
+            Gets the SelectorID of this registry. Must be constant.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ICharacterFeatureRegistry.GetFeatureType">
+            <summary>
+            Gets the type of this registry. Must be constant.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ICharacterFeatureRegistry.GetPageSize">
+            <summary>
+            Gets the page size for this feature on the character creation screen.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ICharacterFeatureRegistry.GetCurrentPage">
+            <summary>
+            Gets the current page for this feature on the character creation screen.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ICharacterFeatureRegistry.GetMaxPage">
+            <summary>
+            Gets the highest-numbered page for this feature on the character creation screen.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ICharacterFeatureRegistry.SetCurrentPage(System.Int32)">
+            <summary>
+            Sets the current page for this feature on the character creation screen. Calling this will update the character feature selector.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ICharacterFeatureRegistry.GetFeatureUnlockLevel(System.Int32)">
+            <summary>
+            Returns the unlock level of the specified feature.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ICharacterFeatureRegistry.IsFeatureUnlocked(System.Int32)">
+            <summary>
+            Returns whether the character feature with the specified ID is unlocked.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ICharacterFeatureRegistry.SetFeatureUnlocked(System.Int32,System.Int32)">
+            <summary>
+            Sets the unlock level of the specified feature. Setting it to 0 locks the feature.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ICharacterFeatureRegistry.SelectFeature(System.Int32)">
+            <summary>
+            Called when a feature within this character feature registry is selected during character creation. Generally, you should not call this yourself.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ICharacterFeatureRegistry.GetSelectedFeature">
+            <summary>
+            Gets the feature currently selected for this feature during character creation.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ICharacterFeatureRegistry.GetEntryInterface(System.Int32)">
+            <summary>
+            Gets an entry as an <see cref="T:GadgetCore.API.ICharacterFeatureRegistryEntry"/>
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ICharacterFeatureRegistry.TryGetEntryInterface(System.Int32,GadgetCore.API.ICharacterFeatureRegistryEntry@)">
+            <summary>
+            Tries to get an entry as an <see cref="T:GadgetCore.API.ICharacterFeatureRegistryEntry"/>
+            </summary>
+        </member>
+        <member name="T:GadgetCore.API.CharacterFeatureType">
+            <summary>
+            Specifies what type of character feature this registry is for.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.CharacterFeatureType.RACE">
+            <summary>
+            This registry is for the character's Race.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.CharacterFeatureType.UNIFORM">
+            <summary>
+            This registry is for the character's Uniform.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.CharacterFeatureType.AUGMENT">
+            <summary>
+            This registry is for the character's Augment.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.CharacterFeatureType.OTHER">
+            <summary>
+            This registry is for some form of custom character feature other than the default ones.
+            </summary>
+        </member>
+        <member name="T:GadgetCore.API.CharacterFeatureRegistryEntry`1">
+            <summary>
+            This registry entry is an abstract base class for registry entries that add custom character features, such as races, uniforms, and augments.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.CharacterFeatureRegistryEntry`1.Name">
+            <summary>
+            The name of this character feature.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.CharacterFeatureRegistryEntry`1.Desc">
+            <summary>
+            The description of this character feature.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.CharacterFeatureRegistryEntry`1.UnlockCondition">
+            <summary>
+            The unlock condition for this character feature, as shown on the character creation feature selector.
+            Keep in mind that this is just text, and does not actually have anything to do with how this character feature is functionally unlocked.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.CharacterFeatureRegistryEntry`1.UnlockChecker">
+            <summary>
+            Invoked when the player dies to see if they should get an unlock chest for this feature. Only invoked if <see cref="M:GadgetCore.API.CharacterFeatureRegistryEntry`1.CanUnlock"/> returns true.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.CharacterFeatureRegistryEntry`1.Tex">
+            <summary>
+            The Texture associated with this character feature. May be null.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.CharacterFeatureRegistryEntry`1.SelectorIconTex">
+            <summary>
+            The Texture associated with this character feature's icon on the character creation feature selector.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.CharacterFeatureRegistryEntry`1.Mat">
+            <summary>
+            The Material associated with this character feature. May be null.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.CharacterFeatureRegistryEntry`1.SelectorIconMat">
+            <summary>
+            The Material associated with this character feature's icon on the character creation feature selector.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CharacterFeatureRegistryEntry`1.#ctor(System.String,System.String,System.String,UnityEngine.Texture,UnityEngine.Texture)">
+            <summary>
+            Base constructor for character features.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CharacterFeatureRegistryEntry`1.#ctor(System.String,System.String,System.String,UnityEngine.Material,UnityEngine.Material)">
+            <summary>
+            Base constructor for character features.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CharacterFeatureRegistryEntry`1.GetChestID">
+            <summary>
+            Returns the ID of this feature for use in GameScript.AddChest
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CharacterFeatureRegistryEntry`1.GetName">
+            <summary>
+            Gets the name of this character feature.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CharacterFeatureRegistryEntry`1.GetDesc">
+            <summary>
+            Gets the description of this character feature.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CharacterFeatureRegistryEntry`1.GetUnlockCondition">
+            <summary>
+            Gets the unlock condition of this character feature, as shown on the character creation feature selector.
+            Keep in mind that this is just text, and does not actually have anything to do with how this character feature is functionally unlocked.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CharacterFeatureRegistryEntry`1.GetLockedName">
+            <summary>
+            Gets the name of this character feature as it appears when it has not yet been unlocked.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CharacterFeatureRegistryEntry`1.GetLockedDesc">
+            <summary>
+            Gets the description of this character feature as it appears when it has not yet been unlocked.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CharacterFeatureRegistryEntry`1.GetLockedUnlockCondition">
+            <summary>
+            Gets the unlock condition of this character feature, as shown on the character creation feature selector, as it appears when ti has not yet been unlocked.
+            Keep in mind that this is just text, and does not actually have anything to do with how this character feature is functionally unlocked.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CharacterFeatureRegistryEntry`1.OpenChest">
+            <summary>
+            Called when the player opens an unlock chest for this feature on the death screen.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CharacterFeatureRegistryEntry`1.ShouldUnlock">
+            <summary>
+            Called when the player dies to see if they should get an unlock chest for this feature.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CharacterFeatureRegistryEntry`1.CanUnlock">
+            <summary>
+            Checks whether this feature can be unlocked - by default, returns false if it is already unlocked.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CharacterFeatureRegistryEntry`1.GetFeatureUnlockLevel">
+            <summary>
+            Returns the unlock level of the specified feature.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CharacterFeatureRegistryEntry`1.IsFeatureUnlocked">
+            <summary>
+            Returns whether the character feature with the specified ID is unlocked.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CharacterFeatureRegistryEntry`1.SetFeatureUnlocked(System.Int32)">
+            <summary>
+            Sets the unlock level of the specified feature. Setting it to 0 locks the feature.
+            </summary>
+        </member>
+        <member name="E:GadgetCore.API.CharacterFeatureRegistryEntry`1.OnLevelUp">
+            <summary>
+            This event is invoked whenever the player levels up. The passed int is the level that the player just reached.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CharacterFeatureRegistryEntry`1.InvokeOnLevelUp(System.Int32)">
+            <summary>
+            Invokes this character feature's OnLevelUp event. Generally, you should not call this yourself.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CharacterFeatureRegistryEntry`1.PostRegister">
+            <summary>
+            Called after this Registry Entry has been registered to its Registry. Be sure to call this from your subclass if you override it. Otherwise, you should never call this yourself.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CharacterFeatureRegistryEntry`1.GetEntryType">
+            <summary>
+            Returns the Registry Entry's Type enum. Used in the registration process, although it is safe to check this yourself by directly accessing the <see cref="T:System.Type"/> property.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CharacterFeatureRegistryEntry`1.GetNextIDForType(System.Int32)">
+            <summary>
+            Returns the next valid ID for this Registry Entry's Type, after the provided lastValidID. Should skip the vanilla ID range.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CharacterFeatureRegistryEntry`1.IsValidIDForType(System.Int32)">
+            <summary>
+            Returns whether the specified ID is valid for this Registry Entry's Type.
+            </summary>
+        </member>
+        <member name="T:GadgetCore.API.ICharacterFeatureRegistryEntry">
+            <summary>
+            CharacterFeatureRegistryEntry interface without the self-referencing supertype.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ICharacterFeatureRegistryEntry.GetName">
+            <summary>
+            Gets the name of this character feature.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ICharacterFeatureRegistryEntry.GetDesc">
+            <summary>
+            Gets the description of this character feature.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ICharacterFeatureRegistryEntry.GetUnlockCondition">
+            <summary>
+            Gets the unlock condition of this character feature, as shown on the character creation feature selector.
+            Keep in mind that this is just text, and does not actually have anything to do with how this character feature is functionally unlocked.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ICharacterFeatureRegistryEntry.GetLockedName">
+            <summary>
+            Gets the name of this character feature as it appears when it has not yet been unlocked.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ICharacterFeatureRegistryEntry.GetLockedDesc">
+            <summary>
+            Gets the description of this character feature as it appears when it has not yet been unlocked.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ICharacterFeatureRegistryEntry.GetLockedUnlockCondition">
+            <summary>
+            Gets the unlock condition of this character feature, as shown on the character creation feature selector, as it appears when it has not yet been unlocked.
+            Keep in mind that this is just text, and does not actually have anything to do with how this character feature is functionally unlocked.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ICharacterFeatureRegistryEntry.GetChestID">
+            <summary>
+            Returns the ID of this feature for use in GameScript.AddChest
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ICharacterFeatureRegistryEntry.OpenChest">
+            <summary>
+            Called when the player opens an unlock chest for this feature on the death screen.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ICharacterFeatureRegistryEntry.ShouldUnlock">
+            <summary>
+            Called when the player dies to see if they should get an unlock chest for this feature.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.ICharacterFeatureRegistryEntry.CanUnlock">
+            <summary>
+            Checks whether this feature can be unlocked - by default, returns false if it is already unlocked.
+            </summary>
+        </member>
+        <member name="T:GadgetCore.API.CharacterRaceInfo">
+            <summary>
+            Defines a custom character Race. Make sure to call Register on it to register your Race.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.CharacterRaceInfo.VariantTexes">
+            <summary>
+            The Textures associated with this race's variants. May be null, but never empty.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.CharacterRaceInfo.VariantMats">
+            <summary>
+            The Materials associated with this race's variants. May be null, but never empty.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.CharacterRaceInfo.RaceStats">
+            <summary>
+            The bonus base stats granted by this race. These stats are added to the player's stats every three levels.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CharacterRaceInfo.#ctor(System.String,System.String,System.String,GadgetCore.API.EquipStats,UnityEngine.Texture,UnityEngine.Texture[])">
+            <summary>
+            Use to create a new RaceInfo. Make sure to call Register on it to register your Race. Note that there must be at least one variant provided, as this is the default form of the race.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CharacterRaceInfo.#ctor(System.String,System.String,System.String,GadgetCore.API.EquipStats,UnityEngine.Material,UnityEngine.Material[])">
+            <summary>
+            Use to create a new RaceInfo. Make sure to call Register on it to register your Race. Note that there must be at least one variant provided, as this is the default form of the race.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CharacterRaceInfo.GetVariantCount">
+            <summary>
+            Returns the number of variants this race has. The default form is considered to be a variant, so by this definition all vanilla races have 3 variants.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CharacterRaceInfo.Register(System.Int32,System.Boolean)">
+            <summary>
+            Registers this CharacterRaceInfo to the CharacterRaceRegistry.
+            </summary>
+            <param name="preferredID">If specified, will use this registry ID.</param>
+            <param name="overrideExisting">If false, will not register if the preferred ID is already used. Ignored if no preferred ID is specified.</param>
+        </member>
+        <member name="M:GadgetCore.API.CharacterRaceInfo.Register(System.String,System.Int32,System.Boolean)">
+            <summary>
+            Registers this CharacterRaceInfo to the CharacterRaceRegistry.
+            </summary>
+            <param name="name">The registry name to use.</param>
+            <param name="preferredID">If specified, will use this registry ID.</param>
+            <param name="overrideExisting">If false, will not register if the preferred ID is already used. Ignored if no preferred ID is specified.</param>
+        </member>
+        <member name="M:GadgetCore.API.CharacterRaceInfo.OpenChest">
+            <summary>
+            Called when the player opens an unlock chest for this feature on the death screen.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CharacterRaceInfo.CanUnlock">
+            <summary>
+            Checks whether this feature can be unlocked - by default, returns false if it is already unlocked.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CharacterRaceInfo.PostRegister">
+            <summary>
+            Called after this Registry Entry has been registered to its Registry. You should never call this yourself.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CharacterRaceInfo.GetRegistry">
+            <summary>
+            Returns the singleton of the registry used for storing this type of Registry Entry.
+            </summary>
+        </member>
+        <member name="T:GadgetCore.API.CharacterRaceRegistry">
+            <summary>
+            This registry is filled with CharacterRaceInfos, and is used for registering custom character races to the game.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.CharacterRaceRegistry.REGISTRY_NAME">
+            <summary>
+            The name of this registry.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.CharacterRaceRegistry.REGISTRY_TYPE">
+            <summary>
+            The name of this registry.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CharacterRaceRegistry.SelectFeature(System.Int32)">
+            <summary>
+            Called when a feature within this character feature registry is selected during character creation. Generally, you should not call this yourself.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CharacterRaceRegistry.GetRegistryName">
+            <summary>
+            Gets the name of this registry. Must be constant. Returns <see cref="F:GadgetCore.API.CharacterRaceRegistry.REGISTRY_NAME"/>.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CharacterRaceRegistry.GetFeatureType">
+            <summary>
+            Gets the type of this registry. Must be constant. Returns <see cref="F:GadgetCore.API.CharacterRaceRegistry.REGISTRY_TYPE"/>.
+            </summary>
+        </member>
+        <member name="T:GadgetCore.API.CharacterUniformInfo">
+            <summary>
+            Defines a custom character Uniform. Make sure to call Register on it to register your Uniform.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CharacterUniformInfo.#ctor(System.String,System.String,System.String,UnityEngine.Texture,UnityEngine.Texture)">
+            <summary>
+            Use to create a new UniformInfo. Make sure to call Register on it to register your Uniform. Note that there must be at least one variant provided, as this is the default form of the uniform.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CharacterUniformInfo.#ctor(System.String,System.String,System.String,UnityEngine.Material,UnityEngine.Material)">
+            <summary>
+            Use to create a new UniformInfo. Make sure to call Register on it to register your Uniform. Note that there must be at least one variant provided, as this is the default form of the uniform.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CharacterUniformInfo.GetLockedName">
+            <summary>
+            Gets the name of this character feature as it appears when it has not yet been unlocked.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CharacterUniformInfo.GetLockedDesc">
+            <summary>
+            Gets the description of this character feature as it appears when it has not yet been unlocked.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CharacterUniformInfo.Register(System.Int32,System.Boolean)">
+            <summary>
+            Registers this CharacterUniformInfo to the CharacterUniformRegistry.
+            </summary>
+            <param name="preferredID">If specified, will use this registry ID.</param>
+            <param name="overrideExisting">If false, will not register if the preferred ID is already used. Ignored if no preferred ID is specified.</param>
+        </member>
+        <member name="M:GadgetCore.API.CharacterUniformInfo.Register(System.String,System.Int32,System.Boolean)">
+            <summary>
+            Registers this CharacterUniformInfo to the CharacterUniformRegistry.
+            </summary>
+            <param name="name">The registry name to use.</param>
+            <param name="preferredID">If specified, will use this registry ID.</param>
+            <param name="overrideExisting">If false, will not register if the preferred ID is already used. Ignored if no preferred ID is specified.</param>
+        </member>
+        <member name="M:GadgetCore.API.CharacterUniformInfo.PostRegister">
+            <summary>
+            Called after this Registry Entry has been registered to its Registry. You should never call this yourself.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CharacterUniformInfo.GetRegistry">
+            <summary>
+            Returns the singleton of the registry used for storing this type of Registry Entry.
+            </summary>
+        </member>
+        <member name="T:GadgetCore.API.CharacterUniformRegistry">
+            <summary>
+            This registry is filled with CharacterUniformInfos, and is used for registering custom character uniforms to the game.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.CharacterUniformRegistry.REGISTRY_NAME">
+            <summary>
+            The name of this registry.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.CharacterUniformRegistry.REGISTRY_TYPE">
+            <summary>
+            The name of this registry.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CharacterUniformRegistry.SelectFeature(System.Int32)">
+            <summary>
+            Called when a feature within this character feature registry is selected during character creation. Generally, you should not call this yourself.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CharacterUniformRegistry.GetRegistryName">
+            <summary>
+            Gets the name of this registry. Must be constant. Returns <see cref="F:GadgetCore.API.CharacterUniformRegistry.REGISTRY_NAME"/>.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.CharacterUniformRegistry.GetFeatureType">
+            <summary>
+            Gets the type of this registry. Must be constant. Returns <see cref="F:GadgetCore.API.CharacterUniformRegistry.REGISTRY_TYPE"/>.
+            </summary>
+        </member>
         <member name="T:GadgetCore.API.ChipInfo">
             <summary>
             Defines a custom Chip. Make sure to call Register on it to register your Chip.
@@ -7375,6 +8070,11 @@
             Provides utility methods used by GadgetCore's patches. You probably shouldn't use these yourself.
             </summary>
         </member>
+        <member name="E:GadgetCore.PatchMethods.OnLevelUp">
+            <summary>
+            This event is invoked whenever the player levels up. The passed int is the level that the player just reached.
+            </summary>
+        </member>
         <member name="M:GadgetCore.PatchMethods.HoverItem(Item)">
             <summary>
             Displays the item-hover window on the cursor. For some reason, the base game has six different methods that all pretty much just do this.
@@ -7388,6 +8088,16 @@
         <member name="M:GadgetCore.PatchMethods.PlanetIsTownOnly(System.Int32)">
             <summary>
             Returns whether the given planet consists entirely of town zone(s)
+            </summary>
+        </member>
+        <member name="M:GadgetCore.PatchMethods.GetCharacterFeatureRegistry(System.Int32)">
+            <summary>
+            Gets the <see cref="T:GadgetCore.API.ICharacterFeatureRegistry"/> with the given SelectorID
+            </summary>
+        </member>
+        <member name="M:GadgetCore.PatchMethods.GetCharacterFeatureRegistryEntry(System.Int32)">
+            <summary>
+            Gets the <see cref="T:GadgetCore.API.ICharacterFeatureRegistryEntry"/> with the given ChestID
             </summary>
         </member>
         <member name="T:GadgetCore.Util.ComparisonComparer`1">

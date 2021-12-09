@@ -58,7 +58,7 @@ namespace GadgetCore.API
         /// </summary>
         public virtual GameObject Object { get; protected set; }
         /// <summary>
-        /// The string usable in <see cref="Resources.Load(String)"/> to load this object.
+        /// The string usable in <see cref="Resources.Load(string)"/> to load this object.
         /// </summary>
         public virtual string ResourcePath { get; protected set; }
 

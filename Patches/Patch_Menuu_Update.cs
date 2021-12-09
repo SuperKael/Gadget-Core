@@ -15,29 +15,48 @@ namespace GadgetCore.Patches
     {
         [HarmonyPrefix]
         [HarmonyOverrides]
-        public static bool Prefix(Menuu __instance, ref Ray ___ray, ref RaycastHit ___hit)
+        public static void Prefix(Menuu __instance, ref Ray ___ray, ref RaycastHit ___hit)
         {
             if (Input.GetMouseButtonDown(0) || Input.GetMouseButtonDown(1))
             {
                 ___ray = Camera.main.ScreenPointToRay(Input.mousePosition);
                 if (Physics.Raycast(___ray, out ___hit, 10f))
                 {
-                    if (___hit.transform.gameObject.name.Equals("bModMenu"))
+                    switch (___hit.transform.gameObject.name)
                     {
-                        __instance.GetComponent<AudioSource>().PlayOneShot((AudioClip)Resources.Load("Au/confirm"), Menuu.soundLevel / 10f);
-                        __instance.StartCoroutine(ModMenu(__instance));
-                        return false;
-                    }
-                    else if (___hit.transform.gameObject.name.Equals("bQuit"))
-                    {
-                        foreach (System.Diagnostics.Process process in ModMenuController.ConfigHandles)
-                        {
-                            if (process != null && !process.HasExited) process.Kill();
-                        }
+                        case "bModMenu":
+                            __instance.GetComponent<AudioSource>().PlayOneShot((AudioClip)Resources.Load("Au/confirm"), Menuu.soundLevel / 10f);
+                            __instance.StartCoroutine(ModMenu(__instance));
+                            break;
+                        case "bQuit":
+                            foreach (System.Diagnostics.Process process in ModMenuController.ConfigHandles)
+                            {
+                                if (process != null && !process.HasExited) process.Kill();
+                            }
+                            break;
+                        case "bSelectorPageBack":
+                            __instance.GetComponent<AudioSource>().PlayOneShot((AudioClip)Resources.Load("Au/confirm"), Menuu.soundLevel / 10f);
+                            {
+                                if (PatchMethods.characterFeatureRegistries.TryGetValue(__instance.GetFieldValue<int>("stuffSelecting"), out ICharacterFeatureRegistry characterFeatureRegistry))
+                                {
+                                    int currentPage = characterFeatureRegistry.GetCurrentPage();
+                                    characterFeatureRegistry.SetCurrentPage(--currentPage);
+                                }
+                            }
+                            break;
+                        case "bSelectorPageForward":
+                            __instance.GetComponent<AudioSource>().PlayOneShot((AudioClip)Resources.Load("Au/confirm"), Menuu.soundLevel / 10f);
+                            {
+                                if (PatchMethods.characterFeatureRegistries.TryGetValue(__instance.GetFieldValue<int>("stuffSelecting"), out ICharacterFeatureRegistry characterFeatureRegistry))
+                                {
+                                    int currentPage = characterFeatureRegistry.GetCurrentPage();
+                                    characterFeatureRegistry.SetCurrentPage(++currentPage);
+                                }
+                            }
+                            break;
                     }
                 }
             }
-            return true;
         }
 
         private static IEnumerator ModMenu(Menuu instance)

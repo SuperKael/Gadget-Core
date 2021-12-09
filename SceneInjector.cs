@@ -23,6 +23,10 @@ namespace GadgetCore
         public static Action ConfirmationYesAction = null;
         public static Action ConfirmationNoAction = null;
 
+        public static GameObject[] CharacterFeatureSelectIcons { get; internal set; }
+        public static ButtonMenu CharacterFeatureSelectPageBack { get; internal set; }
+        public static ButtonMenu CharacterFeatureSelectPageForward { get; internal set; }
+
         public static GameObject ModMenuBeam { get; internal set; }
         public static GameObject ModMenuButtonHolder { get; internal set; }
         public static GameObject ModMenu { get; internal set; }
@@ -53,14 +57,16 @@ namespace GadgetCore
             GadgetCore.CoreLogger.Log("Injecting objects into Main Menu");
 
             Texture2D boxTex = GadgetCoreAPI.LoadTexture2D("boxsprite.png");
-            boxTex.filterMode = FilterMode.Point;
             Texture2D boxMaskTex = GadgetCoreAPI.LoadTexture2D("boxmask.png");
-            boxMaskTex.filterMode = FilterMode.Point;
             Texture2D barTex = GadgetCoreAPI.LoadTexture2D("barsprite.png");
-            barTex.filterMode = FilterMode.Point;
             BoxSprite = Sprite.Create(boxTex, new Rect(0, 0, boxTex.width, boxTex.height), new Vector2(0.5f, 0.5f), 100, 1, SpriteMeshType.Tight, new Vector4(15, 15, 15, 15));
             BoxMask = Sprite.Create(boxMaskTex, new Rect(0, 0, boxMaskTex.width, boxMaskTex.height), new Vector2(0.5f, 0.5f), 100, 1, SpriteMeshType.Tight, new Vector4(15, 15, 15, 15));
             BarSprite = Sprite.Create(barTex, new Rect(0, 0, barTex.width, barTex.height), new Vector2(0.5f, 0.5f), 100, 1, SpriteMeshType.Tight, new Vector4(1, 1, 1, 1));
+
+            LeftArrow.mainTexture = GadgetCoreAPI.LoadTexture2D("left_arrow.png");
+            RightArrow.mainTexture = GadgetCoreAPI.LoadTexture2D("right_arrow.png");
+            LeftArrow2.mainTexture = GadgetCoreAPI.LoadTexture2D("left_arrow2.png");
+            RightArrow2.mainTexture = GadgetCoreAPI.LoadTexture2D("right_arrow2.png");
 
             GameObject mainMenu = InstanceTracker.Menuu.menuMain;
             Array.ForEach(mainMenu.GetComponentsInChildren<Animation>(), x => x.enabled = true);
@@ -80,6 +86,66 @@ namespace GadgetCore
             InstanceTracker.Menuu.StartCoroutine(AnimateModMenuButton(InstanceTracker.Menuu));
             BuildModMenu();
             if (PersistantCanvas == null) BuildPersistantCanvas();
+
+            GameObject[] box = InstanceTracker.Menuu.box;
+            CharacterFeatureSelectIcons = new GameObject[box.Length];
+            for (int i = 0; i < box.Length; i++)
+            {
+                if (box[i] == null && i >= 12 && box[i - 12] != null)
+                {
+                    box[i] = UnityEngine.Object.Instantiate(box[i - 12]);
+                    box[i].name = i.ToString();
+                    box[i].transform.SetParent(box[i - 12].transform.parent);
+                    box[i].transform.localPosition = box[i - 12].transform.localPosition + new Vector3(0, -2, 0);
+                }
+                CharacterFeatureSelectIcons[i] = UnityEngine.Object.Instantiate(box[i]);
+                CharacterFeatureSelectIcons[i].SetActive(false);
+                CharacterFeatureSelectIcons[i].name = "Icon";
+                CharacterFeatureSelectIcons[i].transform.SetParent(box[i].transform);
+                CharacterFeatureSelectIcons[i].transform.localScale = new Vector3(0.5f, 0.5f, 1);
+                CharacterFeatureSelectIcons[i].transform.localPosition = new Vector3(0, 0, -0.025f);
+                Renderer renderer = CharacterFeatureSelectIcons[i].GetComponent<Renderer>();
+                renderer.enabled = true;
+                renderer.material = null;
+                GameObject backgroundObject = UnityEngine.Object.Instantiate(CharacterFeatureSelectIcons[i]);
+                UnityEngine.Object.DestroyImmediate(backgroundObject.GetComponent<BoxCollider>());
+                backgroundObject.name = "Background";
+                backgroundObject.transform.SetParent(CharacterFeatureSelectIcons[i].transform);
+                backgroundObject.SetActive(true);
+                backgroundObject.transform.localScale = Vector3.one;
+                backgroundObject.transform.localRotation = Quaternion.identity;
+                backgroundObject.transform.localPosition = new Vector3(0, 0, -0.025f);
+            }
+
+            CharacterFeatureSelectPageBack = UnityEngine.Object.Instantiate(box[0]).AddComponent<AudioSource>().gameObject.AddComponent<ButtonMenu>();
+            List<GameObject> children = new List<GameObject>();
+            foreach (Transform child in CharacterFeatureSelectPageBack.transform) children.Add(child.gameObject);
+            foreach (GameObject child in children) UnityEngine.Object.DestroyImmediate(child);
+            CharacterFeatureSelectPageBack.name = "bSelectorPageBack";
+            CharacterFeatureSelectPageBack.transform.SetParent(box[0].transform.parent);
+            CharacterFeatureSelectPageBack.transform.localScale = new Vector3(10, 10, 0);
+            CharacterFeatureSelectPageBack.transform.localPosition = new Vector3(-13f, 5.075f, -5f);
+            CharacterFeatureSelectPageBack.gameObject.layer = 0;
+            CharacterFeatureSelectPageBack.GetComponent<BoxCollider>().size = new Vector3(0.15f, 0.15f, 1);
+            CharacterFeatureSelectPageBack.GetComponent<MeshRenderer>().enabled = true;
+            CharacterFeatureSelectPageBack.GetComponent<MeshRenderer>().material = LeftArrow;
+            CharacterFeatureSelectPageBack.minorButton = true;
+            CharacterFeatureSelectPageBack.button = LeftArrow;
+            CharacterFeatureSelectPageBack.buttonSelect = LeftArrow2;
+            CharacterFeatureSelectPageForward = UnityEngine.Object.Instantiate(CharacterFeatureSelectPageBack.gameObject).GetComponent<ButtonMenu>();
+            CharacterFeatureSelectPageForward.name = "bSelectorPageForward";
+            CharacterFeatureSelectPageForward.transform.SetParent(box[0].transform.parent);
+            CharacterFeatureSelectPageForward.transform.localScale = new Vector3(10, 10, 0);
+            CharacterFeatureSelectPageForward.transform.localPosition = new Vector3(13f, 5.075f, -5f);
+            CharacterFeatureSelectPageForward.gameObject.layer = 0;
+            CharacterFeatureSelectPageForward.GetComponent<BoxCollider>().size = new Vector3(0.15f, 0.15f, 1);
+            CharacterFeatureSelectPageForward.GetComponent<MeshRenderer>().enabled = true;
+            CharacterFeatureSelectPageForward.GetComponent<MeshRenderer>().material = RightArrow;
+            CharacterFeatureSelectPageForward.minorButton = true;
+            CharacterFeatureSelectPageForward.button = RightArrow;
+            CharacterFeatureSelectPageForward.buttonSelect = RightArrow2;
+            CharacterFeatureSelectPageBack.gameObject.SetActive(false);
+            CharacterFeatureSelectPageForward.gameObject.SetActive(false);
         }
 
         private static IEnumerator AnimateModMenuButton(Menuu instance)
@@ -111,11 +177,6 @@ namespace GadgetCore
 
             if (totalPages > 1)
             {
-                LeftArrow.mainTexture = GadgetCoreAPI.LoadTexture2D("left_arrow.png");
-                RightArrow.mainTexture = GadgetCoreAPI.LoadTexture2D("right_arrow.png");
-                LeftArrow2.mainTexture = GadgetCoreAPI.LoadTexture2D("left_arrow2.png");
-                RightArrow2.mainTexture = GadgetCoreAPI.LoadTexture2D("right_arrow2.png");
-
                 Transform bPlanetPageBack = UnityEngine.Object.Instantiate(InstanceTracker.GameScript.menuPlanets.transform.Find("bChallenge")).GetComponent<Transform>();
                 List<GameObject> children = new List<GameObject>();
                 foreach (Transform child in bPlanetPageBack) children.Add(child.gameObject);
@@ -218,6 +279,10 @@ namespace GadgetCore
             RenderTexture.ReleaseTemporary(renderTex);
 
             menuStoryRenderer.material.mainTexture = menuStoryCustomTex;
+
+            GameObject unlockIconScaler = new GameObject("Icon Scaler");
+            unlockIconScaler.transform.SetParent(InstanceTracker.GameScript.unlockedIcon.transform.parent, false);
+            InstanceTracker.GameScript.unlockedIcon.transform.SetParent(unlockIconScaler.transform, true);
         }
 
         private static AnimationClip BuildModMenuButtonAnimClip(bool reverse)

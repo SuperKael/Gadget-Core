@@ -280,9 +280,9 @@ namespace GadgetCore
                 GadgetLoader.LoadAllMods();
                 DontDestroyOnLoad(new GameObject("GadgetCore", typeof(GadgetCore)));
                 CoreLogger.LogConsole("GadgetCore v" + GadgetCoreAPI.FULL_VERSION + " Initialized!");
-#pragma warning disable CS0162 // Unreachable code detected
-                if (GadgetCoreAPI.IS_BETA) CoreLogger.LogWarning("You are currently running a beta version of GadgetCore! Be prepared for bugs!");
-#pragma warning restore CS0162 // Unreachable code detected
+#if DEBUG
+                CoreLogger.LogWarning("You are currently running a beta version of GadgetCore! Be prepared for bugs!");
+#endif
             }
             catch (Exception e)
             {
@@ -490,11 +490,40 @@ namespace GadgetCore
             GameRegistry.RegisterRegistry(ObjectRegistry.Singleton);
             GameRegistry.RegisterRegistry(PlanetRegistry.Singleton);
             GameRegistry.RegisterRegistry(AllegianceRegistry.Singleton);
+            GameRegistry.RegisterRegistry(AllegianceRegistry.Singleton);
+            GameRegistry.RegisterRegistry(CharacterRaceRegistry.Singleton);
+            GameRegistry.RegisterRegistry(CharacterAugmentRegistry.Singleton);
+            GameRegistry.RegisterRegistry(CharacterUniformRegistry.Singleton);
 
             GadgetCoreAPI.MissingTexSprite = GadgetCoreAPI.AddTextureToSheet(GadgetCoreAPI.LoadTexture2D("missing_tex"));
 
             GameObject expCustom = Instantiate(Resources.Load<GameObject>("exp/exp7"));
             GadgetCoreAPI.AddCustomResource("exp/expCustom", expCustom);
+
+            GadgetCoreAPI.AddCustomResource("mat/mRaceBack", new Material(Shader.Find("Unlit/Transparent"))
+            {
+                mainTexture = GadgetCoreAPI.LoadTexture2D("blank_race_select.png")
+            });
+            GadgetCoreAPI.AddCustomResource("mat/mRaceSlot", new Material(Shader.Find("Unlit/Transparent"))
+            {
+                mainTexture = GadgetCoreAPI.LoadTexture2D("blank_race_slot.png")
+            });
+            GadgetCoreAPI.AddCustomResource("mat/mUniformBack", new Material(Shader.Find("Unlit/Transparent"))
+            {
+                mainTexture = GadgetCoreAPI.LoadTexture2D("blank_uniform_select.png")
+            });
+            GadgetCoreAPI.AddCustomResource("mat/mUniformSlot", new Material(Shader.Find("Unlit/Transparent"))
+            {
+                mainTexture = GadgetCoreAPI.LoadTexture2D("blank_uniform_slot.png")
+            });
+            GadgetCoreAPI.AddCustomResource("mat/mAugmentBack", new Material(Shader.Find("Unlit/Transparent"))
+            {
+                mainTexture = GadgetCoreAPI.LoadTexture2D("blank_augment_select.png")
+            });
+            GadgetCoreAPI.AddCustomResource("mat/mAugmentSlot", new Material(Shader.Find("Unlit/Transparent"))
+            {
+                mainTexture = GadgetCoreAPI.LoadTexture2D("blank_augment_slot.png")
+            });
 
             Registry.registeringVanilla = false;
         }

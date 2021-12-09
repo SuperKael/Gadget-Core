@@ -1,4 +1,6 @@
 ﻿using GadgetCore.API;
+using System;
+using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
 
@@ -10,6 +12,16 @@ namespace GadgetCore
     /// </summary>
     public static class PatchMethods
     {
+        internal static Dictionary<int, ICharacterFeatureRegistry> characterFeatureRegistries = new Dictionary<int, ICharacterFeatureRegistry>();
+        internal static Dictionary<int, ICharacterFeatureRegistryEntry> characterFeatureRegistryEntries = new Dictionary<int, ICharacterFeatureRegistryEntry>();
+
+        /// <summary>
+        /// This event is invoked whenever the player levels up. The passed int is the level that the player just reached.
+        /// </summary>
+        public static event Action<int> OnLevelUp;
+
+        internal static void InvokeOnLevelUp(int level) { OnLevelUp?.Invoke(level); }
+
         /// <summary>
         /// Displays the item-hover window on the cursor. For some reason, the base game has six different methods that all pretty much just do this.
         /// </summary>
@@ -224,6 +236,22 @@ namespace GadgetCore
         public static bool PlanetIsTownOnly(int planetID)
         {
             return PlanetRegistry.Singleton[planetID] is PlanetInfo planet ? planet.Type == PlanetType.TOWNS || planet.Type == PlanetType.SINGLE : (planetID == 8 || planetID == 11);
+        }
+
+        /// <summary>
+        /// Gets the <see cref="ICharacterFeatureRegistry"/> with the given SelectorID
+        /// </summary>
+        public static ICharacterFeatureRegistry GetCharacterFeatureRegistry(int ID)
+        {
+            return characterFeatureRegistries.TryGetValue(ID, out ICharacterFeatureRegistry reg) ? reg : null;
+        }
+
+        /// <summary>
+        /// Gets the <see cref="ICharacterFeatureRegistryEntry"/> with the given ChestID
+        /// </summary>
+        public static ICharacterFeatureRegistryEntry GetCharacterFeatureRegistryEntry(int ID)
+        {
+            return characterFeatureRegistryEntries.TryGetValue(ID, out ICharacterFeatureRegistryEntry entry) ? entry : null;
         }
     }
 }

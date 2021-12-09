@@ -35,7 +35,7 @@ namespace GadgetCore.Patches
                         }
                         else if (args.Length == 1)
                         {
-                            if (args[0] is int[] && (args[0] as int[]).Length == 2)
+                            if (args[0] is int[] arr && arr.Length == 2)
                             {
                                 if (!GadgetNetwork.MatrixReady && GadgetNetwork.GetTimeSinceConnect() < GadgetNetwork.MatrixTimeout)
                                 {
@@ -45,46 +45,58 @@ namespace GadgetCore.Patches
                                 ItemStandScript itemStandScript = __instance.GetComponent<ItemStandScript>();
                                 if (itemStandScript == null || !itemStandScript.isChipStand)
                                 {
-                                    GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton, ref (args[0] as int[])[0]);
+                                    args[0] = new int[]
+                                    {
+                                        GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton, arr[0]),
+                                        arr[1],
+                                    };
                                 }
                                 else
                                 {
-                                    GadgetNetwork.ConvertIDToHost(ChipRegistry.Singleton, ref (args[0] as int[])[0]);
+                                    args[0] = new int[]
+                                    {
+                                        GadgetNetwork.ConvertIDToHost(ChipRegistry.Singleton, arr[0]),
+                                        arr[1],
+                                    };
                                 }
                             }
-                            else if (args[0] is Package2)
+                            else if (args[0] is Package2 pack2)
                             {
                                 if (!GadgetNetwork.MatrixReady && GadgetNetwork.GetTimeSinceConnect() < GadgetNetwork.MatrixTimeout)
                                 {
                                     InstanceTracker.GameScript.StartCoroutine(GadgetUtils.WaitAndInvoke(RPCMethod, GadgetNetwork.MatrixTimeout - GadgetNetwork.GetTimeSinceConnect(), () => GadgetNetwork.MatrixReady, __instance, name, mode, args));
                                     return true;
                                 }
-                                GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton /* ProjectileRegistry */, ref (args[0] as Package2).id);
+                                GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton /* ProjectileRegistry */, ref pack2.id);
                             }
                         }
                         break;
                     case "UA":
                         if (args.Length == 3)
                         {
-                            if (args[0] is int[] && (args[0] as int[]).Length == 8)
+                            if (args[0] is int[] arr && arr.Length == 8)
                             {
                                 if (!GadgetNetwork.MatrixReady && GadgetNetwork.GetTimeSinceConnect() < GadgetNetwork.MatrixTimeout)
                                 {
                                     InstanceTracker.GameScript.StartCoroutine(GadgetUtils.WaitAndInvoke(RPCMethod, GadgetNetwork.MatrixTimeout - GadgetNetwork.GetTimeSinceConnect(), () => GadgetNetwork.MatrixReady, __instance, name, mode, args));
                                     return true;
                                 }
-                                GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton, ref (args[0] as int[])[0]);
-                                GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton, ref (args[0] as int[])[1]);
-                                GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton, ref (args[0] as int[])[2]);
-                                GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton, ref (args[0] as int[])[3]);
-                                GadgetNetwork.ConvertIDToHost(null /* RaceRegistry */, ref (args[0] as int[])[4]);
-                                GadgetNetwork.ConvertIDToHost(null /* UniformRegistry */, ref (args[0] as int[])[6]);
-                                GadgetNetwork.ConvertIDToHost(null /* AugmentRegistry */, ref (args[0] as int[])[7]);
+                                args[0] = new int[]
+                                {
+                                    GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton, arr[0]),
+                                    GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton, arr[1]),
+                                    GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton, arr[2]),
+                                    GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton, arr[3]),
+                                    GadgetNetwork.ConvertIDToHost(null /* RaceRegistry */, arr[4]),
+                                    arr[5],
+                                    GadgetNetwork.ConvertIDToHost(null /* UniformRegistry */, arr[6]),
+                                    GadgetNetwork.ConvertIDToHost(null /* AugmentRegistry */, arr[7])
+                                };
                             }
                         }
                         else if (args.Length == 1)
                         {
-                            if (args[0] is int[] && (args[0] as int[]).Length == 3)
+                            if (args[0] is int[] arr && arr.Length == 3)
                             {
                                 if (!GadgetNetwork.MatrixReady && GadgetNetwork.GetTimeSinceConnect() < GadgetNetwork.MatrixTimeout)
                                 {
@@ -92,9 +104,12 @@ namespace GadgetCore.Patches
                                     args[0] = new int[] { 1000, 1000, 1000 }; // Fix to bug with host droids in multiplayer
                                     return true;
                                 }
-                                GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton, ref (args[0] as int[])[0]);
-                                GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton, ref (args[0] as int[])[1]);
-                                GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton, ref (args[0] as int[])[2]);
+                                args[0] = new int[]
+                                {
+                                    GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton, arr[0]),
+                                    GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton, arr[1]),
+                                    GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton, arr[2])
+                                };
                             }
                         }
                         break;
@@ -115,32 +130,35 @@ namespace GadgetCore.Patches
                     case "CreateWorld":
                         if (args.Length == 1)
                         {
-                            if (args[0] is int[] && (args[0] as int[]).Length > 1)
+                            if (args[0] is int[] arr && arr.Length > 1)
                             {
                                 if (!GadgetNetwork.MatrixReady && GadgetNetwork.GetTimeSinceConnect() < GadgetNetwork.MatrixTimeout)
                                 {
                                     InstanceTracker.GameScript.StartCoroutine(GadgetUtils.WaitAndInvoke(RPCMethod, GadgetNetwork.MatrixTimeout - GadgetNetwork.GetTimeSinceConnect(), () => GadgetNetwork.MatrixReady, __instance, name, mode, args));
                                     return true;
                                 }
-                                GadgetNetwork.ConvertIDToHost(PlanetRegistry.Singleton, ref (args[0] as int[])[0]);
-                                for (int i = 1; i < (args[0] as int[]).Length; i++)
-                                {
-                                    GadgetNetwork.ConvertIDToHost(TileRegistry.Singleton, ref (args[0] as int[])[i]);
-                                }
+                                int[] newArr = new int[arr.Length];
+                                Array.Copy(arr, newArr, arr.Length);
+                                GadgetNetwork.ConvertIDToHost(PlanetRegistry.Singleton, ref newArr[0]);
+                                args[0] = newArr;
                             }
                         }
                         break;
                     case "CreateTown":
                         if (args.Length == 1)
                         {
-                            if (args[0] is int[] && (args[0] as int[]).Length == 2)
+                            if (args[0] is int[] arr && arr.Length == 2)
                             {
                                 if (!GadgetNetwork.MatrixReady && GadgetNetwork.GetTimeSinceConnect() < GadgetNetwork.MatrixTimeout)
                                 {
                                     InstanceTracker.GameScript.StartCoroutine(GadgetUtils.WaitAndInvoke(RPCMethod, GadgetNetwork.MatrixTimeout - GadgetNetwork.GetTimeSinceConnect(), () => GadgetNetwork.MatrixReady, __instance, name, mode, args));
                                     return true;
                                 }
-                                GadgetNetwork.ConvertIDToHost(PlanetRegistry.Singleton, ref (args[0] as int[])[0]);
+                                args[0] = new int[]
+                                {
+                                    GadgetNetwork.ConvertIDToHost(PlanetRegistry.Singleton, arr[0]),
+                                    arr[1],
+                                };
                             }
                         }
                         break;
@@ -245,17 +263,20 @@ namespace GadgetCore.Patches
                     case "Init":
                         if (args.Length == 1)
                         {
-                            if (args[0] is int[] && (args[0] as int[]).Length >= 11)
+                            if (args[0] is int[] arr && arr.Length >= 11)
                             {
                                 if (!GadgetNetwork.MatrixReady && GadgetNetwork.GetTimeSinceConnect() < GadgetNetwork.MatrixTimeout)
                                 {
                                     InstanceTracker.GameScript.StartCoroutine(GadgetUtils.WaitAndInvoke(RPCMethod, GadgetNetwork.MatrixTimeout - GadgetNetwork.GetTimeSinceConnect(), () => GadgetNetwork.MatrixReady, __instance, name, mode, args));
                                     return true;
                                 }
-                                GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton, ref (args[0] as int[])[0]);
-                                GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton, ref (args[0] as int[])[5]);
-                                GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton, ref (args[0] as int[])[6]);
-                                GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton, ref (args[0] as int[])[7]);
+                                int[] newArr = new int[arr.Length];
+                                Array.Copy(arr, newArr, arr.Length);
+                                GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton, ref newArr[0]);
+                                GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton, ref newArr[5]);
+                                GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton, ref newArr[6]);
+                                GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton, ref newArr[7]);
+                                args[0] = newArr;
                             }
                         }
                         break;
@@ -276,17 +297,20 @@ namespace GadgetCore.Patches
                     case "SpawnItem":
                         if (args.Length == 2)
                         {
-                            if (args[0] is int[] && (args[0] as int[]).Length >= 11)
+                            if (args[0] is int[] arr && arr.Length >= 11)
                             {
                                 if (!GadgetNetwork.MatrixReady && GadgetNetwork.GetTimeSinceConnect() < GadgetNetwork.MatrixTimeout)
                                 {
                                     InstanceTracker.GameScript.StartCoroutine(GadgetUtils.WaitAndInvoke(RPCMethod, GadgetNetwork.MatrixTimeout - GadgetNetwork.GetTimeSinceConnect(), () => GadgetNetwork.MatrixReady, __instance, name, mode, args));
                                     return true;
                                 }
-                                GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton, ref (args[0] as int[])[0]);
-                                GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton, ref (args[0] as int[])[5]);
-                                GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton, ref (args[0] as int[])[6]);
-                                GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton, ref (args[0] as int[])[7]);
+                                int[] newArr = new int[arr.Length];
+                                Array.Copy(arr, newArr, arr.Length);
+                                GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton, ref newArr[0]);
+                                GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton, ref newArr[5]);
+                                GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton, ref newArr[6]);
+                                GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton, ref newArr[7]);
+                                args[0] = newArr;
                             }
                         }
                         break;
@@ -323,15 +347,17 @@ namespace GadgetCore.Patches
                         {
                             if (args[0] is int[] arr)
                             {
-                                for (int i = 0;i < arr.Length;i++)
+                                if (!GadgetNetwork.MatrixReady && GadgetNetwork.GetTimeSinceConnect() < GadgetNetwork.MatrixTimeout)
                                 {
-                                    if (!GadgetNetwork.MatrixReady && GadgetNetwork.GetTimeSinceConnect() < GadgetNetwork.MatrixTimeout)
-                                    {
-                                        InstanceTracker.GameScript.StartCoroutine(GadgetUtils.WaitAndInvoke(RPCMethod, GadgetNetwork.MatrixTimeout - GadgetNetwork.GetTimeSinceConnect(), () => GadgetNetwork.MatrixReady, __instance, name, mode, args));
-                                        return true;
-                                    }
-                                    GadgetNetwork.ConvertIDToHost(TileRegistry.Singleton, ref arr[i]);
+                                    InstanceTracker.GameScript.StartCoroutine(GadgetUtils.WaitAndInvoke(RPCMethod, GadgetNetwork.MatrixTimeout - GadgetNetwork.GetTimeSinceConnect(), () => GadgetNetwork.MatrixReady, __instance, name, mode, args));
+                                    return true;
                                 }
+                                int[] newArr = new int[arr.Length];
+                                for (int i = 0; i < arr.Length; i++)
+                                {
+                                    newArr[i] = GadgetNetwork.ConvertIDToHost(TileRegistry.Singleton, arr[i]);
+                                }
+                                args[0] = newArr;
                             }
                         }
                         break;
@@ -345,14 +371,18 @@ namespace GadgetCore.Patches
                                     InstanceTracker.GameScript.StartCoroutine(GadgetUtils.WaitAndInvoke(RPCMethod, GadgetNetwork.MatrixTimeout - GadgetNetwork.GetTimeSinceConnect(), () => GadgetNetwork.MatrixReady, __instance, name, mode, args));
                                     return true;
                                 }
+                                int[] newArr1 = new int[arr1.Length];
                                 for (int i = 0; i < arr1.Length; i++)
                                 {
-                                    GadgetNetwork.ConvertIDToHost(TileRegistry.Singleton, ref arr1[i]);
+                                    newArr1[i] = GadgetNetwork.ConvertIDToHost(TileRegistry.Singleton, arr1[i]);
                                 }
+                                args[0] = newArr1;
+                                int[] newArr2 = new int[arr2.Length];
                                 for (int i = 0; i < arr2.Length; i++)
                                 {
-                                    GadgetNetwork.ConvertIDToHost(TileRegistry.Singleton, ref arr2[i]);
+                                    newArr2[i] = GadgetNetwork.ConvertIDToHost(TileRegistry.Singleton, arr2[i]);
                                 }
+                                args[1] = newArr2;
                             }
                         }
                         break;

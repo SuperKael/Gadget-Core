@@ -22,15 +22,19 @@ namespace GadgetCore.API
         /// <summary>
         /// The version numbers for this version of Gadget Core. You generally shouldn't access this directly, instead use <see cref="GetRawVersion()"/>
         /// </summary>
-        public const string RAW_VERSION = "2.0.5.2";
+        public const string RAW_VERSION = "2.0.6.0";
         /// <summary>
         /// A slightly more informative version. You generally shouldn't access this directly, instead use <see cref="GetFullVersion()"/>
         /// </summary>
-        public const string FULL_VERSION = "2.0.5.2 - Content Overhaul Edition";
+        public const string FULL_VERSION = "2.0.6.0 - Extended Character Edition";
         /// <summary>
         /// Indicates whether this version of GadgetCore is a beta version. You generally shouldn't access this directly, instead use <see cref="GetIsBeta()"/>
         /// </summary>
+#if DEBUG
+        public const bool IS_BETA = true;
+#else
         public const bool IS_BETA = false;
+#endif
 
         internal static readonly int[] currentVersionNums = RAW_VERSION.Split('.').Select(x => int.Parse(x)).ToArray();
 
@@ -960,7 +964,7 @@ namespace GadgetCore.API
         /// </summary>
         public static Item[] GetInventory()
         {
-            return inventory != null ? inventory : (inventory = InventoryGetter(InstanceTracker.GameScript));
+            return inventory ?? (inventory = InventoryGetter(InstanceTracker.GameScript));
         }
 
         /// <summary>
@@ -968,7 +972,7 @@ namespace GadgetCore.API
         /// </summary>
         public static int[] GetPortalUses()
         {
-            return portalUses != null ? portalUses : (portalUses = PortalUsesGetter(InstanceTracker.GameScript));
+            return portalUses ?? (portalUses = PortalUsesGetter(InstanceTracker.GameScript));
         }
 
         /// <summary>
