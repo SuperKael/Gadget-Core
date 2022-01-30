@@ -68,7 +68,12 @@ namespace GadgetCore.API
         {
             DataPath = Application.dataPath;
 
-            GamePath = Path.GetDirectoryName(DataPath);
+            GamePath = DataPath;
+            do
+            {
+                GamePath = Path.GetDirectoryName(GamePath);
+            }
+            while (GamePath.Contains(".app"));
             ManagedPath = Path.Combine(DataPath, "Managed");
 
             GadgetCorePath = Path.Combine(GamePath, "GadgetCore");

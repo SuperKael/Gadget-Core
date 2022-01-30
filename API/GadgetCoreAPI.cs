@@ -22,11 +22,11 @@ namespace GadgetCore.API
         /// <summary>
         /// The version numbers for this version of Gadget Core. You generally shouldn't access this directly, instead use <see cref="GetRawVersion()"/>
         /// </summary>
-        public const string RAW_VERSION = "2.0.6.2";
+        public const string RAW_VERSION = "2.0.6.3";
         /// <summary>
         /// A slightly more informative version. You generally shouldn't access this directly, instead use <see cref="GetFullVersion()"/>
         /// </summary>
-        public const string FULL_VERSION = "2.0.6.2 - Extended Character Edition";
+        public const string FULL_VERSION = "2.0.6.3 - Extended Character Edition";
         /// <summary>
         /// Indicates whether this version of GadgetCore is a beta version. You generally shouldn't access this directly, instead use <see cref="GetIsBeta()"/>
         /// </summary>

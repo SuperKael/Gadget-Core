@@ -2293,27 +2293,27 @@
         </member>
         <member name="P:GadgetCore.API.CustomEntityScript`1.FrostEffect">
             <summary>
-            How much poison effect this entity inflicts with its contact damage. Note that this is specific to this script - it is not inherited from the master script, if applicable.
+            How much frost effect this entity inflicts with its contact damage. Note that this is specific to this script - it is not inherited from the master script, if applicable.
             </summary>
         </member>
         <member name="P:GadgetCore.API.CustomEntityScript`1.BurnEffect">
             <summary>
-            How much poison effect this entity inflicts with its contact damage. Note that this is specific to this script - it is not inherited from the master script, if applicable.
+            How much burn effect this entity inflicts with its contact damage. Note that this is specific to this script - it is not inherited from the master script, if applicable.
             </summary>
         </member>
         <member name="P:GadgetCore.API.CustomEntityScript`1.ConfuseEffect">
             <summary>
-            How much poison effect this entity inflicts with its contact damage. Note that this is specific to this script - it is not inherited from the master script, if applicable.
+            How much confuse effect this entity inflicts with its contact damage. Note that this is specific to this script - it is not inherited from the master script, if applicable.
             </summary>
         </member>
         <member name="P:GadgetCore.API.CustomEntityScript`1.SilenceEffect">
             <summary>
-            How much poison effect this entity inflicts with its contact damage. Note that this is specific to this script - it is not inherited from the master script, if applicable.
+            How much silence effect this entity inflicts with its contact damage. Note that this is specific to this script - it is not inherited from the master script, if applicable.
             </summary>
         </member>
         <member name="P:GadgetCore.API.CustomEntityScript`1.PetrifyEffect">
             <summary>
-            How much poison effect this entity inflicts with its contact damage. Note that this is specific to this script - it is not inherited from the master script, if applicable.
+            How much petrify effect this entity inflicts with its contact damage. Note that this is specific to this script - it is not inherited from the master script, if applicable.
             </summary>
         </member>
         <member name="P:GadgetCore.API.CustomEntityScript`1.KnockbackImmune">
@@ -2645,27 +2645,27 @@
         </member>
         <member name="P:GadgetCore.API.CustomEntityScript.FrostEffect">
             <summary>
-            How much poison effect this entity inflicts with its contact damage. Note that this is specific to this script - it is not inherited from the master script, if applicable.
+            How much frost effect this entity inflicts with its contact damage. Note that this is specific to this script - it is not inherited from the master script, if applicable.
             </summary>
         </member>
         <member name="P:GadgetCore.API.CustomEntityScript.BurnEffect">
             <summary>
-            How much poison effect this entity inflicts with its contact damage. Note that this is specific to this script - it is not inherited from the master script, if applicable.
+            How much burn effect this entity inflicts with its contact damage. Note that this is specific to this script - it is not inherited from the master script, if applicable.
             </summary>
         </member>
         <member name="P:GadgetCore.API.CustomEntityScript.ConfuseEffect">
             <summary>
-            How much poison effect this entity inflicts with its contact damage. Note that this is specific to this script - it is not inherited from the master script, if applicable.
+            How much confuse effect this entity inflicts with its contact damage. Note that this is specific to this script - it is not inherited from the master script, if applicable.
             </summary>
         </member>
         <member name="P:GadgetCore.API.CustomEntityScript.SilenceEffect">
             <summary>
-            How much poison effect this entity inflicts with its contact damage. Note that this is specific to this script - it is not inherited from the master script, if applicable.
+            How much silence effect this entity inflicts with its contact damage. Note that this is specific to this script - it is not inherited from the master script, if applicable.
             </summary>
         </member>
         <member name="P:GadgetCore.API.CustomEntityScript.PetrifyEffect">
             <summary>
-            How much poison effect this entity inflicts with its contact damage. Note that this is specific to this script - it is not inherited from the master script, if applicable.
+            How much petrify effect this entity inflicts with its contact damage. Note that this is specific to this script - it is not inherited from the master script, if applicable.
             </summary>
         </member>
         <member name="P:GadgetCore.API.CustomEntityScript.KnockbackImmune">

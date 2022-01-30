@@ -161,32 +161,32 @@ namespace GadgetCore.API
         /// <summary>
         /// How much poison effect this entity inflicts with its contact damage. Note that this is specific to this script - it is not inherited from the master script, if applicable.
         /// </summary>
-        public override int PoisonEffect { get { return m_PoisonEffect + GameScript.challengeLevel * 5; } protected set { m_PoisonEffect = value; } }
+        public override int PoisonEffect { get { return m_PoisonEffect > 0 ? m_PoisonEffect + GameScript.challengeLevel * 5 : 0; } protected set { m_PoisonEffect = value; } }
         private int m_PoisonEffect;
         /// <summary>
-        /// How much poison effect this entity inflicts with its contact damage. Note that this is specific to this script - it is not inherited from the master script, if applicable.
+        /// How much frost effect this entity inflicts with its contact damage. Note that this is specific to this script - it is not inherited from the master script, if applicable.
         /// </summary>
-        public override int FrostEffect { get { return m_FrostEffect + GameScript.challengeLevel * 5; } protected set { m_FrostEffect = value; } }
+        public override int FrostEffect { get { return m_FrostEffect > 0 ? m_FrostEffect + GameScript.challengeLevel * 5 : 0; } protected set { m_FrostEffect = value; } }
         private int m_FrostEffect;
         /// <summary>
-        /// How much poison effect this entity inflicts with its contact damage. Note that this is specific to this script - it is not inherited from the master script, if applicable.
+        /// How much burn effect this entity inflicts with its contact damage. Note that this is specific to this script - it is not inherited from the master script, if applicable.
         /// </summary>
-        public override int BurnEffect { get { return m_BurnEffect + GameScript.challengeLevel * 5; } protected set { m_BurnEffect = value; } }
+        public override int BurnEffect { get { return m_BurnEffect > 0 ? m_BurnEffect + GameScript.challengeLevel * 5 : 0; } protected set { m_BurnEffect = value; } }
         private int m_BurnEffect;
         /// <summary>
-        /// How much poison effect this entity inflicts with its contact damage. Note that this is specific to this script - it is not inherited from the master script, if applicable.
+        /// How much confuse effect this entity inflicts with its contact damage. Note that this is specific to this script - it is not inherited from the master script, if applicable.
         /// </summary>
-        public override int ConfuseEffect { get { return m_ConfuseEffect + GameScript.challengeLevel * 5; } protected set { m_ConfuseEffect = value; } }
+        public override int ConfuseEffect { get { return m_ConfuseEffect > 0 ? m_ConfuseEffect + GameScript.challengeLevel * 5 : 0; } protected set { m_ConfuseEffect = value; } }
         private int m_ConfuseEffect;
         /// <summary>
-        /// How much poison effect this entity inflicts with its contact damage. Note that this is specific to this script - it is not inherited from the master script, if applicable.
+        /// How much silence effect this entity inflicts with its contact damage. Note that this is specific to this script - it is not inherited from the master script, if applicable.
         /// </summary>
-        public override int SilenceEffect { get { return m_SilenceEffect + GameScript.challengeLevel * 5; } protected set { m_SilenceEffect = value; } }
+        public override int SilenceEffect { get { return m_SilenceEffect > 0 ? m_SilenceEffect + GameScript.challengeLevel * 5 : 0; } protected set { m_SilenceEffect = value; } }
         private int m_SilenceEffect;
         /// <summary>
-        /// How much poison effect this entity inflicts with its contact damage. Note that this is specific to this script - it is not inherited from the master script, if applicable.
+        /// How much petrify effect this entity inflicts with its contact damage. Note that this is specific to this script - it is not inherited from the master script, if applicable.
         /// </summary>
-        public override int PetrifyEffect { get { return m_PetrifyEffect + GameScript.challengeLevel * 5; } protected set { m_PetrifyEffect = value; } }
+        public override int PetrifyEffect { get { return m_PetrifyEffect > 0 ? m_PetrifyEffect + GameScript.challengeLevel * 5 : 0; } protected set { m_PetrifyEffect = value; } }
         private int m_PetrifyEffect;
 
         /// <summary>
@@ -1090,23 +1090,23 @@ namespace GadgetCore.API
         /// </summary>
         public abstract int PoisonEffect { get; protected set; }
         /// <summary>
-        /// How much poison effect this entity inflicts with its contact damage. Note that this is specific to this script - it is not inherited from the master script, if applicable.
+        /// How much frost effect this entity inflicts with its contact damage. Note that this is specific to this script - it is not inherited from the master script, if applicable.
         /// </summary>
         public abstract int FrostEffect { get; protected set; }
         /// <summary>
-        /// How much poison effect this entity inflicts with its contact damage. Note that this is specific to this script - it is not inherited from the master script, if applicable.
+        /// How much burn effect this entity inflicts with its contact damage. Note that this is specific to this script - it is not inherited from the master script, if applicable.
         /// </summary>
         public abstract int BurnEffect { get; protected set; }
         /// <summary>
-        /// How much poison effect this entity inflicts with its contact damage. Note that this is specific to this script - it is not inherited from the master script, if applicable.
+        /// How much confuse effect this entity inflicts with its contact damage. Note that this is specific to this script - it is not inherited from the master script, if applicable.
         /// </summary>
         public abstract int ConfuseEffect { get; protected set; }
         /// <summary>
-        /// How much poison effect this entity inflicts with its contact damage. Note that this is specific to this script - it is not inherited from the master script, if applicable.
+        /// How much silence effect this entity inflicts with its contact damage. Note that this is specific to this script - it is not inherited from the master script, if applicable.
         /// </summary>
         public abstract int SilenceEffect { get; protected set; }
         /// <summary>
-        /// How much poison effect this entity inflicts with its contact damage. Note that this is specific to this script - it is not inherited from the master script, if applicable.
+        /// How much petrify effect this entity inflicts with its contact damage. Note that this is specific to this script - it is not inherited from the master script, if applicable.
         /// </summary>
         public abstract int PetrifyEffect { get; protected set; }
 

@@ -120,6 +120,7 @@ namespace GadgetCore
         {
             if (Initialized) return;
             Initialized = true;
+            Debug.Log("GadgetCore v" + GadgetCoreAPI.FULL_VERSION);
             bool earlyConfigLoaded = false;
             try
             {
@@ -139,7 +140,6 @@ namespace GadgetCore
             {
                 CoreLogger = new GadgetLogger("GadgetCore", "Core");
                 CoreLogger.Log("GadgetCore v" + GadgetCoreAPI.FULL_VERSION + " Initializing!");
-                Debug.Log("GadgetCore v" + GadgetCoreAPI.FULL_VERSION);
             }
             catch (Exception e)
             {
@@ -202,8 +202,8 @@ namespace GadgetCore
                     Thread.CurrentThread.IsBackground = true;
                     string logPath = Application.dataPath + "\\output_log.txt";
                     if (!File.Exists(logPath)) logPath = Application.persistentDataPath + "\\output_log.txt";
-                    if (!File.Exists(logPath)) logPath = "~/Library/Logs/Unity/Player.log";
-                    if (!File.Exists(logPath)) logPath = "~/.config/unity3d/DefaultCompany/Roguelands/Player.log";
+                    if (!File.Exists(logPath)) logPath = Path.Combine(Environment.GetEnvironmentVariable("HOME"), "Library/Logs/Unity/Player.log");
+                    if (!File.Exists(logPath)) logPath = Path.Combine(Environment.GetEnvironmentVariable("HOME"), ".config/unity3d/DefaultCompany/Roguelands/Player.log");
                     if (!File.Exists(logPath))
                     {
                         CoreLogger.LogWarning("Unable to find Unity log file!");
