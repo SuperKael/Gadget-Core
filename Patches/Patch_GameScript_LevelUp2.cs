@@ -15,6 +15,8 @@ namespace GadgetCore.Patches
         public static FieldInfo This = IteratorType.GetField("$this", BindingFlags.NonPublic | BindingFlags.Instance);
         public static FieldInfo PC = IteratorType.GetField("$PC", BindingFlags.NonPublic | BindingFlags.Instance);
 
+        private static int[] oldStats;
+
         [HarmonyTargetMethod]
         public static MethodBase TargetMethod()
         {
@@ -22,25 +24,25 @@ namespace GadgetCore.Patches
         }
 
         [HarmonyPrefix]
-        public static void Prefix(IEnumerator __instance, ref int[] __state)
+        public static void Prefix(IEnumerator __instance)
         {
             if (PC.GetValue(__instance) as int? == 0)
             {
-                __state = GameScript.playerBaseStat.ToArray();
+                oldStats = GameScript.playerBaseStat.ToArray();
             }
         }
 
         [HarmonyPostfix]
-        public static void Postfix(IEnumerator __instance, bool __result, ref int[] __state)
+        public static void Postfix(IEnumerator __instance, bool __result)
         {
             if (!__result)
             {
                 PatchMethods.InvokeOnLevelUp(GameScript.playerLevel);
                 GameScript thisInstance = This.GetValue(__instance) as GameScript;
-                for (int i = 0; i < __state.Length; i++)
+                for (int i = 0; i < oldStats.Length; i++)
                 {
-                    thisInstance.statUptxt[i].text = thisInstance.GetStatN(i) + "+" + (GameScript.playerBaseStat[i] - __state[i]);
-                    thisInstance.statUptxt[i + __state.Length].text = thisInstance.statUptxt[i].text;
+                    thisInstance.statUptxt[i].text = thisInstance.GetStatN(i) + "+" + (GameScript.playerBaseStat[i] - oldStats[i]);
+                    thisInstance.statUptxt[i + oldStats.Length].text = thisInstance.statUptxt[i].text;
                     thisInstance.statUp[i].SendMessage("Play");
                 }
                 thisInstance.UpdateHP();

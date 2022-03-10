@@ -490,7 +490,6 @@ namespace GadgetCore
             GameRegistry.RegisterRegistry(ObjectRegistry.Singleton);
             GameRegistry.RegisterRegistry(PlanetRegistry.Singleton);
             GameRegistry.RegisterRegistry(AllegianceRegistry.Singleton);
-            GameRegistry.RegisterRegistry(AllegianceRegistry.Singleton);
             GameRegistry.RegisterRegistry(CharacterRaceRegistry.Singleton);
             GameRegistry.RegisterRegistry(CharacterAugmentRegistry.Singleton);
             GameRegistry.RegisterRegistry(CharacterUniformRegistry.Singleton);
