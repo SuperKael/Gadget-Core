@@ -22,11 +22,11 @@ namespace GadgetCore.API
         /// <summary>
         /// The version numbers for this version of Gadget Core. You generally shouldn't access this directly, instead use <see cref="GetRawVersion()"/>
         /// </summary>
-        public const string RAW_VERSION = "2.0.6.4";
+        public const string RAW_VERSION = "2.0.6.5";
         /// <summary>
         /// A slightly more informative version. You generally shouldn't access this directly, instead use <see cref="GetFullVersion()"/>
         /// </summary>
-        public const string FULL_VERSION = "2.0.6.4 - Extended Character Edition";
+        public const string FULL_VERSION = "2.0.6.5 - Extended Character Edition";
         /// <summary>
         /// Indicates whether this version of GadgetCore is a beta version. You generally shouldn't access this directly, instead use <see cref="GetIsBeta()"/>
         /// </summary>
@@ -1696,36 +1696,60 @@ namespace GadgetCore.API
         internal static AudioClip LoadAudioClipInternal(string file, GadgetMod mod)
         {
             if (file.IndexOf('.') == -1) file += ".wav";
+            GadgetCore.CoreLogger.Log("Before: " + file);
+            file = file.Replace('/', Path.DirectorySeparatorChar);
+            GadgetCore.CoreLogger.Log("After: " + file);
             string modName = mod?.Name ?? "GadgetCore";
             if (cachedAudioClips.ContainsKey(modName + ":" + file))
             {
-                return cachedAudioClips[modName + ":" + file];
+                AudioClip cachedClip = cachedAudioClips[modName + ":" + file];
+                GadgetCore.CoreLogger.Log("loadState: " + cachedClip.loadState);
+                GadgetCore.CoreLogger.Log("length: " + cachedClip.length);
+                if (cachedClip.loadState == AudioDataLoadState.Loaded || cachedClip.loadState == AudioDataLoadState.Loading)
+                {
+                    return cachedClip;
+                }
             }
             string filePath = Path.Combine("Assets", file);
             if (mod?.HasModFile(filePath) ?? false)
             {
                 GadgetModFile modFile = mod.GetModFile(filePath);
-                using (WWW www = new WWW("file:///" + modFile.FilePath))
+                GadgetCore.CoreLogger.Log("Mod File Path: " + modFile.FilePath);
+                GadgetCore.CoreLogger.Log("File Size (Bytes): " + new FileInfo(modFile.FilePath).Length);
+                using (WWW www = new WWW("file:///" + modFile.FilePath.Replace(Path.DirectorySeparatorChar, '/')))
                 {
                     AudioClip clip = null;
                     Stopwatch s = new Stopwatch();
                     s.Start();
                     try
                     {
-                        for (int i = 0; !www.isDone && s.ElapsedMilliseconds < 1000; i++) Thread.Sleep(5);
-                        clip = www.GetAudioClip(true, true);
-                        cachedAudioClips.Add(modName + ":" + file, clip);
-                        return clip;
-                    }
-                    finally
-                    {
-                        s.Stop();
-                        if (clip != null)
+                        for (int i = 0; !www.isDone && s.ElapsedMilliseconds < 5000; i++) Thread.Sleep(5);
+                        if (www.isDone)
                         {
-                            modFile.DisposeOnCondition(() => clip?.loadState != AudioDataLoadState.Loading);
+                            clip = www.GetAudioClip(true, true);
+                            cachedAudioClips.Add(modName + ":" + file, clip);
+                            return clip;
                         }
                         else
                         {
+                            GadgetCore.CoreLogger.LogWarning("Loading audio file " + modName + ":" + file + " took too long!");
+                            return null;
+                        }
+                    }
+                    finally
+                    {
+                        if (clip != null)
+                        {
+                            s.Stop();
+                            /*modFile.DisposeOnCondition(() => {
+                                bool loaded = clip.loadState == AudioDataLoadState.Failed || clip.loadState == AudioDataLoadState.Loaded && clip.length > 0 || s.ElapsedMilliseconds >= 10000;
+                                if (loaded) s.Stop();
+                                return loaded;
+                            });*/
+                        }
+                        else
+                        {
+                            s.Stop();
                             modFile.Dispose();
                         }
                     }

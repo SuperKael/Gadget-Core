@@ -60,7 +60,7 @@ namespace GadgetCore.API
         {
             if (dataKey.IndexOf(':') == -1) throw new ArgumentException("dataKey must be of the format GadgetName:Key");
             if (!extraItemData.ContainsKey(item)) extraItemData.Add(item, new Dictionary<string, object>());
-            extraItemData[item][dataKey] = reg != null ? reg.ConvertIDToHost(dataValue) : dataValue;
+            extraItemData[item][dataKey] = GadgetNetwork.MatrixReady && reg != null ? reg.ConvertIDToHost(dataValue) : dataValue;
         }
 
         /// <summary>
@@ -85,7 +85,7 @@ namespace GadgetCore.API
         {
             if (extraItemData.ContainsKey(item) && extraItemData[item].TryGetValue(dataKey, out object value))
             {
-                return reg != null ? reg.ConvertIDToLocal((int)value) : (int)value;
+                return GadgetNetwork.MatrixReady && reg != null ? reg.ConvertIDToLocal((int)value) : (int)value;
             }
             else
             {

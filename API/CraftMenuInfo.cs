@@ -538,6 +538,7 @@ namespace GadgetCore.API
                 InstanceTracker.GameScript.bRecipe.SetActive(AllowQuickCrafting());
                 InstanceTracker.GameScript.menuCraft.SetActive(true);
                 InstanceTracker.GameScript.inventoryMain.SetActive(true);
+                InstanceTracker.GameScript.CraftCheck();
                 GameScript.inventoryOpen = true;
             }
             yield return new WaitForSeconds(0.5f);

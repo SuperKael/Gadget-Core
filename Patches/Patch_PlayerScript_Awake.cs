@@ -1,6 +1,7 @@
 using HarmonyLib;
 using GadgetCore.API;
 using UnityEngine;
+using GadgetCore.Loader;
 
 namespace GadgetCore.Patches
 {
@@ -15,6 +16,8 @@ namespace GadgetCore.Patches
             {
                 InstanceTracker.PlayerScript = __instance;
                 InstanceTracker.SpawnerScript = Camera.main.gameObject.GetComponent<SpawnerScript>();
+
+                __instance.GetComponentInChildren<AudioSource>().PlayOneShot(GadgetCoreAPI.LoadAudioClipInternal("Sounds/particleacc.wav", GadgetMods.GetModByName("Tiers+")), 1);
             }
         }
     }
