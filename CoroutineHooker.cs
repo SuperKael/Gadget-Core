@@ -14,6 +14,7 @@ namespace GadgetCore
     public class CoroutineHooker : MonoBehaviour
     {
         private static CoroutineHooker Singleton;
+        private static List<Action> syncActions = new List<Action>();
 
         static CoroutineHooker()
         {
@@ -28,6 +29,19 @@ namespace GadgetCore
             {
                 GadgetCore.CoreLogger.LogWarning("CoroutineHooker should only be applied to its singleton object!");
                 Destroy(this);
+            }
+        }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Unity Message")]
+        private void Update()
+        {
+            lock (syncActions)
+            {
+                foreach (Action action in syncActions)
+                {
+                    action();
+                }
+                syncActions.Clear();
             }
         }
 
@@ -77,6 +91,17 @@ namespace GadgetCore
         public static new void StopCoroutine(Coroutine routine)
         {
             ((MonoBehaviour)Singleton).StopCoroutine(routine);
+        }
+
+        /// <summary>
+        /// Schedules an action to be run synchronously on the main thread at the next available time.
+        /// </summary>
+        public static void ScheduleSyncAction(Action syncAction)
+        {
+            lock(syncActions)
+            {
+                syncActions.Add(syncAction);
+            }
         }
     }
 }

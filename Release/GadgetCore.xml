@@ -1870,7 +1870,7 @@
             The Material to be used to display the selected craft button.
             </summary>
         </member>
-        <member name="F:GadgetCore.API.CraftMenuInfo.CraftSound">
+        <member name="P:GadgetCore.API.CraftMenuInfo.CraftSound">
             <summary>
             The sound effect that plays every time the craft button is pressed.
             </summary>
@@ -2004,6 +2004,104 @@
             <param name="Tile">An optional parameter that specifies what Interactive tile should open the menu when interacted with.</param>
         </member>
         <member name="M:GadgetCore.API.CraftMenuInfo.#ctor(System.String,System.String,UnityEngine.Material,UnityEngine.Material,UnityEngine.Material,UnityEngine.Material,UnityEngine.Material,UnityEngine.AudioClip,GadgetCore.Util.Tuple{GadgetCore.API.CraftMenuInfo.SlotValidator,GadgetCore.API.CraftMenuInfo.CraftValidator,GadgetCore.API.CraftMenuInfo.CraftPerformer,GadgetCore.API.CraftMenuInfo.CraftFinalizer},GadgetCore.API.TileInfo)">
+            <summary>
+            Use to register a custom crafting menu. Using RegisterMenu is unnecessary for crafting menus. Note that all crafting menus must have, at most, 3 ingredient slots. Use OpenCraftMenu to open the menu.
+            </summary>
+            <param name="Title">The text to display as the title of the crafting window.</param>
+            <param name="Desc">The text to display as the description of the crafting window.</param>
+            <param name="MenuMat">The Material to use for the crafting window.</param>
+            <param name="ProgressBarMat">The Material to use for the crafting progress bar.</param>
+            <param name="ButtonInactiveMat">The Material to be used to display the inactive craft button.</param>
+            <param name="ButtonActiveMat">The Material to be used to display the active craft button.</param>
+            <param name="ButtonSelectMat">The Material to be used to display the selected craft button.</param>
+            <param name="CraftSound">The sound effect that plays every time the craft button is pressed.</param>
+            <param name="PerformerTuple">A <see cref="T:GadgetCore.Util.Tuple`4"/> containing the SlotValidator, CraftValidator, CraftPerformer, and CraftFinalizer.</param>
+            <param name="Tile">An optional parameter that specifies what Interactive tile should open the menu when interacted with.</param>
+        </member>
+        <member name="M:GadgetCore.API.CraftMenuInfo.#ctor(System.String,System.String,UnityEngine.Texture,UnityEngine.Texture,UnityEngine.Texture,UnityEngine.Texture,UnityEngine.Texture,System.Threading.Tasks.Task{UnityEngine.AudioClip},GadgetCore.API.CraftMenuInfo.SlotValidator,GadgetCore.API.CraftMenuInfo.CraftValidator,GadgetCore.API.CraftMenuInfo.CraftPerformer,GadgetCore.API.CraftMenuInfo.CraftFinalizer,GadgetCore.API.TileInfo)">
+            <summary>
+            Use to register a custom crafting menu. Using RegisterMenu is unnecessary for crafting menus. Note that all crafting menus must have, at most, 3 ingredient slots. Use OpenCraftMenu to open the menu.
+            </summary>
+            <param name="Title">The text to display as the title of the crafting window.</param>
+            <param name="Desc">The text to display as the description of the crafting window.</param>
+            <param name="MenuTex">The Texture to use for the crafting window.</param>
+            <param name="ProgressBarTex">The Texture to use for the crafting progress bar.</param>
+            <param name="ButtonInactiveTex">The Texture to be used to display the inactive craft button.</param>
+            <param name="ButtonActiveTex">The Texture to be used to display the active craft button.</param>
+            <param name="ButtonSelectTex">The Texture to be used to display the selected craft button.</param>
+            <param name="CraftSound">The sound effect that plays every time the craft button is pressed.</param>
+            <param name="SlotValidator">Used to check if an item is valid for a slot.</param>
+            <param name="CraftValidator">Used to check if the items currently in the slots are valid for a recipe. The Item array is of length 4, where the first three Items are the inputs, and the fourth Item is the output.</param>
+            <param name="CraftPerformer">Used to perform a crafting operation by modifying the contents of the Item array. The Item array is of length 4, where the first three Items are the inputs, and the fourth Item is the output. Should decrement the inputs, and set the output, possibly respecting whatever is already in the output.</param>
+            <param name="CraftFinalizer">Optionally used to perform any final behavior after the craft is complete. The Item array is of length 4, where the first three Items are the inputs, and the fourth Item is the output.</param>
+            <param name="Tile">An optional parameter that specifies what Interactive tile should open the menu when interacted with.</param>
+        </member>
+        <member name="M:GadgetCore.API.CraftMenuInfo.#ctor(System.String,System.String,UnityEngine.Texture,UnityEngine.Texture,UnityEngine.Texture,UnityEngine.Texture,UnityEngine.Texture,System.Threading.Tasks.Task{UnityEngine.AudioClip},GadgetCore.Util.Tuple{GadgetCore.API.CraftMenuInfo.SlotValidator,GadgetCore.API.CraftMenuInfo.CraftValidator,GadgetCore.API.CraftMenuInfo.CraftPerformer},GadgetCore.API.CraftMenuInfo.CraftFinalizer,GadgetCore.API.TileInfo)">
+            <summary>
+            Use to register a custom crafting menu. Using RegisterMenu is unnecessary for crafting menus. Note that all crafting menus must have, at most, 3 ingredient slots. Use OpenCraftMenu to open the menu.
+            </summary>
+            <param name="Title">The text to display as the title of the crafting window.</param>
+            <param name="Desc">The text to display as the description of the crafting window.</param>
+            <param name="MenuTex">The Texture to use for the crafting window.</param>
+            <param name="ProgressBarTex">The Texture to use for the crafting progress bar.</param>
+            <param name="ButtonInactiveTex">The Texture to be used to display the inactive craft button.</param>
+            <param name="ButtonActiveTex">The Texture to be used to display the active craft button.</param>
+            <param name="ButtonSelectTex">The Texture to be used to display the selected craft button.</param>
+            <param name="CraftSound">The sound effect that plays every time the craft button is pressed.</param>
+            <param name="PerformerTuple">A <see cref="T:GadgetCore.Util.Tuple`3"/> containing the SlotValidator, CraftValidator, and CraftPerformer.</param>
+            <param name="CraftFinalizer">Optionally used to perform any final behavior after the craft is complete. The Item array is of length 4, where the first three Items are the inputs, and the fourth Item is the output.</param>
+            <param name="Tile">An optional parameter that specifies what Interactive tile should open the menu when interacted with.</param>
+        </member>
+        <member name="M:GadgetCore.API.CraftMenuInfo.#ctor(System.String,System.String,UnityEngine.Texture,UnityEngine.Texture,UnityEngine.Texture,UnityEngine.Texture,UnityEngine.Texture,System.Threading.Tasks.Task{UnityEngine.AudioClip},GadgetCore.Util.Tuple{GadgetCore.API.CraftMenuInfo.SlotValidator,GadgetCore.API.CraftMenuInfo.CraftValidator,GadgetCore.API.CraftMenuInfo.CraftPerformer,GadgetCore.API.CraftMenuInfo.CraftFinalizer},GadgetCore.API.TileInfo)">
+            <summary>
+            Use to register a custom crafting menu. Using RegisterMenu is unnecessary for crafting menus. Note that all crafting menus must have, at most, 3 ingredient slots. Use OpenCraftMenu to open the menu.
+            </summary>
+            <param name="Title">The text to display as the title of the crafting window.</param>
+            <param name="Desc">The text to display as the description of the crafting window.</param>
+            <param name="MenuTex">The Texture to use for the crafting window.</param>
+            <param name="ProgressBarTex">The Texture to use for the crafting progress bar.</param>
+            <param name="ButtonInactiveTex">The Texture to be used to display the inactive craft button.</param>
+            <param name="ButtonActiveTex">The Texture to be used to display the active craft button.</param>
+            <param name="ButtonSelectTex">The Texture to be used to display the selected craft button.</param>
+            <param name="CraftSound">The sound effect that plays every time the craft button is pressed.</param>
+            <param name="PerformerTuple">A <see cref="T:GadgetCore.Util.Tuple`4"/> containing the SlotValidator, CraftValidator, CraftPerformer, and CraftFinalizer.</param>
+            <param name="Tile">An optional parameter that specifies what Interactive tile should open the menu when interacted with.</param>
+        </member>
+        <member name="M:GadgetCore.API.CraftMenuInfo.#ctor(System.String,System.String,UnityEngine.Material,UnityEngine.Material,UnityEngine.Material,UnityEngine.Material,UnityEngine.Material,System.Threading.Tasks.Task{UnityEngine.AudioClip},GadgetCore.API.CraftMenuInfo.SlotValidator,GadgetCore.API.CraftMenuInfo.CraftValidator,GadgetCore.API.CraftMenuInfo.CraftPerformer,GadgetCore.API.CraftMenuInfo.CraftFinalizer,GadgetCore.API.TileInfo)">
+            <summary>
+            Use to register a custom crafting menu. Using RegisterMenu is unnecessary for crafting menus. Note that all crafting menus must have, at most, 3 ingredient slots. Use OpenCraftMenu to open the menu.
+            </summary>
+            <param name="Title">The text to display as the title of the crafting window.</param>
+            <param name="Desc">The text to display as the description of the crafting window.</param>
+            <param name="MenuMat">The Material to use for the crafting window.</param>
+            <param name="ProgressBarMat">The Material to use for the crafting progress bar.</param>
+            <param name="ButtonInactiveMat">The Material to be used to display the inactive craft button.</param>
+            <param name="ButtonActiveMat">The Material to be used to display the active craft button.</param>
+            <param name="ButtonSelectMat">The Material to be used to display the selected craft button.</param>
+            <param name="CraftSound">The sound effect that plays every time the craft button is pressed.</param>
+            <param name="SlotValidator">Used to check if an item is valid for a slot.</param>
+            <param name="CraftValidator">Used to check if the items currently in the slots are valid for a recipe. The Item array is of length 4, where the first three Items are the inputs, and the fourth Item is the output.</param>
+            <param name="CraftPerformer">Used to perform a crafting operation by modifying the contents of the Item array. The Item array is of length 4, where the first three Items are the inputs, and the fourth Item is the output. Should decrement the inputs, and set the output, possibly respecting whatever is already in the output.</param>
+            <param name="CraftFinalizer">Optionally used to perform any final behavior after the craft is complete. The Item array is of length 4, where the first three Items are the inputs, and the fourth Item is the output.</param>
+            <param name="Tile">An optional parameter that specifies what Interactive tile should open the menu when interacted with.</param>
+        </member>
+        <member name="M:GadgetCore.API.CraftMenuInfo.#ctor(System.String,System.String,UnityEngine.Material,UnityEngine.Material,UnityEngine.Material,UnityEngine.Material,UnityEngine.Material,System.Threading.Tasks.Task{UnityEngine.AudioClip},GadgetCore.Util.Tuple{GadgetCore.API.CraftMenuInfo.SlotValidator,GadgetCore.API.CraftMenuInfo.CraftValidator,GadgetCore.API.CraftMenuInfo.CraftPerformer},GadgetCore.API.CraftMenuInfo.CraftFinalizer,GadgetCore.API.TileInfo)">
+            <summary>
+            Use to register a custom crafting menu. Using RegisterMenu is unnecessary for crafting menus. Note that all crafting menus must have, at most, 3 ingredient slots. Use OpenCraftMenu to open the menu.
+            </summary>
+            <param name="Title">The text to display as the title of the crafting window.</param>
+            <param name="Desc">The text to display as the description of the crafting window.</param>
+            <param name="MenuMat">The Material to use for the crafting window.</param>
+            <param name="ProgressBarMat">The Material to use for the crafting progress bar.</param>
+            <param name="ButtonInactiveMat">The Material to be used to display the inactive craft button.</param>
+            <param name="ButtonActiveMat">The Material to be used to display the active craft button.</param>
+            <param name="ButtonSelectMat">The Material to be used to display the selected craft button.</param>
+            <param name="CraftSound">The sound effect that plays every time the craft button is pressed.</param>
+            <param name="PerformerTuple">A <see cref="T:GadgetCore.Util.Tuple`3"/> containing the SlotValidator, CraftValidator, and CraftPerformer.</param>
+            <param name="CraftFinalizer">Optionally used to perform any final behavior after the craft is complete. The Item array is of length 4, where the first three Items are the inputs, and the fourth Item is the output.</param>
+            <param name="Tile">An optional parameter that specifies what Interactive tile should open the menu when interacted with.</param>
+        </member>
+        <member name="M:GadgetCore.API.CraftMenuInfo.#ctor(System.String,System.String,UnityEngine.Material,UnityEngine.Material,UnityEngine.Material,UnityEngine.Material,UnityEngine.Material,System.Threading.Tasks.Task{UnityEngine.AudioClip},GadgetCore.Util.Tuple{GadgetCore.API.CraftMenuInfo.SlotValidator,GadgetCore.API.CraftMenuInfo.CraftValidator,GadgetCore.API.CraftMenuInfo.CraftPerformer,GadgetCore.API.CraftMenuInfo.CraftFinalizer},GadgetCore.API.TileInfo)">
             <summary>
             Use to register a custom crafting menu. Using RegisterMenu is unnecessary for crafting menus. Note that all crafting menus must have, at most, 3 ingredient slots. Use OpenCraftMenu to open the menu.
             </summary>
@@ -4416,6 +4514,11 @@
             Loads an audio file from your Assets folder as an AudioClip. Assumes a file extension of .wav if one is not specified. Returns null if no file with the given name was found.
             </summary>
         </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.LoadAudioClipAsync(System.String)">
+            <summary>
+            Asynchronously loads an audio file from your Assets folder as an AudioClip. Assumes a file extension of .wav if one is not specified. Returns null if no file with the given name was found.
+            </summary>
+        </member>
         <member name="M:GadgetCore.API.GadgetCoreAPI.LoadObjMesh(System.String)">
             <summary>
             Loads an obj-format mesh from your Assets folder as a Mesh. Assumes a file extension of .obj if one is not specified. Returns null if no file with the given name was found.
@@ -4454,6 +4557,11 @@
         <member name="M:GadgetCore.API.GadgetCoreAPI.LoadAudioClipInternal(System.String,GadgetCore.Loader.GadgetMod)">
             <summary>
             Loads an audio file from your Assets folder as an AudioClip. Assumes a file extension of .wav if one is not specified. Returns null if no file with the given name was found.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetCoreAPI.LoadAudioClipAsyncInternal(System.String,GadgetCore.Loader.GadgetMod)">
+            <summary>
+            Asynchronously loads an audio file from your Assets folder as an AudioClip. Assumes a file extension of .wav if one is not specified. Returns null if no file with the given name was found.
             </summary>
         </member>
         <member name="M:GadgetCore.API.GadgetCoreAPI.LoadObjMeshInternal(System.String,GadgetCore.Loader.GadgetMod)">
@@ -5178,6 +5286,11 @@
             Sets the special info unique to weapons. This must be called before Register. If this is item is a weapon and you are using one of the provided OnAttack routines, you must call this.
             </summary>
         </member>
+        <member name="M:GadgetCore.API.ItemInfo.SetWeaponInfo(System.Single[],System.Threading.Tasks.Task{UnityEngine.AudioClip},System.Single,System.Single,System.Int32)">
+            <summary>
+            Sets the special info unique to weapons. This must be called before Register. If this is item is a weapon and you are using one of the provided OnAttack routines, you must call this.
+            </summary>
+        </member>
         <member name="M:GadgetCore.API.ItemInfo.Register(System.Int32,System.Boolean)">
             <summary>
             Registers this ItemInfo to the ItemRegistry.
@@ -5869,7 +5982,7 @@
         </member>
         <member name="P:GadgetCore.API.MenuInfo.Tile">
             <summary>
-            The Material associated with this item. May be null.
+            The Interactive tile that opens this menu when interacted with.
             </summary>
         </member>
         <member name="P:GadgetCore.API.MenuInfo.IsOpen">
@@ -5985,7 +6098,7 @@
         </member>
         <member name="M:GadgetCore.API.MenuRegistry.GetIDStart">
             <summary>
-            Gets the ID that modded IDs should start at for this registry. <see cref="T:GadgetCore.API.MenuRegistry"/> always returns 10000.
+            Gets the ID that modded IDs should start at for this registry. <see cref="T:GadgetCore.API.MenuRegistry"/> always returns 100.
             </summary>
         </member>
         <member name="T:GadgetCore.API.MenuType">
@@ -6337,6 +6450,11 @@
             </summary>
         </member>
         <member name="M:GadgetCore.API.PlanetInfo.#ctor(GadgetCore.API.PlanetType,System.String,GadgetCore.Util.Tuple{System.Int32,System.Int32}[],UnityEngine.AudioClip)">
+            <summary>
+            Use to create a new PlanetInfo. Make sure to call Register on it to register your Planet.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.PlanetInfo.#ctor(GadgetCore.API.PlanetType,System.String,GadgetCore.Util.Tuple{System.Int32,System.Int32}[],System.Threading.Tasks.Task{UnityEngine.AudioClip})">
             <summary>
             Use to create a new PlanetInfo. Make sure to call Register on it to register your Planet.
             </summary>
@@ -7582,6 +7700,11 @@
         <member name="M:GadgetCore.CoroutineHooker.StopCoroutine(UnityEngine.Coroutine)">
             <summary>
             Stops a coroutine on the singleton object.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.CoroutineHooker.ScheduleSyncAction(System.Action)">
+            <summary>
+            Schedules an action to be run synchronously on the main thread at the next available time.
             </summary>
         </member>
         <member name="T:GadgetCore.GadgetCoreConfig">

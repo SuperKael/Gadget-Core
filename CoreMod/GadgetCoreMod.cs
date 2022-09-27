@@ -60,7 +60,7 @@ namespace GadgetCore.CoreMod
             MenuRegistry.Singleton["Crafter Menu"] = new CraftMenuInfo("Universal Crafter", "Combines required items for custom recipes.",
                 GadgetCoreAPI.LoadTexture2D("Core Mod/Universal Crafter/menu_tex"), GadgetCoreAPI.LoadTexture2D("Core Mod/Universal Crafter/bar_tex"),
                 GadgetCoreAPI.LoadTexture2D("Core Mod/Universal Crafter/button0_tex"), GadgetCoreAPI.LoadTexture2D("Core Mod/Universal Crafter/button1_tex"), GadgetCoreAPI.LoadTexture2D("Core Mod/Universal Crafter/button2_tex"),
-                GadgetCoreAPI.LoadAudioClip("Core Mod/Universal Crafter/craft_au"), null, crafterTile);
+                GadgetCoreAPI.LoadAudioClipAsync("Core Mod/Universal Crafter/craft_au"), null, crafterTile);
 
             GadgetNetwork.OnMatrixReady += onMatrixReadyHandler = (b) =>
             {

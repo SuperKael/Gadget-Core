@@ -98,7 +98,10 @@ namespace GadgetCore.Loader
             if (IsArchive)
             {
                 MemoryStream stream = new MemoryStream();
-                Archive[relativeFilePath].Extract(stream);
+                lock (Archive)
+                {
+                    Archive[relativeFilePath].Extract(stream);
+                }
                 stream.Position = 0;
                 return stream;
             }
@@ -121,7 +124,10 @@ namespace GadgetCore.Loader
                     throw new InvalidDataException("This file has already been retrieved once, and has not yet been disposed!");
                 }
                 Directory.CreateDirectory(tempPath);
-                Archive[relativeFilePath].Extract(tempPath);
+                lock (Archive)
+                {
+                    Archive[relativeFilePath].Extract(tempPath);
+                }
                 return new GadgetModFile(Path.Combine(tempPath, relativeFilePath), true, this);
             }
             else
@@ -137,7 +143,10 @@ namespace GadgetCore.Loader
         {
             if (IsArchive)
             {
-                return Archive.Where(x => x.FileName.Length > relativeDirectoryPath.Length && x.FileName.StartsWith(relativeDirectoryPath) && !(x.FileName.Substring(relativeDirectoryPath.Length + 1).Contains('/') || x.FileName.Substring(relativeDirectoryPath.Length + 1).Contains('\\'))).Select(x => x.FileName).ToArray();
+                lock (Archive)
+                {
+                    return Archive.Where(x => x.FileName.Length > relativeDirectoryPath.Length && x.FileName.StartsWith(relativeDirectoryPath) && !(x.FileName.Substring(relativeDirectoryPath.Length + 1).Contains('/') || x.FileName.Substring(relativeDirectoryPath.Length + 1).Contains('\\'))).Select(x => x.FileName).ToArray();
+                }
             }
             else
             {
@@ -152,7 +161,10 @@ namespace GadgetCore.Loader
         {
             if (IsArchive)
             {
-                return Archive.Where(x => x.FileName.Length > relativeDirectoryPath.Length && x.FileName.StartsWith(relativeDirectoryPath) && (x.FileName.Substring(relativeDirectoryPath.Length + 1).Contains('/') || x.FileName.Substring(relativeDirectoryPath.Length + 1).Contains('\\'))).Select(x => x.FileName.Substring(0, Math.Min(x.FileName.IndexOf('/', relativeDirectoryPath.Length + 1), x.FileName.IndexOf('\\', relativeDirectoryPath.Length + 1)))).Distinct().ToArray();
+                lock (Archive)
+                {
+                    return Archive.Where(x => x.FileName.Length > relativeDirectoryPath.Length && x.FileName.StartsWith(relativeDirectoryPath) && (x.FileName.Substring(relativeDirectoryPath.Length + 1).Contains('/') || x.FileName.Substring(relativeDirectoryPath.Length + 1).Contains('\\'))).Select(x => x.FileName.Substring(0, Math.Min(x.FileName.IndexOf('/', relativeDirectoryPath.Length + 1), x.FileName.IndexOf('\\', relativeDirectoryPath.Length + 1)))).Distinct().ToArray();
+                }
             }
             else
             {
@@ -167,7 +179,10 @@ namespace GadgetCore.Loader
         {
             if (IsArchive)
             {
-                return Archive.ContainsEntry(relativeFilePath);
+                lock (Archive)
+                {
+                    return Archive.ContainsEntry(relativeFilePath);
+                }
             }
             else
             {
@@ -179,7 +194,13 @@ namespace GadgetCore.Loader
         {
             if (!IsLoaded) return;
             IsLoaded = false;
-            if (Archive != null) Archive.Dispose();
+            if (Archive != null)
+            {
+                lock (Archive)
+                {
+                    Archive.Dispose();
+                }
+            }
             GadgetModFile.DisposeAll(this);
         }
     }

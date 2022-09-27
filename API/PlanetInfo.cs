@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace GadgetCore.API
@@ -190,6 +191,33 @@ namespace GadgetCore.API
             this.Name = Name;
             this.WeightedExitPortalIDs = WeightedExitPortalIDs?.ToList();
             this.BackgroundMusic = BackgroundMusic;
+        }
+
+        /// <summary>
+        /// Use to create a new PlanetInfo. Make sure to call Register on it to register your Planet.
+        /// </summary>
+        public PlanetInfo(PlanetType Type, string Name, Tuple<int, int>[] WeightedExitPortalIDs, Task<AudioClip> BackgroundMusic)
+        {
+            this.Type = Type;
+            this.Name = Name;
+            this.WeightedExitPortalIDs = WeightedExitPortalIDs?.ToList();
+
+            if (BackgroundMusic != null)
+            {
+                BackgroundMusic.ContinueWith(task =>
+                {
+                    this.BackgroundMusic = task.Result;
+
+                    if (this.BackgroundMusic != null)
+                    {
+                        int id = GetID();
+                        if (id != -1)
+                        {
+                            GadgetCoreAPI.AddCustomResource("Au/biome" + id, this.BackgroundMusic);
+                        }
+                    }
+                });
+            }
         }
 
         /// <summary>

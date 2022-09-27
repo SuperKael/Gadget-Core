@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using System.Web.UI.WebControls;
 using UnityEngine;
 
@@ -80,7 +81,7 @@ namespace GadgetCore.API
         /// <summary>
         /// The sound effect that plays every time the craft button is pressed.
         /// </summary>
-        public readonly AudioClip CraftSound;
+        public virtual AudioClip CraftSound { get; protected set; }
         /// <summary>
         /// The list of validators for determining if an item fits a slot. If any of the validators return true for a slot, then it should be considered valid.
         /// </summary>
@@ -380,6 +381,334 @@ namespace GadgetCore.API
             this.ButtonActiveMat = ButtonActiveMat;
             this.ButtonSelectMat = ButtonSelectMat;
             this.CraftSound = CraftSound;
+            if (PerformerTuple != null)
+            {
+                SlotValidators = new List<SlotValidator>(1);
+                CraftValidators = new List<CraftValidator>(1);
+                CraftPerformers = new List<CraftPerformer>(1);
+                CraftFinalizers = new List<CraftFinalizer>(1);
+                CraftPerformerModIDs = new List<int>(1);
+                CraftPerformerInitModIDs = new List<int>(1);
+                AddCraftPerformer(PerformerTuple.Item1, PerformerTuple.Item2, PerformerTuple.Item3, PerformerTuple.Item4);
+            }
+            else
+            {
+                SlotValidators = new List<SlotValidator>(0);
+                CraftValidators = new List<CraftValidator>(0);
+                CraftPerformers = new List<CraftPerformer>(0);
+                CraftFinalizers = new List<CraftFinalizer>(0);
+                CraftPerformerModIDs = new List<int>(0);
+                CraftPerformerInitModIDs = new List<int>(0);
+            }
+        }
+
+        /// <summary>
+        /// Use to register a custom crafting menu. Using RegisterMenu is unnecessary for crafting menus. Note that all crafting menus must have, at most, 3 ingredient slots. Use OpenCraftMenu to open the menu.
+        /// </summary>
+        /// <param name="Title">The text to display as the title of the crafting window.</param>
+        /// <param name="Desc">The text to display as the description of the crafting window.</param>
+        /// <param name="MenuTex">The Texture to use for the crafting window.</param>
+        /// <param name="ProgressBarTex">The Texture to use for the crafting progress bar.</param>
+        /// <param name="ButtonInactiveTex">The Texture to be used to display the inactive craft button.</param>
+        /// <param name="ButtonActiveTex">The Texture to be used to display the active craft button.</param>
+        /// <param name="ButtonSelectTex">The Texture to be used to display the selected craft button.</param>
+        /// <param name="CraftSound">The sound effect that plays every time the craft button is pressed.</param>
+        /// <param name="SlotValidator">Used to check if an item is valid for a slot.</param>
+        /// <param name="CraftValidator">Used to check if the items currently in the slots are valid for a recipe. The Item array is of length 4, where the first three Items are the inputs, and the fourth Item is the output.</param>
+        /// <param name="CraftPerformer">Used to perform a crafting operation by modifying the contents of the Item array. The Item array is of length 4, where the first three Items are the inputs, and the fourth Item is the output. Should decrement the inputs, and set the output, possibly respecting whatever is already in the output.</param>
+        /// <param name="CraftFinalizer">Optionally used to perform any final behavior after the craft is complete. The Item array is of length 4, where the first three Items are the inputs, and the fourth Item is the output.</param>
+        /// <param name="Tile">An optional parameter that specifies what Interactive tile should open the menu when interacted with.</param>
+        public CraftMenuInfo(string Title, string Desc, Texture MenuTex, Texture ProgressBarTex, Texture ButtonInactiveTex, Texture ButtonActiveTex, Texture ButtonSelectTex, Task<AudioClip> CraftSound, SlotValidator SlotValidator, CraftValidator CraftValidator, CraftPerformer CraftPerformer, CraftFinalizer CraftFinalizer = null, TileInfo Tile = null) : base(MenuType.CRAFTING, null, Tile)
+        {
+            this.Title = Title;
+            this.Desc = Desc;
+            this.MenuTex = MenuTex;
+            this.ProgressBarTex = ProgressBarTex;
+            this.ButtonInactiveTex = ButtonInactiveTex;
+            this.ButtonActiveTex = ButtonActiveTex;
+            this.ButtonSelectTex = ButtonSelectTex;
+
+            if (CraftSound != null)
+            {
+                CraftSound.ContinueWith(task =>
+                {
+                    this.CraftSound = task.Result;
+                });
+            }
+
+            if (SlotValidator != null && CraftValidator != null && CraftPerformer != null)
+            {
+                SlotValidators = new List<SlotValidator>(1);
+                CraftValidators = new List<CraftValidator>(1);
+                CraftPerformers = new List<CraftPerformer>(1);
+                CraftFinalizers = new List<CraftFinalizer>(1);
+                CraftPerformerModIDs = new List<int>(1);
+                CraftPerformerInitModIDs = new List<int>(1);
+                AddCraftPerformer(SlotValidator, CraftValidator, CraftPerformer, CraftFinalizer);
+            }
+            else if (SlotValidator != null || CraftValidator != null || CraftPerformer != null)
+            {
+                throw new InvalidOperationException("If SlotValidator, CraftValidator, or CraftPerformer are null, they must all be null!");
+            }
+            else
+            {
+                SlotValidators = new List<SlotValidator>(0);
+                CraftValidators = new List<CraftValidator>(0);
+                CraftPerformers = new List<CraftPerformer>(0);
+                CraftFinalizers = new List<CraftFinalizer>(0);
+                CraftPerformerModIDs = new List<int>(0);
+                CraftPerformerInitModIDs = new List<int>(0);
+            }
+        }
+
+        /// <summary>
+        /// Use to register a custom crafting menu. Using RegisterMenu is unnecessary for crafting menus. Note that all crafting menus must have, at most, 3 ingredient slots. Use OpenCraftMenu to open the menu.
+        /// </summary>
+        /// <param name="Title">The text to display as the title of the crafting window.</param>
+        /// <param name="Desc">The text to display as the description of the crafting window.</param>
+        /// <param name="MenuTex">The Texture to use for the crafting window.</param>
+        /// <param name="ProgressBarTex">The Texture to use for the crafting progress bar.</param>
+        /// <param name="ButtonInactiveTex">The Texture to be used to display the inactive craft button.</param>
+        /// <param name="ButtonActiveTex">The Texture to be used to display the active craft button.</param>
+        /// <param name="ButtonSelectTex">The Texture to be used to display the selected craft button.</param>
+        /// <param name="CraftSound">The sound effect that plays every time the craft button is pressed.</param>
+        /// <param name="PerformerTuple">A <see cref="Tuple{SlotValidator, CraftValidator, CraftPerformer}"/> containing the SlotValidator, CraftValidator, and CraftPerformer.</param>
+        /// <param name="CraftFinalizer">Optionally used to perform any final behavior after the craft is complete. The Item array is of length 4, where the first three Items are the inputs, and the fourth Item is the output.</param>
+        /// <param name="Tile">An optional parameter that specifies what Interactive tile should open the menu when interacted with.</param>
+        public CraftMenuInfo(string Title, string Desc, Texture MenuTex, Texture ProgressBarTex, Texture ButtonInactiveTex, Texture ButtonActiveTex, Texture ButtonSelectTex, Task<AudioClip> CraftSound, Tuple<SlotValidator, CraftValidator, CraftPerformer> PerformerTuple, CraftFinalizer CraftFinalizer = null, TileInfo Tile = null) : base(MenuType.CRAFTING, null, Tile)
+        {
+            this.Title = Title;
+            this.Desc = Desc;
+            this.MenuTex = MenuTex;
+            this.ProgressBarTex = ProgressBarTex;
+            this.ButtonInactiveTex = ButtonInactiveTex;
+            this.ButtonActiveTex = ButtonActiveTex;
+            this.ButtonSelectTex = ButtonSelectTex;
+
+            if (CraftSound != null)
+            {
+                CraftSound.ContinueWith(task =>
+                {
+                    this.CraftSound = task.Result;
+                });
+            }
+
+            if (PerformerTuple != null)
+            {
+                SlotValidators = new List<SlotValidator>(1);
+                CraftValidators = new List<CraftValidator>(1);
+                CraftPerformers = new List<CraftPerformer>(1);
+                CraftFinalizers = new List<CraftFinalizer>(1);
+                CraftPerformerModIDs = new List<int>(1);
+                CraftPerformerInitModIDs = new List<int>(1);
+                AddCraftPerformer(PerformerTuple.Item1, PerformerTuple.Item2, PerformerTuple.Item3, CraftFinalizer);
+            }
+            else
+            {
+                SlotValidators = new List<SlotValidator>(0);
+                CraftValidators = new List<CraftValidator>(0);
+                CraftPerformers = new List<CraftPerformer>(0);
+                CraftFinalizers = new List<CraftFinalizer>(0);
+                CraftPerformerModIDs = new List<int>(0);
+                CraftPerformerInitModIDs = new List<int>(0);
+            }
+        }
+
+        /// <summary>
+        /// Use to register a custom crafting menu. Using RegisterMenu is unnecessary for crafting menus. Note that all crafting menus must have, at most, 3 ingredient slots. Use OpenCraftMenu to open the menu.
+        /// </summary>
+        /// <param name="Title">The text to display as the title of the crafting window.</param>
+        /// <param name="Desc">The text to display as the description of the crafting window.</param>
+        /// <param name="MenuTex">The Texture to use for the crafting window.</param>
+        /// <param name="ProgressBarTex">The Texture to use for the crafting progress bar.</param>
+        /// <param name="ButtonInactiveTex">The Texture to be used to display the inactive craft button.</param>
+        /// <param name="ButtonActiveTex">The Texture to be used to display the active craft button.</param>
+        /// <param name="ButtonSelectTex">The Texture to be used to display the selected craft button.</param>
+        /// <param name="CraftSound">The sound effect that plays every time the craft button is pressed.</param>
+        /// <param name="PerformerTuple">A <see cref="Tuple{SlotValidator, CraftValidator, CraftPerformer, CraftFinalizer}"/> containing the SlotValidator, CraftValidator, CraftPerformer, and CraftFinalizer.</param>
+        /// <param name="Tile">An optional parameter that specifies what Interactive tile should open the menu when interacted with.</param>
+        public CraftMenuInfo(string Title, string Desc, Texture MenuTex, Texture ProgressBarTex, Texture ButtonInactiveTex, Texture ButtonActiveTex, Texture ButtonSelectTex, Task<AudioClip> CraftSound, Tuple<SlotValidator, CraftValidator, CraftPerformer, CraftFinalizer> PerformerTuple, TileInfo Tile = null) : base(MenuType.CRAFTING, null, Tile)
+        {
+            this.Title = Title;
+            this.Desc = Desc;
+            this.MenuTex = MenuTex;
+            this.ProgressBarTex = ProgressBarTex;
+            this.ButtonInactiveTex = ButtonInactiveTex;
+            this.ButtonActiveTex = ButtonActiveTex;
+            this.ButtonSelectTex = ButtonSelectTex;
+
+            if (CraftSound != null)
+            {
+                CraftSound.ContinueWith(task =>
+                {
+                    this.CraftSound = task.Result;
+                });
+            }
+
+            if (PerformerTuple != null)
+            {
+                SlotValidators = new List<SlotValidator>(1);
+                CraftValidators = new List<CraftValidator>(1);
+                CraftPerformers = new List<CraftPerformer>(1);
+                CraftFinalizers = new List<CraftFinalizer>(1);
+                CraftPerformerModIDs = new List<int>(1);
+                CraftPerformerInitModIDs = new List<int>(1);
+                AddCraftPerformer(PerformerTuple.Item1, PerformerTuple.Item2, PerformerTuple.Item3, PerformerTuple.Item4);
+            }
+            else
+            {
+                SlotValidators = new List<SlotValidator>(0);
+                CraftValidators = new List<CraftValidator>(0);
+                CraftPerformers = new List<CraftPerformer>(0);
+                CraftFinalizers = new List<CraftFinalizer>(0);
+                CraftPerformerModIDs = new List<int>(0);
+                CraftPerformerInitModIDs = new List<int>(0);
+            }
+        }
+
+        /// <summary>
+        /// Use to register a custom crafting menu. Using RegisterMenu is unnecessary for crafting menus. Note that all crafting menus must have, at most, 3 ingredient slots. Use OpenCraftMenu to open the menu.
+        /// </summary>
+        /// <param name="Title">The text to display as the title of the crafting window.</param>
+        /// <param name="Desc">The text to display as the description of the crafting window.</param>
+        /// <param name="MenuMat">The Material to use for the crafting window.</param>
+        /// <param name="ProgressBarMat">The Material to use for the crafting progress bar.</param>
+        /// <param name="ButtonInactiveMat">The Material to be used to display the inactive craft button.</param>
+        /// <param name="ButtonActiveMat">The Material to be used to display the active craft button.</param>
+        /// <param name="ButtonSelectMat">The Material to be used to display the selected craft button.</param>
+        /// <param name="CraftSound">The sound effect that plays every time the craft button is pressed.</param>
+        /// <param name="SlotValidator">Used to check if an item is valid for a slot.</param>
+        /// <param name="CraftValidator">Used to check if the items currently in the slots are valid for a recipe. The Item array is of length 4, where the first three Items are the inputs, and the fourth Item is the output.</param>
+        /// <param name="CraftPerformer">Used to perform a crafting operation by modifying the contents of the Item array. The Item array is of length 4, where the first three Items are the inputs, and the fourth Item is the output. Should decrement the inputs, and set the output, possibly respecting whatever is already in the output.</param>
+        /// <param name="CraftFinalizer">Optionally used to perform any final behavior after the craft is complete. The Item array is of length 4, where the first three Items are the inputs, and the fourth Item is the output.</param>
+        /// <param name="Tile">An optional parameter that specifies what Interactive tile should open the menu when interacted with.</param>
+        public CraftMenuInfo(string Title, string Desc, Material MenuMat, Material ProgressBarMat, Material ButtonInactiveMat, Material ButtonActiveMat, Material ButtonSelectMat, Task<AudioClip> CraftSound, SlotValidator SlotValidator, CraftValidator CraftValidator, CraftPerformer CraftPerformer, CraftFinalizer CraftFinalizer = null, TileInfo Tile = null) : base(MenuType.CRAFTING, null, Tile)
+        {
+            this.Title = Title;
+            this.Desc = Desc;
+            this.MenuMat = MenuMat;
+            this.ProgressBarMat = ProgressBarMat;
+            this.ButtonInactiveMat = ButtonInactiveMat;
+            this.ButtonActiveMat = ButtonActiveMat;
+            this.ButtonSelectMat = ButtonSelectMat;
+
+            if (CraftSound != null)
+            {
+                CraftSound.ContinueWith(task =>
+                {
+                    this.CraftSound = task.Result;
+                });
+            }
+
+            if (SlotValidator != null && CraftValidator != null && CraftPerformer != null)
+            {
+                SlotValidators = new List<SlotValidator>(1);
+                CraftValidators = new List<CraftValidator>(1);
+                CraftPerformers = new List<CraftPerformer>(1);
+                CraftFinalizers = new List<CraftFinalizer>(1);
+                CraftPerformerModIDs = new List<int>(1);
+                CraftPerformerInitModIDs = new List<int>(1);
+                AddCraftPerformer(SlotValidator, CraftValidator, CraftPerformer, CraftFinalizer);
+            }
+            else if (SlotValidator != null || CraftValidator != null || CraftPerformer != null)
+            {
+                throw new InvalidOperationException("If SlotValidator, CraftValidator, or CraftPerformer are null, they must all be null!");
+            }
+            else
+            {
+                SlotValidators = new List<SlotValidator>(0);
+                CraftValidators = new List<CraftValidator>(0);
+                CraftPerformers = new List<CraftPerformer>(0);
+                CraftFinalizers = new List<CraftFinalizer>(0);
+                CraftPerformerModIDs = new List<int>(0);
+                CraftPerformerInitModIDs = new List<int>(0);
+            }
+        }
+
+        /// <summary>
+        /// Use to register a custom crafting menu. Using RegisterMenu is unnecessary for crafting menus. Note that all crafting menus must have, at most, 3 ingredient slots. Use OpenCraftMenu to open the menu.
+        /// </summary>
+        /// <param name="Title">The text to display as the title of the crafting window.</param>
+        /// <param name="Desc">The text to display as the description of the crafting window.</param>
+        /// <param name="MenuMat">The Material to use for the crafting window.</param>
+        /// <param name="ProgressBarMat">The Material to use for the crafting progress bar.</param>
+        /// <param name="ButtonInactiveMat">The Material to be used to display the inactive craft button.</param>
+        /// <param name="ButtonActiveMat">The Material to be used to display the active craft button.</param>
+        /// <param name="ButtonSelectMat">The Material to be used to display the selected craft button.</param>
+        /// <param name="CraftSound">The sound effect that plays every time the craft button is pressed.</param>
+        /// <param name="PerformerTuple">A <see cref="Tuple{SlotValidator, CraftValidator, CraftPerformer}"/> containing the SlotValidator, CraftValidator, and CraftPerformer.</param>
+        /// <param name="CraftFinalizer">Optionally used to perform any final behavior after the craft is complete. The Item array is of length 4, where the first three Items are the inputs, and the fourth Item is the output.</param>
+        /// <param name="Tile">An optional parameter that specifies what Interactive tile should open the menu when interacted with.</param>
+        public CraftMenuInfo(string Title, string Desc, Material MenuMat, Material ProgressBarMat, Material ButtonInactiveMat, Material ButtonActiveMat, Material ButtonSelectMat, Task<AudioClip> CraftSound, Tuple<SlotValidator, CraftValidator, CraftPerformer> PerformerTuple, CraftFinalizer CraftFinalizer = null, TileInfo Tile = null) : base(MenuType.CRAFTING, null, Tile)
+        {
+            this.Title = Title;
+            this.Desc = Desc;
+            this.MenuMat = MenuMat;
+            this.ProgressBarMat = ProgressBarMat;
+            this.ButtonInactiveMat = ButtonInactiveMat;
+            this.ButtonActiveMat = ButtonActiveMat;
+            this.ButtonSelectMat = ButtonSelectMat;
+
+            if (CraftSound != null)
+            {
+                CraftSound.ContinueWith(task =>
+                {
+                    this.CraftSound = task.Result;
+                });
+            }
+
+            if (PerformerTuple != null)
+            {
+                SlotValidators = new List<SlotValidator>(1);
+                CraftValidators = new List<CraftValidator>(1);
+                CraftPerformers = new List<CraftPerformer>(1);
+                CraftFinalizers = new List<CraftFinalizer>(1);
+                CraftPerformerModIDs = new List<int>(1);
+                CraftPerformerInitModIDs = new List<int>(1);
+                AddCraftPerformer(PerformerTuple.Item1, PerformerTuple.Item2, PerformerTuple.Item3, CraftFinalizer);
+            }
+            else
+            {
+                SlotValidators = new List<SlotValidator>(0);
+                CraftValidators = new List<CraftValidator>(0);
+                CraftPerformers = new List<CraftPerformer>(0);
+                CraftFinalizers = new List<CraftFinalizer>(0);
+                CraftPerformerModIDs = new List<int>(0);
+                CraftPerformerInitModIDs = new List<int>(0);
+            }
+        }
+
+        /// <summary>
+        /// Use to register a custom crafting menu. Using RegisterMenu is unnecessary for crafting menus. Note that all crafting menus must have, at most, 3 ingredient slots. Use OpenCraftMenu to open the menu.
+        /// </summary>
+        /// <param name="Title">The text to display as the title of the crafting window.</param>
+        /// <param name="Desc">The text to display as the description of the crafting window.</param>
+        /// <param name="MenuMat">The Material to use for the crafting window.</param>
+        /// <param name="ProgressBarMat">The Material to use for the crafting progress bar.</param>
+        /// <param name="ButtonInactiveMat">The Material to be used to display the inactive craft button.</param>
+        /// <param name="ButtonActiveMat">The Material to be used to display the active craft button.</param>
+        /// <param name="ButtonSelectMat">The Material to be used to display the selected craft button.</param>
+        /// <param name="CraftSound">The sound effect that plays every time the craft button is pressed.</param>
+        /// <param name="PerformerTuple">A <see cref="Tuple{SlotValidator, CraftValidator, CraftPerformer, CraftFinalizer}"/> containing the SlotValidator, CraftValidator, CraftPerformer, and CraftFinalizer.</param>
+        /// <param name="Tile">An optional parameter that specifies what Interactive tile should open the menu when interacted with.</param>
+        public CraftMenuInfo(string Title, string Desc, Material MenuMat, Material ProgressBarMat, Material ButtonInactiveMat, Material ButtonActiveMat, Material ButtonSelectMat, Task<AudioClip> CraftSound, Tuple<SlotValidator, CraftValidator, CraftPerformer, CraftFinalizer> PerformerTuple, TileInfo Tile = null) : base(MenuType.CRAFTING, null, Tile)
+        {
+            this.Title = Title;
+            this.Desc = Desc;
+            this.MenuMat = MenuMat;
+            this.ProgressBarMat = ProgressBarMat;
+            this.ButtonInactiveMat = ButtonInactiveMat;
+            this.ButtonActiveMat = ButtonActiveMat;
+            this.ButtonSelectMat = ButtonSelectMat;
+
+            if (CraftSound != null)
+            {
+                CraftSound.ContinueWith(task =>
+                {
+                    this.CraftSound = task.Result;
+                });
+            }
+
             if (PerformerTuple != null)
             {
                 SlotValidators = new List<SlotValidator>(1);

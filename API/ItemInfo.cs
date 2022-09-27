@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace GadgetCore.API
@@ -150,6 +151,36 @@ namespace GadgetCore.API
             this.ProjectileID = ProjectileID;
             this.CritChanceBonus = CritChanceBonus;
             this.CritPowerBonus = CritPowerBonus;
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the special info unique to weapons. This must be called before Register. If this is item is a weapon and you are using one of the provided OnAttack routines, you must call this.
+        /// </summary>
+        public ItemInfo SetWeaponInfo(float[] WeaponScaling, Task<AudioClip> AttackSound, float CritChanceBonus = 0, float CritPowerBonus = 0, int ProjectileID = -1)
+        {
+            this.WeaponScaling = WeaponScaling;
+            this.ProjectileID = ProjectileID;
+            this.CritChanceBonus = CritChanceBonus;
+            this.CritPowerBonus = CritPowerBonus;
+
+            if (AttackSound != null)
+            {
+                AttackSound.ContinueWith(task =>
+                {
+                    this.AttackSound = task.Result;
+
+                    if (this.AttackSound != null)
+                    {
+                        int id = GetID();
+                        if (id != -1)
+                        {
+                            GadgetCoreAPI.AddCustomResource("Au/i/i" + id, this.AttackSound);
+                        }
+                    }
+                });
+            }
+
             return this;
         }
 

@@ -29,7 +29,7 @@ namespace GadgetCore.API
         public virtual GameObject MenuPrefab { get; protected set; }
 
         /// <summary>
-        /// The Material associated with this item. May be null.
+        /// The Interactive tile that opens this menu when interacted with.
         /// </summary>
         public virtual TileInfo Tile { get; protected set; }
 

@@ -50,6 +50,10 @@
       <HintPath>$(GamePath)$(ManagedFolder)UnityEngine.dll</HintPath>
       <Private>false</Private>
     </Reference>
+    <Reference Include="System.Threading">
+      <HintPath>$(GamePath)$(ManagedFolder)System.Threading.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Content Include="ModInfo.txt">

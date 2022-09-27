@@ -19,7 +19,7 @@
         }
 
         /// <summary>
-        /// Gets the ID that modded IDs should start at for this registry. <see cref="MenuRegistry"/> always returns 10000.
+        /// Gets the ID that modded IDs should start at for this registry. <see cref="MenuRegistry"/> always returns 100.
         /// </summary>
         public override int GetIDStart()
         {

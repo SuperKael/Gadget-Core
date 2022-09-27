@@ -9,6 +9,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -22,11 +23,11 @@ namespace GadgetCore.API
         /// <summary>
         /// The version numbers for this version of Gadget Core. You generally shouldn't access this directly, instead use <see cref="GetRawVersion()"/>
         /// </summary>
-        public const string RAW_VERSION = "2.0.6.5";
+        public const string RAW_VERSION = "2.0.6.6";
         /// <summary>
         /// A slightly more informative version. You generally shouldn't access this directly, instead use <see cref="GetFullVersion()"/>
         /// </summary>
-        public const string FULL_VERSION = "2.0.6.5 - Extended Character Edition";
+        public const string FULL_VERSION = "2.0.6.6 - Extended Character Edition";
         /// <summary>
         /// Indicates whether this version of GadgetCore is a beta version. You generally shouldn't access this directly, instead use <see cref="GetIsBeta()"/>
         /// </summary>
@@ -56,7 +57,9 @@ namespace GadgetCore.API
         private static int[] portalUses;
 
         private static readonly List<string> frozenInput = new List<string>();
+        private static readonly Dictionary<string, AudioClip> waitingAudioLoads = new Dictionary<string, AudioClip>();
 
+        internal static object resourceLock = new object();
         internal static Dictionary<string, UnityEngine.Object> resources = new Dictionary<string, UnityEngine.Object>();
         internal static Dictionary<int, string> resourcePaths = new Dictionary<int, string>();
         internal static Dictionary<int, List<int>> modResources = new Dictionary<int, List<int>>();
@@ -1271,21 +1274,27 @@ namespace GadgetCore.API
                 }
             }
             resource.hideFlags |= HideFlags.HideInInspector;
-            resources[path] = resource;
-            resourcePaths[resource.GetInstanceID()] = path;
-            if (!modResources.ContainsKey(Registry.gadgetRegistering)) modResources.Add(Registry.gadgetRegistering, new List<int>());
-            if (!modResources[Registry.gadgetRegistering].Contains(resource.GetInstanceID())) modResources[Registry.gadgetRegistering].Add(resource.GetInstanceID());
+            lock (resourceLock)
+            {
+                resources[path] = resource;
+                resourcePaths[resource.GetInstanceID()] = path;
+                if (!modResources.ContainsKey(Registry.gadgetRegistering)) modResources.Add(Registry.gadgetRegistering, new List<int>());
+                if (!modResources[Registry.gadgetRegistering].Contains(resource.GetInstanceID())) modResources[Registry.gadgetRegistering].Add(resource.GetInstanceID());
+            }
         }
 
         internal static void RemoveModResources(int modID)
         {
-            if (!modResources.TryGetValue(modID, out List<int> resourceList)) return;
-            foreach (int resourceID in resourceList)
+            lock (resourceLock)
             {
-                if (resourcePaths.TryGetValue(resourceID, out string path)) resources.Remove(path);
-                resourcePaths.Remove(resourceID);
+                if (!modResources.TryGetValue(modID, out List<int> resourceList)) return;
+                foreach (int resourceID in resourceList)
+                {
+                    if (resourcePaths.TryGetValue(resourceID, out string path)) resources.Remove(path);
+                    resourcePaths.Remove(resourceID);
+                }
+                modResources.Remove(modID);
             }
-            modResources.Remove(modID);
         }
 
         /// <summary>
@@ -1305,7 +1314,10 @@ namespace GadgetCore.API
         /// <returns></returns>
         public static bool IsCustomResourceRegistered(string path)
         {
-            return resources.ContainsKey(path);
+            lock (resourceLock)
+            {
+                return resources.ContainsKey(path);
+            }
         }
 
         /// <summary>
@@ -1313,7 +1325,10 @@ namespace GadgetCore.API
         /// </summary>
         public static UnityEngine.Object GetCustomResource(string path)
         {
-            return resources[path];
+            lock (resourceLock)
+            {
+                return resources[path];
+            }
         }
 
         /// <summary>
@@ -1599,9 +1614,18 @@ namespace GadgetCore.API
         /// <summary>
         /// Loads an audio file from your Assets folder as an AudioClip. Assumes a file extension of .wav if one is not specified. Returns null if no file with the given name was found.
         /// </summary>
+        [Obsolete("Very slow. Use LoadAudioClipAsync instead.")]
         public static AudioClip LoadAudioClip(string file)
         {
             return LoadAudioClipInternal(file, GadgetMods.GetModByAssembly(Assembly.GetCallingAssembly()));
+        }
+
+        /// <summary>
+        /// Asynchronously loads an audio file from your Assets folder as an AudioClip. Assumes a file extension of .wav if one is not specified. Returns null if no file with the given name was found.
+        /// </summary>
+        public static Task<AudioClip> LoadAudioClipAsync(string file)
+        {
+            return LoadAudioClipAsyncInternal(file, GadgetMods.GetModByAssembly(Assembly.GetCallingAssembly()));
         }
 
         /// <summary>
@@ -1623,7 +1647,7 @@ namespace GadgetCore.API
         /// <summary>
         /// Obsolete: Use <see cref="LoadTexture2D(string)"/>
         /// </summary>
-        [Obsolete("The `shared` parameter is nonfunctional, and should not be used.")]
+        [Obsolete("The `shared` parameter is nonfunctional, and should not be used.", true)]
         public static Texture2D LoadTexture2D(string file, bool shared = false)
         {
             return LoadTexture2DInternal(file, GadgetMods.GetModByAssembly(Assembly.GetCallingAssembly()));
@@ -1632,7 +1656,7 @@ namespace GadgetCore.API
         /// <summary>
         /// Obsolete: Use <see cref="LoadAudioClip(string)"/>
         /// </summary>
-        [Obsolete("The `shared` parameter is nonfunctional, and should not be used.")]
+        [Obsolete("The `shared` parameter is nonfunctional, and should not be used.", true)]
         public static AudioClip LoadAudioClip(string file, bool shared = false)
         {
             return LoadAudioClipInternal(file, GadgetMods.GetModByAssembly(Assembly.GetCallingAssembly()));
@@ -1641,7 +1665,7 @@ namespace GadgetCore.API
         /// <summary>
         /// Obsolete: Use <see cref="LoadObjMesh(string)"/>
         /// </summary>
-        [Obsolete("The `shared` parameter is nonfunctional, and should not be used.")]
+        [Obsolete("The `shared` parameter is nonfunctional, and should not be used.", true)]
         public static Mesh LoadObjMesh(string file, bool shared = false)
         {
             return LoadObjMeshInternal(file, GadgetMods.GetModByAssembly(Assembly.GetCallingAssembly()));
@@ -1650,7 +1674,7 @@ namespace GadgetCore.API
         /// <summary>
         /// Obsolete: Use <see cref="LoadAssetBundle(string)"/>
         /// </summary>
-        [Obsolete("The `shared` parameter is nonfunctional, and should not be used.")]
+        [Obsolete("The `shared` parameter is nonfunctional, and should not be used.", true)]
         public static AssetBundle LoadAssetBundle(string file, bool shared = false)
         {
             return LoadAssetBundleInternal(file, GadgetMods.GetModByAssembly(Assembly.GetCallingAssembly()));
@@ -1693,19 +1717,15 @@ namespace GadgetCore.API
         /// <summary>
         /// Loads an audio file from your Assets folder as an AudioClip. Assumes a file extension of .wav if one is not specified. Returns null if no file with the given name was found.
         /// </summary>
+        [Obsolete("Very slow. Use LoadAudioClipAsyncInternal instead.")]
         internal static AudioClip LoadAudioClipInternal(string file, GadgetMod mod)
         {
             if (file.IndexOf('.') == -1) file += ".wav";
-            GadgetCore.CoreLogger.Log("Before: " + file);
             file = file.Replace('/', Path.DirectorySeparatorChar);
-            GadgetCore.CoreLogger.Log("After: " + file);
             string modName = mod?.Name ?? "GadgetCore";
-            if (cachedAudioClips.ContainsKey(modName + ":" + file))
+            lock (cachedAudioClips)
             {
-                AudioClip cachedClip = cachedAudioClips[modName + ":" + file];
-                GadgetCore.CoreLogger.Log("loadState: " + cachedClip.loadState);
-                GadgetCore.CoreLogger.Log("length: " + cachedClip.length);
-                if (cachedClip.loadState == AudioDataLoadState.Loaded || cachedClip.loadState == AudioDataLoadState.Loading)
+                if (cachedAudioClips.TryGetValue(modName + ":" + file, out AudioClip cachedClip) && cachedClip.loadState == AudioDataLoadState.Loaded)
                 {
                     return cachedClip;
                 }
@@ -1713,52 +1733,125 @@ namespace GadgetCore.API
             string filePath = Path.Combine("Assets", file);
             if (mod?.HasModFile(filePath) ?? false)
             {
-                GadgetModFile modFile = mod.GetModFile(filePath);
-                GadgetCore.CoreLogger.Log("Mod File Path: " + modFile.FilePath);
-                GadgetCore.CoreLogger.Log("File Size (Bytes): " + new FileInfo(modFile.FilePath).Length);
-                using (WWW www = new WWW("file:///" + modFile.FilePath.Replace(Path.DirectorySeparatorChar, '/')))
+                using (GadgetModFile modFile = mod.GetModFile(filePath))
                 {
-                    AudioClip clip = null;
-                    Stopwatch s = new Stopwatch();
-                    s.Start();
-                    try
+                    AudioClip loadedClip = null;
+                    while (loadedClip == null || loadedClip.loadState != AudioDataLoadState.Loaded || !loadedClip.LoadAudioData() || loadedClip.length <= 0)
                     {
-                        for (int i = 0; !www.isDone && s.ElapsedMilliseconds < 5000; i++) Thread.Sleep(5);
-                        if (www.isDone)
+                        using (WWW www = new WWW("file:///" + modFile.FilePath.Replace(Path.DirectorySeparatorChar, '/')))
                         {
-                            clip = www.GetAudioClip(true, true);
-                            cachedAudioClips.Add(modName + ":" + file, clip);
-                            return clip;
-                        }
-                        else
-                        {
-                            GadgetCore.CoreLogger.LogWarning("Loading audio file " + modName + ":" + file + " took too long!");
-                            return null;
+                            Stopwatch s = new Stopwatch();
+                            s.Start();
+                            try
+                            {
+                                while (!www.isDone && s.ElapsedMilliseconds < 30000) Thread.Sleep(5);
+                                if (www.isDone)
+                                {
+                                    loadedClip = www.GetAudioClip(true, true);
+                                    while (loadedClip.loadState == AudioDataLoadState.Loading && s.ElapsedMilliseconds < 30000) Thread.Sleep(5);
+                                }
+                            }
+                            finally
+                            {
+                                s.Stop();
+                            }
+                            if (s.ElapsedMilliseconds >= 30000)
+                            {
+                                GadgetCore.CoreLogger.LogWarning("Loading audio file " + modName + ":" + file + " took too long!");
+                            }
                         }
                     }
-                    finally
-                    {
-                        if (clip != null)
-                        {
-                            s.Stop();
-                            /*modFile.DisposeOnCondition(() => {
-                                bool loaded = clip.loadState == AudioDataLoadState.Failed || clip.loadState == AudioDataLoadState.Loaded && clip.length > 0 || s.ElapsedMilliseconds >= 10000;
-                                if (loaded) s.Stop();
-                                return loaded;
-                            });*/
-                        }
-                        else
-                        {
-                            s.Stop();
-                            modFile.Dispose();
-                        }
-                    }
+                    GadgetCore.CoreLogger.Log("Loaded audio file " + modName + ":" + file + " - loadState: " + loadedClip.loadState + ", length: " + loadedClip.length);
+                    cachedAudioClips[modName + ":" + file] = loadedClip;
+                    return loadedClip;
                 }
             }
             else
             {
                 return null;
             }
+        }
+
+        /// <summary>
+        /// Asynchronously loads an audio file from your Assets folder as an AudioClip. Assumes a file extension of .wav if one is not specified. Returns null if no file with the given name was found.
+        /// </summary>
+        internal static Task<AudioClip> LoadAudioClipAsyncInternal(string file, GadgetMod mod)
+        {
+            return Task.Factory.StartNew(() =>
+            {
+                if (file.IndexOf('.') == -1) file += ".wav";
+                file = file.Replace('/', Path.DirectorySeparatorChar);
+                string modName = mod?.Name ?? "GadgetCore";
+                lock (cachedAudioClips)
+                {
+                    if (cachedAudioClips.TryGetValue(modName + ":" + file, out AudioClip cachedClip) && cachedClip.loadState == AudioDataLoadState.Loaded)
+                    {
+                        return cachedClip;
+                    }
+                }
+                string filePath = Path.Combine("Assets", file);
+                if (mod?.HasModFile(filePath) ?? false)
+                {
+                    using (GadgetModFile modFile = mod.GetModFile(filePath))
+                    {
+                        IEnumerator ClipLoaderRoutine()
+                        {
+                            AudioClip loadedClip = null;
+                            while (loadedClip == null || loadedClip.loadState != AudioDataLoadState.Loaded || !loadedClip.LoadAudioData() || loadedClip.length <= 0)
+                            {
+                                using (WWW www = new WWW("file:///" + modFile.FilePath.Replace(Path.DirectorySeparatorChar, '/')))
+                                {
+                                    Stopwatch s = new Stopwatch();
+                                    s.Start();
+                                    try
+                                    {
+                                        while (!www.isDone && s.ElapsedMilliseconds < 30000) yield return new WaitForSeconds(0.025f);
+                                        if (www.isDone)
+                                        {
+                                            loadedClip = www.GetAudioClip(true, true);
+                                            while (loadedClip.loadState == AudioDataLoadState.Loading && s.ElapsedMilliseconds < 30000) yield return new WaitForSeconds(0.025f);
+                                        }
+                                    }
+                                    finally
+                                    {
+                                        s.Stop();
+                                    }
+                                    if (s.ElapsedMilliseconds >= 30000)
+                                    {
+                                        GadgetCore.CoreLogger.LogWarning("Loading audio file " + modName + ":" + file + " took too long!");
+                                    }
+                                }
+                            }
+                            lock (waitingAudioLoads)
+                            {
+                                waitingAudioLoads.Add(modName + ":" + file, loadedClip);
+                            }
+                            yield break;
+                        }
+                        CoroutineHooker.ScheduleSyncAction(() => CoroutineHooker.StartCoroutine(ClipLoaderRoutine()));
+                        while (true)
+                        {
+                            lock (waitingAudioLoads)
+                            {
+                                if (waitingAudioLoads.TryGetValue(modName + ":" + file, out AudioClip clip))
+                                {
+                                    GadgetCore.CoreLogger.Log("Loaded audio file " + modName + ":" + file + " - loadState: " + clip.loadState + ", length: " + clip.length);
+                                    lock (cachedAudioClips)
+                                    {
+                                        cachedAudioClips[modName + ":" + file] = clip;
+                                    }
+                                    return clip;
+                                }
+                            }
+                            Thread.Sleep(25);
+                        }
+                    }
+                }
+                else
+                {
+                    return null;
+                }
+            });
         }
 
         /// <summary>
