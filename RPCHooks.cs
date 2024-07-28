@@ -9,6 +9,7 @@ using System.Reflection;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace GadgetCore
 {
@@ -38,6 +39,8 @@ namespace GadgetCore
 
         internal static void InitiateGadgetNetwork()
         {
+            if (Singleton == null) Singleton = InstanceTracker.GameScript.gameObject.AddComponent<RPCHooks>();
+            if (view == null) view = InstanceTracker.GameScript.gameObject.GetComponent<NetworkView>();
             if (Network.isServer)
             {
                 if (Singleton.initiatedClients.Contains(Network.player)) return;
@@ -242,12 +245,23 @@ namespace GadgetCore
             Network.Disconnect((int)(GadgetNetwork.MatrixTimeout * 1000));
         }
 
-        internal static GameObject Instantiate(string path, Vector3 position, Quaternion rotation, int group)
+        internal static GameObject InstantiateResource(string path, Vector3 position, Quaternion rotation, int group)
         {
             if (view == null) view = Singleton.GetComponent<NetworkView>();
             NetworkViewID viewID = Network.AllocateViewID();
             view.RPC("NetworkInstantiate", RPCMode.OthersBuffered, path, position, rotation, group, viewID);
-            GameObject obj = Instantiate(Resources.Load(path), position, rotation) as GameObject;
+            return InstantiateWithNetworkView(Resources.Load(path), position, rotation, group, viewID);
+        }
+
+        [RPC]
+        internal void NetworkInstantiate(string path, Vector3 position, Quaternion rotation, int group, NetworkViewID viewID)
+        {
+            InstantiateWithNetworkView(Resources.Load(path), position, rotation, group, viewID);
+        }
+
+        private static GameObject InstantiateWithNetworkView(Object original, Vector3 position, Quaternion rotation, int group, NetworkViewID viewID)
+        {
+            GameObject obj = Instantiate(original, position, rotation) as GameObject;
             if (obj != null)
             {
                 NetworkView view = obj.GetComponent<NetworkView>();
@@ -256,19 +270,6 @@ namespace GadgetCore
                 view.viewID = viewID;
             }
             return obj;
-        }
-
-        [RPC]
-        internal void NetworkInstantiate(string path, Vector3 position, Quaternion rotation, int group, NetworkViewID viewID)
-        {
-            GameObject obj = Instantiate(Resources.Load(path), position, rotation) as GameObject;
-            if (obj != null)
-            {
-                NetworkView view = obj.GetComponent<NetworkView>();
-                if (view == null) view = obj.AddComponent<NetworkView>();
-                view.group = group;
-                view.viewID = viewID;
-            }
         }
 
         internal static void Destroy(NetworkViewID viewID)

@@ -30,5 +30,21 @@ namespace GadgetCore.Patches
             }
             return true;
         }
+
+        [HarmonyPostfix]
+        public static void Postfix(string path, ref UnityEngine.Object __result)
+        {
+            if (__result == null)
+            {
+                UnityEngine.Object fallbackResource = GetFallbackResource(path);
+                if (fallbackResource != null) __result = fallbackResource;
+            }
+        }
+
+        private static UnityEngine.Object GetFallbackResource(string path)
+        {
+            if (path.StartsWith("i/i") || path.StartsWith("cc/cc")) return GadgetCoreAPI.MissingItemMaterial;
+            return null;
+        }
     }
 }

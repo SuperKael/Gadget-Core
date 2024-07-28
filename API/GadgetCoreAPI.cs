@@ -12,6 +12,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Debug = System.Diagnostics.Debug;
 
 namespace GadgetCore.API
 {
@@ -23,11 +24,11 @@ namespace GadgetCore.API
         /// <summary>
         /// The version numbers for this version of Gadget Core. You generally shouldn't access this directly, instead use <see cref="GetRawVersion()"/>
         /// </summary>
-        public const string RAW_VERSION = "2.0.6.7";
+        public const string RAW_VERSION = "2.0.7.0";
         /// <summary>
         /// A slightly more informative version. You generally shouldn't access this directly, instead use <see cref="GetFullVersion()"/>
         /// </summary>
-        public const string FULL_VERSION = "2.0.6.7 - Extended Character Edition";
+        public const string FULL_VERSION = RAW_VERSION + " - Exceptional Quality Edition";
         /// <summary>
         /// Indicates whether this version of GadgetCore is a beta version. You generally shouldn't access this directly, instead use <see cref="GetIsBeta()"/>
         /// </summary>
@@ -42,7 +43,8 @@ namespace GadgetCore.API
         /// <summary>
         /// The sprite used for missing tile textures
         /// </summary>
-        public static SpriteSheetEntry MissingTexSprite { get; internal set; }
+        public static SpriteSheetEntry MissingTileSprite { get; internal set; }
+        public static Material MissingItemMaterial { get; internal set; }
 
         private static readonly Func<int, string> GetItemNameInvoker = typeof(GameScript).GetMethod("GetItemName", BindingFlags.Public | BindingFlags.Instance).CreateInvoker<Func<int, string>>();
         private static readonly Func<int, string> GetItemDescInvoker = typeof(GameScript).GetMethod("GetItemDesc", BindingFlags.Public | BindingFlags.Instance).CreateInvoker<Func<int, string>>();
@@ -1761,7 +1763,6 @@ namespace GadgetCore.API
                             }
                         }
                     }
-                    GadgetCore.CoreLogger.Log("Loaded audio file " + modName + ":" + file + " - loadState: " + loadedClip.loadState + ", length: " + loadedClip.length);
                     cachedAudioClips[modName + ":" + file] = loadedClip;
                     return loadedClip;
                 }
@@ -1777,7 +1778,7 @@ namespace GadgetCore.API
         /// </summary>
         internal static Task<AudioClip> LoadAudioClipAsyncInternal(string file, GadgetMod mod)
         {
-            return Task.Factory.StartNew(() =>
+            Task<AudioClip> task = new Task<AudioClip>(() =>
             {
                 if (file.IndexOf('.') == -1) file += ".wav";
                 file = file.Replace('/', Path.DirectorySeparatorChar);
@@ -1835,7 +1836,6 @@ namespace GadgetCore.API
                             {
                                 if (waitingAudioLoads.TryGetValue(modName + ":" + file, out AudioClip clip))
                                 {
-                                    GadgetCore.CoreLogger.Log("Loaded audio file " + modName + ":" + file + " - loadState: " + clip.loadState + ", length: " + clip.length);
                                     lock (cachedAudioClips)
                                     {
                                         cachedAudioClips[modName + ":" + file] = clip;
@@ -1852,6 +1852,9 @@ namespace GadgetCore.API
                     return null;
                 }
             });
+            // This has the potential to get really out of hand if a mod wants to load a lot of audio clips. Oh well.
+            new Thread(() => task.RunSynchronously()).Start();
+            return task;
         }
 
         /// <summary>

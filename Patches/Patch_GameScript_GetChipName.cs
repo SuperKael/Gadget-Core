@@ -17,5 +17,11 @@ namespace GadgetCore.Patches
             }
             return true;
         }
+
+        [HarmonyPostfix]
+        public static void Postfix(int id, ref string __result)
+        {
+            if (string.IsNullOrEmpty(__result)) __result = id >= ChipRegistry.Singleton.GetIDStart() ? "Missing Modded Combat Chip!" : "Invalid Combat Chip!";
+        }
     }
 }

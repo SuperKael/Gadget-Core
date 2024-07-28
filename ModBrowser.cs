@@ -58,6 +58,7 @@ namespace GadgetCore
 
         internal static bool RestartNeeded { get; private set; } = false;
         internal static bool UpdateOnRestart { get; private set; } = false;
+        internal static bool GadgetCoreUpdateAvailable { get; private set; } = false;
 
         private readonly List<ModBrowserEntry> modEntries = new List<ModBrowserEntry>();
         private bool listLoading, descLoading, downloading, built, checkedForGadgetCoreUpdate, allModsLoaded;
@@ -138,6 +139,7 @@ namespace GadgetCore
                 Array.ForEach(SceneInjector.ModConfigMenuText.GetComponentsInChildren<TextMesh>(), x => { x.text = "MOD BROWSER"; x.anchor = TextAnchor.UpperCenter; });
                 Singleton.BrowserButtonText.text = "Mod Menu";
                 Singleton.gameObject.SetActive(true);
+                if (GadgetCoreUpdateAvailable) Singleton.UpdateGadgetCoreButton.gameObject.SetActive(true);
                 if (!string.IsNullOrEmpty(gitHubAuthToken))
                 {
                     gitHubAuthHeaders["Authorization"] = $"token {gitHubAuthToken}";
@@ -169,6 +171,7 @@ namespace GadgetCore
                 Singleton.gameObject.SetActive(false);
                 Singleton.UnlimitButton.gameObject.SetActive(false);
                 Singleton.RefreshButton.gameObject.SetActive(false);
+                Singleton.UpdateGadgetCoreButton.gameObject.SetActive(false);
                 Array.ForEach(SceneInjector.ModConfigMenuText.GetComponentsInChildren<TextMesh>(), x => { x.text = "MOD CONFIG MENU"; x.anchor = TextAnchor.UpperCenter; });
                 Singleton.BrowserButtonText.text = "Mod Browser";
                 SceneInjector.ModMenuPanel.Rebuild();
@@ -627,6 +630,7 @@ namespace GadgetCore
                         {
                             if (newVersion != GadgetCoreAPI.GetRawVersion())
                             {
+                                GadgetCoreUpdateAvailable = true;
                                 GadgetCore.CoreLogger.LogConsole($"A new version of GadgetCore is available: Version {newVersion}");
                                 Singleton.UpdateGadgetCoreButton.gameObject.SetActive(true);
                             }

@@ -63,10 +63,10 @@ namespace GadgetCore.Patches
                 }
                 else
                 {
-                    uvs.Add(new Vector2(GadgetCoreAPI.MissingTexSprite.coords.x, GadgetCoreAPI.MissingTexSprite.coords.y));
-                    uvs.Add(new Vector2(GadgetCoreAPI.MissingTexSprite.coords.x, GadgetCoreAPI.MissingTexSprite.coords.y + 1));
-                    uvs.Add(new Vector2(GadgetCoreAPI.MissingTexSprite.coords.x + 1, GadgetCoreAPI.MissingTexSprite.coords.y + 1));
-                    uvs.Add(new Vector2(GadgetCoreAPI.MissingTexSprite.coords.x + 1, GadgetCoreAPI.MissingTexSprite.coords.y));
+                    uvs.Add(new Vector2(GadgetCoreAPI.MissingTileSprite.coords.x, GadgetCoreAPI.MissingTileSprite.coords.y));
+                    uvs.Add(new Vector2(GadgetCoreAPI.MissingTileSprite.coords.x, GadgetCoreAPI.MissingTileSprite.coords.y + 1));
+                    uvs.Add(new Vector2(GadgetCoreAPI.MissingTileSprite.coords.x + 1, GadgetCoreAPI.MissingTileSprite.coords.y + 1));
+                    uvs.Add(new Vector2(GadgetCoreAPI.MissingTileSprite.coords.x + 1, GadgetCoreAPI.MissingTileSprite.coords.y));
                 }
                 if (reversed)
                 {
@@ -99,10 +99,10 @@ namespace GadgetCore.Patches
                 verts.Add(corner + up + right);
                 verts.Add(corner + right);
 
-                uvs.Add(new Vector2(GadgetCoreAPI.MissingTexSprite.coords.x, GadgetCoreAPI.MissingTexSprite.coords.y));
-                uvs.Add(new Vector2(GadgetCoreAPI.MissingTexSprite.coords.x, GadgetCoreAPI.MissingTexSprite.coords.y + 1));
-                uvs.Add(new Vector2(GadgetCoreAPI.MissingTexSprite.coords.x + 1, GadgetCoreAPI.MissingTexSprite.coords.y + 1));
-                uvs.Add(new Vector2(GadgetCoreAPI.MissingTexSprite.coords.x + 1, GadgetCoreAPI.MissingTexSprite.coords.y));
+                uvs.Add(new Vector2(GadgetCoreAPI.MissingTileSprite.coords.x, GadgetCoreAPI.MissingTileSprite.coords.y));
+                uvs.Add(new Vector2(GadgetCoreAPI.MissingTileSprite.coords.x, GadgetCoreAPI.MissingTileSprite.coords.y + 1));
+                uvs.Add(new Vector2(GadgetCoreAPI.MissingTileSprite.coords.x + 1, GadgetCoreAPI.MissingTileSprite.coords.y + 1));
+                uvs.Add(new Vector2(GadgetCoreAPI.MissingTileSprite.coords.x + 1, GadgetCoreAPI.MissingTileSprite.coords.y));
 
                 if (reversed)
                 {

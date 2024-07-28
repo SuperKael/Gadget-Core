@@ -17,5 +17,37 @@ namespace GadgetCore.Patches
             }
             return true;
         }
+
+        [HarmonyPostfix]
+        public static void Postfix(int id, ref string __result)
+        {
+            if (string.IsNullOrEmpty(__result))
+            {
+                if (id >= ChipRegistry.Singleton.GetIDStart())
+                {
+                    string modID = ChipRegistry.Singleton.IsIDReserved(id);
+                    if (modID != null)
+                    {
+                        __result = "Unloaded Combat Chip from the mod:\n" + modID;
+                    }
+                    else
+                    {
+                        __result = "Invalid Combat Chip from an unknown mod.";
+                    }
+                }
+                else
+                {
+                    string itemName = GadgetCoreAPI.GetItemName(id);
+                    if (itemName != "Missing Mod Item!" && itemName != "Invalid Item!")
+                    {
+                        __result = "An invalid Combat Chip. Shares its ID with the Item:\n" + itemName;
+                    }
+                    else
+                    {
+                        __result = "An invalid Combat Chip.";
+                    }
+                }
+            }
+        }
     }
 }

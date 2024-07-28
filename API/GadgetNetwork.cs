@@ -20,6 +20,15 @@ namespace GadgetCore.API
         /// </summary>
         public static bool MatrixReady { get; private set; }
         /// <summary>
+        /// True if the timeout period for the Network ID Conversion Matrix has passed, but the Matrix is not ready for use. Will always be false when MatrixReady is true.
+        /// </summary>
+        public static bool MatrixTimedOut => !MatrixReady && connectTime >= 0 && GetTimeSinceConnect() > MatrixTimeout;
+        /// <summary>
+        /// True if the Network ID Conversion Matrix is ready for use, OR the timeout period for the Matrix has passed.
+        /// </summary>
+        public static bool MatrixReadyOrTimedOut => MatrixReady || connectTime >= 0 && GetTimeSinceConnect() > MatrixTimeout;
+
+        /// <summary>
         /// True if you are currently connected as a client, and the host does not have Gadget Core installed. This can be a false positive, in the case of a slow connection.
         /// </summary>
         public static bool IsHostVanilla { get; private set; }
@@ -43,7 +52,7 @@ namespace GadgetCore.API
         /// </summary>
         public static float GetTimeSinceConnect()
         {
-            return connectTime > 0 ? Time.realtimeSinceStartup - connectTime : -1;
+            return connectTime >= 0 ? Time.realtimeSinceStartup - connectTime : -1;
         }
 
         /// <summary>
@@ -68,16 +77,8 @@ namespace GadgetCore.API
         /// </summary>
         public static object ConvertIDToHost(this Registry reg, ref object ID)
         {
-            if (Network.isServer) return ID;
-            if (!(ID is int id)) throw new ArgumentException("ID must be an int!", "ID");
-            if (!MatrixReady) throw new InvalidOperationException("Network ID conversion cannot be performed when the ID conversion matrix is not ready!");
-            if (reg == null) return ID;
-            if (IDConversionMatrixToHost.ContainsKey(reg.GetRegistryName()) && IDConversionMatrixToHost[reg.GetRegistryName()].TryGetValue(id, out id))
-            {
-                return ID = id;
-            }
-            if (id >= reg.GetIDStart()) GadgetCore.CoreLogger.LogWarning($"ID Conversion to host failed: ID {id} does not exist on the host. This has resulted in the corruption of {("aeiouAEIOU".Contains(reg.GetRegistryName()[0]) ? "an " : "a ") + reg.GetRegistryName()}!");
-            return ((int)ID) < reg.GetIDStart() ? ID : (ID = -1);
+            if (!(ID is int id)) throw new ArgumentException("ID must be an int!", nameof(ID));
+            return ID = ConvertIDToHost(reg, id);
         }
 
         /// <summary>
@@ -85,15 +86,7 @@ namespace GadgetCore.API
         /// </summary>
         public static int ConvertIDToHost(this Registry reg, ref int ID)
         {
-            if (Network.isServer) return ID;
-            if (!MatrixReady) throw new InvalidOperationException("Network ID conversion cannot be performed when the ID conversion matrix is not ready!");
-            if (reg == null) return ID;
-            if (IDConversionMatrixToHost.ContainsKey(reg.GetRegistryName()) && IDConversionMatrixToHost[reg.GetRegistryName()].TryGetValue(ID, out int newID))
-            {
-                return ID = newID;
-            }
-            if (ID >= reg.GetIDStart()) GadgetCore.CoreLogger.LogWarning($"ID Conversion to host failed: ID {ID} does not exist on the host. This has resulted in the corruption of {("aeiouAEIOU".Contains(reg.GetRegistryName()[0]) ? "an " : "a ") + reg.GetRegistryName()}!");
-            return ID < reg.GetIDStart() ? ID : (ID = -1);
+            return ID = ConvertIDToHost(reg, ID);
         }
 
         /// <summary>
@@ -117,16 +110,8 @@ namespace GadgetCore.API
         /// </summary>
         public static object ConvertIDToLocal(this Registry reg, ref object ID)
         {
-            if (Network.isServer) return ID;
-            if (!(ID is int id)) throw new ArgumentException("ID must be an int!", "ID");
-            if (!MatrixReady) throw new InvalidOperationException("Network ID conversion cannot be performed when the ID conversion matrix is not ready!");
-            if (reg == null) return ID;
-            if (IDConversionMatrixToLocal.ContainsKey(reg.GetRegistryName()) && IDConversionMatrixToLocal[reg.GetRegistryName()].TryGetValue(id, out id))
-            {
-                return ID = id;
-            }
-            if (id >= reg.GetIDStart()) GadgetCore.CoreLogger.LogWarning($"ID Conversion to local failed: ID {id} does not exist on this client. This has resulted in the corruption of {("aeiouAEIOU".Contains(reg.GetRegistryName()[0]) ? "an " : "a ") + reg.GetRegistryName()}!");
-            return ((int)ID) < reg.GetIDStart() ? ID : (ID = -1);
+            if (!(ID is int id)) throw new ArgumentException("ID must be an int!", nameof(ID));
+            return ID = ConvertIDToLocal(reg, id);
         }
 
         /// <summary>
@@ -134,15 +119,7 @@ namespace GadgetCore.API
         /// </summary>
         public static int ConvertIDToLocal(this Registry reg, ref int ID)
         {
-            if (Network.isServer) return ID;
-            if (!MatrixReady) throw new InvalidOperationException("Network ID conversion cannot be performed when the ID conversion matrix is not ready!");
-            if (reg == null) return ID;
-            if (IDConversionMatrixToLocal.ContainsKey(reg.GetRegistryName()) && IDConversionMatrixToLocal[reg.GetRegistryName()].TryGetValue(ID, out int newID))
-            {
-                return ID = newID;
-            }
-            if (ID >= reg.GetIDStart()) GadgetCore.CoreLogger.LogWarning($"ID Conversion to local failed: ID {ID} does not exist on this client. This has resulted in the corruption of {("aeiouAEIOU".Contains(reg.GetRegistryName()[0]) ? "an " : "a ") + reg.GetRegistryName()}!");
-            return ID < reg.GetIDStart() ? ID : (ID = -1);
+            return ID = ConvertIDToLocal(reg, ID);
         }
 
         /// <summary>
@@ -213,6 +190,7 @@ namespace GadgetCore.API
                     }
                 }
                 MatrixReady = true;
+                OnMatrixReady?.Invoke(true);
             }
             catch (Exception e)
             {
@@ -220,7 +198,6 @@ namespace GadgetCore.API
                 GadgetCore.CoreLogger.LogError("Exception that occured while parsing host ID conversion data:" + Environment.NewLine + e.ToString());
                 Network.Disconnect();
             }
-            OnMatrixReady?.Invoke(true);
         }
 
         /// <summary>

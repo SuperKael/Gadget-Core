@@ -79,6 +79,10 @@ namespace GadgetCore
                 case GadgetConsole.MessageSeverity.ERROR:
                     LogError(text);
                     break;
+                case GadgetConsole.MessageSeverity.RAW:
+                    GadgetConsole.Print(text?.ToString() ?? "null", LoggerName, severity);
+                    LogRaw(text);
+                    break;
                 default:
                     GadgetConsole.Print(text?.ToString() ?? "null", LoggerName, severity);
                     Log(text);
@@ -121,6 +125,18 @@ namespace GadgetCore
             {
                 foreach (string line in (text?.ToString() ?? "null").Replace('\r', '\n').Split(new char[] { '\n' }, StringSplitOptions.RemoveEmptyEntries))
                     streamWriter?.WriteLine("[" + DateTime.Now + "]" + (!string.IsNullOrEmpty(LoggerName) ? "[" + LoggerName + "]" : "") + "[Error] " + line);
+            }
+        }
+
+        /// <summary>
+        /// Logs a message as a line of text into the log file without prepending a severity tag to it.
+        /// </summary>
+        public void LogRaw(object text)
+        {
+            lock (streamWriter)
+            {
+                foreach (string line in (text?.ToString() ?? "null").Replace('\r', '\n').Split(new char[] { '\n' }, StringSplitOptions.RemoveEmptyEntries))
+                    streamWriter?.WriteLine("[" + DateTime.Now + "]" + (!string.IsNullOrEmpty(LoggerName) ? "[" + LoggerName + "]" : "") + line);
             }
         }
 

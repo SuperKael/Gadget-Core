@@ -3,6 +3,7 @@ using UnityEngine.SceneManagement;
 using System.Reflection;
 using System.Collections.Generic;
 using System;
+using System.Diagnostics;
 using System.Linq;
 using GadgetCore.API;
 using System.IO;
@@ -17,6 +18,7 @@ using UnityEngine.UI;
 using GadgetCore.Util;
 using Ionic.Zip;
 using System.Text.RegularExpressions;
+using Debug = UnityEngine.Debug;
 
 namespace GadgetCore
 {
@@ -29,6 +31,7 @@ namespace GadgetCore
 
         internal static Dictionary<string, Assembly> LoadedAssemblies = new Dictionary<string, Assembly>();
         internal static GadgetLogger CoreLogger;
+        internal static GadgetLogger UnityLogger;
         internal static Harmony HarmonyInstance;
 
         static GadgetCore()
@@ -140,6 +143,88 @@ namespace GadgetCore
             {
                 CoreLogger = new GadgetLogger("GadgetCore", "Core");
                 CoreLogger.Log("GadgetCore v" + GadgetCoreAPI.FULL_VERSION + " Initializing!");
+                
+                UnityLogger = new GadgetLogger("Unity Output", "Unity");
+                Application.SetStackTraceLogType(LogType.Exception, StackTraceLogType.Full);
+                Application.logMessageReceivedThreaded += (text, stackTrace, type) =>
+                {
+                    switch (type)
+                    {
+                        case LogType.Log:
+                            UnityLogger.Log(text);
+                            break;
+                        case LogType.Warning:
+                            UnityLogger.LogWarning(text, false);
+                            break;
+                        case LogType.Error:
+                        case LogType.Assert:
+                            UnityLogger.LogError(text, false);
+                            break;
+                        case LogType.Exception:
+                            if (!string.IsNullOrEmpty(stackTrace))
+                            {
+                                GadgetMod blameMod = null;
+                                foreach (string frame in stackTrace.Split('\n'))
+                                {
+                                    try
+                                    {
+                                        if (GadgetLoader.BlameMap.TryGetValue(
+                                                frame.Substring(0, frame.LastIndexOf('.', stackTrace.IndexOf(' '))),
+                                                out blameMod)) break;
+                                    } catch (Exception) {}
+                                }
+                                if (blameMod != null)
+                                {
+                                    UnityLogger.LogError($"<Exception from {blameMod.Name}> " + text);
+                                }
+                                else
+                                {
+                                    UnityLogger.LogError("<Exception> " + text);
+                                }
+                                UnityLogger.LogRaw(string.Join("\n", stackTrace.Split('\n').Where(frame => !string.IsNullOrEmpty(frame)).Select(frame => "[StackTrace]  " + frame).ToArray()));
+                            }
+                            else
+                            {
+                                UnityLogger.LogError("<Exception> " + text);
+                            }
+                            break;
+                    }
+                };
+
+                string logPath = Application.dataPath + "\\output_log.txt";
+                if (!File.Exists(logPath)) logPath = Application.persistentDataPath + "\\output_log.txt";
+                if (!File.Exists(logPath))
+                {
+                    string homeVar = Environment.GetEnvironmentVariable("HOME");
+                    if (homeVar != null)
+                    {
+                        logPath = Path.Combine(homeVar, "Library/Logs/Unity/Player.log");
+                        if (!File.Exists(logPath)) logPath = Path.Combine(homeVar, ".config/unity3d/DefaultCompany/Roguelands/Player.log");
+                    }
+                }
+                if (File.Exists(logPath))
+                {
+                    try
+                    {
+                        using FileStream fileStream = new FileStream(logPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+                        using StreamReader streamReader = new StreamReader(fileStream);
+                        string logData = string.Join("\n",
+                            streamReader.ReadToEnd().Replace('\r', '\n')
+                                .Split(new char[] { '\n' }, StringSplitOptions.RemoveEmptyEntries)
+                                .Select(frame => string.IsNullOrEmpty(frame) ? frame : "  " + frame).ToArray());
+                        UnityLogger.LogRaw("=====Begin Unity log prior to GadgetCore initialization=====");
+                        UnityLogger.LogRaw(logData);
+                        UnityLogger.LogRaw("=====End Unity log prior to GadgetCore initialization=====");
+                    }
+                    catch (Exception)
+                    {
+                        UnityLogger.LogWarning("Error reading Unity output log file!");
+                    }
+                }
+                else
+                {
+                    UnityLogger.LogWarning("Unable to find Unity output log file!");
+                }
             }
             catch (Exception e)
             {
@@ -147,6 +232,11 @@ namespace GadgetCore
             }
             try
             {
+                GadgetLoader.LoadSymbolsInternal("GadgetCore",
+                    File.ReadAllBytes(Path.Combine(GadgetPaths.ManagedPath, "GadgetCore.dll")),
+                    File.ReadAllBytes(Path.Combine(GadgetPaths.ManagedPath, "GadgetCore.pdb")))
+                    .Wait(10000);
+
                 if (File.Exists(Application.persistentDataPath + "/PlayerPrefs.txt"))
                 {
                     if (VerifySaveFile())
@@ -196,31 +286,6 @@ namespace GadgetCore
                         }
                     }
                 });
-                new Thread(new ThreadStart(() => {
-                    Thread.CurrentThread.Name = "GadgetCore Unity Engine Log Cloner";
-                    Thread.CurrentThread.Priority = System.Threading.ThreadPriority.Lowest;
-                    Thread.CurrentThread.IsBackground = true;
-                    string logPath = Application.dataPath + "\\output_log.txt";
-                    if (!File.Exists(logPath)) logPath = Application.persistentDataPath + "\\output_log.txt";
-                    if (!File.Exists(logPath)) logPath = Path.Combine(Environment.GetEnvironmentVariable("HOME"), "Library/Logs/Unity/Player.log");
-                    if (!File.Exists(logPath)) logPath = Path.Combine(Environment.GetEnvironmentVariable("HOME"), ".config/unity3d/DefaultCompany/Roguelands/Player.log");
-                    if (!File.Exists(logPath))
-                    {
-                        CoreLogger.LogWarning("Unable to find Unity log file!");
-                        return;
-                    }
-                    string targetPath = Path.Combine(GadgetPaths.LogsPath, "Unity Output.log");
-                    DateTime t = default;
-                    while (!Quitting)
-                    {
-                        if (File.Exists(logPath) && File.GetLastWriteTime(logPath) > t)
-                        {
-                            File.Copy(logPath, targetPath, true);
-                            t = DateTime.Now;
-                        }
-                        Thread.Sleep(100);
-                    }
-                })).Start();
                 AppDomain.CurrentDomain.AssemblyResolve += (object sender, ResolveEventArgs args) =>
                 {
                     string name = new AssemblyName(args.Name).Name;
@@ -494,7 +559,11 @@ namespace GadgetCore
             GameRegistry.RegisterRegistry(CharacterAugmentRegistry.Singleton);
             GameRegistry.RegisterRegistry(CharacterUniformRegistry.Singleton);
 
-            GadgetCoreAPI.MissingTexSprite = GadgetCoreAPI.AddTextureToSheet(GadgetCoreAPI.LoadTexture2D("missing_tex"));
+            GadgetCoreAPI.MissingItemMaterial = new Material(Shader.Find("Unlit/Transparent"))
+            {
+                mainTexture = GadgetCoreAPI.LoadTexture2D("missing_item")
+            };
+            GadgetCoreAPI.MissingTileSprite = GadgetCoreAPI.AddTextureToSheet(GadgetCoreAPI.LoadTexture2D("missing_tile"));
 
             GameObject expCustom = Instantiate(Resources.Load<GameObject>("exp/exp7"));
             GadgetCoreAPI.AddCustomResource("exp/expCustom", expCustom);

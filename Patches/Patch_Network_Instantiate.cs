@@ -15,7 +15,7 @@ namespace GadgetCore.Patches
             {
                 if (prefab != null && GadgetCoreAPI.resourcePaths.ContainsKey(prefab.GetInstanceID()))
                 {
-                    __result = RPCHooks.Instantiate(GadgetCoreAPI.resourcePaths[prefab.GetInstanceID()], position, rotation, group);
+                    __result = RPCHooks.InstantiateResource(GadgetCoreAPI.resourcePaths[prefab.GetInstanceID()], position, rotation, group);
                     return false;
                 }
             }

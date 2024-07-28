@@ -12,6 +12,7 @@
     <RootNamespace>TemplateGadgetMod</RootNamespace>
     <AssemblyName>TemplateGadgetMod</AssemblyName>
     <TargetFrameworks>net35</TargetFrameworks>
+	<LangVersion>8.0</LangVersion>
     <FileAlignment>512</FileAlignment>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <Configurations>Release</Configurations>
@@ -19,11 +20,12 @@
     <ApplicationIcon />
     <StartupObject />
     <Platforms>x86</Platforms>
+	<PathMap>$(MSBuildProjectDirectory)\$(IntermediateOutputPath)=.</PathMap>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <PlatformTarget>x86</PlatformTarget>
-    <DebugType>none</DebugType>
-    <Optimize>true</Optimize>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
     <OutputPath>Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
@@ -31,6 +33,7 @@
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net35|x86'">
+    <DebugSymbols>true</DebugSymbols>
     <NoWarn>1701;1702</NoWarn>
   </PropertyGroup>
   <ItemGroup>
@@ -57,10 +60,10 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="ModInfo.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <None Include="Assets\**">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
   <UsingTask TaskName="GetFileVersion" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v4.0.dll">
@@ -74,15 +77,18 @@
       <Using Namespace="System.Text" />
       <Using Namespace="System.Linq" />
       <Code Type="Fragment" Language="cs">
-        <![CDATA[
-      this.Version = FileVersionInfo.GetVersionInfo(this.AssemblyPath).FileVersion;  
-      this.TrimmedVersion = this.Version.Split('.').TakeWhile(x => !x.Equals("0")).Aggregate(new StringBuilder(), (a, b) => { if (a.Length > 0) a.Append("."); a.Append(b); return a; }).ToString();
-      if (this.TrimmedVersion.IndexOf('.') == -1) this.TrimmedVersion += ".0";
-    ]]>
+<![CDATA[
+      Version = FileVersionInfo.GetVersionInfo(this.AssemblyPath).FileVersion;  
+      TrimmedVersion = this.Version.Split('.').TakeWhile(x => !x.Equals("0")).Aggregate(new StringBuilder(), (a, b) => { if (a.Length > 0) a.Append("."); a.Append(b); return a; }).ToString();
+      if (TrimmedVersion.IndexOf('.') == -1) TrimmedVersion += ".0";
+]]>
       </Code>
     </Task>
   </UsingTask>
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+  <PropertyGroup>
+  	<RunPostBuildEvent>OnOutputUpdated</RunPostBuildEvent>
+  </PropertyGroup>
+  <Target Name="PostBuild" AfterTargets="CoreBuild" Condition="'$(_AssemblyTimestampBeforeCompile)'!='$(_AssemblyTimestampAfterCompile)'">
     <GetFileVersion AssemblyPath="$(TargetPath)">
       <Output TaskParameter="Version" PropertyName="ModFullVersion" />
       <Output TaskParameter="TrimmedVersion" PropertyName="AssemblyFileVersion" />
@@ -102,7 +108,7 @@
   </Target>
   <ItemGroup>
     <None Update="Manifest.ini">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
   <ItemGroup>

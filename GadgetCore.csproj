@@ -10,6 +10,7 @@
     <AssemblyName>GadgetCore</AssemblyName>
     <FileAlignment>512</FileAlignment>
 	  <TargetFrameworks>net35</TargetFrameworks>
+	  <LangVersion>8.0</LangVersion>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <Configurations>Release;Debug</Configurations>
     <Authors>HaneyDev</Authors>
@@ -21,7 +22,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
     <PlatformTarget>x86</PlatformTarget>
-    <DebugType>none</DebugType>
+    <DebugType>full</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
@@ -44,6 +45,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net35|x86'">
     <DocumentationFile>Release\GadgetCore.xml</DocumentationFile>
     <NoWarn>1701;1702;IDE0060</NoWarn>
+    <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net35|x86'">
     <DocumentationFile>Debug\GadgetCore.xml</DocumentationFile>
@@ -51,7 +53,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
     <PlatformTarget>x86</PlatformTarget>
-    <DebugType>none</DebugType>
+    <DebugType>full</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>Debug\</OutputPath>
     <DefineConstants>TRACE,DEBUG</DefineConstants>
@@ -63,6 +65,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net35|x86'">
     <DocumentationFile>Debug\GadgetCore.xml</DocumentationFile>
     <NoWarn>1701;1702;IDE0060</NoWarn>
+    <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="TemplateGadgetMod\Patches\Patch_ClassName_MethodName.cs" />
@@ -99,13 +102,14 @@
     <Reference Include="System.Core">
       <Private>false</Private>
     </Reference>
-    <Reference Include="System.Threading">
-      <HintPath>D:\Program Files (x86)\Steam\steamapps\common\Roguelands\Roguelands_Data\Managed\System.Threading.dll</HintPath>
-    </Reference>
     <Reference Include="System.Web">
       <HintPath>..\CoreLibs\System.Web.dll</HintPath>
       <Private>false</Private>
     </Reference>
+	  <Reference Include="System.Threading">
+		  <HintPath>..\CoreLibs\System.Threading.dll</HintPath>
+		  <Private>false</Private>
+	  </Reference>
     <Reference Include="uModFramework">
       <HintPath>..\Libs\uModFramework.dll</HintPath>
       <Private>false</Private>
@@ -120,94 +124,37 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-	<None Update="Assets\**">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	</None>
-    <None Update="CoreLibs\0Harmony.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="CoreLibs\DotNetZip.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="CoreLibs\I18N.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="CoreLibs\I18N.West.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="CoreLibs\INIFileParser.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="CoreLibs\Newtonsoft.Json.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="CoreLibs\System.Configuration.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="CoreLibs\System.Core.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="CoreLibs\System.Data.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="CoreLibs\System.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="CoreLibs\System.Drawing.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="CoreLibs\System.Runtime.Serialization.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="CoreLibs\System.Threading.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="CoreLibs\System.Web.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="CoreLibs\System.Xml.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="DependentLibs\GadgetCoreLib.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Libs\GadgetCoreLib.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Libs\Open.Nat.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Libraries\System.Configuration.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Libraries\System.Core.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Libraries\System.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Libraries\System.Drawing.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Libraries\System.Threading.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Libraries\System.Xml.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Tools\CoreLibInstaller.exe">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Tools\GadgetCore.CoreLibInstaller.exe">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+		<None Update="Assets\**">
+	      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Update="CoreLibs\**">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Update="DependentLibs\**">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+	  <None Update="Libs\**">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	  <None Update="Libraries\**">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	  <None Update="Tools\**">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
   </ItemGroup>
   <ItemGroup>
     <None Include="TemplateGadgetMod\Patches\Patch_ClassName_MethodName.cs" />
     <None Include="TemplateGadgetMod\Properties\AssemblyInfo.cs" />
     <None Include="TemplateGadgetMod\TemplateGadgetMod.cs" />
   </ItemGroup>
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+  <ItemGroup>
+    <Folder Include="MonoSymbol\" />
+  </ItemGroup>
+  <PropertyGroup>
+  	<RunPostBuildEvent>OnOutputUpdated</RunPostBuildEvent>
+  </PropertyGroup>
+  <Target Name="PostBuild" AfterTargets="CoreBuild" Condition="'$(_AssemblyTimestampBeforeCompile)'!='$(_AssemblyTimestampAfterCompile)'">
 	<Delete Files="$(TargetDir)$(AssemblyName).zip" />
 	<MakeDir Directories="$(TargetDir)\Mods\" />
     <Exec Command="&quot;C:\Program Files\7-Zip\7z&quot; a -y -tzip &quot;$(TargetDir)$(AssemblyName).zip&quot; &quot;$(TargetDir)*&quot; -mx5 -x!*.xml" />

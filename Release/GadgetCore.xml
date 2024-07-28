@@ -2229,6 +2229,11 @@
             </summary>
             <param name="recipes">An array of recipes represented by <see cref="T:GadgetCore.API.CraftMenuInfo.AdvancedRecipe"/>s.</param>
         </member>
+        <member name="M:GadgetCore.API.CraftMenuInfo.RemoveAllModCraftPerformers(System.Int32)">
+            <summary>
+            Removes all CraftPerformers that were added by the given mod from all CraftMenuInfos
+            </summary>
+        </member>
         <member name="E:GadgetCore.API.CraftMenuInfo.OnCraftButton">
             <summary>
             Given the ID of the recipe being crafted, returns the progress to be added to the craft bar (from 1-100) in a click.
@@ -3944,7 +3949,7 @@
             Indicates whether this version of GadgetCore is a beta version. You generally shouldn't access this directly, instead use <see cref="M:GadgetCore.API.GadgetCoreAPI.GetIsBeta"/>
             </summary>
         </member>
-        <member name="P:GadgetCore.API.GadgetCoreAPI.MissingTexSprite">
+        <member name="P:GadgetCore.API.GadgetCoreAPI.MissingTileSprite">
             <summary>
             The sprite used for missing tile textures
             </summary>
@@ -4649,6 +4654,16 @@
             True if the Network ID Conversion Matrix is ready for use. False otherwise. ID conversion methods will fail if the matrix is not ready.
             </summary>
         </member>
+        <member name="P:GadgetCore.API.GadgetNetwork.MatrixTimedOut">
+            <summary>
+            True if the timeout period for the Network ID Conversion Matrix has passed, but the Matrix is not ready for use. Will always be false when MatrixReady is true.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.GadgetNetwork.MatrixReadyOrTimedOut">
+            <summary>
+            True if the Network ID Conversion Matrix is ready for use, OR the timeout period for the Matrix has passed.
+            </summary>
+        </member>
         <member name="P:GadgetCore.API.GadgetNetwork.IsHostVanilla">
             <summary>
             True if you are currently connected as a client, and the host does not have Gadget Core installed. This can be a false positive, in the case of a slow connection.
@@ -4825,6 +4840,11 @@
         <member name="F:GadgetCore.API.GadgetPaths.ToolsPath">
             <summary>
             The path to the Tools directory.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.GadgetPaths.SymbolsPath">
+            <summary>
+            The path to the Symbols directory.
             </summary>
         </member>
         <member name="F:GadgetCore.API.GadgetPaths.TempPath">
@@ -6928,6 +6948,100 @@
             Returns the next valid ID for this Registry Entry's Type, after the provided lastValidID.
             </summary>
         </member>
+        <member name="T:GadgetCore.API.SimpleSpriteAnimator">
+            <summary>
+            A simple-to-use component for animating a sprite sheet displayed by a <see cref="T:UnityEngine.Renderer"/> on the same <see cref="T:UnityEngine.GameObject"/>.
+            Exhibits similar behavior to the built-in <see cref="T:AnimIcon"/> used by the base game for items with a tier value of 3,
+            but is far more flexible than <see cref="T:AnimIcon"/>.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.SimpleSpriteAnimator.SpriteSheetWidth">
+            <summary>
+            The number of sprites in a row of the sprite sheet.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.SimpleSpriteAnimator.SpriteSheetHeight">
+            <summary>
+            The number of sprites in a column of the sprite sheet.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.SimpleSpriteAnimator.FrameTime">
+            <summary>
+            The length in seconds of a single frame.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.SimpleSpriteAnimator.FrameCount">
+            <summary>
+            The total number of frames in the sprite sheet. This will be set to SpriteSheetWidth * SpriteSheetHeight whenever either
+            of those values change, but you can manually set it if the last row/column of the sprite sheet
+            is not completely filled with sprites.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.SimpleSpriteAnimator.Sequence">
+            <summary>
+            The sequence that sprites from the sprite sheet are displayed in.
+            RowMajor will have the sprites from the first row displayed in order, then the second row, etc.
+            ColumnMajor will have the sprites from the first column displayed in order, then the second column, etc.
+            </summary>
+        </member>
+        <member name="P:GadgetCore.API.SimpleSpriteAnimator.CurrentFrame">
+            <summary>
+            The current frame of the sprite sheet animation that is displayed. You can assign to this
+            to change the currently-displayed frame.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.SimpleSpriteAnimator.Initialize(System.Single,System.Int32,System.Int32,System.Int32,GadgetCore.API.SimpleSpriteAnimator.SpriteSequence)">
+            <summary>
+            Initializes this animator with various settings for the animation. Note that the animator will still run
+            even if you do not call this, this is just a convenience method to set these values in a single statement.
+            </summary>
+            <param name="frameTime">The length in seconds of a single frame.</param>
+            <param name="spriteSheetWidth">The number of sprites in a row of the sprite sheet.</param>
+            <param name="spriteSheetHeight">The number of sprites in a column of the sprite sheet.</param>
+            <param name="frameCount">The total number of frames in the sprite sheet.</param>
+            <param name="sequence">The sequence that sprites from the sprite sheet are displayed in.</param>
+        </member>
+        <member name="M:GadgetCore.API.SimpleSpriteAnimator.Enable">
+            <summary>
+            Enables the animator. This is equivalent to setting the enabled property to true.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.SimpleSpriteAnimator.Disable">
+            <summary>
+            Disables the animator, and restores the rendered material to a state appropriate for displaying
+            a non-animated sprite. If you wish to pause the animation without restoring the
+            renderer, use <see cref="M:GadgetCore.API.SimpleSpriteAnimator.Pause"/>.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.SimpleSpriteAnimator.Pause">
+            <summary>
+            Pauses the animator on its current frame. Use <see cref="M:GadgetCore.API.SimpleSpriteAnimator.Resume"/> to make it continue animating from where it stopped,
+            or <see cref="M:GadgetCore.API.SimpleSpriteAnimator.Enable"/> to make it start the animation over again from the beginning.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.SimpleSpriteAnimator.Resume">
+            <summary>
+            Resumes the animation after having been previously paused with <see cref="M:GadgetCore.API.SimpleSpriteAnimator.Pause"/>. If it was not previously paused,
+            this is equivalent to <see cref="M:GadgetCore.API.SimpleSpriteAnimator.Enable"/>
+            </summary>
+        </member>
+        <member name="T:GadgetCore.API.SimpleSpriteAnimator.SpriteSequence">
+            <summary>
+            The sequence that sprites from the sprite sheet are displayed in.
+            RowMajor will have the sprites from the first row displayed in order, then the second row, etc.
+            ColumnMajor will have the sprites from the first column displayed in order, then the second column, etc.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.SimpleSpriteAnimator.SpriteSequence.RowMajor">
+            <summary>
+            Will have the sprites from the first row displayed in order, then the second row, etc.
+            </summary>
+        </member>
+        <member name="F:GadgetCore.API.SimpleSpriteAnimator.SpriteSequence.ColumnMajor">
+            <summary>
+            Will have the sprites from the first column displayed in order, then the second column, etc.
+            </summary>
+        </member>
         <member name="T:GadgetCore.API.StatModifierType">
             <summary>
             Indicates the type of stat modifier the modifier being applied is. Note that they are applied in the order Flat -> AddMult -> ExpMult. Also note that the 'AddMult' types are additive multipliers, meaning that, for example, returning EquipStats.ONE will double the base stats.
@@ -7822,6 +7936,11 @@
             Logs an error as a line of text into the log file.
             </summary>
         </member>
+        <member name="M:GadgetCore.GadgetLogger.LogRaw(System.Object)">
+            <summary>
+            Logs a message as a line of text into the log file without prepending a severity tag to it.
+            </summary>
+        </member>
         <member name="M:GadgetCore.GadgetLogger.Dispose">
             <summary>
             Disposes the internal <see cref="T:System.IO.StreamWriter"/> used by this logger.
@@ -7906,6 +8025,39 @@
             Returns a negative value if <paramref name="secondNums"/> is greater/newer,
             and 0 if the two sets of version numbers are equivalent.
             </summary>
+        </member>
+        <member name="M:GadgetCore.Loader.GadgetLoader.LoadSymbols(System.String,GadgetCore.Loader.GadgetModFile,GadgetCore.Loader.GadgetModFile)">
+            <summary>
+            Loads the symbols for the given assembly file from the given PDB file. Once the symbols are loaded, exceptions thrown from the given assembly
+            will have correct line numbers in their stack trace. Note that it is not necessary to call this for a mod's primary assembly -
+            the PDB file for that assembly will be loaded automatically if it exists in the mod.
+            </summary>
+            <param name="name">The name of the assembly to load symbols for. Must match the AssemblyName.Name value of the assembly.</param>
+            <param name="dllFile">The assembly file.</param>
+            <param name="pdbFile">The PDB file.</param>
+            <returns>An asynchronous Task, once completed, will indicate whether the symbols were successfully loaded with a boolean value.</returns>
+        </member>
+        <member name="M:GadgetCore.Loader.GadgetLoader.LoadSymbols(System.String,System.IO.Stream,System.IO.Stream)">
+            <summary>
+            Loads the symbols for the given assembly file from the given PDB file. Once the symbols are loaded, exceptions thrown from the given assembly
+            will have correct line numbers in their stack trace. Note that it is not necessary to call this for a mod's primary assembly -
+            the PDB file for that assembly will be loaded automatically if it exists in the mod.
+            </summary>
+            <param name="name">The name of the assembly to load symbols for. Must match the AssemblyName.Name value of the assembly.</param>
+            <param name="dllStream">The assembly file, in the form of a Stream.</param>
+            <param name="pdbStream">The PDB file, in the form of a Stream.</param>
+            <returns>An asynchronous Task, once completed, will indicate whether the symbols were successfully loaded with a boolean value.</returns>
+        </member>
+        <member name="M:GadgetCore.Loader.GadgetLoader.LoadSymbols(System.String,System.Byte[],System.Byte[])">
+            <summary>
+            Loads the symbols for the given assembly file from the given PDB file. Once the symbols are loaded, exceptions thrown from the given assembly
+            will have correct line numbers in their stack trace. Note that it is not necessary to call this for a mod's primary assembly -
+            the PDB file for that assembly will be loaded automatically if it exists in the mod.
+            </summary>
+            <param name="name">The name of the assembly to load symbols for. Must match the AssemblyName.Name value of the assembly.</param>
+            <param name="dllBytes">The assembly file, in binary form stored in a byte array.</param>
+            <param name="pdbBytes">The PDB file, in binary form stored in a byte array.</param>
+            <returns>An asynchronous Task, once completed, will indicate whether the symbols were successfully loaded with a boolean value.</returns>
         </member>
         <member name="T:GadgetCore.Loader.GadgetMod">
             <summary>

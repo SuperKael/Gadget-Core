@@ -16,23 +16,17 @@ namespace GadgetCore.Patches
         [HarmonyPrefix]
         public static bool Prefix(GameScript __instance)
         {
-            if (!GadgetNetwork.MatrixReady && GadgetNetwork.GetTimeSinceConnect() < GadgetNetwork.MatrixTimeout)
+            if (GadgetNetwork.MatrixReadyOrTimedOut)
             {
-                if (InstanceTracker.GameScript.gameObject.GetComponent<RPCHooks>() == null) InstanceTracker.GameScript.gameObject.AddComponent<RPCHooks>();
-                RPCHooks.InitiateGadgetNetwork();
-                __instance.StartCoroutine(WaitAndTryAgain(__instance));
+                if (!GadgetNetwork.MatrixTimedOut ||
+                    !Gadgets.ListAllGadgetInfos().Any(x => x.Attribute.RequiredOnClients)) return true;
+                GadgetCore.CoreLogger.LogWarning("Disconnecting from server due to timout! You can try raising NetworkTimeout in the config.");
+                Network.Disconnect();
                 return false;
             }
-            else
-            {
-                if (GadgetNetwork.GetTimeSinceConnect() > GadgetNetwork.MatrixTimeout && Gadgets.ListAllGadgetInfos().Any(x => x.Attribute.RequiredOnClients))
-                {
-                    GadgetCore.CoreLogger.LogWarning("Disconnecting from server due to timout! You can try raising NetworkTimeout in the config.");
-                    Network.Disconnect();
-                    return false;
-                }
-                return true;
-            }
+            RPCHooks.InitiateGadgetNetwork();
+            __instance.StartCoroutine(WaitAndTryAgain(__instance));
+            return false;
         }
 
         private static IEnumerator WaitAndTryAgain(GameScript __instance)

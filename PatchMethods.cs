@@ -42,7 +42,8 @@ namespace GadgetCore
             }
             if (id != 0)
             {
-                InstanceTracker.GameScript.itemName.text = GadgetCoreAPI.GetItemName(id);
+                string itemName = GadgetCoreAPI.GetItemName(id);
+                InstanceTracker.GameScript.itemName.text = itemName;
                 ItemType type = ItemRegistry.GetTypeByID(id);
                 if ((type & ItemType.EQUIPABLE) == ItemType.EQUIPABLE)
                 {
@@ -201,6 +202,10 @@ namespace GadgetCore
                     InstanceTracker.GameScript.aspectObj[1].SetActive(false);
                     InstanceTracker.GameScript.aspectObj[2].SetActive(false);
                     InstanceTracker.GameScript.itemDesc.text = GadgetCoreAPI.GetItemDesc(id);
+                }
+                if (itemName == "Missing Mod Item!" || itemName == "Invalid Item!")
+                {
+                    InstanceTracker.GameScript.itemName.color = Color.red;
                 }
                 InstanceTracker.GameScript.hoverItem.SetActive(true);
             }

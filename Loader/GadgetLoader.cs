@@ -8,11 +8,17 @@ using Ionic.Zip;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
+using GadgetCore.MonoSymbol;
+using Mono.CompilerServices.SymbolWriter;
 
 namespace GadgetCore.Loader
 {
@@ -25,11 +31,17 @@ namespace GadgetCore.Loader
 
         internal static GadgetLogger Logger = new GadgetLogger("GadgetCore", "Loader");
 
+        private static readonly FieldInfo LineNumberInfo = AccessTools.Field(typeof(StackFrame), "lineNumber");
+        private static readonly FieldInfo FileNameInfo = AccessTools.Field(typeof(StackFrame), "fileName");
+
         private static FileIniDataParser manifestIniParser = new FileIniDataParser();
 
         private static List<GadgetMod> m_EmptyMods = new List<GadgetMod>();
         private static List<GadgetMod> m_IncompatibleMods = new List<GadgetMod>();
         private static List<Tuple<string, string>> m_ErroredMods = new List<Tuple<string, string>>();
+
+        private static readonly Dictionary<string, MonoSymbolFile> LoadedSymbolFiles = new Dictionary<string, MonoSymbolFile>();
+        private static readonly List<Task<MonoSymbolFile>> SymbolLoadTasks = new List<Task<MonoSymbolFile>>();
 
         /// <summary>
         /// List of <see cref="GadgetMod"/>s that failed to load because they don't contain any <see cref="Gadget"/>s.
@@ -46,6 +58,8 @@ namespace GadgetCore.Loader
 
         internal static List<GadgetInfo> QueuedGadgets = new List<GadgetInfo>();
 
+        internal static Dictionary<string, GadgetMod> BlameMap = new Dictionary<string, GadgetMod>();
+
         internal static void LoadAllMods()
         {
             try
@@ -61,6 +75,13 @@ namespace GadgetCore.Loader
                     LoadModFile(modFile);
                 }
                 Logger.Log("Done loading mod files.");
+                if (SymbolLoadTasks.Count > 0)
+                {
+                    Logger.Log("Loading mod symbols...");
+                    Task.WaitAll(SymbolLoadTasks.ToArray());
+                    SymbolLoadTasks.Clear();
+                    Logger.Log("Done loading mod symbols.");
+                }
                 Logger.Log("Loading mods...");
                 foreach (GadgetMod mod in GadgetMods.ListAllMods(true))
                 {
@@ -120,9 +141,21 @@ namespace GadgetCore.Loader
                     }
                     IniData manifest = manifestIniParser.ReadFile(manifestFile);
                     modName = manifest["Metadata"]["Name"];
-                    Assembly modAssembly = Assembly.Load(File.ReadAllBytes(Path.Combine(modDir, manifest["Metadata"]["Assembly"])));
+                    string assemblyFile = Path.Combine(modDir, manifest["Metadata"]["Assembly"]);
+                    byte[] assemblyData = File.ReadAllBytes(assemblyFile);
+                    string symbolFile = Path.ChangeExtension(assemblyFile, ".pdb");
+                    byte[] symbolData = File.Exists(symbolFile) ? File.ReadAllBytes(symbolFile) : null;
+                    Assembly modAssembly = Assembly.Load(assemblyData, symbolData);
+                    if (symbolData != null)
+                    {
+                        SymbolLoadTasks.Add(LoadSymbolsInternal(modAssembly.GetName().Name, assemblyData, symbolData));
+                    }
                     GadgetCore.LoadedAssemblies[modAssembly.GetName().Name] = modAssembly;
                     GadgetMod mod = new GadgetMod(modDir, manifest, modAssembly);
+                    foreach (Type type in modAssembly.GetTypes())
+                    {
+                        if (type.FullName != null) BlameMap[type.FullName] = mod;
+                    }
                     GadgetMods.RegisterMod(mod);
                     if (!BatchLoading) LoadGadgetMod(mod);
                     return mod;
@@ -179,18 +212,36 @@ namespace GadgetCore.Loader
                         IniData manifest = manifestIniParser.ReadData(new StreamReader(stream));
                         modName = manifest["Metadata"]["Name"];
                         stream.SetLength(0);
-                        if (manifest["Metadata"]["Assembly"] != null && modZip.ContainsEntry(manifest["Metadata"]["Assembly"]))
+                        string assemblyEntry = manifest["Metadata"]["Assembly"];
+                        if (assemblyEntry != null && modZip.ContainsEntry(assemblyEntry))
                         {
-                            modZip[manifest["Metadata"]["Assembly"]].Extract(stream);
+                            modZip[assemblyEntry].Extract(stream);
                         }
                         else
                         {
                             Logger.LogWarning("Failed to load mod `" + modName + "` because " + (manifest["Metadata"]["Assembly"] != null ? "the assembly name in its manifest is not valid!" : "its manifest does not contain the name of its asembly!"));
                             return null;
                         }
-                        Assembly modAssembly = Assembly.Load(stream.ToArray());
+                        byte[] assemblyData = stream.ToArray();
+                        stream.SetLength(0);
+                        string symbolEntry = Path.ChangeExtension(assemblyEntry, ".pdb");
+                        byte[] symbolData = null;
+                        if (modZip.ContainsEntry(symbolEntry))
+                        {
+                            modZip[symbolEntry].Extract(stream);
+                            symbolData = stream.ToArray();
+                        }
+                        Assembly modAssembly = Assembly.Load(assemblyData, symbolData);
+                        if (symbolData != null)
+                        {
+                            SymbolLoadTasks.Add(LoadSymbolsInternal(modAssembly.GetName().Name, assemblyData, symbolData));
+                        }
                         GadgetCore.LoadedAssemblies[modAssembly.GetName().Name] = modAssembly;
                         GadgetMod mod = new GadgetMod(modFile, manifest, modAssembly, modZip);
+                        foreach (Type type in modAssembly.GetTypes())
+                        {
+                            if (type.FullName != null) BlameMap[type.FullName] = mod;
+                        }
                         GadgetMods.RegisterMod(mod);
                         if (!BatchLoading) LoadGadgetMod(mod);
                         modZip = null;
@@ -292,7 +343,7 @@ namespace GadgetCore.Loader
                 else
                 {
                     int rD = (int)attribute.GadgetCoreVersionSpecificity;
-                    Logger.LogWarning("Found Gadget with an incompatible version: " + attribute.Name + ", in mod: {" + mod.Name + "}. Requires at least version: " + attribute.TargetGCVersion + ", but no greater than version: " + new string(attribute.TargetGCVersion.TakeWhile(x => (x == '.' ? --rD : rD) > 0).ToArray()));
+                    Logger.LogWarning("Found Gadget with an incompatible version: " + attribute.Name + ", in mod: {" + mod.Name + "}. Requires at least version: " + attribute.TargetGCVersion + ", but no greater than version: " + new string(attribute.TargetGCVersion.TakeWhile(x => (x == '.' ? --rD : rD) > 0).ToArray()) + Enumerable.Repeat(".x", 4 - (int)attribute.GadgetCoreVersionSpecificity).Concat(""));
                 }
             }
             mod.IsLoaded = true;
@@ -624,14 +675,16 @@ namespace GadgetCore.Loader
             {
                 Logger.Log("Unloading Gadget '" + gadget.Attribute.Name + "'");
                 gadget.Gadget.UnloadInternal();
-                LootTables.RemoveModEntries(gadget.Gadget.ModID);
-                GadgetCoreAPI.RemoveModResources(gadget.Gadget.ModID);
-                GadgetCoreAPI.UnregisterGadgetRPCs(gadget.Gadget.ModID);
-                GadgetCoreAPI.UnregisterStatModifiers(gadget.Gadget.ModID);
-                GadgetConsole.UnregisterGadgetCommands(gadget.Gadget.ModID);
-                GadgetNetwork.UnregisterSyncVars(gadget.Gadget.ModID);
-                PlanetRegistry.UnregisterGadget(gadget.Gadget.ModID);
-                DialogChains.UnregisterGadgetChains(gadget.Gadget.ModID);
+                int modID = gadget.Gadget.ModID;
+                LootTables.RemoveModEntries(modID);
+                GadgetCoreAPI.RemoveModResources(modID);
+                GadgetCoreAPI.UnregisterGadgetRPCs(modID);
+                GadgetCoreAPI.UnregisterStatModifiers(modID);
+                GadgetConsole.UnregisterGadgetCommands(modID);
+                GadgetNetwork.UnregisterSyncVars(modID);
+                PlanetRegistry.UnregisterGadget(modID);
+                DialogChains.UnregisterGadgetChains(modID);
+                CraftMenuInfo.RemoveAllModCraftPerformers(modID);
                 foreach (Registry reg in GameRegistry.ListAllRegistries())
                 {
                     reg.UnregisterGadget(gadget);
@@ -838,6 +891,129 @@ namespace GadgetCore.Loader
                 if (dif != 0) return dif;
             }
             return 0;
+        }
+
+        /// <summary>
+        /// Loads the symbols for the given assembly file from the given PDB file. Once the symbols are loaded, exceptions thrown from the given assembly
+        /// will have correct line numbers in their stack trace. Note that it is not necessary to call this for a mod's primary assembly -
+        /// the PDB file for that assembly will be loaded automatically if it exists in the mod.
+        /// </summary>
+        /// <param name="name">The name of the assembly to load symbols for. Must match the AssemblyName.Name value of the assembly.</param>
+        /// <param name="dllFile">The assembly file.</param>
+        /// <param name="pdbFile">The PDB file.</param>
+        /// <returns>An asynchronous Task, once completed, will indicate whether the symbols were successfully loaded with a boolean value.</returns>
+        public static Task<bool> LoadSymbols(string name, GadgetModFile dllFile, GadgetModFile pdbFile)
+        {
+            return LoadSymbolsInternal(name, dllFile.ReadAllBytes(), pdbFile.ReadAllBytes()).ContinueWith(symbolFile => symbolFile != null);
+        }
+
+        /// <summary>
+        /// Loads the symbols for the given assembly file from the given PDB file. Once the symbols are loaded, exceptions thrown from the given assembly
+        /// will have correct line numbers in their stack trace. Note that it is not necessary to call this for a mod's primary assembly -
+        /// the PDB file for that assembly will be loaded automatically if it exists in the mod.
+        /// </summary>
+        /// <param name="name">The name of the assembly to load symbols for. Must match the AssemblyName.Name value of the assembly.</param>
+        /// <param name="dllStream">The assembly file, in the form of a Stream.</param>
+        /// <param name="pdbStream">The PDB file, in the form of a Stream.</param>
+        /// <returns>An asynchronous Task, once completed, will indicate whether the symbols were successfully loaded with a boolean value.</returns>
+        public static Task<bool> LoadSymbols(string name, Stream dllStream, Stream pdbStream)
+        {
+            using MemoryStream memoryStream = new MemoryStream();
+            byte[] b = new byte[32768];
+            int r;
+            while ((r = dllStream.Read(b, 0, b.Length)) > 0)
+                memoryStream.Write(b, 0, r);
+            byte[] dllBytes = memoryStream.ToArray();
+            memoryStream.SetLength(0);
+            while ((r = pdbStream.Read(b, 0, b.Length)) > 0)
+                memoryStream.Write(b, 0, r);
+            byte[] pdbBytes = memoryStream.ToArray();
+            return LoadSymbolsInternal(name, dllBytes, pdbBytes).ContinueWith(symbolFile => symbolFile != null);
+        }
+
+        /// <summary>
+        /// Loads the symbols for the given assembly file from the given PDB file. Once the symbols are loaded, exceptions thrown from the given assembly
+        /// will have correct line numbers in their stack trace. Note that it is not necessary to call this for a mod's primary assembly -
+        /// the PDB file for that assembly will be loaded automatically if it exists in the mod.
+        /// </summary>
+        /// <param name="name">The name of the assembly to load symbols for. Must match the AssemblyName.Name value of the assembly.</param>
+        /// <param name="dllBytes">The assembly file, in binary form stored in a byte array.</param>
+        /// <param name="pdbBytes">The PDB file, in binary form stored in a byte array.</param>
+        /// <returns>An asynchronous Task, once completed, will indicate whether the symbols were successfully loaded with a boolean value.</returns>
+        public static Task<bool> LoadSymbols(string name, byte[] dllBytes, byte[] pdbBytes)
+        {
+            return LoadSymbolsInternal(name, dllBytes, pdbBytes).ContinueWith(symbolFile => symbolFile != null);
+        }
+
+        internal static Task<MonoSymbolFile> LoadSymbolsInternal(string name, byte[] dllBytes, byte[] pdbBytes)
+        {
+            Task<MonoSymbolFile> task = new Task<MonoSymbolFile>(() =>
+            {
+                MonoSymbolFile symbolFile;
+                lock (LoadedSymbolFiles) if (LoadedSymbolFiles.TryGetValue(name, out symbolFile)) return symbolFile;
+                using SHA1CryptoServiceProvider sha1Provider = new SHA1CryptoServiceProvider();
+                string dllSha1 = sha1Provider.ComputeHash(dllBytes).Select(x => x.ToString("X2")).Concat("");
+                string nameWithHash = name + "-" + dllSha1;
+                string symbolPath = Path.Combine(GadgetPaths.SymbolsPath, Path.ChangeExtension(nameWithHash, ".dll.mdb"));
+                if (File.Exists(symbolPath))
+                {
+                    symbolFile = MonoSymbolFile.ReadSymbolFile(symbolPath);
+                    lock (LoadedSymbolFiles) LoadedSymbolFiles[name] = symbolFile;
+                    return symbolFile;
+                }
+                foreach (string oldSymbolFile in Directory.GetFiles(GadgetPaths.SymbolsPath, name + "-*.dll.mdb")) File.Delete(oldSymbolFile);
+                string dllPath = Path.Combine(GadgetPaths.TempPath, Path.ChangeExtension(name, ".dll"));
+                string pdbPath = Path.ChangeExtension(dllPath, ".pdb");
+                string mdbPath = Path.ChangeExtension(dllPath, ".dll.mdb");
+                File.WriteAllBytes(dllPath, dllBytes);
+                File.WriteAllBytes(pdbPath, pdbBytes);
+                ProcessStartInfo psi = new ProcessStartInfo()
+                {
+                    FileName = Path.Combine(GadgetPaths.ToolsPath, "pdb2mdb.exe"),
+                    Arguments = "\"" + dllPath + "\"",
+                    WindowStyle = ProcessWindowStyle.Hidden,
+                    CreateNoWindow = true,
+                    ErrorDialog = true,
+                    UseShellExecute = false
+                };
+                Process process = Process.Start(psi);
+                if (process == null) return null;
+                process.WaitForExit();
+                File.Delete(dllPath);
+                File.Delete(pdbPath);
+                if (!File.Exists(mdbPath)) return null;
+                File.Move(mdbPath, symbolPath);
+                symbolFile = MonoSymbolFile.ReadSymbolFile(symbolPath);
+                lock (LoadedSymbolFiles) LoadedSymbolFiles[name] = symbolFile;
+                return symbolFile;
+            });
+            // This is bad. However, doing better would take too much work in this tragic environment where System.Threading is broken
+            // and fixing it is impossible without breaking most currently-existing mods.
+            new Thread(() => task.RunSynchronously()).Start();
+            return task;
+        }
+
+        internal static MonoSymbolFile GetSymbolFile(Assembly assembly)
+        {
+            return LoadedSymbolFiles[assembly.GetName().Name];
+        }
+
+        internal static void InjectSymbolsIntoStackFrame(StackFrame frame)
+        {
+            if (frame == null) return;
+            MethodBase method = frame.GetMethod();
+            if (method == null) return;
+            if (!LoadedSymbolFiles.TryGetValue(method.Module.Assembly.GetName().Name, out MonoSymbolFile symbolFile)) return;
+            MethodEntry methodEntry = symbolFile.GetMethodByToken(method.MetadataToken);
+            if (methodEntry == null) return;
+            int offset = frame.GetILOffset();
+            foreach (LineNumberEntry lineNumberEntry in methodEntry.GetLineNumberTable().LineNumbers)
+            {
+                if (lineNumberEntry.Offset != offset) continue;
+                LineNumberInfo.SetValue(frame, lineNumberEntry.Row);
+                FileNameInfo.SetValue(frame, methodEntry.CompileUnit.SourceFile.FileName);
+                break;
+            }
         }
     }
 }

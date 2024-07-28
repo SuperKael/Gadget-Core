@@ -56,6 +56,10 @@ namespace GadgetCore.API
         /// </summary>
         public static readonly string ToolsPath;
         /// <summary>
+        /// The path to the Symbols directory.
+        /// </summary>
+        public static readonly string SymbolsPath;
+        /// <summary>
         /// The path to the Temp directory.
         /// </summary>
         public static readonly string TempPath;
@@ -93,6 +97,8 @@ namespace GadgetCore.API
             Directory.CreateDirectory(LibsPath);
             ToolsPath = Path.Combine(GadgetCorePath, "Tools");
             Directory.CreateDirectory(ToolsPath);
+            SymbolsPath = Path.Combine(GadgetCorePath, "Symbols");
+            Directory.CreateDirectory(SymbolsPath);
             TempPath = Path.Combine(GadgetCorePath, "Temp");
             Directory.CreateDirectory(TempPath);
             SaveBackupsPath = Path.Combine(GadgetCorePath, "Save Backups");

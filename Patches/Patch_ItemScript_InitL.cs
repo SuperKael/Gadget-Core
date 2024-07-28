@@ -1,3 +1,4 @@
+using System;
 using HarmonyLib;
 using GadgetCore.API;
 using UnityEngine;
@@ -27,7 +28,8 @@ namespace GadgetCore.Patches
                 {
                     int extraStacks = (stats[1] - 1) / 9999;
                     stats[1] -= extraStacks * 9999;
-                    int[] extraStackArray = stats;
+                    int[] extraStackArray = new int[stats.Length];
+                    Array.Copy(stats, extraStackArray, stats.Length);
                     extraStackArray[1] = 9999;
                     for (int i = 0; i < extraStacks; i++)
                     {

@@ -1176,6 +1176,17 @@ namespace GadgetCore.API
         }
 
         /// <summary>
+        /// Removes all CraftPerformers that were added by the given mod from all CraftMenuInfos
+        /// </summary>
+        public static void RemoveAllModCraftPerformers(int modID)
+        {
+            foreach (MenuInfo menu in MenuRegistry.Singleton)
+            {
+                if (menu is CraftMenuInfo craftMenu) craftMenu.RemoveModCraftPerformers(modID);
+            }
+        }
+
+        /// <summary>
         /// Given the ID of the recipe being crafted, returns the progress to be added to the craft bar (from 1-100) in a click.
         /// </summary>
         public event Func<int, int> OnCraftButton;

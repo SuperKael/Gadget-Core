@@ -46,7 +46,7 @@ namespace GadgetCore.API
             foreach (GadgetInfo info in gadgets.Values)
             {
                 List<GadgetInfo> list = new List<GadgetInfo>();
-                list.AddRange(info.Attribute.LoadBefore.Select(x => GetGadgetInfo(x)).Where(x => x != null));
+                list.AddRange(info.Attribute.LoadBefore.Select(GetGadgetInfo).Where(x => x != null));
                 list.AddRange(gadgets.Values.Where(x => x.Attribute.LoadAfter.Contains(info.Attribute.Name)));
                 orderDependencies[info] = list;
             }
@@ -60,7 +60,7 @@ namespace GadgetCore.API
             for (int i = 0; i < sortedGadgetList.Count; i++) sortedGadgetList[i].Gadget.ModID = i;
             foreach (GadgetInfo gadget in sortedGadgetList)
             {
-                gadget.Dependencies = gadget.Attribute.Dependencies.Select(x => GetGadgetInfo(x)).ToArray();
+                gadget.Dependencies = gadget.Attribute.Dependencies.Select(GetGadgetInfo).ToArray();
                 gadget.Dependents = sortedGadgetList.Where(x => x.Attribute.Dependencies.Contains(gadget.Attribute.Name)).ToArray();
             }
         }
