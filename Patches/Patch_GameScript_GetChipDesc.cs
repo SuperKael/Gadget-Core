@@ -19,20 +19,23 @@ namespace GadgetCore.Patches
         }
 
         [HarmonyPostfix]
-        public static void Postfix(int id, ref string __result)
+        public static void Postfix(GameScript __instance, int id, ref string __result)
         {
-            if (string.IsNullOrEmpty(__result))
+            if (id != 0 && string.IsNullOrEmpty(__result) && (__instance.GetChipName(id) == "Missing Modded Combat Chip!" || __instance.GetChipName(id) == "Invalid Combat Chip!"))
             {
                 if (id >= ChipRegistry.Singleton.GetIDStart())
                 {
-                    string modID = ChipRegistry.Singleton.IsIDReserved(id);
-                    if (modID != null)
+                    if (ChipRegistry.Singleton.GetEntry(id) == null)
                     {
-                        __result = "Unloaded Combat Chip from the mod:\n" + modID;
-                    }
-                    else
-                    {
-                        __result = "Invalid Combat Chip from an unknown mod.";
+                        string modID = ChipRegistry.Singleton.IsIDReserved(id);
+                        if (modID != null)
+                        {
+                            __result = "Unloaded Combat Chip from the mod:\n" + modID;
+                        }
+                        else
+                        {
+                            __result = "Invalid Combat Chip from an unknown mod.";
+                        }
                     }
                 }
                 else

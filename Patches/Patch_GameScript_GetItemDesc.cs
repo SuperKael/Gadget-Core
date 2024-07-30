@@ -19,20 +19,23 @@ namespace GadgetCore.Patches
         }
 
         [HarmonyPostfix]
-        public static void Postfix(int id, ref string __result)
+        public static void Postfix(GameScript __instance, int id, ref string __result)
         {
-            if (string.IsNullOrEmpty(__result))
+            if (id != 0 && string.IsNullOrEmpty(__result) && (__instance.GetItemName(id) == "Missing Mod Item!" || __instance.GetItemName(id) == "Invalid Item!"))
             {
                 if (id >= ItemRegistry.Singleton.GetIDStart())
                 {
-                    string modID = ItemRegistry.Singleton.IsIDReserved(id);
-                    if (modID != null)
+                    if (ItemRegistry.Singleton.GetEntry(id) == null)
                     {
-                        __result = "Unloaded Item\nfrom the mod:\n" + modID;
-                    }
-                    else
-                    {
-                        __result = "Invalid Item\nfrom an unknown mod.";
+                        string modID = ItemRegistry.Singleton.IsIDReserved(id);
+                        if (modID != null)
+                        {
+                            __result = "Unloaded Item\nfrom the mod:\n" + modID;
+                        }
+                        else
+                        {
+                            __result = "Invalid Item\nfrom an unknown mod.";
+                        }
                     }
                 }
                 else

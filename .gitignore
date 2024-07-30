@@ -12,6 +12,7 @@
 *.cache
 *.csproj
 GamePaths.xml
+Release/
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs

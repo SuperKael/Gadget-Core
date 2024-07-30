@@ -21,7 +21,20 @@ namespace GadgetCore.Patches
         [HarmonyPostfix]
         public static void Postfix(int id, ref string __result)
         {
-            if (string.IsNullOrEmpty(__result)) __result = id >= ItemRegistry.Singleton.GetIDStart() ? "Missing Mod Item!" : "Invalid Item!";
+            if (id != 0 && string.IsNullOrEmpty(__result))
+            {
+                if (id >= ItemRegistry.Singleton.GetIDStart())
+                {
+                    if (ItemRegistry.Singleton.GetEntry(id) == null)
+                    {
+                        __result = "Missing Mod Item!";
+                    }
+                }
+                else
+                {
+                    __result = "Invalid Item!";
+                }
+            }
         }
     }
 }

@@ -21,7 +21,20 @@ namespace GadgetCore.Patches
         [HarmonyPostfix]
         public static void Postfix(int id, ref string __result)
         {
-            if (string.IsNullOrEmpty(__result)) __result = id >= ChipRegistry.Singleton.GetIDStart() ? "Missing Modded Combat Chip!" : "Invalid Combat Chip!";
+            if (id != 0 && string.IsNullOrEmpty(__result))
+            {
+                if (id >= ChipRegistry.Singleton.GetIDStart())
+                {
+                    if (ChipRegistry.Singleton.GetEntry(id) == null)
+                    {
+                        __result = "Missing Modded Combat Chip!";
+                    }
+                }
+                else
+                {
+                    __result = "Invalid Combat Chip!";
+                }
+            }
         }
     }
 }
