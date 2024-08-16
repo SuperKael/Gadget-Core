@@ -53,7 +53,7 @@ namespace GadgetCore.API
         /// </summary>
         protected override void PostRegistration(TileInfo entry)
         {
-            if (entry.Type == TileType.INTERACTIVE && entry.Prop != null) IDsByPropName.Add(entry.Prop.name, entry.GetID());
+            if (entry.Type == TileType.INTERACTIVE && entry.Prop != null) IDsByPropName[entry.Prop.name] = entry.GetID();
         }
 
         /// <summary>
