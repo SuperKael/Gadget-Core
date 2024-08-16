@@ -10,6 +10,7 @@
     <AssemblyName>GadgetCore</AssemblyName>
     <FileAlignment>512</FileAlignment>
 	  <TargetFrameworks>net35</TargetFrameworks>
+	  <PathMap>$(MSBuildProjectDirectory)\$(IntermediateOutputPath)=.</PathMap>
 	  <LangVersion>8.0</LangVersion>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <Configurations>Release;Debug</Configurations>

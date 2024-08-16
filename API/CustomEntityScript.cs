@@ -58,7 +58,8 @@ namespace GadgetCore.API
         {
             get
             {
-                return IsMaster ? m_IsDead : Master.IsDead;
+                // ReSharper disable once ConditionIsAlwaysTrueOrFalse
+                return IsMaster ? m_IsDead || this == null : Master.IsDead;
             }
 
             protected set
@@ -776,6 +777,7 @@ namespace GadgetCore.API
                 m_HP = 0;
                 IsDead = true;
                 GetComponent<NetworkView>().RPC("Die", RPCMode.All, isPlayerKill ? 1 : 0);
+                StartCoroutine(Exile());
             }
         }
 

@@ -25,7 +25,7 @@ namespace GadgetCore.Patches
         [HarmonyPostfix]
         public static void Postfix(ref Object __result)
         {
-            if ((__result.hideFlags & HideFlags.HideInInspector) == HideFlags.HideInInspector)
+            if (__result != null && (__result.hideFlags & HideFlags.HideInInspector) == HideFlags.HideInInspector)
             {
                 __result.hideFlags &= ~(HideFlags.HideAndDontSave | HideFlags.HideInInspector);
                 (__result as GameObject)?.SetActive(true);
