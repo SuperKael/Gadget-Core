@@ -367,10 +367,7 @@ namespace GadgetCore.API
             {
                 commentList.Add("[Allowed: " + allowed.Where(x => x != null).Select(x => x.ToString()).Concat() + "]");
             }
-            if (allowed != null && allowed.Length > 0)
-            {
-                commentList.Add("[Restart: " + requiresRestart + "]");
-            }
+            if (requiresRestart) commentList.Add("[Restart: true]");
         }
     }
 }

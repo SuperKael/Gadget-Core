@@ -375,11 +375,12 @@ namespace GadgetCore.API
                 planetIDsByRegistryName["Roguelands:" + item.Key] = item.Value;
             }
         }
-}
-/// <summary>
-/// Specifies what type of planet this is.
-/// </summary>
-public enum PlanetType
+    }
+
+    /// <summary>
+    /// Specifies what type of planet this is.
+    /// </summary>
+    public enum PlanetType
     {
         /// <summary>
         /// A standard planet with alternating worlds and towns.

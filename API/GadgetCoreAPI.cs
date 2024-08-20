@@ -24,7 +24,7 @@ namespace GadgetCore.API
         /// <summary>
         /// The version numbers for this version of Gadget Core. You generally shouldn't access this directly, instead use <see cref="GetRawVersion()"/>
         /// </summary>
-        public const string RAW_VERSION = "2.0.7.3";
+        public const string RAW_VERSION = "2.0.7.4";
         /// <summary>
         /// A slightly more informative version. You generally shouldn't access this directly, instead use <see cref="GetFullVersion()"/>
         /// </summary>
@@ -44,6 +44,9 @@ namespace GadgetCore.API
         /// The sprite used for missing tile textures
         /// </summary>
         public static SpriteSheetEntry MissingTileSprite { get; internal set; }
+        /// <summary>
+        /// The material used for missing item materials
+        /// </summary>
         public static Material MissingItemMaterial { get; internal set; }
 
         private static readonly Func<int, string> GetItemNameInvoker = typeof(GameScript).GetMethod("GetItemName", BindingFlags.Public | BindingFlags.Instance).CreateInvoker<Func<int, string>>();
