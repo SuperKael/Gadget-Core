@@ -2,15 +2,13 @@ using HarmonyLib;
 using GadgetCore.API;
 using UnityEngine;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using GadgetCore.Util;
 
 namespace GadgetCore.Patches
 {
     [HarmonyPatch(typeof(GameScript))]
     [HarmonyPatch("Awake")]
-    static class Patch_GameScript_Awake
+    internal static class Patch_GameScript_Awake
     {
         [HarmonyPrefix]
         public static void Prefix(GameScript __instance)

@@ -5,7 +5,7 @@ namespace GadgetCore.Patches
 {
     [HarmonyPatch(typeof(AncientBuilding))]
     [HarmonyPatch("DropLocal")]
-    static class Patch_AncientBuilding_DropLocal
+    internal static class Patch_AncientBuilding_DropLocal
     {
         [HarmonyPostfix]
         public static void Postfix(AncientBuilding __instance)

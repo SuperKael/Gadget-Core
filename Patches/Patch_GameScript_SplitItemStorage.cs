@@ -1,14 +1,13 @@
 
 using HarmonyLib;
 using GadgetCore.API;
-using System.Reflection;
 using UnityEngine;
 
 namespace GadgetCore.Patches
 {
     [HarmonyPatch(typeof(GameScript))]
     [HarmonyPatch("SplitItemStorage")]
-    static class Patch_GameScript_SplitItemStorage
+    internal static class Patch_GameScript_SplitItemStorage
     {
         [HarmonyPrefix]
         public static bool Prefix(GameScript __instance, int slot, ref Item ___holdingItem, ref Item[] ___storage, ref int ___curStoragePage)

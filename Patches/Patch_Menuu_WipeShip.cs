@@ -7,7 +7,7 @@ namespace GadgetCore.Patches
 {
     [HarmonyPatch(typeof(Menuu))]
     [HarmonyPatch("WipeShip")]
-    static class Patch_Menuu_WipeShip
+    internal static class Patch_Menuu_WipeShip
     {
         [HarmonyPrefix]
         public static bool Prefix(ref IEnumerator __result)
@@ -57,7 +57,6 @@ namespace GadgetCore.Patches
 			yield return null;
 			PreviewLabs.PlayerPrefs.Flush();
 			Application.Quit();
-			yield break;
-		}
+        }
     }
 }

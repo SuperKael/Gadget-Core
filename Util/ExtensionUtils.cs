@@ -3,10 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Security.Policy;
 using System.Text;
 using UnityEngine;
-using UnityEngine.AI;
 
 namespace GadgetCore.Util
 {
@@ -327,8 +325,8 @@ namespace GadgetCore.Util
         /// </summary>
         public static TSource MinBy<TSource, TKey>(this IEnumerable<TSource> source, Func<TSource, TKey> selector, IComparer<TKey> comparer)
         {
-            if (source == null) throw new ArgumentNullException("source");
-            if (selector == null) throw new ArgumentNullException("selector");
+            if (source == null) throw new ArgumentNullException(nameof(source));
+            if (selector == null) throw new ArgumentNullException(nameof(selector));
             if (comparer == null) comparer = Comparer<TKey>.Default;
 
             using (var sourceIterator = source.GetEnumerator())
@@ -366,8 +364,8 @@ namespace GadgetCore.Util
         /// </summary>
         public static TSource MaxBy<TSource, TKey>(this IEnumerable<TSource> source, Func<TSource, TKey> selector, IComparer<TKey> comparer)
         {
-            if (source == null) throw new ArgumentNullException("source");
-            if (selector == null) throw new ArgumentNullException("selector");
+            if (source == null) throw new ArgumentNullException(nameof(source));
+            if (selector == null) throw new ArgumentNullException(nameof(selector));
             if (comparer == null) comparer = Comparer<TKey>.Default;
 
             using (var sourceIterator = source.GetEnumerator())

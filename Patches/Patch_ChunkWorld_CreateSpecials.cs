@@ -6,7 +6,7 @@ namespace GadgetCore.Patches
 {
     [HarmonyPatch(typeof(ChunkWorld))]
     [HarmonyPatch("CreateSpecials")]
-    static class Patch_ChunkWorld_CreateSpecials
+    internal static class Patch_ChunkWorld_CreateSpecials
     {
         [HarmonyPrefix]
         public static bool Prefix(ChunkWorld __instance, ref GameObject[,] ___gridSpecialObj)

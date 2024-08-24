@@ -1,11 +1,10 @@
 using HarmonyLib;
-using GadgetCore.API;
 
 namespace GadgetCore.Patches
 {
     [HarmonyPatch(typeof(GameScript))]
     [HarmonyPatch("AddChest")]
-    static class Patch_GameScript_AddChest
+    internal static class Patch_GameScript_AddChest
     {
         [HarmonyPrefix]
         public static void Prefix(GameScript __instance, int ___curChest, ref int[,] ___CHESTLOOT, ref int[] ___depth)

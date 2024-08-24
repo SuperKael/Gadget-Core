@@ -1,14 +1,13 @@
 using HarmonyLib;
 using GadgetCore.API;
 using UnityEngine;
-using System.Collections.Generic;
 using System.Collections;
 
 namespace GadgetCore.Patches
 {
     [HarmonyPatch(typeof(GameScript))]
     [HarmonyPatch("QuestEXP")]
-    static class Patch_GameScript_QuestEXP
+    internal static class Patch_GameScript_QuestEXP
     {
         [HarmonyPrefix]
         public static bool Prefix(GameScript __instance, int tier, ref IEnumerator __result)

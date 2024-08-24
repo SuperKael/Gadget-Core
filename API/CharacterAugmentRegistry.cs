@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace GadgetCore.API
+﻿namespace GadgetCore.API
 {
     /// <summary>
     /// This registry is filled with CharacterAugmentInfos, and is used for registering custom character augments to the game.

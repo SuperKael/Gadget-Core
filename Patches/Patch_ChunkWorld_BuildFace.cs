@@ -7,7 +7,7 @@ namespace GadgetCore.Patches
 {
     [HarmonyPatch(typeof(ChunkWorld))]
     [HarmonyPatch("BuildFace")]
-    static class Patch_ChunkWorld_BuildFace
+    internal static class Patch_ChunkWorld_BuildFace
     {
         [HarmonyPrefix]
         public static bool Prefix(ChunkWorld __instance, byte brick, Vector3 corner, Vector3 up, Vector3 right, bool reversed, List<Vector3> verts, List<Vector2> uvs, List<int> tris, int id, int face)

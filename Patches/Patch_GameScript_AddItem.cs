@@ -8,7 +8,7 @@ namespace GadgetCore.Patches
 {
     [HarmonyPatch(typeof(GameScript))]
     [HarmonyPatch("AddItem")]
-    static class Patch_GameScript_AddItem
+    internal static class Patch_GameScript_AddItem
     {
         public static readonly MethodInfo RefreshSlot = typeof(GameScript).GetMethod("RefreshSlot", BindingFlags.Public | BindingFlags.Instance);
         public static readonly MethodInfo GetItemName = typeof(GameScript).GetMethod("GetItemName", BindingFlags.Public | BindingFlags.Instance);

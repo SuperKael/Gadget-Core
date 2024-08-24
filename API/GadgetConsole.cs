@@ -1,7 +1,6 @@
 ﻿using GadgetCore.API;
 using GadgetCore.Loader;
 using GadgetCore.Util;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -11,7 +10,6 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
@@ -859,8 +857,8 @@ namespace GadgetCore
                 int exp = 0;
                 int tier = 0;
                 int corrupted = 0;
-                int[] aspect = new int[] { 0, 0, 0 };
-                int[] aspectLvl = new int[] { 0, 0, 0 };
+                int[] aspect = new[] { 0, 0, 0 };
+                int[] aspectLvl = new[] { 0, 0, 0 };
                 Dictionary<string, object> extraData = new Dictionary<string, object>();
                 if (args.Length == 2)
                 {
@@ -907,7 +905,7 @@ namespace GadgetCore
                     }
                     for (int i = isArgPlayer ? 4 : 3;i < args.Length;i++)
                     {
-                        string[] splitProperty = args[i].Split(new char[] { '=' }, 2);
+                        string[] splitProperty = args[i].Split(new[] { '=' }, 2);
                         if (splitProperty.Length != 2)
                         {
                             return new GadgetConsoleMessage("Cannot parse property: " + args[i], null, MessageSeverity.ERROR);
@@ -1139,7 +1137,7 @@ namespace GadgetCore
                                 int gearLevel = GadgetCoreAPI.GetGearLevel(gearItem.exp, -1);
                                 gearItem.exp += isLevels ? GadgetCoreAPI.GetGearExp(gearLevel + amount) - GadgetCoreAPI.GetGearExp(gearLevel) : amount;
                             }
-                            InstanceTracker.GameScript.EXPGEAR(new int[] { 0, 0 });
+                            InstanceTracker.GameScript.EXPGEAR(new[] { 0, 0 });
                             break;
                         case 'o':
                             if (!args[1].Equals("offhand".Substring(0, args[1].Length), StringComparison.OrdinalIgnoreCase)) return new GadgetConsoleMessage($"`{args[1]}` is not a valid exp target!", null, MessageSeverity.ERROR);
@@ -1151,7 +1149,7 @@ namespace GadgetCore
                                 int gearLevel = GadgetCoreAPI.GetGearLevel(gearItem.exp, -1);
                                 gearItem.exp += isLevels ? GadgetCoreAPI.GetGearExp(gearLevel + amount) - GadgetCoreAPI.GetGearExp(gearLevel) : amount;
                             }
-                            InstanceTracker.GameScript.EXPGEAR(new int[] { 1, 0 });
+                            InstanceTracker.GameScript.EXPGEAR(new[] { 1, 0 });
                             break;
                         case 'h':
                             if (!args[1].Equals("helmet".Substring(0, args[1].Length), StringComparison.OrdinalIgnoreCase)) return new GadgetConsoleMessage($"`{args[1]}` is not a valid exp target!", null, MessageSeverity.ERROR);
@@ -1163,7 +1161,7 @@ namespace GadgetCore
                                 int gearLevel = GadgetCoreAPI.GetGearLevel(gearItem.exp, -1);
                                 gearItem.exp += isLevels ? GadgetCoreAPI.GetGearExp(gearLevel + amount) - GadgetCoreAPI.GetGearExp(gearLevel) : amount;
                             }
-                            InstanceTracker.GameScript.EXPGEAR(new int[] { 2, 0 });
+                            InstanceTracker.GameScript.EXPGEAR(new[] { 2, 0 });
                             break;
                         case 'a':
                             if (!args[1].Equals("armor".Substring(0, args[1].Length), StringComparison.OrdinalIgnoreCase)) return new GadgetConsoleMessage($"`{args[1]}` is not a valid exp target!", null, MessageSeverity.ERROR);
@@ -1175,7 +1173,7 @@ namespace GadgetCore
                                 int gearLevel = GadgetCoreAPI.GetGearLevel(gearItem.exp, -1);
                                 gearItem.exp += isLevels ? GadgetCoreAPI.GetGearExp(gearLevel + amount) - GadgetCoreAPI.GetGearExp(gearLevel) : amount;
                             }
-                            InstanceTracker.GameScript.EXPGEAR(new int[] { 3, 0 });
+                            InstanceTracker.GameScript.EXPGEAR(new[] { 3, 0 });
                             break;
                         case 'r':
                             if (!args[1].Equals("rings".Substring(0, args[1].Length), StringComparison.OrdinalIgnoreCase)) return new GadgetConsoleMessage($"`{args[1]}` is not a valid exp target!", null, MessageSeverity.ERROR);
@@ -1194,7 +1192,7 @@ namespace GadgetCore
                                 int gearLevel = GadgetCoreAPI.GetGearLevel(gearItem.exp, -1);
                                 gearItem.exp += isLevels ? GadgetCoreAPI.GetGearExp(gearLevel + amount) - GadgetCoreAPI.GetGearExp(gearLevel) : amount;
                             }
-                            InstanceTracker.GameScript.EXPGEAR(new int[] { 4, 0 });
+                            InstanceTracker.GameScript.EXPGEAR(new[] { 4, 0 });
                             break;
                         case 'd':
                             if (!args[1].Equals("droids".Substring(0, args[1].Length), StringComparison.OrdinalIgnoreCase)) return new GadgetConsoleMessage($"`{args[1]}` is not a valid exp target!", null, MessageSeverity.ERROR);
@@ -1217,7 +1215,7 @@ namespace GadgetCore
                                 int gearLevel = GadgetCoreAPI.GetGearLevel(gearItem.exp, -1);
                                 gearItem.exp += isLevels ? GadgetCoreAPI.GetGearExp(gearLevel + amount) - GadgetCoreAPI.GetGearExp(gearLevel) : amount;
                             }
-                            InstanceTracker.GameScript.EXPGEAR(new int[] { -1, 0 });
+                            InstanceTracker.GameScript.EXPGEAR(new[] { -1, 0 });
                             break;
                         default:
                             return new GadgetConsoleMessage($"`{args[1]}` is not a valid exp target!", null, MessageSeverity.ERROR);
@@ -1410,7 +1408,6 @@ namespace GadgetCore
                         Print(new GadgetConsoleMessage("Login failed! Your auth token must have been invalid.", null, MessageSeverity.ERROR));
                     }
                 }
-                yield break;
             }
 
             /// <summary>

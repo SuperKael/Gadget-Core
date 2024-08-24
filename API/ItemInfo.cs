@@ -424,7 +424,7 @@ namespace GadgetCore.API
         {
             if (GameScript.debugMode) return 99999;
             float num = CritPowerBonus;
-            return ID != 596 ? (int)(dmg * (1.5f + (PlayerGearModsTracker.GetGearMods(script)[12] * 0.05f) + num)) : 700;
+            return ID != 596 ? (int)(dmg * (1.5f + (script.GetGearMods()[12] * 0.05f) + num)) : 700;
         }
 
         /// <summary>
@@ -437,7 +437,7 @@ namespace GadgetCore.API
             {
                 num += 5;
             }
-            return UnityEngine.Random.Range(0, 100) + (PlayerGearModsTracker.GetGearMods(script)[11] * 0.9f) + num >= 95f;
+            return UnityEngine.Random.Range(0, 100) + (script.GetGearMods()[11] * 0.9f) + num >= 95f;
         }
 
         /// <summary>
@@ -625,7 +625,6 @@ namespace GadgetCore.API
             attacking.SetValue(script, false);
             yield return new WaitForSeconds(0.1f);
             canAttack.SetValue(script, true);
-            yield break;
         }
 
         /// <summary>
@@ -649,7 +648,6 @@ namespace GadgetCore.API
             attacking.SetValue(script, false);
             yield return new WaitForSeconds(0.1f);
             canAttack.SetValue(script, true);
-            yield break;
         }
 
         /// <summary>
@@ -678,7 +676,6 @@ namespace GadgetCore.API
             attacking.SetValue(script, false);
             yield return new WaitForSeconds(0.1f);
             canAttack.SetValue(script, true);
-            yield break;
         }
 
         /// <summary>
@@ -724,12 +721,12 @@ namespace GadgetCore.API
                     UnityEngine.Object.Instantiate(script.crit, script.transform.position, Quaternion.identity);
                 }
                 Vector3 vector = GadgetCoreAPI.GetCursorPos() - script.transform.position;
-                Package2 value = new Package2(vector, dmg, ProjectileID, PlayerGearModsTracker.GetGearMods(script)[10]);
+                Package2 value = new Package2(vector, dmg, ProjectileID, script.GetGearMods()[10]);
                 GameObject gameObject = (GameObject)UnityEngine.Object.Instantiate(Resources.Load("proj/shot" + ProjectileID), script.shot.transform.position, Quaternion.identity);
                 gameObject.SendMessage("Set", value);
                 script.GetComponent<NetworkView>().RPC("ShootProjectile", RPCMode.Others, new object[]
                 {
-                    GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton /* ProjectileRegistry */, ProjectileID),
+                    ItemRegistry.Singleton.ConvertIDToHost(ProjectileID),
                     vector,
                     dmg
                 });
@@ -742,7 +739,6 @@ namespace GadgetCore.API
             attacking.SetValue(script, false);
             yield return new WaitForSeconds(0.1f);
             canAttack.SetValue(script, true);
-            yield break;
         }
         
         /// <summary>
@@ -791,14 +787,14 @@ namespace GadgetCore.API
             float dmgdmg = dmg / 2;
             if (ID == 497)
             {
-                Package2 value2 = new Package2(targ, (int)dmgdmg, ProjectileID, PlayerGearModsTracker.GetGearMods(script)[10]);
+                Package2 value2 = new Package2(targ, (int)dmgdmg, ProjectileID, script.GetGearMods()[10]);
                 for (int i = 0; i < 3; i++)
                 {
                     GameObject gameObject2 = (GameObject)UnityEngine.Object.Instantiate(Resources.Load("proj/shot" + ProjectileID), script.shot.transform.position, Quaternion.identity);
                     gameObject2.SendMessage("Set", value2);
                     script.GetComponent<NetworkView>().RPC("ShootProjectile", RPCMode.Others, new object[]
                     {
-                        GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton /* ProjectileRegistry */, ProjectileID),
+                        ItemRegistry.Singleton.ConvertIDToHost(ProjectileID),
                         targ,
                         (int)dmgdmg
                     });
@@ -810,12 +806,12 @@ namespace GadgetCore.API
             }
             else if (ID == 464)
             {
-                Package2 value3 = new Package2(targ, dmg, ProjectileID, PlayerGearModsTracker.GetGearMods(script)[10]);
+                Package2 value3 = new Package2(targ, dmg, ProjectileID, script.GetGearMods()[10]);
                 GameObject gameObject3 = (GameObject)UnityEngine.Object.Instantiate(Resources.Load("proj/shot" + ProjectileID), script.shot.transform.position, Quaternion.identity);
                 gameObject3.SendMessage("Set", value3);
                 script.GetComponent<NetworkView>().RPC("ShootProjectile", RPCMode.Others, new object[]
                 {
-                    GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton /* ProjectileRegistry */, ProjectileID),
+                    ItemRegistry.Singleton.ConvertIDToHost(ProjectileID),
                     targ,
                     dmg
                 });
@@ -823,12 +819,12 @@ namespace GadgetCore.API
             }
             else if (ID == 465)
             {
-                Package2 value4 = new Package2(targ, dmg, ProjectileID, PlayerGearModsTracker.GetGearMods(script)[10]);
+                Package2 value4 = new Package2(targ, dmg, ProjectileID, script.GetGearMods()[10]);
                 GameObject gameObject4 = (GameObject)UnityEngine.Object.Instantiate(Resources.Load("proj/shot" + ProjectileID), script.shot.transform.position, Quaternion.identity);
                 gameObject4.SendMessage("Set", value4);
                 script.GetComponent<NetworkView>().RPC("ShootProjectile", RPCMode.Others, new object[]
                 {
-                    GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton /* ProjectileRegistry */, ProjectileID),
+                    ItemRegistry.Singleton.ConvertIDToHost(ProjectileID),
                     targ,
                     dmg
                 });
@@ -836,12 +832,12 @@ namespace GadgetCore.API
                 {
                     script.StartCoroutine(script.TripleShot());
                 }
-                Package2 value5 = new Package2(targ, dmg, ProjectileID, PlayerGearModsTracker.GetGearMods(script)[10]);
+                Package2 value5 = new Package2(targ, dmg, ProjectileID, script.GetGearMods()[10]);
                 gameObject4 = (GameObject)UnityEngine.Object.Instantiate(Resources.Load("proj/shot" + ProjectileID), new Vector3(script.shot.transform.position.x, script.shot.transform.position.y + 2f, 0f), Quaternion.identity);
                 gameObject4.SendMessage("Set", value5);
                 script.GetComponent<NetworkView>().RPC("ShootProjectile", RPCMode.Others, new object[]
                 {
-                    GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton /* ProjectileRegistry */, ProjectileID),
+                    ItemRegistry.Singleton.ConvertIDToHost(ProjectileID),
                     targ,
                     dmg
                 });
@@ -849,12 +845,12 @@ namespace GadgetCore.API
                 {
                     script.StartCoroutine(script.TripleShot());
                 }
-                Package2 value6 = new Package2(targ, dmg, ProjectileID, PlayerGearModsTracker.GetGearMods(script)[10]);
+                Package2 value6 = new Package2(targ, dmg, ProjectileID, script.GetGearMods()[10]);
                 gameObject4 = (GameObject)UnityEngine.Object.Instantiate(Resources.Load("proj/shot" + ProjectileID), new Vector3(script.shot.transform.position.x, script.shot.transform.position.y - 2f, 0f), Quaternion.identity);
                 gameObject4.SendMessage("Set", value6);
                 script.GetComponent<NetworkView>().RPC("ShootProjectile", RPCMode.Others, new object[]
                 {
-                    GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton /* ProjectileRegistry */, ProjectileID),
+                    ItemRegistry.Singleton.ConvertIDToHost(ProjectileID),
                     targ,
                     dmg
                 });
@@ -865,12 +861,12 @@ namespace GadgetCore.API
             }
             else if (ID == 469)
             {
-                Package2 value7 = new Package2(targ, dmg, ProjectileID, PlayerGearModsTracker.GetGearMods(script)[10]);
+                Package2 value7 = new Package2(targ, dmg, ProjectileID, script.GetGearMods()[10]);
                 GameObject gameObject5 = (GameObject)UnityEngine.Object.Instantiate(Resources.Load("proj/shot" + ProjectileID), script.shot.transform.position, Quaternion.identity);
                 gameObject5.SendMessage("Set", value7);
                 script.GetComponent<NetworkView>().RPC("ShootProjectile", RPCMode.Others, new object[]
                 {
-                    GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton /* ProjectileRegistry */, ProjectileID),
+                    ItemRegistry.Singleton.ConvertIDToHost(ProjectileID),
                     targ,
                     dmg
                 });
@@ -890,12 +886,12 @@ namespace GadgetCore.API
             else if (ID == 477)
             {
                 targ = GadgetCoreAPI.GetCursorPos() - new Vector3(script.transform.position.x, script.transform.position.y + 5f, 0f);
-                Package2 value8 = new Package2(targ, dmg, ProjectileID, PlayerGearModsTracker.GetGearMods(script)[10]);
+                Package2 value8 = new Package2(targ, dmg, ProjectileID, script.GetGearMods()[10]);
                 GameObject gameObject6 = (GameObject)UnityEngine.Object.Instantiate(Resources.Load("proj/shot" + ProjectileID), script.shot.transform.position, Quaternion.identity);
                 gameObject6.SendMessage("Set", value8);
                 script.GetComponent<NetworkView>().RPC("ShootProjectile", RPCMode.Others, new object[]
                 {
-                    GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton /* ProjectileRegistry */, ProjectileID),
+                    ItemRegistry.Singleton.ConvertIDToHost(ProjectileID),
                     targ,
                     dmg
                 });
@@ -904,12 +900,12 @@ namespace GadgetCore.API
                     script.StartCoroutine(script.TripleShot());
                 }
                 targ = GadgetCoreAPI.GetCursorPos() - new Vector3(script.transform.position.x, script.transform.position.y - 5f, 0f);
-                Package2 value9 = new Package2(targ, dmg, ProjectileID, PlayerGearModsTracker.GetGearMods(script)[10]);
+                Package2 value9 = new Package2(targ, dmg, ProjectileID, script.GetGearMods()[10]);
                 GameObject gameObject7 = (GameObject)UnityEngine.Object.Instantiate(Resources.Load("proj/shot" + ProjectileID), script.shot.transform.position, Quaternion.identity);
                 gameObject7.SendMessage("Set", value9);
                 script.GetComponent<NetworkView>().RPC("ShootProjectile", RPCMode.Others, new object[]
                 {
-                    GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton /* ProjectileRegistry */, ProjectileID),
+                    ItemRegistry.Singleton.ConvertIDToHost(ProjectileID),
                     targ,
                     dmg
                 });
@@ -928,7 +924,7 @@ namespace GadgetCore.API
                 {
                     script.GetComponent<NetworkView>().RPC("Staff", RPCMode.Server, new object[]
                     {
-                        GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton /* ProjectileRegistry */, ProjectileID),
+                        ItemRegistry.Singleton.ConvertIDToHost(ProjectileID),
                         dmg,
                         Network.player
                     });
@@ -938,12 +934,12 @@ namespace GadgetCore.API
             {
                 if ((int)curShot.GetValue(script) == 0)
                 {
-                    Package2 value10 = new Package2(targ, dmg, ProjectileID, PlayerGearModsTracker.GetGearMods(script)[10]);
+                    Package2 value10 = new Package2(targ, dmg, ProjectileID, script.GetGearMods()[10]);
                     GameObject gameObject8 = (GameObject)UnityEngine.Object.Instantiate(Resources.Load("proj/schegF"), script.shot.transform.position, Quaternion.identity);
                     gameObject8.SendMessage("Set", value10);
                     script.GetComponent<NetworkView>().RPC("ShootProjectile", RPCMode.Others, new object[]
                     {
-                        GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton /* ProjectileRegistry */, ProjectileID),
+                        ItemRegistry.Singleton.ConvertIDToHost(ProjectileID),
                         targ,
                         dmg
                     });
@@ -951,12 +947,12 @@ namespace GadgetCore.API
                 }
                 else if ((int)curShot.GetValue(script) == 1)
                 {
-                    Package2 value11 = new Package2(targ, dmg, ProjectileID, PlayerGearModsTracker.GetGearMods(script)[10]);
+                    Package2 value11 = new Package2(targ, dmg, ProjectileID, script.GetGearMods()[10]);
                     GameObject gameObject9 = (GameObject)UnityEngine.Object.Instantiate(Resources.Load("proj/schegT"), script.shot.transform.position, Quaternion.identity);
                     gameObject9.SendMessage("Set", value11);
                     script.GetComponent<NetworkView>().RPC("ShootProjectile", RPCMode.Others, new object[]
                     {
-                        GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton /* ProjectileRegistry */, ProjectileID),
+                        ItemRegistry.Singleton.ConvertIDToHost(ProjectileID),
                         targ,
                         dmg
                     });
@@ -974,12 +970,12 @@ namespace GadgetCore.API
             }
             else
             {
-                Package2 value12 = new Package2(targ, dmg, ProjectileID, PlayerGearModsTracker.GetGearMods(script)[10]);
+                Package2 value12 = new Package2(targ, dmg, ProjectileID, script.GetGearMods()[10]);
                 GameObject gameObject10 = (GameObject)UnityEngine.Object.Instantiate(Resources.Load("proj/shot" + ProjectileID), script.shot.transform.position, Quaternion.identity);
                 gameObject10.SendMessage("Set", value12);
                 script.GetComponent<NetworkView>().RPC("ShootProjectile", RPCMode.Others, new object[]
                 {
-                    GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton /* ProjectileRegistry */, ProjectileID),
+                    ItemRegistry.Singleton.ConvertIDToHost(ProjectileID),
                     targ,
                     dmg
                 });
@@ -992,7 +988,6 @@ namespace GadgetCore.API
             attacking.SetValue(script, false);
             yield return new WaitForSeconds(0.1f);
             canAttack.SetValue(script, true);
-            yield break;
         }
 
         /// <summary>
@@ -1027,11 +1022,11 @@ namespace GadgetCore.API
             {
                 Vector3 vector2 = GadgetCoreAPI.GetCursorPos();
                 GameObject gameObject11 = (GameObject)UnityEngine.Object.Instantiate(Resources.Load("proj/shot" + ProjectileID), script.shot.transform.position, Quaternion.identity);
-                Package2 value13 = new Package2(vector2, dmg, ProjectileID, PlayerGearModsTracker.GetGearMods(script)[10]);
+                Package2 value13 = new Package2(vector2, dmg, ProjectileID, script.GetGearMods()[10]);
                 gameObject11.SendMessage("Set", value13);
                 script.GetComponent<NetworkView>().RPC("ShootProjectile", RPCMode.Others, new object[]
                 {
-                    GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton /* ProjectileRegistry */, ProjectileID),
+                    ItemRegistry.Singleton.ConvertIDToHost(ProjectileID),
                     vector2,
                     dmg
                 });
@@ -1040,12 +1035,12 @@ namespace GadgetCore.API
             {
                 Vector3 vector3 = GadgetCoreAPI.GetCursorPos() - script.transform.position;
                 vector3 = new Vector3(vector3.x + (float)UnityEngine.Random.Range(-2, 3), vector3.y + (float)UnityEngine.Random.Range(-2, 3), 0f);
-                Package2 value14 = new Package2(vector3, dmg, ProjectileID, PlayerGearModsTracker.GetGearMods(script)[10]);
+                Package2 value14 = new Package2(vector3, dmg, ProjectileID, script.GetGearMods()[10]);
                 GameObject gameObject12 = (GameObject)UnityEngine.Object.Instantiate(Resources.Load("proj/shot" + ProjectileID), new Vector3(script.shot.transform.position.x, script.shot.transform.position.y + 5f, 0f), Quaternion.identity);
                 gameObject12.SendMessage("Set", value14);
                 script.GetComponent<NetworkView>().RPC("ShootProjectile", RPCMode.Others, new object[]
                 {
-                    GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton /* ProjectileRegistry */, ProjectileID),
+                    ItemRegistry.Singleton.ConvertIDToHost(ProjectileID),
                     vector3,
                     dmg
                 });
@@ -1054,12 +1049,12 @@ namespace GadgetCore.API
                     script.StartCoroutine(script.TripleShot());
                 }
                 Vector3 dir = new Vector3(vector3.x + (float)UnityEngine.Random.Range(-2, 3), vector3.y + (float)UnityEngine.Random.Range(-2, 3), 0f);
-                Package2 value15 = new Package2(dir, dmg, ProjectileID, PlayerGearModsTracker.GetGearMods(script)[10]);
+                Package2 value15 = new Package2(dir, dmg, ProjectileID, script.GetGearMods()[10]);
                 GameObject gameObject13 = (GameObject)UnityEngine.Object.Instantiate(Resources.Load("proj/shot" + ProjectileID), new Vector3(script.shot.transform.position.x, script.shot.transform.position.y + 10f, 0f), Quaternion.identity);
                 gameObject13.SendMessage("Set", value15);
                 script.GetComponent<NetworkView>().RPC("ShootProjectile", RPCMode.Others, new object[]
                 {
-                    GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton /* ProjectileRegistry */, ProjectileID),
+                    ItemRegistry.Singleton.ConvertIDToHost(ProjectileID),
                     vector3,
                     dmg
                 });
@@ -1072,24 +1067,24 @@ namespace GadgetCore.API
             {
                 Vector3 vector4 = new Vector3((float)(UnityEngine.Random.Range(-1, 2) * 5), (float)(UnityEngine.Random.Range(-1, 2) * 5), 0f);
                 Vector3 vector5 = GadgetCoreAPI.GetCursorPos();
-                Package3 value16 = new Package3(vector5, vector4, dmg, PlayerGearModsTracker.GetGearMods(script)[10]);
+                Package3 value16 = new Package3(vector5, vector4, dmg, script.GetGearMods()[10]);
                 GameObject gameObject14 = (GameObject)UnityEngine.Object.Instantiate(Resources.Load("proj/shot" + ProjectileID), script.shot.transform.position, Quaternion.identity);
                 gameObject14.SendMessage("Set2", value16);
                 script.GetComponent<NetworkView>().RPC("ShootProjectile2", RPCMode.Others, new object[]
                 {
-                    GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton /* ProjectileRegistry */, ProjectileID),
+                    ItemRegistry.Singleton.ConvertIDToHost(ProjectileID),
                     vector5,
                     dmg,
                     vector4
                 });
                 Vector3 vector6 = new Vector3((float)(UnityEngine.Random.Range(-1, 2) * 5), (float)(UnityEngine.Random.Range(-1, 2) * 5), 0f);
                 Vector3 vector7 = GadgetCoreAPI.GetCursorPos();
-                Package3 value17 = new Package3(vector7, vector6, dmg, PlayerGearModsTracker.GetGearMods(script)[10]);
+                Package3 value17 = new Package3(vector7, vector6, dmg, script.GetGearMods()[10]);
                 GameObject gameObject15 = (GameObject)UnityEngine.Object.Instantiate(Resources.Load("proj/shot" + ProjectileID), script.shot.transform.position, Quaternion.identity);
                 gameObject15.SendMessage("Set2", value17);
                 script.GetComponent<NetworkView>().RPC("ShootProjectile2", RPCMode.Others, new object[]
                 {
-                    GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton /* ProjectileRegistry */, ProjectileID),
+                    ItemRegistry.Singleton.ConvertIDToHost(ProjectileID),
                     vector7,
                     dmg,
                     vector6
@@ -1099,12 +1094,12 @@ namespace GadgetCore.API
             {
                 Vector3 vector8 = new Vector3((float)(UnityEngine.Random.Range(-1, 2) * 5), (float)(UnityEngine.Random.Range(-1, 2) * 5), 0f);
                 Vector3 vector9 = GadgetCoreAPI.GetCursorPos();
-                Package3 value18 = new Package3(Vector3.up, vector8, dmg, PlayerGearModsTracker.GetGearMods(script)[10]);
+                Package3 value18 = new Package3(Vector3.up, vector8, dmg, script.GetGearMods()[10]);
                 GameObject gameObject16 = (GameObject)UnityEngine.Object.Instantiate(Resources.Load("proj/shot" + ProjectileID), new Vector3(vector9.x, vector9.y, 0f), Quaternion.identity);
                 gameObject16.SendMessage("Set2", value18);
                 script.GetComponent<NetworkView>().RPC("ShootProjectile2", RPCMode.Others, new object[]
                 {
-                    GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton /* ProjectileRegistry */, ProjectileID),
+                    ItemRegistry.Singleton.ConvertIDToHost(ProjectileID),
                     vector9,
                     dmg,
                     vector8
@@ -1118,36 +1113,36 @@ namespace GadgetCore.API
             {
                 Vector3 vector10 = new Vector3((float)(UnityEngine.Random.Range(-1, 2) * 5), (float)(UnityEngine.Random.Range(-1, 2) * 5), 0f);
                 Vector3 vector11 = GadgetCoreAPI.GetCursorPos();
-                Package3 value19 = new Package3(vector11, vector10, dmg, PlayerGearModsTracker.GetGearMods(script)[10]);
+                Package3 value19 = new Package3(vector11, vector10, dmg, script.GetGearMods()[10]);
                 GameObject gameObject17 = (GameObject)UnityEngine.Object.Instantiate(Resources.Load("proj/shot" + ProjectileID), script.shot.transform.position, Quaternion.identity);
                 gameObject17.SendMessage("Set2", value19);
                 script.GetComponent<NetworkView>().RPC("ShootProjectile2", RPCMode.Others, new object[]
                 {
-                    GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton /* ProjectileRegistry */, ProjectileID),
+                    ItemRegistry.Singleton.ConvertIDToHost(ProjectileID),
                     vector11,
                     dmg,
                     vector10
                 });
                 Vector3 vector12 = new Vector3((float)(UnityEngine.Random.Range(-1, 2) * 5), (float)(UnityEngine.Random.Range(-1, 2) * 5), 0f);
                 Vector3 vector13 = GadgetCoreAPI.GetCursorPos();
-                Package3 value20 = new Package3(vector13, vector12, dmg, PlayerGearModsTracker.GetGearMods(script)[10]);
+                Package3 value20 = new Package3(vector13, vector12, dmg, script.GetGearMods()[10]);
                 GameObject gameObject18 = (GameObject)UnityEngine.Object.Instantiate(Resources.Load("proj/shot" + ProjectileID), script.shot.transform.position, Quaternion.identity);
                 gameObject18.SendMessage("Set2", value20);
                 script.GetComponent<NetworkView>().RPC("ShootProjectile2", RPCMode.Others, new object[]
                 {
-                    GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton /* ProjectileRegistry */, ProjectileID),
+                    ItemRegistry.Singleton.ConvertIDToHost(ProjectileID),
                     vector13,
                     dmg,
                     vector12
                 });
                 Vector3 vector14 = new Vector3((float)(UnityEngine.Random.Range(-1, 2) * 5), (float)(UnityEngine.Random.Range(-1, 2) * 5), 0f);
                 Vector3 vector15 = GadgetCoreAPI.GetCursorPos();
-                Package3 value21 = new Package3(vector15, vector14, dmg, PlayerGearModsTracker.GetGearMods(script)[10]);
+                Package3 value21 = new Package3(vector15, vector14, dmg, script.GetGearMods()[10]);
                 GameObject gameObject19 = (GameObject)UnityEngine.Object.Instantiate(Resources.Load("proj/shot" + ProjectileID), script.shot.transform.position, Quaternion.identity);
                 gameObject19.SendMessage("Set2", value21);
                 script.GetComponent<NetworkView>().RPC("ShootProjectile2", RPCMode.Others, new object[]
                 {
-                    GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton /* ProjectileRegistry */, ProjectileID),
+                    ItemRegistry.Singleton.ConvertIDToHost(ProjectileID),
                     vector15,
                     dmg,
                     vector14
@@ -1161,12 +1156,12 @@ namespace GadgetCore.API
             {
                 Vector3 vector16 = new Vector3((float)(UnityEngine.Random.Range(-1, 2) * 5), (float)(UnityEngine.Random.Range(-1, 2) * 5), 0f);
                 Vector3 vector17 = GadgetCoreAPI.GetCursorPos();
-                Package3 value22 = new Package3(vector17, vector16, dmg, PlayerGearModsTracker.GetGearMods(script)[10]);
+                Package3 value22 = new Package3(vector17, vector16, dmg, script.GetGearMods()[10]);
                 GameObject gameObject20 = (GameObject)UnityEngine.Object.Instantiate(Resources.Load("proj/shot" + ProjectileID), script.shot.transform.position, Quaternion.identity);
                 gameObject20.SendMessage("Set2", value22);
                 script.GetComponent<NetworkView>().RPC("ShootProjectile2", RPCMode.Others, new object[]
                 {
-                    GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton /* ProjectileRegistry */, ProjectileID),
+                    ItemRegistry.Singleton.ConvertIDToHost(ProjectileID),
                     vector17,
                     dmg,
                     vector16
@@ -1176,7 +1171,6 @@ namespace GadgetCore.API
             attacking.SetValue(script, false);
             yield return new WaitForSeconds(0.1f);
             canAttack.SetValue(script, true);
-            yield break;
         }
 
         /// <summary>
@@ -1234,12 +1228,12 @@ namespace GadgetCore.API
             if (ID == 597)
             {
                 Vector3 vector18 = GadgetCoreAPI.GetCursorPos() - script.transform.position;
-                Package2 value23 = new Package2(vector18, dmg, ProjectileID, PlayerGearModsTracker.GetGearMods(script)[10]);
+                Package2 value23 = new Package2(vector18, dmg, ProjectileID, script.GetGearMods()[10]);
                 GameObject gameObject21 = (GameObject)UnityEngine.Object.Instantiate(Resources.Load("proj/shot" + ProjectileID), new Vector3(script.shot.transform.position.x, script.shot.transform.position.y + 5f, 0f), Quaternion.identity);
                 gameObject21.SendMessage("Set", value23);
                 script.GetComponent<NetworkView>().RPC("ShootProjectile", RPCMode.Others, new object[]
                 {
-                    GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton /* ProjectileRegistry */, ProjectileID),
+                    ItemRegistry.Singleton.ConvertIDToHost(ProjectileID),
                     vector18,
                     dmg
                 });
@@ -1252,12 +1246,12 @@ namespace GadgetCore.API
             {
                 Vector3 vector19 = new Vector3((float)(UnityEngine.Random.Range(-1, 2) * 5), (float)(UnityEngine.Random.Range(-1, 2) * 5), 0f);
                 Vector3 vector20 = GadgetCoreAPI.GetCursorPos();
-                Package3 value24 = new Package3(vector20, vector19, dmg, PlayerGearModsTracker.GetGearMods(script)[10]);
+                Package3 value24 = new Package3(vector20, vector19, dmg, script.GetGearMods()[10]);
                 GameObject gameObject22 = (GameObject)UnityEngine.Object.Instantiate(Resources.Load("proj/shot" + ProjectileID), script.shot.transform.position, Quaternion.identity);
                 gameObject22.SendMessage("Set2", value24);
                 script.GetComponent<NetworkView>().RPC("ShootProjectile2", RPCMode.Others, new object[]
                 {
-                    GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton /* ProjectileRegistry */, ProjectileID),
+                    ItemRegistry.Singleton.ConvertIDToHost(ProjectileID),
                     vector20,
                     dmg,
                     vector19
@@ -1281,7 +1275,7 @@ namespace GadgetCore.API
                 {
                     script.GetComponent<NetworkView>().RPC("Staff", RPCMode.Server, new object[]
                     {
-                        GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton /* ProjectileRegistry */, ProjectileID),
+                        ItemRegistry.Singleton.ConvertIDToHost(ProjectileID),
                         dmg,
                         Network.player
                     });
@@ -1291,7 +1285,6 @@ namespace GadgetCore.API
             attacking.SetValue(script, false);
             yield return new WaitForSeconds(0.1f);
             canAttack.SetValue(script, true);
-            yield break;
         }
     }
 }

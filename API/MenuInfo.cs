@@ -159,7 +159,6 @@ namespace GadgetCore.API
             }
             yield return new WaitForSeconds(0.5f);
             interacting.SetValue(InstanceTracker.PlayerScript, false);
-            yield break;
         }
 
         /// <summary>

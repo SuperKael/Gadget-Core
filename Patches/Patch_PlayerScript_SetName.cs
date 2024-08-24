@@ -8,7 +8,7 @@ namespace GadgetCore.Patches
 {
     [HarmonyPatch(typeof(PlayerScript))]
     [HarmonyPatch("SetName")]
-    static class Patch_PlayerScript_SetName
+    internal static class Patch_PlayerScript_SetName
     {
         [HarmonyPrefix]
         public static void Prefix(PlayerScript __instance, ref string n)

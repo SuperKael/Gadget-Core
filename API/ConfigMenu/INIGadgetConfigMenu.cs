@@ -117,7 +117,7 @@ namespace GadgetCore.API.ConfigMenu
                     string dataRangeString = null;
                     if (!string.IsNullOrEmpty(dataTypeString))
                     {
-                        dataTypeStrings = dataTypeString.Split(new char[] { '|' }, 2);
+                        dataTypeStrings = dataTypeString.Split(new[] { '|' }, 2);
                         dataTypeString = dataTypeStrings[0];
                         if (dataTypeStrings.Length == 2 && dataTypeStrings[1].StartsWith(" Range: "))
                         {
@@ -199,7 +199,7 @@ namespace GadgetCore.API.ConfigMenu
                         }
                     }
                     commentsMade = true;
-                    dataTypeStrings = dataTypeString.Split(new char[] { '-' }, 2);
+                    dataTypeStrings = dataTypeString.Split(new[] { '-' }, 2);
                     switch (dataTypeStrings[0])
                     {
                         case "Boolean":

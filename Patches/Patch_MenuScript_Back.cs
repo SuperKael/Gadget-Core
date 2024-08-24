@@ -5,7 +5,7 @@ namespace GadgetCore.Patches
 {
     [HarmonyPatch(typeof(MenuScript))]
     [HarmonyPatch("Back")]
-    static class Patch_MenuScript_Back
+    internal static class Patch_MenuScript_Back
     {
         [HarmonyPostfix]
         public static void Postfix()

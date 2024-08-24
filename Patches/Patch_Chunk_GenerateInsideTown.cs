@@ -11,7 +11,7 @@ namespace GadgetCore.Patches
 {
     [HarmonyPatch(typeof(Chunk))]
     [HarmonyPatch("GenerateInsideTown")]
-    static class Patch_Chunk_GenerateInsideTown
+    internal static class Patch_Chunk_GenerateInsideTown
     {
         public static readonly FieldInfo networkStuffField = typeof(Chunk).GetField("networkStuff", BindingFlags.NonPublic | BindingFlags.Instance);
         public static readonly FieldInfo tempField = typeof(Chunk).GetField("temp", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -39,12 +39,11 @@ namespace GadgetCore.Patches
                 temp++;
             }
             tempField.SetValue(instance, temp);
-            yield break;
         }
     }
 
     [HarmonyPatch]
-    static class Patch_Chunk_GenerateInsideTown_MoveNext
+    internal static class Patch_Chunk_GenerateInsideTown_MoveNext
     {
         public static readonly MethodInfo PlanetIsTownOnly = typeof(PatchMethods).GetMethod("PlanetIsTownOnly", BindingFlags.Public | BindingFlags.Static);
         public static readonly FieldInfo curBiome = typeof(SpawnerScript).GetField("curBiome", BindingFlags.Public | BindingFlags.Static);
@@ -59,7 +58,7 @@ namespace GadgetCore.Patches
         public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator gen)
         {
             var p = TranspilerHelper.CreateProcessor(instructions, gen);
-            var ilRef = p.FindRefByInsns(new CodeInstruction[] {
+            var ilRef = p.FindRefByInsns(new[] {
                 new CodeInstruction(OpCodes.Br),
                 new CodeInstruction(OpCodes.Ldarg_0),
                 new CodeInstruction(OpCodes.Ldfld),

@@ -6,7 +6,7 @@ namespace GadgetCore.Patches
 {
     [HarmonyPatch(typeof(MenuScript))]
     [HarmonyPatch("HostGame")]
-    static class Patch_MenuScript_HostGame
+    internal static class Patch_MenuScript_HostGame
     {
         [HarmonyPrefix]
         public static bool Prefix(MenuScript __instance, ref int ___curHostPort, ref bool ___playing)

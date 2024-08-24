@@ -5,7 +5,7 @@ namespace GadgetCore.Patches
 {
     [HarmonyPatch(typeof(GameScript))]
     [HarmonyPatch("GetPlanetName")]
-    static class Patch_GameScript_GetPlanetName
+    internal static class Patch_GameScript_GetPlanetName
     {
         [HarmonyPrefix]
         public static bool Prefix(GameScript __instance, int a, ref string __result)

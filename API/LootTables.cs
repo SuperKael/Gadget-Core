@@ -53,7 +53,6 @@ namespace GadgetCore.API
             {
                 if (tableEntry.TryDrop(pos)) yield return new WaitForSeconds(dropFrequency);
             }
-            yield break;
         }
 
         /// <summary>

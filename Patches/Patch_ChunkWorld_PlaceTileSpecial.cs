@@ -7,7 +7,7 @@ namespace GadgetCore.Patches
 {
     [HarmonyPatch(typeof(ChunkWorld))]
     [HarmonyPatch("PlaceTileSpecial")]
-    static class Patch_ChunkWorld_PlaceTileSpecial
+    internal static class Patch_ChunkWorld_PlaceTileSpecial
     {
         public static readonly MethodInfo MultiplayerSupport = typeof(ChunkWorld).GetMethod("MultiplayerSupport", BindingFlags.Public | BindingFlags.Instance);
 

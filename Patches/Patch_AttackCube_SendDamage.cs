@@ -6,7 +6,7 @@ namespace GadgetCore.Patches
 {
     [HarmonyPatch(typeof(AttackCube))]
     [HarmonyPatch("SendDamage")]
-    static class Patch_AttackCube_SendDamage
+    internal static class Patch_AttackCube_SendDamage
     {
         [HarmonyPrefix]
         public static bool Prefix(AttackCube __instance, Collider c)
@@ -20,7 +20,7 @@ namespace GadgetCore.Patches
                 {
                     num = InstanceTracker.GameScript.GetFinalStat(1);
                 }
-                float[] array = new float[]
+                float[] array = new[]
                 {
                     weapon.GetDamage(player) + num,
                     MenuScript.player.transform.position.x

@@ -2,16 +2,13 @@ using HarmonyLib;
 using GadgetCore.API;
 using GadgetCore.Util;
 using UnityEngine;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Collections;
 
 namespace GadgetCore.Patches
 {
     [HarmonyPatch(typeof(GameScript))]
     [HarmonyPatch("PlanetTele")]
-    static class Patch_GameScript_PlanetTele
+    internal static class Patch_GameScript_PlanetTele
     {
         [HarmonyPrefix]
         public static bool Prefix(GameScript __instance, ref bool ___planetTeleing, ref int[] ___portalUses)
@@ -35,7 +32,7 @@ namespace GadgetCore.Patches
 						{
 							__instance.GetComponent<NetworkView>().RPC("ChangePortal", RPCMode.Server, new object[]
 							{
-								GadgetNetwork.ConvertIDToHost(PlanetRegistry.Singleton, planet.ID),
+								PlanetRegistry.Singleton.ConvertIDToHost(planet.ID),
 								GameScript.challengeLevel
 							});
 						}
@@ -62,7 +59,7 @@ namespace GadgetCore.Patches
 					{
 						__instance.GetComponent<NetworkView>().RPC("ChangePortal", RPCMode.Server, new object[]
 						{
-							GadgetNetwork.ConvertIDToHost(PlanetRegistry.Singleton, GameScript.curPlanet),
+							PlanetRegistry.Singleton.ConvertIDToHost(GameScript.curPlanet),
 							GameScript.challengeLevel
 						});
 					}

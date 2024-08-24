@@ -1,20 +1,16 @@
 using UnityEngine;
 using HarmonyLib;
-using System.Reflection;
 using System.Collections;
 using GadgetCore.API;
-using System.Web.UI.WebControls;
 using System.Linq;
 using System.Collections.Generic;
 using GadgetCore.Util;
-using System;
-using System.Text;
 
 namespace GadgetCore.Patches
 {
     [HarmonyPatch(typeof(GameScript))]
     [HarmonyPatch("ShiftClick2")]
-    static class Patch_GameScript_ShiftClick2
+    internal static class Patch_GameScript_ShiftClick2
     {
         private static Item itemInSlot;
 

@@ -9,7 +9,7 @@ namespace GadgetCore.Patches
 {
     [HarmonyPatch(typeof(GameScript))]
     [HarmonyPatch("Talk")]
-    static class Patch_GameScript_Talk
+    internal static class Patch_GameScript_Talk
     {
         [HarmonyPrefix]
         public static bool Prefix(GameScript __instance, int a, int b, int c, ref int ___curA, ref int ___curB, ref int ___curC)

@@ -6,7 +6,7 @@ namespace GadgetCore.Patches
 {
     [HarmonyPatch(typeof(GameScript))]
     [HarmonyPatch("RefreshInventory")]
-    static class Patch_GameScript_RefreshInventory
+    internal static class Patch_GameScript_RefreshInventory
     {
         public static readonly MethodInfo RefreshSlot = typeof(GameScript).GetMethod("RefreshSlot", BindingFlags.Public | BindingFlags.Instance);
 
@@ -24,7 +24,6 @@ namespace GadgetCore.Patches
                 RefreshSlot.Invoke(__instance, new object[] { i });
             }
             yield return null;
-            yield break;
         }
     }
 }

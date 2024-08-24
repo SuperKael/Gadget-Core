@@ -8,7 +8,7 @@ namespace GadgetCore.Patches
 {
     [HarmonyPatch(typeof(SpawnBlock))]
     [HarmonyPatch("OnConnectedToServer")]
-    static class Patch_SpawnBlock_OnConnectedToServer
+    internal static class Patch_SpawnBlock_OnConnectedToServer
     {
         public static readonly MethodInfo OnConnectedToServer = typeof(SpawnBlock).GetMethod("OnConnectedToServer", BindingFlags.Public | BindingFlags.Instance);
 

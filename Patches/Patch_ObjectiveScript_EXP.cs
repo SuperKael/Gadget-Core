@@ -1,14 +1,13 @@
 using HarmonyLib;
 using GadgetCore.API;
 using UnityEngine;
-using System.Collections.Generic;
 using System.Collections;
 
 namespace GadgetCore.Patches
 {
     [HarmonyPatch(typeof(ObjectiveScript))]
     [HarmonyPatch("EXP")]
-    static class Patch_ObjectiveScript_EXP
+    internal static class Patch_ObjectiveScript_EXP
     {
         [HarmonyPrefix]
         public static bool Prefix(ObjectiveScript __instance, ref IEnumerator __result)

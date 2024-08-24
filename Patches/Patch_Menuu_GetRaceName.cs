@@ -5,7 +5,7 @@ namespace GadgetCore.Patches
 {
     [HarmonyPatch(typeof(Menuu))]
     [HarmonyPatch("GetRaceName")]
-    static class Patch_Menuu_GetRaceName
+    internal static class Patch_Menuu_GetRaceName
     {
         [HarmonyPrefix]
         public static bool Prefix(int a, ref string __result)

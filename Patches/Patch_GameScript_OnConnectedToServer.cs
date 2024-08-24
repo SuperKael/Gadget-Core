@@ -9,7 +9,7 @@ namespace GadgetCore.Patches
 {
     [HarmonyPatch(typeof(GameScript))]
     [HarmonyPatch("OnConnectedToServer")]
-    static class Patch_GameScript_OnConnectedToServer
+    internal static class Patch_GameScript_OnConnectedToServer
     {
         public static readonly MethodInfo OnConnectedToServer = typeof(GameScript).GetMethod("OnConnectedToServer", BindingFlags.Public | BindingFlags.Instance);
 

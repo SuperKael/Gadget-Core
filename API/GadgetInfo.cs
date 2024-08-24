@@ -1,6 +1,5 @@
 ﻿using GadgetCore.Loader;
 using GadgetCore.Util;
-using System;
 
 namespace GadgetCore.API
 {

@@ -6,7 +6,7 @@ namespace GadgetCore.Patches
 {
     [HarmonyPatch(typeof(PlayerScript))]
     [HarmonyPatch("Attack")]
-    static class Patch_PlayerScript_Attack
+    internal static class Patch_PlayerScript_Attack
     {
         [HarmonyPrefix]
         public static bool Prefix(PlayerScript __instance, ref bool ___attacking, ref bool ___canAttack, ref GameScript ___gameScript, ref IEnumerator __result)

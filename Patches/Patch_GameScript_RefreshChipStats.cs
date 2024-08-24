@@ -5,7 +5,7 @@ namespace GadgetCore.Patches
 {
     [HarmonyPatch(typeof(GameScript))]
     [HarmonyPatch("RefreshChipStats")]
-    static class Patch_GameScript_RefreshChipStats
+    internal static class Patch_GameScript_RefreshChipStats
     {
         [HarmonyPostfix]
         public static void Postfix(GameScript __instance, int[] ___combatChips, int[] ___CHIPSTAT)

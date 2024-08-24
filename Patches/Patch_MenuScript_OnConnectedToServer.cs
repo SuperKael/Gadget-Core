@@ -8,7 +8,7 @@ namespace GadgetCore.Patches
 {
     [HarmonyPatch(typeof(MenuScript))]
     [HarmonyPatch("OnConnectedToServer")]
-    static class Patch_MenuScript_OnConnectedToServer
+    internal static class Patch_MenuScript_OnConnectedToServer
     {
         public static readonly MethodInfo OnConnectedToServer = typeof(MenuScript).GetMethod("OnConnectedToServer", BindingFlags.Public | BindingFlags.Instance);
 

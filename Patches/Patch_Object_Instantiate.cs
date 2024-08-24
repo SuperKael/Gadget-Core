@@ -1,15 +1,12 @@
 using HarmonyLib;
 using UnityEngine;
-using System;
 using System.Reflection;
 using System.Linq;
-using System.Collections.Generic;
-using GadgetCore.Util;
 
 namespace GadgetCore.Patches
 {
     [HarmonyPatch]
-    static class Patch_Object_Instantiate
+    internal static class Patch_Object_Instantiate
     {
         [HarmonyTargetMethods]
         public static MethodBase[] TargetMethods()

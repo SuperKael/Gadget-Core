@@ -1,9 +1,6 @@
 ﻿using GadgetCore.API;
-using GadgetCore.Util;
 using System;
-using System.IO;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 namespace GadgetCore.CoreMod
 {
@@ -21,8 +18,6 @@ namespace GadgetCore.CoreMod
         /// The tile for the Universal Crafter
         /// </summary>
         public TileInfo crafterTile;
-
-        private Action<bool> onMatrixReadyHandler;
 
         /// <summary>
         /// Called during gadget initialization. All data registration should be done from this method.
@@ -62,19 +57,7 @@ namespace GadgetCore.CoreMod
                 GadgetCoreAPI.LoadTexture2D("Core Mod/Universal Crafter/button0_tex"), GadgetCoreAPI.LoadTexture2D("Core Mod/Universal Crafter/button1_tex"), GadgetCoreAPI.LoadTexture2D("Core Mod/Universal Crafter/button2_tex"),
                 GadgetCoreAPI.LoadAudioClipAsync("Core Mod/Universal Crafter/craft_au"), null, crafterTile);
 
-            GadgetNetwork.OnMatrixReady += onMatrixReadyHandler = (b) =>
-            {
-                if (MenuRegistry.Singleton["Gadget Core:Crafter Menu"] is CraftMenuInfo craftMenu && craftMenu.CraftPerformers.Count > 0
-                && b && SceneManager.GetActiveScene().buildIndex == 1 && Network.isServer) GadgetCoreAPI.CreateMarketStand(crafterItem, new Vector2(-138f, -7.49f), 10);
-            };
-        }
-
-        /// <summary>
-        /// Called when this gadget is unloaded or reloaded. 
-        /// </summary>
-        protected internal override void Unload()
-        {
-            GadgetNetwork.OnMatrixReady -= onMatrixReadyHandler;
+            if (MenuRegistry.Singleton["Gadget Core:Crafter Menu"] is CraftMenuInfo craftMenu && craftMenu.CraftPerformers.Count > 0) GadgetCoreAPI.CreateMarketStand(crafterItem, new Vector2(-138f, -7.49f), 10);
         }
 
         /// <summary>

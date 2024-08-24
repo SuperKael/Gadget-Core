@@ -5,7 +5,7 @@ namespace GadgetCore.Patches
 {
     [HarmonyPatch(typeof(ChestScript))]
     [HarmonyPatch("DropLocal")]
-    static class Patch_ChestScript_DropLocal
+    internal static class Patch_ChestScript_DropLocal
     {
         [HarmonyPostfix]
         public static void Postfix(ChestScript __instance)

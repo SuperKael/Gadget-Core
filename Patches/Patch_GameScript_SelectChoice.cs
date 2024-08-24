@@ -1,12 +1,11 @@
 using HarmonyLib;
-using GadgetCore.API;
 using GadgetCore.API.Dialog;
 
 namespace GadgetCore.Patches
 {
     [HarmonyPatch(typeof(GameScript))]
     [HarmonyPatch("SelectChoice")]
-    static class Patch_GameScript_SelectChoice
+    internal static class Patch_GameScript_SelectChoice
     {
         [HarmonyPrefix]
         public static void Prefix(ref int __state)
@@ -20,7 +19,7 @@ namespace GadgetCore.Patches
             DialogChain chain = DialogActions.autoDialogAfterChoice;
             if (chain != null)
             {
-                if (DialogActions.autoDialogForce || chain.TriggerCondition == null || chain.TriggerCondition(GameScript.allegianceQuest)) DialogChains.InitiateDialog(chain);
+                if (DialogActions.autoDialogForce || chain.TriggerCondition == null || chain.TriggerCondition(GameScript.allegianceQuest)) chain.InitiateDialog();
                 DialogActions.afterChoiceAction?.Invoke(a + 1);
             }
             DialogActions.autoDialogAfterChoice = null;

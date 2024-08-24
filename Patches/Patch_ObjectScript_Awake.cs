@@ -5,7 +5,7 @@ namespace GadgetCore.Patches
 {
     [HarmonyPatch(typeof(ObjectScript))]
     [HarmonyPatch("Awake")]
-    static class Patch_ObjectScript_Awake
+    internal static class Patch_ObjectScript_Awake
     {
         [HarmonyPostfix]
         public static void Postfix(ObjectScript __instance)

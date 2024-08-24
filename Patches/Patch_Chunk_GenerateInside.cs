@@ -10,7 +10,7 @@ namespace GadgetCore.Patches
 {
     [HarmonyPatch(typeof(Chunk))]
     [HarmonyPatch("GenerateInside")]
-    static class Patch_Chunk_GenerateInside
+    internal static class Patch_Chunk_GenerateInside
     {
         public static readonly FieldInfo networkStuffField = typeof(Chunk).GetField("networkStuff", BindingFlags.NonPublic | BindingFlags.Instance);
         public static readonly FieldInfo tempField = typeof(Chunk).GetField("temp", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -38,7 +38,6 @@ namespace GadgetCore.Patches
                 temp++;
             }
             tempField.SetValue(instance, temp);
-            yield break;
         }
     }
 }

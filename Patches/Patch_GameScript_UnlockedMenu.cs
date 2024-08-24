@@ -1,9 +1,6 @@
 using HarmonyLib;
 using GadgetCore.API;
 using UnityEngine;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System;
 using System.Reflection;
 using System.Collections;
@@ -11,7 +8,7 @@ using System.Collections;
 namespace GadgetCore.Patches
 {
     [HarmonyPatch]
-    static class Patch_GameScript_UnlockedMenu
+    internal static class Patch_GameScript_UnlockedMenu
     {
         public static Type IteratorType = typeof(GameScript).GetNestedType("<UnlockedMenu>c__Iterator15", BindingFlags.NonPublic);
         public static FieldInfo This = IteratorType.GetField("$this", BindingFlags.NonPublic | BindingFlags.Instance);

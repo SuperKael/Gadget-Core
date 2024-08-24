@@ -11,7 +11,7 @@ namespace GadgetCore.Patches
 {
     [HarmonyPatch(typeof(Menuu))]
     [HarmonyPatch("Update")]
-    static class Patch_Menuu_Update
+    internal static class Patch_Menuu_Update
     {
         [HarmonyPrefix]
         [HarmonyOverrides]
@@ -75,14 +75,12 @@ namespace GadgetCore.Patches
             yield return new WaitForSeconds(0.1f);
             SceneInjector.ModMenuBackButtonHolder.GetComponent<Animation>().Play();
             yield return null;
-            yield break;
         }
 
         private static IEnumerator DelayRebuildConfigMenus()
         {
             yield return new WaitForEndOfFrame();
             GadgetModConfigs.ResetAllConfigMenus();
-            yield break;
         }
 
         [HarmonyTranspiler]
@@ -90,7 +88,7 @@ namespace GadgetCore.Patches
         {
             var p = TranspilerHelper.CreateProcessor(instructions, generator);
 
-            var allegianceUpRef = p.FindRefByInsns(new CodeInstruction[]
+            var allegianceUpRef = p.FindRefByInsns(new[]
             {
                 new CodeInstruction(OpCodes.Ldsfld, "System.Int32 curAllegiance"),
                 new CodeInstruction(OpCodes.Ldc_I4_1),
@@ -106,7 +104,7 @@ namespace GadgetCore.Patches
             p.InjectHook(allegianceUpRef, typeof(AllegianceRegistry).GetMethod("CycleAllegianceSelection"));
             p.RemoveInsns(allegianceUpRef, 9);
 
-            var allegianceDownRef = p.FindRefByInsns(new CodeInstruction[]
+            var allegianceDownRef = p.FindRefByInsns(new[]
             {
                 new CodeInstruction(OpCodes.Ldsfld, "System.Int32 curAllegiance"),
                 new CodeInstruction(OpCodes.Ldc_I4_1),

@@ -1,12 +1,10 @@
 using HarmonyLib;
-using GadgetCore.API;
-using UnityEngine;
 
 namespace GadgetCore.Patches
 {
     [HarmonyPatch(typeof(GameScript))]
     [HarmonyPatch("EraseCharacter")]
-    static class Patch_GameScript_EraseCharacter
+    internal static class Patch_GameScript_EraseCharacter
     {
         [HarmonyPostfix]
         public static void Postfix(int a, ref Item[] ___inventory)

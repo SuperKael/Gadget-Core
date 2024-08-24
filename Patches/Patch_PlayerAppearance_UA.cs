@@ -6,7 +6,7 @@ namespace GadgetCore.Patches
 {
     [HarmonyPatch(typeof(PlayerAppearance))]
     [HarmonyPatch("UA")]
-    static class Patch_PlayerAppearance_UA
+    internal static class Patch_PlayerAppearance_UA
     {
         [HarmonyPostfix]
         public static void Postfix(PlayerAppearance __instance, int[] ei, int a, bool dead)

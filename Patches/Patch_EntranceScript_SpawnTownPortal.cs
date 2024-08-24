@@ -1,17 +1,12 @@
 using HarmonyLib;
 using GadgetCore.API;
 using UnityEngine;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using GadgetCore.Util;
-using System.Reflection;
 
 namespace GadgetCore.Patches
 {
     [HarmonyPatch(typeof(EntranceScript))]
     [HarmonyPatch("SpawnTownPortal")]
-    static class Patch_EntranceScript_SpawnTownPortal
+    internal static class Patch_EntranceScript_SpawnTownPortal
     {
         [HarmonyPrefix]
         public static bool Prefix(EntranceScript __instance)

@@ -5,7 +5,7 @@ namespace GadgetCore.Patches
 {
     [HarmonyPatch(typeof(PlagueStand))]
     [HarmonyPatch("DropLocal")]
-    static class Patch_PlagueStand_DropLocal
+    internal static class Patch_PlagueStand_DropLocal
     {
         [HarmonyPostfix]
         public static void Postfix(PlagueStand __instance)

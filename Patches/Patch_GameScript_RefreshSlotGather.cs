@@ -6,7 +6,7 @@ namespace GadgetCore.Patches
 {
     [HarmonyPatch(typeof(GameScript))]
     [HarmonyPatch("RefreshSlotGather")]
-    static class Patch_GameScript_RefreshSlotGather
+    internal static class Patch_GameScript_RefreshSlotGather
     {
         [HarmonyPrefix]
         public static void Prefix(GameScript __instance, int i, ref Item[] ___gatherStorage)

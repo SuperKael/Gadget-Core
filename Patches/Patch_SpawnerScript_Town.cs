@@ -7,7 +7,7 @@ namespace GadgetCore.Patches
 {
     [HarmonyPatch(typeof(SpawnerScript))]
     [HarmonyPatch("Town")]
-    static class Patch_SpawnerScript_Town
+    internal static class Patch_SpawnerScript_Town
     {
         [HarmonyPrefix]
         public static bool Prefix(SpawnerScript __instance, int[] s, ref IEnumerator __result)
@@ -34,7 +34,6 @@ namespace GadgetCore.Patches
         {
             yield return townRoutine;
             planet.InvokeOnGenerateTown(instance, s);
-            yield break;
         }
 
         private static IEnumerator Town(SpawnerScript instance, int[] s, PlanetInfo planet)
@@ -53,7 +52,6 @@ namespace GadgetCore.Patches
             InstanceTracker.GameScript.fadeObj.SendMessage("fadeIn2");
             GameScript.wormBossCounter = 0;
             GameScript.hivemindCounter = 0;
-            yield break;
         }
     }
 }

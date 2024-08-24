@@ -7,7 +7,7 @@ namespace GadgetCore.Patches
 {
     [HarmonyPatch(typeof(GameScript))]
     [HarmonyPatch("ForgeEmblem")]
-    static class Patch_GameScript_ForgeEmblem
+    internal static class Patch_GameScript_ForgeEmblem
     {
         [HarmonyPrefix]
         public static bool Prefix(GameScript __instance, int slot, ref Item[] ___inventory, ref Item ___holdingItem, ref bool ___emblemAgain, ref int ___slotID)

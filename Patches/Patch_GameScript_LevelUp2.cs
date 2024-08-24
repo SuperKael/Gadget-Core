@@ -1,6 +1,4 @@
 using HarmonyLib;
-using GadgetCore.API;
-using UnityEngine;
 using System;
 using System.Reflection;
 using System.Collections;
@@ -9,7 +7,7 @@ using System.Linq;
 namespace GadgetCore.Patches
 {
     [HarmonyPatch]
-    static class Patch_GameScript_LevelUp2
+    internal static class Patch_GameScript_LevelUp2
     {
         public static Type IteratorType = typeof(GameScript).GetNestedType("<LevelUp2>c__IteratorD", BindingFlags.NonPublic);
         public static FieldInfo This = IteratorType.GetField("$this", BindingFlags.NonPublic | BindingFlags.Instance);

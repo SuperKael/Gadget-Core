@@ -4,9 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-using System.Web.UI.WebControls;
 using UnityEngine;
 
 namespace GadgetCore.API
@@ -872,7 +870,6 @@ namespace GadgetCore.API
             }
             yield return new WaitForSeconds(0.5f);
             interacting.SetValue(InstanceTracker.PlayerScript, false);
-            yield break;
         }
 
         /// <summary>
@@ -1223,7 +1220,7 @@ namespace GadgetCore.API
             /// </summary>
             public AdvancedRecipe(AdvancedRecipeComponent Slot1, AdvancedRecipeComponent Slot2, AdvancedRecipeComponent Slot3, AdvancedRecipeComponent Slot4)
             {
-                Slots = new AdvancedRecipeComponent[] { Slot1, Slot2, Slot3, Slot4 };
+                Slots = new[] { Slot1, Slot2, Slot3, Slot4 };
                 if (Slots.Count(x => x.Type == AdvancedRecipeComponentType.CORE_INPUT) > 1) throw new InvalidOperationException("An advanced recipe may only contain one CORE_INPUT component!");
                 if (Slots.Count(x => x.Type == AdvancedRecipeComponentType.CORE_INPUT) == 0 && Slots.Count(x => x.Type == AdvancedRecipeComponentType.CORE_OUTPUT) > 0) throw new InvalidOperationException("An advanced recipe may not contain a CORE_OUTPUT component without a CORE_INPUT component1!");
             }

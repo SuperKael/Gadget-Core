@@ -3,7 +3,6 @@ using GadgetCore.Loader;
 using GadgetCore.Util;
 using IniParser;
 using IniParser.Model;
-using IniParser.Parser;
 using Ionic.Zip;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -17,7 +16,6 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using UnityEngine;
-using UnityEngine.Networking;
 using UnityEngine.UI;
 
 namespace GadgetCore
@@ -452,7 +450,6 @@ namespace GadgetCore
                     break;
             }
             UpdateInfo(toggle, modIndex);
-            yield break;
         }
 
         internal void OnUnlimitButton()
@@ -561,7 +558,7 @@ namespace GadgetCore
                     {
                         try
                         {
-                            Dictionary<string, string> modInfo = modKey.Value.Split(',').Select(x => x.Split(new char[] { ':' }, 2)).Where(x => x.Length == 2).ToDictionary(x => x[0], x => x[1].Replace("\\n", "\n"));
+                            Dictionary<string, string> modInfo = modKey.Value.Split(',').Select(x => x.Split(new[] { ':' }, 2)).Where(x => x.Length == 2).ToDictionary(x => x[0], x => x[1].Replace("\\n", "\n"));
                             if (modInfo.TryGetValue("URL", out string modURL))
                             {
                                 if (modURL.Length > 0 && modURL[0] == '/') modInfo["URL"] = modURL = GIT_RAW_URL + modURL;
@@ -604,7 +601,6 @@ namespace GadgetCore
             listLoading = false;
             Build();
             if (!checkedForGadgetCoreUpdate) yield return CheckForGadgetCoreUpdate();
-            yield break;
         }
 
         private IEnumerator CheckForGadgetCoreUpdate()
@@ -659,7 +655,6 @@ namespace GadgetCore
                     GadgetCore.CoreLogger.Log("An error occured while trying to fetch GitHub release data for the GadgetCore Installer: " + e);
                 }
             }
-            yield break;
         }
 
         private IEnumerator ProcessMetadataURL(string ID, string URL, ModBrowserEntry modEntry)
@@ -678,7 +673,7 @@ namespace GadgetCore
                         {
                             if (modKey.KeyName == "OtherVersions")
                             {
-                                Dictionary<string, string> otherVersions = modKey.Value.Split(',').Select(x => x.Split(new char[] { ':' }, 2)).Where(x => x.Length == 2).ToDictionary(x => x[0], x => x[1].Replace("\\n", "\n"));
+                                Dictionary<string, string> otherVersions = modKey.Value.Split(',').Select(x => x.Split(new[] { ':' }, 2)).Where(x => x.Length == 2).ToDictionary(x => x[0], x => x[1].Replace("\\n", "\n"));
                                 foreach (KeyValuePair<string, string> otherVersion in otherVersions)
                                 {
                                     string versionURL = otherVersion.Value;
@@ -723,7 +718,7 @@ namespace GadgetCore
 
         private IEnumerator ProcessGitVersions(string gitURL, ModBrowserEntry modEntry)
         {
-            string[] splitString = gitURL.Split(new char[] { ':' }, 3);
+            string[] splitString = gitURL.Split(new[] { ':' }, 3);
             if (splitString.Length == 3)
             {
                 using (WWW gitWWW = new WWW(string.Format(GIT_API_URL, splitString[0], splitString[1]), null, gitHubAuthHeaders))
@@ -762,16 +757,16 @@ namespace GadgetCore
                                     body.StartsWith("RequiredGCVersion:") || body.StartsWith("Required GC Version:") ||
                                     body.StartsWith("RequiredGadgetCoreVersion:") || body.StartsWith("Required GadgetCore Version:"))
                                 {
-                                    string[] splitBody = body.Split(new char[] { '\r', '\n' }, 2);
-                                    modEntry.Info["GCVersion"] = splitBody[0].Split(new char[] { ':' }, 2)[1].Trim();
+                                    string[] splitBody = body.Split(new[] { '\r', '\n' }, 2);
+                                    modEntry.Info["GCVersion"] = splitBody[0].Split(new[] { ':' }, 2)[1].Trim();
                                     body = splitBody[1];
                                 }
                                 modEntry.Info["Version"] = lastVersionJSON.Value<string>("tag_name").TrimStart('v');
-                                string[] bodyLines = body.Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+                                string[] bodyLines = body.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
                                 int indexOfDescription = bodyLines.IndexOf(x => x.StartsWith("Desc:") || x.StartsWith("Description:"));
                                 if (indexOfDescription >= 0)
                                 {
-                                    string firstLine = bodyLines[indexOfDescription].Split(new char[] { ':' }, 2)[1].Trim();
+                                    string firstLine = bodyLines[indexOfDescription].Split(new[] { ':' }, 2)[1].Trim();
                                     string[] changeLines = new string[indexOfDescription];
                                     string[] descLines = new string[bodyLines.Length - indexOfDescription - (string.IsNullOrEmpty(firstLine) ? 1 : 0)];
                                     if (changeLines.Length > 0)
@@ -820,7 +815,7 @@ namespace GadgetCore
         {
             if (modEntry.Info.TryGetValue("Git", out string gitURL))
             {
-                string[] splitString = gitURL.Split(new char[] { ':' }, 3);
+                string[] splitString = gitURL.Split(new[] { ':' }, 3);
                 if (splitString.Length == 3)
                 {
                     using (WWW gitWWW = new WWW(string.Format(GIT_API_URL + '/' + gitID, splitString[0], splitString[1]), null, gitHubAuthHeaders))
@@ -855,16 +850,16 @@ namespace GadgetCore
                                     body.StartsWith("RequiredGCVersion:") || body.StartsWith("Required GC Version:") ||
                                     body.StartsWith("RequiredGadgetCoreVersion:") || body.StartsWith("Required GadgetCore Version:"))
                                 {
-                                    string[] splitBody = body.Split(new char[] { '\r', '\n' }, 2);
-                                    modEntry.Info["GCVersion"] = splitBody[0].Split(new char[] { ':' }, 2)[1].Trim();
+                                    string[] splitBody = body.Split(new[] { '\r', '\n' }, 2);
+                                    modEntry.Info["GCVersion"] = splitBody[0].Split(new[] { ':' }, 2)[1].Trim();
                                     body = splitBody[1];
                                 }
                                 modEntry.Info["Version"] = versionJSON.Value<string>("tag_name").TrimStart('v');
-                                string[] bodyLines = body.Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+                                string[] bodyLines = body.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
                                 int indexOfDescription = bodyLines.IndexOf(x => x.StartsWith("Desc:") || x.StartsWith("Description:"));
                                 if (indexOfDescription >= 0)
                                 {
-                                    string firstLine = bodyLines[indexOfDescription].Split(new char[] { ':' }, 2)[1].Trim();
+                                    string firstLine = bodyLines[indexOfDescription].Split(new[] { ':' }, 2)[1].Trim();
                                     string[] changeLines = new string[indexOfDescription];
                                     string[] descLines = new string[bodyLines.Length - indexOfDescription - (string.IsNullOrEmpty(firstLine) ? 1 : 0)];
                                     if (changeLines.Length > 0)
@@ -884,7 +879,6 @@ namespace GadgetCore
                         catch (Exception e)
                         {
                             GadgetCore.CoreLogger.Log("An error occured while trying to fetch GitHub release " + gitID + " with the target '" + gitURL + "': " + e);
-                            yield break;
                         }
                     }
                 }
@@ -1100,7 +1094,7 @@ namespace GadgetCore
 
             if (!string.IsNullOrEmpty(filterText))
             {
-                string[] splitFilterText = filterText.Split(new char[] { ':' }, 2).Select(x => x.Trim()).ToArray();
+                string[] splitFilterText = filterText.Split(new[] { ':' }, 2).Select(x => x.Trim()).ToArray();
                 for (int i = 0; i < modEntries.Count; i++)
                 {
                     bool visible = false;

@@ -5,7 +5,7 @@ namespace GadgetCore.Patches
 {
     [HarmonyPatch(typeof(GameScript))]
     [HarmonyPatch("SelectCombatChip")]
-    static class Patch_GameScript_SelectCombatChip
+    internal static class Patch_GameScript_SelectCombatChip
     {
         [HarmonyPrefix]
         public static void Prefix(GameScript __instance, int slot, int[] ___combatChips, bool ___exitingcombatmode)

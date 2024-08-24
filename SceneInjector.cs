@@ -1,10 +1,8 @@
 ﻿using GadgetCore.API;
 using GadgetCore.API.ConfigMenu;
-using GadgetCore.CoreMod;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -153,7 +151,6 @@ namespace GadgetCore
             ModMenuBeam.GetComponent<Animation>().Play();
             yield return new WaitForSeconds(0.3f);
             ModMenuButtonHolder.GetComponent<Animation>().Play();
-            yield break;
         }
 
         internal static void InjectIngame()

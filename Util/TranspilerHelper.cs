@@ -219,7 +219,7 @@ namespace GadgetCore.Util
             /// </summary>
             public ILRef[] FindAllRefsByInsn(CodeInstruction insn)
             {
-                if (insn == null) throw new ArgumentNullException("insn");
+                if (insn == null) throw new ArgumentNullException(nameof(insn));
                 bool hasToString = insn.operand != null && !(insn.operand is Label) && insn.operand.GetType().GetMethods().Any(m => m.Name == "ToString" && m.GetParameters().Length == 0 && m.DeclaringType != typeof(object));
                 return Insns.Select((x, i) => Tuple.Create(x, i)).Where(x => x.Item1?.opcode == insn.opcode && (insn.operand == null || (hasToString ? x.Item1?.operand?.ToString() == insn.operand?.ToString() : x.Item1?.operand is Label xLab && insn.operand is Label insnLab ? xLab == insnLab : x.Item1?.operand == insn.operand))).Select(x => GetRefByIndex(x.Item2)).ToArray();
             }
@@ -230,7 +230,7 @@ namespace GadgetCore.Util
             /// </summary>
             public ILRef FindRefByInsn(CodeInstruction insn)
             {
-                if (insn == null) throw new ArgumentNullException("insn");
+                if (insn == null) throw new ArgumentNullException(nameof(insn));
                 bool hasToString = insn.operand != null && !(insn.operand is Label) && insn.operand.GetType().GetMethods().Any(m => m.Name == "ToString" && m.GetParameters().Length == 0 && m.DeclaringType != typeof(object));
                 int index = Insns.FindIndex(x => x?.opcode == insn.opcode && (insn.operand == null || (hasToString ? x?.operand?.ToString() == insn.operand?.ToString() : x?.operand is Label xLab && insn.operand is Label insnLab ? xLab == insnLab : x?.operand == insn.operand)));
                 return index >= 0 ? GetRefByIndex(index) : null;
@@ -242,7 +242,7 @@ namespace GadgetCore.Util
             /// </summary>
             public ILRef FindRefByInsn(CodeInstruction insn, ILRef startRef)
             {
-                if (insn == null) throw new ArgumentNullException("insn");
+                if (insn == null) throw new ArgumentNullException(nameof(insn));
                 bool hasToString = insn.operand != null && !(insn.operand is Label) && insn.operand.GetType().GetMethods().Any(m => m.Name == "ToString" && m.GetParameters().Length == 0 && m.DeclaringType != typeof(object));
                 int index = Insns.FindIndex(startRef.Index, x => x?.opcode == insn.opcode && (insn.operand == null || (hasToString ? x?.operand?.ToString() == insn.operand?.ToString() : x?.operand is Label xLab && insn.operand is Label insnLab ? xLab == insnLab : x?.operand == insn.operand)));
                 return index >= 0 ? GetRefByIndex(index) : null;
@@ -254,7 +254,7 @@ namespace GadgetCore.Util
             /// </summary>
             public ILRef FindLastRefByInsn(CodeInstruction insn)
             {
-                if (insn == null) throw new ArgumentNullException("insn");
+                if (insn == null) throw new ArgumentNullException(nameof(insn));
                 bool hasToString = insn.operand != null && !(insn.operand is Label) && insn.operand.GetType().GetMethods().Any(m => m.Name == "ToString" && m.GetParameters().Length == 0 && m.DeclaringType != typeof(object));
                 int index = Insns.FindLastIndex(x => x?.opcode == insn.opcode && (insn.operand == null || (hasToString ? x?.operand?.ToString() == insn.operand?.ToString() : x?.operand is Label xLab && insn.operand is Label insnLab ? xLab == insnLab : x?.operand == insn.operand)));
                 return index >= 0 ? GetRefByIndex(index) : null;
@@ -266,7 +266,7 @@ namespace GadgetCore.Util
             /// </summary>
             public ILRef FindLastRefByInsn(CodeInstruction insn, ILRef startRef)
             {
-                if (insn == null) throw new ArgumentNullException("insn");
+                if (insn == null) throw new ArgumentNullException(nameof(insn));
                 bool hasToString = insn.operand != null && !(insn.operand is Label) && insn.operand.GetType().GetMethods().Any(m => m.Name == "ToString" && m.GetParameters().Length == 0 && m.DeclaringType != typeof(object));
                 int index = Insns.FindLastIndex(startRef.Index, x => x?.opcode == insn.opcode && (insn.operand == null || (hasToString ? x?.operand?.ToString() == insn.operand?.ToString() : x?.operand is Label xLab && insn.operand is Label insnLab ? xLab == insnLab : x?.operand == insn.operand)));
                 return index >= 0 ? GetRefByIndex(index) : null;
@@ -279,7 +279,7 @@ namespace GadgetCore.Util
             /// </summary>
             public ILRef[] FindAllRefsByInsns(List<CodeInstruction> searchInsns)
             {
-                if (searchInsns == null) throw new ArgumentNullException("searchInsns");
+                if (searchInsns == null) throw new ArgumentNullException(nameof(searchInsns));
                 EqualityComparison<CodeInstruction>[] comparers = searchInsns.Select(x => x == null ? (a, b) => true : x.operand == null ? (a, b) => a?.opcode == b?.opcode : !(x.operand is Label) && x.operand.GetType().GetMethods().Any(m => m.Name == "ToString" && m.GetParameters().Length == 0 && m.DeclaringType != typeof(object)) ? (a, b) => a?.opcode == b?.opcode && a?.operand?.ToString() == b?.operand?.ToString() : (EqualityComparison<CodeInstruction>)((a, b) => a?.opcode == b?.opcode && (a?.operand is Label aLab && b?.operand is Label bLab ? aLab == bLab : a?.operand == b?.operand))).ToArray();
                 return Insns.AllIndexesOfSublist(searchInsns.ToList(), 0, comparers).Select(x => GetRefByIndex(x)).ToArray();
             }
@@ -291,7 +291,7 @@ namespace GadgetCore.Util
             /// </summary>
             public ILRef FindRefByInsns(CodeInstruction[] searchInsns)
             {
-                if (searchInsns == null) throw new ArgumentNullException("searchInsns");
+                if (searchInsns == null) throw new ArgumentNullException(nameof(searchInsns));
                 EqualityComparison<CodeInstruction>[] comparers = searchInsns.Select(x => x == null ? (a, b) => true : x.operand == null ? (a, b) => a?.opcode == b?.opcode : !(x.operand is Label) && x.operand.GetType().GetMethods().Any(m => m.Name == "ToString" && m.GetParameters().Length == 0 && m.DeclaringType != typeof(object)) ? (a, b) => a?.opcode == b?.opcode && a?.operand?.ToString() == b?.operand?.ToString() : (EqualityComparison<CodeInstruction>)((a, b) => a?.opcode == b?.opcode && (a?.operand is Label aLab && b?.operand is Label bLab ? aLab == bLab : a?.operand == b?.operand))).ToArray();
                 int index = Insns.IndexOfSublist(searchInsns.ToList(), 0, comparers);
                 return index >= 0 ? GetRefByIndex(index) : null;
@@ -304,7 +304,7 @@ namespace GadgetCore.Util
             /// </summary>
             public ILRef FindRefByInsns(CodeInstruction[] searchInsns, ILRef startRef)
             {
-                if (searchInsns == null) throw new ArgumentNullException("searchInsns");
+                if (searchInsns == null) throw new ArgumentNullException(nameof(searchInsns));
                 EqualityComparison<CodeInstruction>[] comparers = searchInsns.Select(x => x == null ? (a, b) => true : x.operand == null ? (a, b) => a?.opcode == b?.opcode : !(x.operand is Label) && x.operand.GetType().GetMethods().Any(m => m.Name == "ToString" && m.GetParameters().Length == 0 && m.DeclaringType != typeof(object)) ? (a, b) => a?.opcode == b?.opcode && a?.operand?.ToString() == b?.operand?.ToString() : (EqualityComparison<CodeInstruction>)((a, b) => a?.opcode == b?.opcode && (a?.operand is Label aLab && b?.operand is Label bLab ? aLab == bLab : a?.operand == b?.operand))).ToArray();
                 int index = Insns.IndexOfSublist(searchInsns.ToList(), startRef.Index, comparers);
                 return index >= 0 ? GetRefByIndex(index) : null;
@@ -317,7 +317,7 @@ namespace GadgetCore.Util
             /// </summary>
             public ILRef FindLastRefByInsns(CodeInstruction[] searchInsns)
             {
-                if (searchInsns == null) throw new ArgumentNullException("searchInsns");
+                if (searchInsns == null) throw new ArgumentNullException(nameof(searchInsns));
                 EqualityComparison<CodeInstruction>[] comparers = searchInsns.Select(x => x == null ? (a, b) => true : x.operand == null ? (a, b) => a?.opcode == b?.opcode : !(x.operand is Label) && x.operand.GetType().GetMethods().Any(m => m.Name == "ToString" && m.GetParameters().Length == 0 && m.DeclaringType != typeof(object)) ? (a, b) => a?.opcode == b?.opcode && a?.operand?.ToString() == b?.operand?.ToString() : (EqualityComparison<CodeInstruction>)((a, b) => a?.opcode == b?.opcode && (a?.operand is Label aLab && b?.operand is Label bLab ? aLab == bLab : a?.operand == b?.operand))).ToArray();
                 int index = Insns.LastIndexOfSublist(searchInsns.ToList(), 0, comparers);
                 return index >= 0 ? GetRefByIndex(index) : null;
@@ -330,7 +330,7 @@ namespace GadgetCore.Util
             /// </summary>
             public ILRef FindLastRefByInsns(CodeInstruction[] searchInsns, ILRef startRef)
             {
-                if (searchInsns == null) throw new ArgumentNullException("searchInsns");
+                if (searchInsns == null) throw new ArgumentNullException(nameof(searchInsns));
                 EqualityComparison<CodeInstruction>[] comparers = searchInsns.Select(x => x == null ? (a, b) => true : x.operand == null ? (a, b) => a?.opcode == b?.opcode : !(x.operand is Label) && x.operand.GetType().GetMethods().Any(m => m.Name == "ToString" && m.GetParameters().Length == 0 && m.DeclaringType != typeof(object)) ? (a, b) => a?.opcode == b?.opcode && a?.operand?.ToString() == b?.operand?.ToString() : (EqualityComparison<CodeInstruction>)((a, b) => a?.opcode == b?.opcode && (a?.operand is Label aLab && b?.operand is Label bLab ? aLab == bLab : a?.operand == b?.operand))).ToArray();
                 int index = Insns.LastIndexOfSublist(searchInsns.ToList(), startRef.Index, comparers);
                 return index >= 0 ? GetRefByIndex(index) : null;
@@ -341,7 +341,7 @@ namespace GadgetCore.Util
             /// </summary>
             public ILRef[] FindAllRefsByOpCode(OpCode code)
             {
-                if (code == null) throw new ArgumentNullException("code");
+                if (code == null) throw new ArgumentNullException(nameof(code));
                 return Insns.Select((x, i) => Tuple.Create(x, i)).Where(x => x.Item1?.opcode == code).Select(x => GetRefByIndex(x.Item2)).ToArray();
             }
 
@@ -350,7 +350,7 @@ namespace GadgetCore.Util
             /// </summary>
             public ILRef FindRefByOpCode(OpCode code)
             {
-                if (code == null) throw new ArgumentNullException("code");
+                if (code == null) throw new ArgumentNullException(nameof(code));
                 int index = Insns.FindIndex(x => x?.opcode == code);
                 return index >= 0 ? GetRefByIndex(index) : null;
             }
@@ -360,7 +360,7 @@ namespace GadgetCore.Util
             /// </summary>
             public ILRef FindRefByOpCode(OpCode code, ILRef startRef)
             {
-                if (code == null) throw new ArgumentNullException("code");
+                if (code == null) throw new ArgumentNullException(nameof(code));
                 int index = Insns.FindIndex(startRef.Index, x => x?.opcode == code);
                 return index >= 0 ? GetRefByIndex(index) : null;
             }
@@ -370,7 +370,7 @@ namespace GadgetCore.Util
             /// </summary>
             public ILRef FindLastRefByOpCode(OpCode code)
             {
-                if (code == null) throw new ArgumentNullException("code");
+                if (code == null) throw new ArgumentNullException(nameof(code));
                 int index = Insns.FindLastIndex(x => x?.opcode == code);
                 return index >= 0 ? GetRefByIndex(index) : null;
             }
@@ -380,7 +380,7 @@ namespace GadgetCore.Util
             /// </summary>
             public ILRef FindLastRefByOpCode(OpCode code, ILRef startRef)
             {
-                if (code == null) throw new ArgumentNullException("code");
+                if (code == null) throw new ArgumentNullException(nameof(code));
                 int index = Insns.FindLastIndex(startRef.Index, x => x?.opcode == code);
                 return index >= 0 ? GetRefByIndex(index) : null;
             }
@@ -492,7 +492,7 @@ namespace GadgetCore.Util
             /// </summary>
             public ILRef SimplifyConditionalBranch(ILRef ifBranch)
             {
-                if (ifBranch == null) throw new ArgumentNullException("ifBranch");
+                if (ifBranch == null) throw new ArgumentNullException(nameof(ifBranch));
                 if (!ifBranch.Valid) throw new InvalidOperationException("Cannot use an invalid ILRef!");
                 CodeInstruction conditionalBranch = GetInsn(ifBranch);
                 CodeInstruction nonconditionalBranch = GetInsn(ifBranch.GetRefByOffset(1));
@@ -514,7 +514,7 @@ namespace GadgetCore.Util
             /// </summary>
             public void InjectElseIf(ILRef ifBranch, OpCode conditionCode, out ILRef conditionBlock, out ILRef codeBlock)
             {
-                if (ifBranch == null) throw new ArgumentNullException("ifBranch");
+                if (ifBranch == null) throw new ArgumentNullException(nameof(ifBranch));
                 if (!ifBranch.Valid) throw new InvalidOperationException("Cannot use an invalid ILRef!");
                 CodeInstruction brCode = GetInsn(ifBranch);
                 if (brCode.opcode.FlowControl != FlowControl.Cond_Branch) throw new InvalidOperationException("ifBranch must point to a conditional branch instruction!");
@@ -540,7 +540,7 @@ namespace GadgetCore.Util
             /// </summary>
             public ILRef InjectLoadField(ILRef target, FieldInfo field, bool insert = true)
             {
-                if (target == null) throw new ArgumentNullException("target");
+                if (target == null) throw new ArgumentNullException(nameof(target));
                 if (field == null) throw new ArgumentNullException("hook");
                 if (!target.Valid) throw new InvalidOperationException("Cannot use an invalid ILRef!");
                 int targetIndex = target.Index;
@@ -570,8 +570,8 @@ namespace GadgetCore.Util
             /// </summary>
             public ILRef InjectHook(ILRef target, MethodBase hook, bool insert = true)
             {
-                if (target == null) throw new ArgumentNullException("target");
-                if (hook == null) throw new ArgumentNullException("hook");
+                if (target == null) throw new ArgumentNullException(nameof(target));
+                if (hook == null) throw new ArgumentNullException(nameof(hook));
                 if (!target.Valid) throw new InvalidOperationException("Cannot use an invalid ILRef!");
                 int targetIndex = target.Index;
                 CodeInstruction targetInsn = GetInsn(target);
@@ -590,8 +590,8 @@ namespace GadgetCore.Util
             /// </summary>
             public ILRef InjectInsn(ILRef target, CodeInstruction insn, bool insert = true)
             {
-                if (target == null) throw new ArgumentNullException("target");
-                if (insn == null) throw new ArgumentNullException("insn");
+                if (target == null) throw new ArgumentNullException(nameof(target));
+                if (insn == null) throw new ArgumentNullException(nameof(insn));
                 if (!target.Valid) throw new InvalidOperationException("Cannot use an invalid ILRef!");
                 int targetIndex = target.Index;
                 CodeInstruction targetInsn = GetInsn(target);
@@ -611,9 +611,9 @@ namespace GadgetCore.Util
             /// </summary>
             public ILRef InjectInsns(ILRef target, CodeInstruction[] newInsns, bool insert = true)
             {
-                if (target == null) throw new ArgumentNullException("target");
-                if (newInsns == null) throw new ArgumentNullException("newInsns");
-                if (newInsns.Length < 1) throw new ArgumentOutOfRangeException("newInsns");
+                if (target == null) throw new ArgumentNullException(nameof(target));
+                if (newInsns == null) throw new ArgumentNullException(nameof(newInsns));
+                if (newInsns.Length < 1) throw new ArgumentOutOfRangeException(nameof(newInsns));
                 if (!target.Valid) throw new InvalidOperationException("Cannot use an invalid ILRef!");
                 int targetIndex = target.Index;
                 CodeInstruction targetInsn = GetInsn(target);

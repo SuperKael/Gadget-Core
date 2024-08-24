@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Threading;
 
 namespace GadgetCore.Util
@@ -30,8 +28,8 @@ namespace GadgetCore.Util
             if (typeof(T).IsAssignableFrom(field.FieldType)) throw new InvalidOperationException("ThreadedWatcher type T must match the Type of the field being watched!");
             if (!field.IsStatic)
             {
-                if (container == null) throw new ArgumentNullException("container", "ThreadedWatcher container must not be null for non-static fields!");
-                if (container.GetType() != field.DeclaringType) throw new ArgumentException("ThreadedWatcher container must of the declaring type of the field being watched!", "container");
+                if (container == null) throw new ArgumentNullException(nameof(container), "ThreadedWatcher container must not be null for non-static fields!");
+                if (container.GetType() != field.DeclaringType) throw new ArgumentException("ThreadedWatcher container must of the declaring type of the field being watched!", nameof(container));
             }
             getter = field.CreateGetter<T>();
             this.container = container;

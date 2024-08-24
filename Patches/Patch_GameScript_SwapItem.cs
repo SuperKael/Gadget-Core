@@ -7,7 +7,7 @@ namespace GadgetCore.Patches
 {
     [HarmonyPatch(typeof(GameScript))]
     [HarmonyPatch("SwapItem")]
-    static class Patch_GameScript_SwapItem
+    internal static class Patch_GameScript_SwapItem
     {
         public static readonly MethodInfo RefreshSlot = typeof(GameScript).GetMethod("RefreshSlot", BindingFlags.Public | BindingFlags.Instance);
         public static readonly MethodInfo RefreshHoldingSlot = typeof(GameScript).GetMethod("RefreshHoldingSlot", BindingFlags.Public | BindingFlags.Instance);
@@ -106,16 +106,16 @@ namespace GadgetCore.Patches
                     __instance.UpdateEnergy();
                     __instance.UpdateMana();
                     Network.RemoveRPCs(MenuScript.playerAppearance.GetComponent<NetworkView>().viewID);
-                    int[] convertedIDs = new int[]
+                    int[] convertedIDs = new[]
                     {
-                        GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton, GameScript.equippedIDs[0]),
-                        GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton, GameScript.equippedIDs[1]),
-                        GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton, GameScript.equippedIDs[2]),
-                        GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton, GameScript.equippedIDs[3]),
-                        GadgetNetwork.ConvertIDToHost(null /* RaceRegistry */, GameScript.equippedIDs[4]),
+                        ItemRegistry.Singleton.ConvertIDToHost(GameScript.equippedIDs[0]),
+                        ItemRegistry.Singleton.ConvertIDToHost(GameScript.equippedIDs[1]),
+                        ItemRegistry.Singleton.ConvertIDToHost(GameScript.equippedIDs[2]),
+                        ItemRegistry.Singleton.ConvertIDToHost(GameScript.equippedIDs[3]),
+                        CharacterRaceRegistry.Singleton.ConvertIDToHost(GameScript.equippedIDs[4]),
                         GameScript.equippedIDs[5],
-                        GadgetNetwork.ConvertIDToHost(null /* UniformRegistry */, GameScript.equippedIDs[6]),
-                        GadgetNetwork.ConvertIDToHost(null /* AugmentRegistry */, GameScript.equippedIDs[7])
+                        CharacterUniformRegistry.Singleton.ConvertIDToHost(GameScript.equippedIDs[6]),
+                        CharacterAugmentRegistry.Singleton.ConvertIDToHost(GameScript.equippedIDs[7])
                     };
                     MenuScript.playerAppearance.GetComponent<NetworkView>().RPC("UA", RPCMode.AllBuffered, new object[]
                     {

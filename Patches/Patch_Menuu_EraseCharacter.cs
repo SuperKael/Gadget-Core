@@ -1,12 +1,10 @@
 using HarmonyLib;
-using GadgetCore.API;
-using UnityEngine;
 
 namespace GadgetCore.Patches
 {
     [HarmonyPatch(typeof(Menuu))]
     [HarmonyPatch("EraseCharacter")]
-    static class Patch_Menuu_EraseCharacter
+    internal static class Patch_Menuu_EraseCharacter
     {
         [HarmonyPrefix]
         public static void Prefix(int a)

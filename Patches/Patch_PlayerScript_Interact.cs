@@ -10,7 +10,7 @@ namespace GadgetCore.Patches
 {
     [HarmonyPatch(typeof(PlayerScript))]
     [HarmonyPatch("Interact")]
-    static class Patch_PlayerScript_Interact
+    internal static class Patch_PlayerScript_Interact
     {
         public static readonly FieldInfo interacting = typeof(PlayerScript).GetField("interacting", BindingFlags.NonPublic | BindingFlags.Instance);
 
@@ -35,7 +35,6 @@ namespace GadgetCore.Patches
             IEnumerable<Coroutine> routines = interactions.Select(x => instance.StartCoroutine(x));
             foreach (Coroutine routine in routines) yield return routine;
             interacting.SetValue(instance, false);
-            yield break;
         }
     }
 }

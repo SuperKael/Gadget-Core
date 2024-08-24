@@ -5,7 +5,7 @@ namespace GadgetCore.Patches
 {
     [HarmonyPatch(typeof(PortalScript))]
     [HarmonyPatch("GetBiomeName")]
-    static class Patch_PortalScript_GetBiomeName
+    internal static class Patch_PortalScript_GetBiomeName
     {
         [HarmonyPrefix]
         public static bool Prefix(PortalScript __instance, int ___biome, ref string __result)

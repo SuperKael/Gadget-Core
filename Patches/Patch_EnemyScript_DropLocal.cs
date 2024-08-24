@@ -8,7 +8,7 @@ namespace GadgetCore.Patches
 {
     [HarmonyPatch(typeof(EnemyScript))]
     [HarmonyPatch("DropLocal")]
-    static class Patch_EnemyScript_DropLocal
+    internal static class Patch_EnemyScript_DropLocal
     {
         private static Dictionary<EnemyScript, Vector3> pos = new Dictionary<EnemyScript, Vector3>();
 

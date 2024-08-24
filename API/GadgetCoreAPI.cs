@@ -12,7 +12,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using Debug = System.Diagnostics.Debug;
 
 namespace GadgetCore.API
 {
@@ -24,7 +23,7 @@ namespace GadgetCore.API
         /// <summary>
         /// The version numbers for this version of Gadget Core. You generally shouldn't access this directly, instead use <see cref="GetRawVersion()"/>
         /// </summary>
-        public const string RAW_VERSION = "2.0.7.4";
+        public const string RAW_VERSION = "2.0.7.5";
         /// <summary>
         /// A slightly more informative version. You generally shouldn't access this directly, instead use <see cref="GetFullVersion()"/>
         /// </summary>
@@ -38,7 +37,7 @@ namespace GadgetCore.API
         public const bool IS_BETA = false;
 #endif
 
-        internal static readonly int[] currentVersionNums = RAW_VERSION.Split('.').Select(x => int.Parse(x)).ToArray();
+        internal static readonly int[] CurrentVersionNums = RAW_VERSION.Split('.').Select(int.Parse).ToArray();
 
         /// <summary>
         /// The sprite used for missing tile textures
@@ -76,7 +75,7 @@ namespace GadgetCore.API
         internal static Dictionary<KeyCode, List<Action>> keyUpListeners = new Dictionary<KeyCode, List<Action>>();
         internal static Dictionary<StatModifierType, List<Tuple<StatModifier, int>>> statModifiers = new Dictionary<StatModifierType, List<Tuple<StatModifier, int>>>();
         internal static Dictionary<string, PlayerScript> playersByName = new Dictionary<string, PlayerScript>();
-        internal static Dictionary<string, Action<object[]>> customRPCs = new Dictionary<string, Action<object[]>>();
+        internal static Dictionary<string, Action<object[]>> customRPCActions = new Dictionary<string, Action<object[]>>();
         internal static Dictionary<int, List<string>> customRPCGadgets = new Dictionary<int, List<string>>();
         internal static Dictionary<int, Tuple<int, int>> emblemForgeRecipes = new Dictionary<int, Tuple<int, int>>();
         internal static Dictionary<int, Tuple<int, int>> prismForgeRecipes = new Dictionary<int, Tuple<int, int>>();
@@ -93,7 +92,7 @@ namespace GadgetCore.API
 
         static GadgetCoreAPI()
         {
-            if (currentVersionNums.Length != 4) Array.Resize(ref currentVersionNums, 4);
+            if (CurrentVersionNums.Length != 4) Array.Resize(ref CurrentVersionNums, 4);
         }
 
         internal static void SceneReset()
@@ -139,7 +138,7 @@ namespace GadgetCore.API
         /// </summary>
         public static PlayerScript GetPlayerByName(string name)
         {
-            return playersByName.ContainsKey(name) ? playersByName[name] : name == Menuu.curName || name == GetPlayerName() ? InstanceTracker.PlayerScript : null;
+            return playersByName.TryGetValue(name, out var player) ? player : name == Menuu.curName || name == GetPlayerName() ? InstanceTracker.PlayerScript : null;
         }
 
         /// <summary>
@@ -162,7 +161,6 @@ namespace GadgetCore.API
         {
             yield return new WaitForEndOfFrame();
             frozenInput.Remove(reason);
-            yield break;
         }
 
         /// <summary>
@@ -203,17 +201,23 @@ namespace GadgetCore.API
             GadgetCore.Quitting = true;
             try
             {
-                using (StreamWriter stream = File.CreateText(Path.Combine(GadgetPaths.GadgetCorePath, "Update.tmp")))
-                {
-                    stream.Write(GetFullVersion());
-                }
+                using StreamWriter stream = File.CreateText(Path.Combine(GadgetPaths.GadgetCorePath, "Update.tmp"));
+                stream.Write(GetFullVersion());
             }
-            catch (Exception) { }
+            catch (Exception)
+            {
+                // ignored
+            }
+
             try
             {
-                Process.Start(Path.Combine(GadgetPaths.ToolsPath, "Gadget Core Installer.exe"), $"--update \"{GadgetPaths.GamePath}\"");
+                Process.Start(Path.Combine(GadgetPaths.ToolsPath, "Gadget Core Installer.exe"),
+                    $"--update \"{GadgetPaths.GamePath}\"");
             }
-            catch (Exception) { }
+            catch (Exception)
+            {
+                // ignored
+            }
             Application.Quit();
         }
 
@@ -303,33 +307,29 @@ namespace GadgetCore.API
                 {
                     return RPCHooks.Singleton.CreateMarketStand(item, pos, cost, isBuild, isCredits, isTrophies);
                 }
-                else
-                {
-                    throw Network.isServer ? new InvalidOperationException("Market stands cannot be created when the ID Conversion Matrix is not yet ready!") :
-                        Network.isClient ? new InvalidOperationException("Only the host may create market stands!") :
-                        new InvalidOperationException("Cannot create market stands when the network has not yet initialized!");
-                }
+
+                throw Network.isServer ? new InvalidOperationException("Market stands cannot be created when the ID Conversion Matrix is not yet ready!") :
+                    Network.isClient ? new InvalidOperationException("Only the host may create market stands!") :
+                    new InvalidOperationException("Cannot create market stands when the network has not yet initialized!");
             }
-            else
+
+            if (!Registry.registeringVanilla && Registry.gadgetRegistering < 0) throw new InvalidOperationException("Market stands may only be created on the title screen by the Initialize method of a Gadget!");
+            Gadget gadget = Gadgets.GetGadget(Registry.gadgetRegistering);
+            void MatrixReadyHandler(bool b)
             {
-                if (!Registry.registeringVanilla && Registry.gadgetRegistering < 0) throw new InvalidOperationException("Market stands may only be created on the title screen by the Initialize method of a Gadget!");
-                Gadget gadget = Gadgets.GetGadget(Registry.gadgetRegistering);
-                void onMatrixReadyHandler(bool b)
+                if (b && SceneManager.GetActiveScene().buildIndex == 1 && Network.isServer)
                 {
-                    if (b && SceneManager.GetActiveScene().buildIndex == 1 && Network.isServer)
-                    {
-                        RPCHooks.Singleton.CreateMarketStand(item, pos, cost, isBuild, isCredits, isTrophies);
-                    }
+                    RPCHooks.Singleton.CreateMarketStand(item, pos, cost, isBuild, isCredits, isTrophies);
                 }
-                void onGadgetUnloadHandler()
-                {
-                    GadgetNetwork.OnMatrixReady -= onMatrixReadyHandler;
-                    gadget.OnUnload -= onGadgetUnloadHandler;
-                }
-                GadgetNetwork.OnMatrixReady += onMatrixReadyHandler;
-                gadget.OnUnload += onGadgetUnloadHandler;
-                return null;
             }
+            void GadgetUnloadHandler()
+            {
+                GadgetNetwork.OnMatrixReady -= MatrixReadyHandler;
+                gadget.OnUnload -= GadgetUnloadHandler;
+            }
+            GadgetNetwork.OnMatrixReady += MatrixReadyHandler;
+            gadget.OnUnload += GadgetUnloadHandler;
+            return null;
         }
 
         /// <summary>
@@ -423,12 +423,12 @@ namespace GadgetCore.API
         /// </summary>
         public static Item ConstructItemFromIntArray(int[] st, bool convertToLocal, bool isChip)
         {
-            Item item = new Item(convertToLocal ? isChip ? ChipRegistry.Singleton.ConvertIDToLocal(st[0]) : ItemRegistry.Singleton.ConvertIDToLocal(st[0]) : st[0], st[1], st[2], st[3], st[4], new int[]
+            Item item = new Item(convertToLocal ? isChip ? ChipRegistry.Singleton.ConvertIDToLocal(st[0]) : ItemRegistry.Singleton.ConvertIDToLocal(st[0]) : st[0], st[1], st[2], st[3], st[4], new[]
             {
                 convertToLocal ? ItemRegistry.Singleton.ConvertIDToLocal(st[5]) : st[5],
                 convertToLocal ? ItemRegistry.Singleton.ConvertIDToLocal(st[6]) : st[6],
                 convertToLocal ? ItemRegistry.Singleton.ConvertIDToLocal(st[7]) : st[7]
-            }, new int[]
+            }, new[]
             {
                 st[8],
                 st[9],
@@ -436,7 +436,7 @@ namespace GadgetCore.API
             });
             if (st.Length > 11)
             {
-                item.DeserializeExtraData(Encoding.Default.GetString(st.Where((x, i) => i > 10).SelectMany(x => BitConverter.GetBytes(x)).ToArray()).TrimEnd('\0'));
+                item.DeserializeExtraData(Encoding.Default.GetString(st.Where((x, i) => i > 10).SelectMany(BitConverter.GetBytes).ToArray()).TrimEnd('\0'));
             }
             return item;
         }
@@ -456,7 +456,7 @@ namespace GadgetCore.API
         {
             byte[] bytes = Encoding.Default.GetBytes(item.SerializeExtraData());
             if (bytes.Length % 4 != 0) Array.Resize(ref bytes, bytes.Length + (4 - (bytes.Length % 4)));
-            var size = bytes.Count() / sizeof(int);
+            var size = bytes.Length / sizeof(int);
             var extraData = new int[size];
             for (var index = 0; index < size; index++)
             {
@@ -508,11 +508,7 @@ namespace GadgetCore.API
                 }
                 else
                 {
-                    InstanceTracker.GameScript.GetComponent<NetworkView>().RPC("SpawnItem", RPCMode.Server, new object[]
-                    {
-                        st,
-                        pos
-                    });
+                    InstanceTracker.GameScript.GetComponent<NetworkView>().RPC("SpawnItem", RPCMode.Server, st, pos);
                 }
             }
             else
@@ -791,11 +787,9 @@ namespace GadgetCore.API
             {
                 return new Vector3(ControllerCursor.staticX, ControllerCursor.staticY, 0f);
             }
-            else
-            {
-                Vector3 pos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-                return new Vector3(pos.x, pos.y, 0);
-            }
+
+            Vector3 pos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            return new Vector3(pos.x, pos.y, 0);
         }
 
         /// <summary>
@@ -804,19 +798,19 @@ namespace GadgetCore.API
         public static void RegisterCustomRPC(string name, Action<object[]> rpc)
         {
             if (!Registry.registeringVanilla && Registry.gadgetRegistering < 0) throw new InvalidOperationException("Data registration may only be performed by the Initialize method of a Gadget!");
-            if (name == null) throw new ArgumentNullException("name");
-            customRPCs[name] = rpc ?? throw new ArgumentNullException("rpc");
+            if (name == null) throw new ArgumentNullException(nameof(name));
+            customRPCActions[name] = rpc ?? throw new ArgumentNullException(nameof(rpc));
             if (!customRPCGadgets.ContainsKey(Registry.gadgetRegistering)) customRPCGadgets.Add(Registry.gadgetRegistering, new List<string>());
             if (!customRPCGadgets[Registry.gadgetRegistering].Contains(name)) customRPCGadgets[Registry.gadgetRegistering].Add(name);
         }
 
-        internal static void UnregisterGadgetRPCs(int modID)
+        internal static void UnregisterCustomRPCGadget(int modID)
         {
             if (customRPCGadgets.ContainsKey(modID))
             {
                 foreach (string rpc in customRPCGadgets[modID])
                 {
-                    customRPCs.Remove(rpc);
+                    customRPCActions.Remove(rpc);
                 }
                 customRPCGadgets.Remove(modID);
             }
@@ -846,6 +840,7 @@ namespace GadgetCore.API
         public static void ReplaceMatResourceTex(string materialPath, Texture2D tex)
         {
             Material mat = GetResource(materialPath) as Material;
+            if (mat == null) throw new ArgumentException("Resource path does not point to a Material!", nameof(materialPath));
             mat.mainTexture = tex;
             AddCustomResource(materialPath, mat);
         }
@@ -972,7 +967,7 @@ namespace GadgetCore.API
         /// </summary>
         public static Item[] GetInventory()
         {
-            return inventory ?? (inventory = InventoryGetter(InstanceTracker.GameScript));
+            return inventory ??= InventoryGetter(InstanceTracker.GameScript);
         }
 
         /// <summary>
@@ -980,7 +975,7 @@ namespace GadgetCore.API
         /// </summary>
         public static int[] GetPortalUses()
         {
-            return portalUses ?? (portalUses = PortalUsesGetter(InstanceTracker.GameScript));
+            return portalUses ??= PortalUsesGetter(InstanceTracker.GameScript);
         }
 
         /// <summary>
@@ -1056,11 +1051,7 @@ namespace GadgetCore.API
         /// </summary>
         public static EquipStats GetTrueGearBaseStats(int ID)
         {
-            if (ItemRegistry.Singleton.HasEntry(ID))
-            {
-                return ItemRegistry.Singleton.GetEntry(ID).Stats;
-            }
-            return new EquipStats(InstanceTracker.GameScript != null ? InstanceTracker.GameScript.GetGearBaseStats(ID) : GetGearBaseStatsInvoker.Invoke(ID));
+            return ItemRegistry.Singleton.TryGetEntry(ID, out ItemInfo entry) ? entry.Stats : new EquipStats(InstanceTracker.GameScript != null ? InstanceTracker.GameScript.GetGearBaseStats(ID) : GetGearBaseStatsInvoker.Invoke(ID));
         }
 
         /// <summary>
@@ -1070,26 +1061,17 @@ namespace GadgetCore.API
         {
             EquipStats baseStats = GetTrueGearBaseStats(item.id);
             EquipStats stats = baseStats;
-            if (statModifiers.ContainsKey(StatModifierType.BaseFlat))
+            if (statModifiers.TryGetValue(StatModifierType.BaseFlat, out List<Tuple<StatModifier, int>> statModifiersBaseFlat))
             {
-                foreach (Tuple<StatModifier, int> modifier in statModifiers[StatModifierType.BaseFlat])
-                {
-                    stats += modifier.Item1(item);
-                }
+                stats = statModifiersBaseFlat.Aggregate(stats, (current, modifier) => current + modifier.Item1(item));
             }
-            if (statModifiers.ContainsKey(StatModifierType.BaseAddMult))
+            if (statModifiers.TryGetValue(StatModifierType.BaseAddMult, out List<Tuple<StatModifier, int>> statModifiersBaseAddMult))
             {
-                foreach (Tuple<StatModifier, int> modifier in statModifiers[StatModifierType.BaseAddMult])
-                {
-                    stats += baseStats * modifier.Item1(item);
-                }
+                stats = statModifiersBaseAddMult.Aggregate(stats, (current, modifier) => current + baseStats * modifier.Item1(item));
             }
-            if (statModifiers.ContainsKey(StatModifierType.BaseExpMult))
+            if (statModifiers.TryGetValue(StatModifierType.BaseExpMult, out List<Tuple<StatModifier, int>> statModifiersBaseExpMult))
             {
-                foreach (Tuple<StatModifier, int> modifier in statModifiers[StatModifierType.BaseExpMult])
-                {
-                    stats *= modifier.Item1(item);
-                }
+                stats = statModifiersBaseExpMult.Aggregate(stats, (current, modifier) => current * modifier.Item1(item));
             }
             return stats;
         }
@@ -1100,11 +1082,12 @@ namespace GadgetCore.API
         public static EquipStats GetGearStats(Item item)
         {
             ItemInfo itemInfo = ItemRegistry.GetItem(item.id);
-            bool itemLevels = (itemInfo?.Type & ItemType.LEVELING) == ItemType.LEVELING && (itemInfo?.Type & ItemType.EQUIP_MASK) != (ItemType.DROID & ItemType.EQUIP_MASK);
+            if (itemInfo == null) return EquipStats.NONE;
+            bool itemLevels = (itemInfo.Type & ItemType.LEVELING) == ItemType.LEVELING && (itemInfo.Type & ItemType.EQUIP_MASK) != (ItemType.DROID & ItemType.EQUIP_MASK);
             int level = itemLevels ? GetGearLevel(item) : 1;
             EquipStats baseStats = GetGearBaseStats(item);
             EquipStats stats = baseStats * level;
-            if ((itemInfo?.Type & ItemType.EQUIP_MASK) != (ItemType.DROID & ItemType.EQUIP_MASK)) for (int j = 0; j < 6; j++)
+            if ((itemInfo.Type & ItemType.EQUIP_MASK) != (ItemType.DROID & ItemType.EQUIP_MASK)) for (int j = 0; j < 6; j++)
             {
                 if (stats.GetByIndex(j) > 0)
                 {
@@ -1127,73 +1110,50 @@ namespace GadgetCore.API
                     }
                 }
             }
-            if (statModifiers.ContainsKey(StatModifierType.Flat))
+            if (statModifiers.TryGetValue(StatModifierType.Flat, out List<Tuple<StatModifier, int>> statModifiersFlat))
             {
-                foreach (Tuple<StatModifier, int> modifier in statModifiers[StatModifierType.Flat])
-                {
-                    stats += modifier.Item1(item);
-                }
+                stats = statModifiersFlat.Aggregate(stats, (current, modifier) => current + modifier.Item1(item));
             }
-            if (statModifiers.ContainsKey(StatModifierType.AddMult))
+            if (statModifiers.TryGetValue(StatModifierType.AddMult, out List<Tuple<StatModifier, int>> statModifiersAddMult))
             {
-                foreach (Tuple<StatModifier, int> modifier in statModifiers[StatModifierType.AddMult])
-                {
-                    stats += baseStats * modifier.Item1(item);
-                }
+                stats = statModifiersAddMult.Aggregate(stats, (current, modifier) => current + baseStats * modifier.Item1(item));
             }
-            if (statModifiers.ContainsKey(StatModifierType.ExpMult))
+            if (statModifiers.TryGetValue(StatModifierType.ExpMult, out List<Tuple<StatModifier, int>> statModifiersExpMult))
             {
-                foreach (Tuple<StatModifier, int> modifier in statModifiers[StatModifierType.ExpMult])
-                {
-                    stats *= modifier.Item1(item);
-                }
+                stats = statModifiersExpMult.Aggregate(stats, (current, modifier) => current * modifier.Item1(item));
             }
             if (itemLevels)
             {
-                if (statModifiers.ContainsKey(StatModifierType.LevelFlat))
+                if (statModifiers.TryGetValue(StatModifierType.LevelFlat, out List<Tuple<StatModifier, int>> statModifiersLevelFlat))
                 {
-                    foreach (Tuple<StatModifier, int> modifier in statModifiers[StatModifierType.LevelFlat])
-                    {
-                        stats += modifier.Item1(item) * level;
-                    }
+                    stats = statModifiersLevelFlat.Aggregate(stats, (current, modifier) => current + modifier.Item1(item) * level);
                 }
-                if (statModifiers.ContainsKey(StatModifierType.LevelAddMult))
+                if (statModifiers.TryGetValue(StatModifierType.LevelAddMult, out List<Tuple<StatModifier, int>> statModifiersLevelAddMult))
                 {
-                    foreach (Tuple<StatModifier, int> modifier in statModifiers[StatModifierType.LevelAddMult])
-                    {
-                        stats += baseStats * modifier.Item1(item) * level;
-                    }
+                    stats = statModifiersLevelAddMult.Aggregate(stats, (current, modifier) => current + baseStats * modifier.Item1(item) * level);
                 }
-                if (statModifiers.ContainsKey(StatModifierType.LevelExpMult))
+                if (statModifiers.TryGetValue(StatModifierType.LevelExpMult, out List<Tuple<StatModifier, int>> statModifiersLevelExpMult))
                 {
-                    foreach (Tuple<StatModifier, int> modifier in statModifiers[StatModifierType.LevelExpMult])
+                    stats = statModifiersLevelExpMult.Aggregate(stats, (current, modifier) =>
                     {
                         EquipStatsDouble multiplier = modifier.Item1(item);
-                        for (int i = 0;i < level;i++) stats *= multiplier;
-                    }
+                        for (int i = 0; i < level; i++) current *= multiplier;
+                        return current;
+                    });
                 }
             }
             baseStats = stats;
-            if (statModifiers.ContainsKey(StatModifierType.FinalFlat))
+            if (statModifiers.TryGetValue(StatModifierType.FinalFlat, out List<Tuple<StatModifier, int>> statModifiersFinalFlat))
             {
-                foreach (Tuple<StatModifier, int> modifier in statModifiers[StatModifierType.FinalFlat])
-                {
-                    stats += modifier.Item1(item);
-                }
+                stats = statModifiersFinalFlat.Aggregate(stats, (current, modifier) => current + modifier.Item1(item));
             }
-            if (statModifiers.ContainsKey(StatModifierType.FinalAddMult))
+            if (statModifiers.TryGetValue(StatModifierType.FinalAddMult, out List<Tuple<StatModifier, int>> statModifiersFinalAddMult))
             {
-                foreach (Tuple<StatModifier, int> modifier in statModifiers[StatModifierType.FinalAddMult])
-                {
-                    stats += baseStats * modifier.Item1(item);
-                }
+                stats = statModifiersFinalAddMult.Aggregate(stats, (current, modifier) => current + baseStats * modifier.Item1(item));
             }
-            if (statModifiers.ContainsKey(StatModifierType.FinalExpMult))
+            if (statModifiers.TryGetValue(StatModifierType.FinalExpMult, out List<Tuple<StatModifier, int>> statModifiersFinalExpMult))
             {
-                foreach (Tuple<StatModifier, int> modifier in statModifiers[StatModifierType.FinalExpMult])
-                {
-                    stats *= modifier.Item1(item);
-                }
+                stats = statModifiersFinalExpMult.Aggregate(stats, (current, modifier) => current * modifier.Item1(item));
             }
             return stats;
         }
@@ -1233,28 +1193,28 @@ namespace GadgetCore.API
             return new Mesh
             {
                 name = "Plane",
-                vertices = new Vector3[]
+                vertices = new[]
                 {
                     new Vector3(width / -2, height / -2, 0),
                     new Vector3(width / -2, height / 2, 0),
                     new Vector3(width / 2, height / 2, 0),
                     new Vector3(width / 2, height / -2, 0)
                 },
-                uv = new Vector2[]
+                uv = new[]
                 {
                     new Vector2(0, 0),
                     new Vector2(0, 1),
                     new Vector2(1, 1),
                     new Vector2(1, 0)
                 },
-                normals = new Vector3[]
+                normals = new[]
                 {
                     new Vector3(0, 0, -1),
                     new Vector3(0, 0, -1),
                     new Vector3(0, 0, -1),
                     new Vector3(0, 0, -1)
                 },
-                triangles = new int[]
+                triangles = new[]
                 {
                     0, 1, 2, 2, 3, 0
                 }
@@ -1653,7 +1613,7 @@ namespace GadgetCore.API
         /// Obsolete: Use <see cref="LoadTexture2D(string)"/>
         /// </summary>
         [Obsolete("The `shared` parameter is nonfunctional, and should not be used.", true)]
-        public static Texture2D LoadTexture2D(string file, bool shared = false)
+        public static Texture2D LoadTexture2D(string file, bool shared)
         {
             return LoadTexture2DInternal(file, GadgetMods.GetModByAssembly(Assembly.GetCallingAssembly()));
         }
@@ -1662,7 +1622,7 @@ namespace GadgetCore.API
         /// Obsolete: Use <see cref="LoadAudioClip(string)"/>
         /// </summary>
         [Obsolete("The `shared` parameter is nonfunctional, and should not be used.", true)]
-        public static AudioClip LoadAudioClip(string file, bool shared = false)
+        public static AudioClip LoadAudioClip(string file, bool shared)
         {
             return LoadAudioClipInternal(file, GadgetMods.GetModByAssembly(Assembly.GetCallingAssembly()));
         }
@@ -1671,7 +1631,7 @@ namespace GadgetCore.API
         /// Obsolete: Use <see cref="LoadObjMesh(string)"/>
         /// </summary>
         [Obsolete("The `shared` parameter is nonfunctional, and should not be used.", true)]
-        public static Mesh LoadObjMesh(string file, bool shared = false)
+        public static Mesh LoadObjMesh(string file, bool shared)
         {
             return LoadObjMeshInternal(file, GadgetMods.GetModByAssembly(Assembly.GetCallingAssembly()));
         }
@@ -1680,7 +1640,7 @@ namespace GadgetCore.API
         /// Obsolete: Use <see cref="LoadAssetBundle(string)"/>
         /// </summary>
         [Obsolete("The `shared` parameter is nonfunctional, and should not be used.", true)]
-        public static AssetBundle LoadAssetBundle(string file, bool shared = false)
+        public static AssetBundle LoadAssetBundle(string file, bool shared)
         {
             return LoadAssetBundleInternal(file, GadgetMods.GetModByAssembly(Assembly.GetCallingAssembly()));
         }
@@ -1710,7 +1670,11 @@ namespace GadgetCore.API
                 return null;
             }
             byte[] fileData = new byte[stream.Length];
-            stream.Read(fileData, 0, fileData.Length);
+            int bytesRead = 0;
+            while (bytesRead < fileData.Length)
+            {
+                bytesRead += stream.Read(fileData, bytesRead, fileData.Length);
+            }
             stream.Dispose();
             Texture2D tex = new Texture2D(2, 2);
             tex.LoadImage(fileData);
@@ -1738,42 +1702,38 @@ namespace GadgetCore.API
             string filePath = Path.Combine("Assets", file);
             if (mod?.HasModFile(filePath) ?? false)
             {
-                using (GadgetModFile modFile = mod.GetModFile(filePath))
+                using GadgetModFile modFile = mod.GetModFile(filePath);
+                AudioClip loadedClip = null;
+                while (loadedClip == null || loadedClip.loadState != AudioDataLoadState.Loaded || !loadedClip.LoadAudioData() || loadedClip.length <= 0)
                 {
-                    AudioClip loadedClip = null;
-                    while (loadedClip == null || loadedClip.loadState != AudioDataLoadState.Loaded || !loadedClip.LoadAudioData() || loadedClip.length <= 0)
+                    using WWW www = new WWW("file:///" + modFile.FilePath.Replace(Path.DirectorySeparatorChar, '/'));
+                    Stopwatch s = new Stopwatch();
+                    s.Start();
+                    try
                     {
-                        using (WWW www = new WWW("file:///" + modFile.FilePath.Replace(Path.DirectorySeparatorChar, '/')))
+                        while (!www.isDone && s.ElapsedMilliseconds < 30000) Thread.Sleep(5);
+                        if (www.isDone)
                         {
-                            Stopwatch s = new Stopwatch();
-                            s.Start();
-                            try
-                            {
-                                while (!www.isDone && s.ElapsedMilliseconds < 30000) Thread.Sleep(5);
-                                if (www.isDone)
-                                {
-                                    loadedClip = www.GetAudioClip(true, true);
-                                    while (loadedClip.loadState == AudioDataLoadState.Loading && s.ElapsedMilliseconds < 30000) Thread.Sleep(5);
-                                }
-                            }
-                            finally
-                            {
-                                s.Stop();
-                            }
-                            if (s.ElapsedMilliseconds >= 30000)
-                            {
-                                GadgetCore.CoreLogger.LogWarning("Loading audio file " + modName + ":" + file + " took too long!");
-                            }
+                            loadedClip = www.GetAudioClip(true, true);
+                            while (loadedClip.loadState == AudioDataLoadState.Loading && s.ElapsedMilliseconds < 30000) Thread.Sleep(5);
                         }
                     }
-                    cachedAudioClips[modName + ":" + file] = loadedClip;
-                    return loadedClip;
+                    finally
+                    {
+                        s.Stop();
+                    }
+                    if (s.ElapsedMilliseconds >= 30000)
+                    {
+                        GadgetCore.CoreLogger.LogWarning("Loading audio file " + modName + ":" + file + " took too long!");
+                    }
                 }
+                lock (cachedAudioClips)
+                {
+                    cachedAudioClips[modName + ":" + file] = loadedClip;
+                }
+                return loadedClip;
             }
-            else
-            {
-                return null;
-            }
+            return null;
         }
 
         /// <summary>
@@ -1794,65 +1754,57 @@ namespace GadgetCore.API
                     }
                 }
                 string filePath = Path.Combine("Assets", file);
-                if (mod?.HasModFile(filePath) ?? false)
+                if (!(mod?.HasModFile(filePath) ?? false)) return null;
+                GadgetModFile modFile = mod.GetModFile(filePath);
+
+                IEnumerator ClipLoaderRoutine()
                 {
-                    using (GadgetModFile modFile = mod.GetModFile(filePath))
+                    AudioClip loadedClip = null;
+                    while (loadedClip == null || loadedClip.loadState != AudioDataLoadState.Loaded || !loadedClip.LoadAudioData() || loadedClip.length <= 0)
                     {
-                        IEnumerator ClipLoaderRoutine()
+                        using WWW www = new WWW("file:///" + modFile.FilePath.Replace(Path.DirectorySeparatorChar, '/'));
+                        Stopwatch s = new Stopwatch();
+                        s.Start();
+                        try
                         {
-                            AudioClip loadedClip = null;
-                            while (loadedClip == null || loadedClip.loadState != AudioDataLoadState.Loaded || !loadedClip.LoadAudioData() || loadedClip.length <= 0)
+                            while (!www.isDone && s.ElapsedMilliseconds < 30000) yield return new WaitForSeconds(0.025f);
+                            if (www.isDone)
                             {
-                                using (WWW www = new WWW("file:///" + modFile.FilePath.Replace(Path.DirectorySeparatorChar, '/')))
-                                {
-                                    Stopwatch s = new Stopwatch();
-                                    s.Start();
-                                    try
-                                    {
-                                        while (!www.isDone && s.ElapsedMilliseconds < 30000) yield return new WaitForSeconds(0.025f);
-                                        if (www.isDone)
-                                        {
-                                            loadedClip = www.GetAudioClip(true, true);
-                                            while (loadedClip.loadState == AudioDataLoadState.Loading && s.ElapsedMilliseconds < 30000) yield return new WaitForSeconds(0.025f);
-                                        }
-                                    }
-                                    finally
-                                    {
-                                        s.Stop();
-                                    }
-                                    if (s.ElapsedMilliseconds >= 30000)
-                                    {
-                                        GadgetCore.CoreLogger.LogWarning("Loading audio file " + modName + ":" + file + " took too long!");
-                                    }
-                                }
+                                loadedClip = www.GetAudioClip(true, true);
+                                while (loadedClip.loadState == AudioDataLoadState.Loading && s.ElapsedMilliseconds < 30000) yield return new WaitForSeconds(0.025f);
                             }
-                            lock (waitingAudioLoads)
-                            {
-                                waitingAudioLoads.Add(modName + ":" + file, loadedClip);
-                            }
-                            yield break;
                         }
-                        CoroutineHooker.ScheduleSyncAction(() => CoroutineHooker.StartCoroutine(ClipLoaderRoutine()));
-                        while (true)
+                        finally
                         {
-                            lock (waitingAudioLoads)
-                            {
-                                if (waitingAudioLoads.TryGetValue(modName + ":" + file, out AudioClip clip))
-                                {
-                                    lock (cachedAudioClips)
-                                    {
-                                        cachedAudioClips[modName + ":" + file] = clip;
-                                    }
-                                    return clip;
-                                }
-                            }
-                            Thread.Sleep(25);
+                            s.Stop();
+                        }
+                        if (s.ElapsedMilliseconds >= 30000)
+                        {
+                            GadgetCore.CoreLogger.LogWarning("Loading audio file " + modName + ":" + file + " took too long!");
                         }
                     }
+                    lock (waitingAudioLoads)
+                    {
+                        waitingAudioLoads.Add(modName + ":" + file, loadedClip);
+                    }
+                    modFile.Dispose();
                 }
-                else
+
+                CoroutineHooker.ScheduleSyncAction(() => CoroutineHooker.StartCoroutine(ClipLoaderRoutine()));
+                while (true)
                 {
-                    return null;
+                    lock (waitingAudioLoads)
+                    {
+                        if (waitingAudioLoads.TryGetValue(modName + ":" + file, out AudioClip clip))
+                        {
+                            lock (cachedAudioClips)
+                            {
+                                cachedAudioClips[modName + ":" + file] = clip;
+                            }
+                            return clip;
+                        }
+                    }
+                    Thread.Sleep(25);
                 }
             });
             // This has the potential to get really out of hand if a mod wants to load a lot of audio clips. Oh well.
@@ -1874,18 +1826,14 @@ namespace GadgetCore.API
             string filePath = Path.Combine("Assets", file);
             if (mod?.HasModFile(filePath) ?? false)
             {
-                using (Stream modFile = mod.ReadModFile(filePath))
-                using (StreamReader reader = new StreamReader(mod.ReadModFile(filePath)))
-                {
-                    Mesh mesh = ObjImporter.ImportMesh(reader.ReadToEnd());
-                    cachedMeshes.Add(modName + ":" + file, mesh);
-                    return mesh;
-                }
+                using Stream modFile = mod.ReadModFile(filePath);
+                using StreamReader reader = new StreamReader(mod.ReadModFile(filePath));
+                Mesh mesh = ObjImporter.ImportMesh(reader.ReadToEnd());
+                cachedMeshes.Add(modName + ":" + file, mesh);
+                return mesh;
             }
-            else
-            {
-                return null;
-            }
+
+            return null;
         }
 
         /// <summary>
@@ -1903,16 +1851,18 @@ namespace GadgetCore.API
             {
                 Stream stream = mod.ReadModFile(filePath);
                 byte[] fileData = new byte[stream.Length];
-                stream.Read(fileData, 0, fileData.Length);
+                int bytesRead = 0;
+                while (bytesRead < fileData.Length)
+                {
+                    bytesRead += stream.Read(fileData, bytesRead, fileData.Length);
+                }
                 stream.Dispose();
                 AssetBundle bundle = AssetBundle.LoadFromMemory(fileData);
                 cachedBundles.Add(modName + ":" + file, bundle);
                 return bundle;
             }
-            else
-            {
-                return null;
-            }
+
+            return null;
         }
 
         /// <summary>

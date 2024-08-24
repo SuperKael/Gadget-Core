@@ -1,5 +1,4 @@
-﻿using GadgetCore.Util;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -65,11 +64,29 @@ namespace GadgetCore.API
         }
 
         /// <summary>
-        /// Gets the ID of this ItemInfo on the multiplayer host, saves the trouble of calling <see cref="ConvertIDToHost(Registry, int)"/>
+        /// Gets the ID of this RegistryEntry on the multiplayer host, saves the trouble of calling <see cref="ConvertIDToHost(Registry, int)"/>
         /// </summary>
         public static int GetHostID<E, T>(this RegistryEntry<E, T> entry) where E : RegistryEntry<E, T> where T : Enum
         {
             return ConvertIDToHost(entry.GetRegistry(), entry.ID);
+        }
+
+        /// <summary>
+        /// Gets the host IDs that match the local IDs in the given array. Produces values of -1 if the host does not have matching IDs for given IDs in the array.
+        /// Does not effect the given array, and returns a new array of the same length as the given array.
+        /// </summary>
+        public static int[] ConvertIDsToHost(this Registry reg, ref int[] IDs)
+        {
+            return IDs = ConvertIDsToHost(reg, IDs);
+        }
+
+        /// <summary>
+        /// Gets the host IDs that match the local IDs in the given array. Produces values of -1 if the host does not have matching IDs for given IDs in the array.
+        /// Does not effect the given array, and returns a new array of the same length as the given array.
+        /// </summary>
+        public static int[] ConvertIDsToHost(this Registry reg, int[] IDs)
+        {
+            return IDs.Select(id => ConvertIDToHost(reg, id)).ToArray();
         }
 
         /// <summary>
@@ -103,6 +120,24 @@ namespace GadgetCore.API
             }
             if (ID >= reg.GetIDStart()) GadgetCore.CoreLogger.LogWarning($"ID Conversion to host failed: ID {ID} does not exist on the host. This has resulted in the corruption of {("aeiouAEIOU".Contains(reg.GetRegistryName()[0]) ? "an " : "a ") + reg.GetRegistryName()}!");
             return ID < reg.GetIDStart() ? ID : -1;
+        }
+
+        /// <summary>
+        /// Gets the local IDs that match the host IDs in the given array. Produces values of -1 if there are no matching local IDs for given IDs in the array.
+        /// Does not effect the given array, and returns a new array of the same length as the given array.
+        /// </summary>
+        public static int[] ConvertIDsToLocal(this Registry reg, ref int[] IDs)
+        {
+            return IDs = ConvertIDsToLocal(reg, IDs);
+        }
+
+        /// <summary>
+        /// Gets the local IDs that match the host IDs in the given array. Produces values of -1 if there are no matching local IDs for given IDs in the array.
+        /// Does not effect the given array, and returns a new array of the same length as the given array.
+        /// </summary>
+        public static int[] ConvertIDsToLocal(this Registry reg, int[] IDs)
+        {
+            return IDs.Select(id => ConvertIDToLocal(reg, id)).ToArray();
         }
 
         /// <summary>
@@ -171,7 +206,7 @@ namespace GadgetCore.API
             {
                 foreach (string dicEntry in packedData.Split('|'))
                 {
-                    string[] splitDic = dicEntry.Split(new char[] { ':' }, 2);
+                    string[] splitDic = dicEntry.Split(new[] { ':' }, 2);
                     if (GameRegistry.IsRegistryRegistered(splitDic[0]))
                     {
                         Registry reg = GameRegistry.GetRegistry(splitDic[0]);

@@ -6,7 +6,7 @@ namespace GadgetCore.Patches
 {
     [HarmonyPatch(typeof(GameScript))]
     [HarmonyPatch("CombineItem")]
-    static class Patch_GameScript_CombineItem
+    internal static class Patch_GameScript_CombineItem
     {
         public static readonly MethodInfo SwapItem = typeof(GameScript).GetMethod("SwapItem", BindingFlags.Public | BindingFlags.Instance);
 

@@ -6,7 +6,7 @@ namespace GadgetCore.Patches
 {
     [HarmonyPatch(typeof(ChunkWorld))]
     [HarmonyPatch("Start")]
-    static class Patch_ChunkWorld_Start
+    internal static class Patch_ChunkWorld_Start
     {
         [HarmonyPostfix]
         public static void Postfix(ChunkWorld __instance)

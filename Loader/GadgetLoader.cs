@@ -13,12 +13,10 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Security.Cryptography;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using GadgetCore.MonoSymbol;
-using Mono.CompilerServices.SymbolWriter;
 
 namespace GadgetCore.Loader
 {
@@ -296,10 +294,10 @@ namespace GadgetCore.Loader
                 if (mod.m_LoadedGadgets.Any(x => x.Attribute.Name == attribute.Name)) throw new InvalidOperationException("It is illegal for a mod to contain multiple Gadgets with the same name: " + attribute.Name);
                 int[] targetVersionNums = attribute.TargetGCVersion.Split('.').Select(x => int.Parse(x)).ToArray();
                 if (targetVersionNums.Length != 4) Array.Resize(ref targetVersionNums, 4);
-                if ((attribute.GadgetCoreVersionSpecificity == VersionSpecificity.MAJOR && GadgetCoreAPI.currentVersionNums[0] == targetVersionNums[0] && (GadgetCoreAPI.currentVersionNums[1] > targetVersionNums[1] || (GadgetCoreAPI.currentVersionNums[1] == targetVersionNums[1] && (GadgetCoreAPI.currentVersionNums[2] > targetVersionNums[2] || (GadgetCoreAPI.currentVersionNums[2] == targetVersionNums[2] && GadgetCoreAPI.currentVersionNums[3] >= targetVersionNums[3]))))) ||
-                    (attribute.GadgetCoreVersionSpecificity == VersionSpecificity.MINOR && GadgetCoreAPI.currentVersionNums[0] == targetVersionNums[0] && GadgetCoreAPI.currentVersionNums[1] == targetVersionNums[1] && (GadgetCoreAPI.currentVersionNums[2] > targetVersionNums[2] || (GadgetCoreAPI.currentVersionNums[2] == targetVersionNums[2] && GadgetCoreAPI.currentVersionNums[3] >= targetVersionNums[3]))) ||
-                    (attribute.GadgetCoreVersionSpecificity == VersionSpecificity.NONBREAKING && GadgetCoreAPI.currentVersionNums[0] == targetVersionNums[0] && GadgetCoreAPI.currentVersionNums[1] == targetVersionNums[1] && GadgetCoreAPI.currentVersionNums[2] == targetVersionNums[2] && GadgetCoreAPI.currentVersionNums[3] >= targetVersionNums[3]) ||
-                    (attribute.GadgetCoreVersionSpecificity == VersionSpecificity.BUGFIX && GadgetCoreAPI.currentVersionNums[0] == targetVersionNums[0] && GadgetCoreAPI.currentVersionNums[1] == targetVersionNums[1] && GadgetCoreAPI.currentVersionNums[2] == targetVersionNums[2] && GadgetCoreAPI.currentVersionNums[3] == targetVersionNums[3]))
+                if ((attribute.GadgetCoreVersionSpecificity == VersionSpecificity.MAJOR && GadgetCoreAPI.CurrentVersionNums[0] == targetVersionNums[0] && (GadgetCoreAPI.CurrentVersionNums[1] > targetVersionNums[1] || (GadgetCoreAPI.CurrentVersionNums[1] == targetVersionNums[1] && (GadgetCoreAPI.CurrentVersionNums[2] > targetVersionNums[2] || (GadgetCoreAPI.CurrentVersionNums[2] == targetVersionNums[2] && GadgetCoreAPI.CurrentVersionNums[3] >= targetVersionNums[3]))))) ||
+                    (attribute.GadgetCoreVersionSpecificity == VersionSpecificity.MINOR && GadgetCoreAPI.CurrentVersionNums[0] == targetVersionNums[0] && GadgetCoreAPI.CurrentVersionNums[1] == targetVersionNums[1] && (GadgetCoreAPI.CurrentVersionNums[2] > targetVersionNums[2] || (GadgetCoreAPI.CurrentVersionNums[2] == targetVersionNums[2] && GadgetCoreAPI.CurrentVersionNums[3] >= targetVersionNums[3]))) ||
+                    (attribute.GadgetCoreVersionSpecificity == VersionSpecificity.NONBREAKING && GadgetCoreAPI.CurrentVersionNums[0] == targetVersionNums[0] && GadgetCoreAPI.CurrentVersionNums[1] == targetVersionNums[1] && GadgetCoreAPI.CurrentVersionNums[2] == targetVersionNums[2] && GadgetCoreAPI.CurrentVersionNums[3] >= targetVersionNums[3]) ||
+                    (attribute.GadgetCoreVersionSpecificity == VersionSpecificity.BUGFIX && GadgetCoreAPI.CurrentVersionNums[0] == targetVersionNums[0] && GadgetCoreAPI.CurrentVersionNums[1] == targetVersionNums[1] && GadgetCoreAPI.CurrentVersionNums[2] == targetVersionNums[2] && GadgetCoreAPI.CurrentVersionNums[3] == targetVersionNums[3]))
                 {
                     Gadget gadget = null;
                     try
@@ -361,10 +359,10 @@ namespace GadgetCore.Loader
                 if (gadgets.Any(x => x.Attribute.Name == attribute.Name)) throw new InvalidOperationException("It is illegal for a mod to contain multiple Gadgets with the same name: " + attribute.Name);
                 int[] targetVersionNums = attribute.TargetGCVersion.Split('.').Select(x => int.Parse(x)).ToArray();
                 if (targetVersionNums.Length != 4) Array.Resize(ref targetVersionNums, 4);
-                if ((attribute.GadgetCoreVersionSpecificity == VersionSpecificity.MAJOR && GadgetCoreAPI.currentVersionNums[0] == targetVersionNums[0] && (GadgetCoreAPI.currentVersionNums[1] > targetVersionNums[1] || (GadgetCoreAPI.currentVersionNums[1] == targetVersionNums[1] && (GadgetCoreAPI.currentVersionNums[2] > targetVersionNums[2] || (GadgetCoreAPI.currentVersionNums[2] == targetVersionNums[2] && GadgetCoreAPI.currentVersionNums[3] >= targetVersionNums[3]))))) ||
-                    (attribute.GadgetCoreVersionSpecificity == VersionSpecificity.MINOR && GadgetCoreAPI.currentVersionNums[0] == targetVersionNums[0] && GadgetCoreAPI.currentVersionNums[1] == targetVersionNums[1] && (GadgetCoreAPI.currentVersionNums[2] > targetVersionNums[2] || (GadgetCoreAPI.currentVersionNums[2] == targetVersionNums[2] && GadgetCoreAPI.currentVersionNums[3] >= targetVersionNums[3]))) ||
-                    (attribute.GadgetCoreVersionSpecificity == VersionSpecificity.NONBREAKING && GadgetCoreAPI.currentVersionNums[0] == targetVersionNums[0] && GadgetCoreAPI.currentVersionNums[1] == targetVersionNums[1] && GadgetCoreAPI.currentVersionNums[2] == targetVersionNums[2] && GadgetCoreAPI.currentVersionNums[3] >= targetVersionNums[3]) ||
-                    (attribute.GadgetCoreVersionSpecificity == VersionSpecificity.BUGFIX && GadgetCoreAPI.currentVersionNums[0] == targetVersionNums[0] && GadgetCoreAPI.currentVersionNums[1] == targetVersionNums[1] && GadgetCoreAPI.currentVersionNums[2] == targetVersionNums[2] && GadgetCoreAPI.currentVersionNums[3] == targetVersionNums[3]))
+                if ((attribute.GadgetCoreVersionSpecificity == VersionSpecificity.MAJOR && GadgetCoreAPI.CurrentVersionNums[0] == targetVersionNums[0] && (GadgetCoreAPI.CurrentVersionNums[1] > targetVersionNums[1] || (GadgetCoreAPI.CurrentVersionNums[1] == targetVersionNums[1] && (GadgetCoreAPI.CurrentVersionNums[2] > targetVersionNums[2] || (GadgetCoreAPI.CurrentVersionNums[2] == targetVersionNums[2] && GadgetCoreAPI.CurrentVersionNums[3] >= targetVersionNums[3]))))) ||
+                    (attribute.GadgetCoreVersionSpecificity == VersionSpecificity.MINOR && GadgetCoreAPI.CurrentVersionNums[0] == targetVersionNums[0] && GadgetCoreAPI.CurrentVersionNums[1] == targetVersionNums[1] && (GadgetCoreAPI.CurrentVersionNums[2] > targetVersionNums[2] || (GadgetCoreAPI.CurrentVersionNums[2] == targetVersionNums[2] && GadgetCoreAPI.CurrentVersionNums[3] >= targetVersionNums[3]))) ||
+                    (attribute.GadgetCoreVersionSpecificity == VersionSpecificity.NONBREAKING && GadgetCoreAPI.CurrentVersionNums[0] == targetVersionNums[0] && GadgetCoreAPI.CurrentVersionNums[1] == targetVersionNums[1] && GadgetCoreAPI.CurrentVersionNums[2] == targetVersionNums[2] && GadgetCoreAPI.CurrentVersionNums[3] >= targetVersionNums[3]) ||
+                    (attribute.GadgetCoreVersionSpecificity == VersionSpecificity.BUGFIX && GadgetCoreAPI.CurrentVersionNums[0] == targetVersionNums[0] && GadgetCoreAPI.CurrentVersionNums[1] == targetVersionNums[1] && GadgetCoreAPI.CurrentVersionNums[2] == targetVersionNums[2] && GadgetCoreAPI.CurrentVersionNums[3] == targetVersionNums[3]))
                 {
                     Gadget gadget = null;
                     try
@@ -678,7 +676,7 @@ namespace GadgetCore.Loader
                 int modID = gadget.Gadget.ModID;
                 LootTables.RemoveModEntries(modID);
                 GadgetCoreAPI.RemoveModResources(modID);
-                GadgetCoreAPI.UnregisterGadgetRPCs(modID);
+                GadgetCoreAPI.UnregisterCustomRPCGadget(modID);
                 GadgetCoreAPI.UnregisterStatModifiers(modID);
                 GadgetConsole.UnregisterGadgetCommands(modID);
                 GadgetNetwork.UnregisterSyncVars(modID);

@@ -7,7 +7,7 @@ using System.Reflection.Emit;
 namespace GadgetCore.Patches
 {
     [HarmonyPatch]
-    static class Patch_SpawnerScript_DestroyWorldFinal
+    internal static class Patch_SpawnerScript_DestroyWorldFinal
     {
         public static readonly MethodInfo PlanetIsTownOnly = typeof(PatchMethods).GetMethod("PlanetIsTownOnly", BindingFlags.Public | BindingFlags.Static);
 
@@ -21,7 +21,7 @@ namespace GadgetCore.Patches
         public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator gen)
         {
             var p = TranspilerHelper.CreateProcessor(instructions, gen);
-            var ilRef = p.FindRefByInsns(new CodeInstruction[] {
+            var ilRef = p.FindRefByInsns(new[] {
                 new CodeInstruction(OpCodes.Ldc_I4_8),
                 new CodeInstruction(OpCodes.Beq),
                 new CodeInstruction(OpCodes.Ldsfld),

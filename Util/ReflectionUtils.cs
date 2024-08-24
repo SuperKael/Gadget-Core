@@ -27,7 +27,7 @@ namespace GadgetCore.Util
         /// </summary>
         public static bool IsStatic(this MemberInfo memberInfo)
         {
-            if (memberInfo == null) throw new ArgumentNullException("memberInfo");
+            if (memberInfo == null) throw new ArgumentNullException(nameof(memberInfo));
             return memberInfo is FieldInfo fi ? fi.IsStatic :
                    memberInfo is MethodBase mb ? mb.IsStatic :
                    memberInfo is PropertyInfo pi ? pi.GetGetMethod(true)?.IsStatic ?? pi.GetSetMethod(true).IsStatic :
@@ -42,7 +42,7 @@ namespace GadgetCore.Util
         /// </summary>
         public static Type GetGetType(this MemberInfo memberInfo)
         {
-            if (memberInfo == null) throw new ArgumentNullException("memberInfo");
+            if (memberInfo == null) throw new ArgumentNullException(nameof(memberInfo));
             return memberInfo is FieldInfo fi ? fi.FieldType :
                    memberInfo is PropertyInfo pi ? pi.GetGetMethod(true) != null ? pi.PropertyType : null :
                    memberInfo is MethodInfo mi ? mi.ReturnType :
@@ -55,7 +55,7 @@ namespace GadgetCore.Util
         /// </summary>
         public static Type GetSetType(this MemberInfo memberInfo)
         {
-            if (memberInfo == null) throw new ArgumentNullException("memberInfo");
+            if (memberInfo == null) throw new ArgumentNullException(nameof(memberInfo));
             return memberInfo is FieldInfo fi ? fi.FieldType :
                    memberInfo is PropertyInfo pi ? pi.GetSetMethod(true) != null ? pi.PropertyType : null :
                    memberInfo is MethodBase mb && mb.GetParameters().Length == 1 ? mb.GetParameters()[0].ParameterType :
@@ -69,7 +69,7 @@ namespace GadgetCore.Util
         /// </summary>
         public static object GetValue(this MemberInfo memberInfo, object obj)
         {
-            if (memberInfo == null) throw new ArgumentNullException("memberInfo");
+            if (memberInfo == null) throw new ArgumentNullException(nameof(memberInfo));
             return memberInfo is FieldInfo fi ? fi.GetValue(obj) :
                    memberInfo is PropertyInfo pi && pi.GetGetMethod(true) != null ? pi.GetGetMethod(true).Invoke(obj, new object[0]) :
                    memberInfo is MethodInfo mi && mi.ReturnType != typeof(void) ? mi.Invoke(obj, mi.GetParameters().Select(x => !Convert.IsDBNull(x.DefaultValue) ? x.DefaultValue : x.ParameterType.IsValueType ? Activator.CreateInstance(x.ParameterType) : null).ToArray()) :
@@ -84,20 +84,20 @@ namespace GadgetCore.Util
         /// </summary>
         public static bool SetValue(this MemberInfo memberInfo, object obj, object value)
         {
-            if (memberInfo == null) throw new ArgumentNullException("memberInfo");
+            if (memberInfo == null) throw new ArgumentNullException(nameof(memberInfo));
             if (memberInfo is FieldInfo fi)
             {
-                if (value != null && !fi.FieldType.IsAssignableFrom(value.GetType())) throw new ArgumentException("Type of value " + value.GetType() + " cannot be assigned to Type of field " + fi.FieldType, "value");
+                if (value != null && !fi.FieldType.IsAssignableFrom(value.GetType())) throw new ArgumentException("Type of value " + value.GetType() + " cannot be assigned to Type of field " + fi.FieldType, nameof(value));
                 fi.SetValue(obj, value);
                 return true;
             }
             if (memberInfo is PropertyInfo pi)
             {
-                if (value != null && !pi.PropertyType.IsAssignableFrom(value.GetType())) throw new ArgumentException("Type of value " + value.GetType() + " cannot be assigned to Type of property " + pi.PropertyType, "value");
+                if (value != null && !pi.PropertyType.IsAssignableFrom(value.GetType())) throw new ArgumentException("Type of value " + value.GetType() + " cannot be assigned to Type of property " + pi.PropertyType, nameof(value));
                 MethodInfo setMethod = pi.GetSetMethod(true);
                 if (setMethod != null)
                 {
-                    setMethod.Invoke(obj, new object[] { value });
+                    setMethod.Invoke(obj, new[] { value });
                     return true;
                 }
             }
@@ -105,8 +105,8 @@ namespace GadgetCore.Util
             {
                 ParameterInfo[] methodParams = mb.GetParameters();
                 if (methodParams.Length != 1) return false;
-                if (value != null && !methodParams[0].ParameterType.IsAssignableFrom(value.GetType())) throw new ArgumentException("Type of value " + value.GetType() + " cannot be assigned to Type of parameter " + methodParams[0].ParameterType, "value");
-                mb.Invoke(obj, new object[] { value });
+                if (value != null && !methodParams[0].ParameterType.IsAssignableFrom(value.GetType())) throw new ArgumentException("Type of value " + value.GetType() + " cannot be assigned to Type of parameter " + methodParams[0].ParameterType, nameof(value));
+                mb.Invoke(obj, new[] { value });
                 return true;
             }
             return false;
@@ -287,7 +287,7 @@ namespace GadgetCore.Util
         /// </summary>
         public static Delegate CreateGetter(this FieldInfo field)
         {
-            DynamicMethod getterMethod = new DynamicMethod(field.ReflectedType.FullName + ".get_" + field.Name, field.FieldType, new Type[] { field.DeclaringType }, field.Module, true);
+            DynamicMethod getterMethod = new DynamicMethod(field.ReflectedType.FullName + ".get_" + field.Name, field.FieldType, new[] { field.DeclaringType }, field.Module, true);
             ILGenerator gen = getterMethod.GetILGenerator();
             if (field.IsStatic)
             {
@@ -309,7 +309,7 @@ namespace GadgetCore.Util
         {
             if (!typeof(T).IsAssignableFrom(field.FieldType) && !typeof(T).IsSubclassOf(field.FieldType)) throw new InvalidOperationException("Cannot create getter: `" + field.FieldType + "` cannot be cast to `" + typeof(T) + "`");
             if (typeof(T) != field.FieldType && field.FieldType.IsValueType && typeof(T) != typeof(object)) throw new InvalidOperationException("Cannot create getter: Value type `" + field.FieldType + "` can only be boxed to `object`");
-            DynamicMethod getterMethod = new DynamicMethod(field.ReflectedType.FullName + ".get_" + field.Name, typeof(T), new Type[] { typeof(object) }, field.Module, true);
+            DynamicMethod getterMethod = new DynamicMethod(field.ReflectedType.FullName + ".get_" + field.Name, typeof(T), new[] { typeof(object) }, field.Module, true);
             ILGenerator gen = getterMethod.GetILGenerator();
             if (field.IsStatic)
             {
@@ -343,7 +343,7 @@ namespace GadgetCore.Util
         {
             if (!typeof(T).IsAssignableFrom(field.FieldType) && !typeof(T).IsSubclassOf(field.FieldType)) throw new InvalidOperationException("Cannot create getter: `" + field.FieldType + "` cannot be cast to `" + typeof(T) + "`");
             if (typeof(T) != field.FieldType && field.FieldType.IsValueType && typeof(T) != typeof(object)) throw new InvalidOperationException("Cannot create getter: Value type `" + field.FieldType + "` can only be boxed to `object`");
-            DynamicMethod getterMethod = new DynamicMethod(field.ReflectedType.FullName + ".get_" + field.Name, typeof(T), new Type[] { typeof(S) }, field.Module, true);
+            DynamicMethod getterMethod = new DynamicMethod(field.ReflectedType.FullName + ".get_" + field.Name, typeof(T), new[] { typeof(S) }, field.Module, true);
             ILGenerator gen = getterMethod.GetILGenerator();
             if (field.IsStatic)
             {
@@ -413,7 +413,7 @@ namespace GadgetCore.Util
         /// </summary>
         public static Delegate CreateSetter(this FieldInfo field)
         {
-            DynamicMethod setterMethod = new DynamicMethod(field.ReflectedType.FullName + ".set_" + field.Name, null, new Type[] { field.DeclaringType, field.FieldType }, field.Module, true);
+            DynamicMethod setterMethod = new DynamicMethod(field.ReflectedType.FullName + ".set_" + field.Name, null, new[] { field.DeclaringType, field.FieldType }, field.Module, true);
             ILGenerator gen = setterMethod.GetILGenerator();
             if (field.IsStatic)
             {
@@ -437,7 +437,7 @@ namespace GadgetCore.Util
         {
             if (!field.FieldType.IsAssignableFrom(typeof(T)) && !field.FieldType.IsSubclassOf(typeof(T))) throw new InvalidOperationException("Cannot create setter: `" + typeof(T) + "` cannot be cast to `" + field.FieldType + "`");
             if (typeof(T) != field.FieldType && field.FieldType.IsValueType && typeof(T) != typeof(object)) throw new InvalidOperationException("Cannot create setter: Value type `" + field.FieldType + "` can only be unboxed from `object`");
-            DynamicMethod setterMethod = new DynamicMethod(field.ReflectedType.FullName + ".set_" + field.Name, null, new Type[] { typeof(object), typeof(T) }, field.Module, true);
+            DynamicMethod setterMethod = new DynamicMethod(field.ReflectedType.FullName + ".set_" + field.Name, null, new[] { typeof(object), typeof(T) }, field.Module, true);
             ILGenerator gen = setterMethod.GetILGenerator();
             if (field.IsStatic)
             {
@@ -472,7 +472,7 @@ namespace GadgetCore.Util
         {
             if (!field.FieldType.IsAssignableFrom(typeof(T)) && !field.FieldType.IsSubclassOf(typeof(T))) throw new InvalidOperationException("Cannot create setter: `" + typeof(T) + "` cannot be cast to `" + field.FieldType + "`");
             if (typeof(T) != field.FieldType && field.FieldType.IsValueType && typeof(T) != typeof(object)) throw new InvalidOperationException("Cannot create setter: Value type `" + field.FieldType + "` can only be unboxed from `object`");
-            DynamicMethod setterMethod = new DynamicMethod(field.ReflectedType.FullName + ".set_" + field.Name, null, new Type[] { typeof(S), typeof(T) }, field.Module, true);
+            DynamicMethod setterMethod = new DynamicMethod(field.ReflectedType.FullName + ".set_" + field.Name, null, new[] { typeof(S), typeof(T) }, field.Module, true);
             ILGenerator gen = setterMethod.GetILGenerator();
             if (field.IsStatic)
             {
@@ -504,7 +504,7 @@ namespace GadgetCore.Util
         /// </summary>
         public static Delegate CreateStaticSetter(this FieldInfo field)
         {
-            DynamicMethod setterMethod = new DynamicMethod(field.ReflectedType.FullName + ".set_" + field.Name, null, new Type[] { field.FieldType }, field.Module, true);
+            DynamicMethod setterMethod = new DynamicMethod(field.ReflectedType.FullName + ".set_" + field.Name, null, new[] { field.FieldType }, field.Module, true);
             ILGenerator gen = setterMethod.GetILGenerator();
             gen.Emit(OpCodes.Ldarg_0);
             gen.Emit(OpCodes.Stsfld, field);
@@ -520,7 +520,7 @@ namespace GadgetCore.Util
             if (!field.FieldType.IsAssignableFrom(typeof(T)) && !field.FieldType.IsSubclassOf(typeof(T))) throw new InvalidOperationException("Cannot create setter: `" + typeof(T) + "` cannot be cast to `" + field.FieldType + "`");
             if (typeof(T) != field.FieldType && field.FieldType.IsValueType && typeof(T) != typeof(object)) throw new InvalidOperationException("Cannot create setter: Value type `" + field.FieldType + "` can only be unboxed from `object`");
             if (!field.IsStatic) throw new InvalidOperationException("Cannot make a static setter for a non-static field!");
-            DynamicMethod setterMethod = new DynamicMethod(field.ReflectedType.FullName + ".set_" + field.Name, null, new Type[] { typeof(T) }, field.Module, true);
+            DynamicMethod setterMethod = new DynamicMethod(field.ReflectedType.FullName + ".set_" + field.Name, null, new[] { typeof(T) }, field.Module, true);
             ILGenerator gen = setterMethod.GetILGenerator();
             gen.Emit(OpCodes.Ldarg_0);
             if (typeof(T) != field.FieldType)
@@ -562,7 +562,7 @@ namespace GadgetCore.Util
             }
             else
             {
-                delegateType = Expression.GetFuncType(parameterTypes.Concat(new Type[] { method.ReturnType }).ToArray());
+                delegateType = Expression.GetFuncType(parameterTypes.Concat(new[] { method.ReturnType }).ToArray());
             }
 
             if (method.IsStatic || targetInstance != null)
@@ -648,7 +648,7 @@ namespace GadgetCore.Util
             {
                 if (obj is MethodInfoData other)
                 {
-                    return type == other.type && name == other.name && Enumerable.SequenceEqual(parameters, other.parameters);
+                    return type == other.type && name == other.name && parameters.SequenceEqual(other.parameters);
                 }
                 else
                 {

@@ -5,7 +5,7 @@ namespace GadgetCore.Patches
 {
     [HarmonyPatch(typeof(ObjectScript))]
     [HarmonyPatch("DropLocal")]
-    static class Patch_ObjectScript_DropLocal
+    internal static class Patch_ObjectScript_DropLocal
     {
         [HarmonyPrefix]
         public static bool Prefix(ObjectScript __instance)

@@ -1,5 +1,4 @@
 using HarmonyLib;
-using GadgetCore.API;
 using System.Collections;
 using UnityEngine;
 using GadgetCore.API.Dialog;
@@ -8,7 +7,7 @@ namespace GadgetCore.Patches
 {
     [HarmonyPatch(typeof(GameScript))]
     [HarmonyPatch("MenuStory2")]
-    static class Patch_GameScript_MenuStory2
+    internal static class Patch_GameScript_MenuStory2
     {
 		[HarmonyPrefix]
 		public static bool Prefix(GameScript __instance, ref IEnumerator __result)
@@ -78,7 +77,6 @@ namespace GadgetCore.Patches
 
 				DialogActions.storyChoiceOverrideDesc = null;
 			}
-			yield break;
-		}
+        }
     }
 }

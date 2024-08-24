@@ -1,5 +1,4 @@
 using HarmonyLib;
-using GadgetCore.API;
 using System.Collections.Generic;
 using System.Reflection.Emit;
 using GadgetCore.Util;
@@ -8,7 +7,7 @@ namespace GadgetCore.Patches
 {
     [HarmonyPatch(typeof(Menuu))]
     [HarmonyPatch("RefreshRaceStats")]
-    static class Patch_Menuu_RefreshRaceStats
+    internal static class Patch_Menuu_RefreshRaceStats
 	{
         [HarmonyTranspiler]
         public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator gen)

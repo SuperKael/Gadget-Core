@@ -4,7 +4,7 @@ namespace GadgetCore.Patches
 {
     [HarmonyPatch(typeof(GameScript))]
     [HarmonyPatch("HoverItemCraft")]
-    static class Patch_GameScript_HoverItemCraft
+    internal static class Patch_GameScript_HoverItemCraft
     {
         [HarmonyPrefix]
         public static bool Prefix(GameScript __instance, int slot, Item[] ___craft)

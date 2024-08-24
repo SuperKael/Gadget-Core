@@ -1,18 +1,16 @@
 using HarmonyLib;
-using GadgetCore.API;
 using UnityEngine;
 using System.Reflection;
-using System;
 
 namespace GadgetCore.Patches
 {
     [HarmonyPatch]
-    static class Patch_Network_Destroy
+    internal static class Patch_Network_Destroy
     {
         [HarmonyTargetMethod]
         public static MethodBase TargetMethod()
         {
-            return typeof(Network).GetMethod("Destroy", new Type[] { typeof(NetworkViewID) });
+            return typeof(Network).GetMethod("Destroy", new[] { typeof(NetworkViewID) });
         }
 
         [HarmonyPrefix]

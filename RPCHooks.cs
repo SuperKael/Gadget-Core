@@ -111,7 +111,6 @@ namespace GadgetCore
                     {
                         isCompatible = false;
                         incompatibleReasons.Add($"The Gadget '{mod.Attribute.Name}' (From the mod '{mod.ModName}') is of incompatible versions: Host: {mod.Gadget.GetModVersionString()}, Client: {clientVersion}");
-                        continue;
                     }
                 }
                 if (handledGadgets.Count != splitModList.Length)
@@ -486,18 +485,28 @@ namespace GadgetCore
 
         internal void CallGeneral(string name, RPCMode mode, params object[] args)
         {
+            if (args == null || args.Length == 0)
+            {
+                view.RPC("RPCCallGeneral", mode, name, 0, new byte[] { 0 });
+                return;
+            }
             BinaryFormatter formatter = new BinaryFormatter();
             MemoryStream stream = new MemoryStream();
             foreach (object arg in args)
             {
                 formatter.Serialize(stream, arg);
             }
-            view.RPC("RPCCallGeneral", mode, new object[] { name, args.Length, stream.ToArray()});
+            view.RPC("RPCCallGeneral", mode, name, args.Length, stream.ToArray());
             stream.Close();
         }
 
         internal void CallGeneral(string name, NetworkPlayer target, params object[] args)
         {
+            if (args == null || args.Length == 0)
+            {
+                view.RPC("RPCCallGeneral", target, name, 0, new byte[] { 0 });
+                return;
+            }
             BinaryFormatter formatter = new BinaryFormatter();
             MemoryStream stream = new MemoryStream();
             foreach (object arg in args)
@@ -505,27 +514,30 @@ namespace GadgetCore
                 formatter.Serialize(stream, arg);
             }
             stream.Position = 0;
-            view.RPC("RPCCallGeneral", target, new object[] { name, args.Length, stream.ToArray() });
+            view.RPC("RPCCallGeneral", target, name, args.Length, stream.ToArray());
             stream.Close();
         }
 
         [RPC]
         internal void RPCCallGeneral(string name, int argCount, byte[] serializedArgs)
         {
-            BinaryFormatter formatter = new BinaryFormatter();
-            MemoryStream stream = new MemoryStream();
-            stream.Write(serializedArgs, 0, serializedArgs.Length);
-            stream.Position = 0;
             object[] args = new object[argCount];
-            for (int i = 0;i < argCount; i++)
+            if (argCount > 0)
             {
-                args[i] = formatter.Deserialize(stream);
+                BinaryFormatter formatter = new BinaryFormatter();
+                MemoryStream stream = new MemoryStream();
+                stream.Write(serializedArgs, 0, serializedArgs.Length);
+                stream.Position = 0;
+                for (int i = 0; i < argCount; i++)
+                {
+                    args[i] = formatter.Deserialize(stream);
+                }
+                stream.Close();
             }
-            if (GadgetCoreAPI.customRPCs.ContainsKey(name))
+            if (GadgetCoreAPI.customRPCActions.TryGetValue(name, out var customRPC))
             {
-                GadgetCoreAPI.customRPCs[name].Invoke(args);
+                customRPC.Invoke(args);
             }
-            stream.Close();
         }
 
         internal void UpdateSyncVar(string name, object value, bool local)

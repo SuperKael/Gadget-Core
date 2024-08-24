@@ -8,7 +8,7 @@ namespace GadgetCore.Patches
 {
     [HarmonyPatch(typeof(Menuu))]
     [HarmonyPatch("MainMenu")]
-    static class Patch_Menuu_MainMenu
+    internal static class Patch_Menuu_MainMenu
     {
         [HarmonyPrefix]
         [HarmonyOverrides]
@@ -41,7 +41,6 @@ namespace GadgetCore.Patches
             SceneInjector.ModMenuBeam.GetComponent<Animation>().Play();
             yield return new WaitForSeconds(0.3f);
             SceneInjector.ModMenuButtonHolder.GetComponent<Animation>().Play();
-            yield break;
         }
     }
 }

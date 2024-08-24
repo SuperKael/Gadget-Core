@@ -107,7 +107,7 @@ namespace GadgetCore.API
         /// <summary>
         /// Gets the stat with the specified index. 0 is VIT, 1 is STR, 2 is DEX, 3 is TEC, 4 is MAG, 5 is FTH.
         /// </summary>
-        public int GetByIndex(int index)
+        public readonly int GetByIndex(int index)
         {
             return stats[index];
         }

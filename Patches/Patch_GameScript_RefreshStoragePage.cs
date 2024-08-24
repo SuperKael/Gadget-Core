@@ -7,7 +7,7 @@ namespace GadgetCore.Patches
 {
     [HarmonyPatch(typeof(GameScript))]
     [HarmonyPatch("RefreshStoragePage")]
-    static class Patch_GameScript_RefreshStoragePage
+    internal static class Patch_GameScript_RefreshStoragePage
     {
         public static readonly MethodInfo RefreshSlotStorage = typeof(GameScript).GetMethod("RefreshSlotStorage", BindingFlags.Public | BindingFlags.Instance);
         public static readonly FieldInfo curStoragePage = typeof(GameScript).GetField("curStoragePage", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -30,7 +30,6 @@ namespace GadgetCore.Patches
             }
             curStoragePage.SetValue(__instance, oldCurStoragePage);
             yield return null;
-            yield break;
         }
     }
 }

@@ -3954,6 +3954,11 @@
             The sprite used for missing tile textures
             </summary>
         </member>
+        <member name="P:GadgetCore.API.GadgetCoreAPI.MissingItemMaterial">
+            <summary>
+            The material used for missing item materials
+            </summary>
+        </member>
         <member name="M:GadgetCore.API.GadgetCoreAPI.GetRawVersion">
             <summary>
             Returns the raw version of the running version of GadgetCore. Use this instead of directly accessing <see cref="F:GadgetCore.API.GadgetCoreAPI.RAW_VERSION"/>
@@ -4686,7 +4691,19 @@
         </member>
         <member name="M:GadgetCore.API.GadgetNetwork.GetHostID``2(GadgetCore.API.RegistryEntry{``0,``1})">
             <summary>
-            Gets the ID of this ItemInfo on the multiplayer host, saves the trouble of calling <see cref="M:GadgetCore.API.GadgetNetwork.ConvertIDToHost(GadgetCore.API.Registry,System.Int32)"/>
+            Gets the ID of this RegistryEntry on the multiplayer host, saves the trouble of calling <see cref="M:GadgetCore.API.GadgetNetwork.ConvertIDToHost(GadgetCore.API.Registry,System.Int32)"/>
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetNetwork.ConvertIDsToHost(GadgetCore.API.Registry,System.Int32[]@)">
+            <summary>
+            Gets the host IDs that match the local IDs in the given array. Produces values of -1 if the host does not have matching IDs for given IDs in the array.
+            Does not effect the given array, and returns a new array of the same length as the given array.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetNetwork.ConvertIDsToHost(GadgetCore.API.Registry,System.Int32[])">
+            <summary>
+            Gets the host IDs that match the local IDs in the given array. Produces values of -1 if the host does not have matching IDs for given IDs in the array.
+            Does not effect the given array, and returns a new array of the same length as the given array.
             </summary>
         </member>
         <member name="M:GadgetCore.API.GadgetNetwork.ConvertIDToHost(GadgetCore.API.Registry,System.Object@)">
@@ -4702,6 +4719,18 @@
         <member name="M:GadgetCore.API.GadgetNetwork.ConvertIDToHost(GadgetCore.API.Registry,System.Int32)">
             <summary>
             Gets the host ID that matches the specified local ID. Returns -1 if the host does not have a matching ID for the specified local ID.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetNetwork.ConvertIDsToLocal(GadgetCore.API.Registry,System.Int32[]@)">
+            <summary>
+            Gets the local IDs that match the host IDs in the given array. Produces values of -1 if there are no matching local IDs for given IDs in the array.
+            Does not effect the given array, and returns a new array of the same length as the given array.
+            </summary>
+        </member>
+        <member name="M:GadgetCore.API.GadgetNetwork.ConvertIDsToLocal(GadgetCore.API.Registry,System.Int32[])">
+            <summary>
+            Gets the local IDs that match the host IDs in the given array. Produces values of -1 if there are no matching local IDs for given IDs in the array.
+            Does not effect the given array, and returns a new array of the same length as the given array.
             </summary>
         </member>
         <member name="M:GadgetCore.API.GadgetNetwork.ConvertIDToLocal(GadgetCore.API.Registry,System.Object@)">
@@ -7764,11 +7793,6 @@
         <member name="M:GadgetCore.CoreMod.GadgetCoreMod.Initialize">
             <summary>
             Called during gadget initialization. All data registration should be done from this method.
-            </summary>
-        </member>
-        <member name="M:GadgetCore.CoreMod.GadgetCoreMod.Unload">
-            <summary>
-            Called when this gadget is unloaded or reloaded. 
             </summary>
         </member>
         <member name="M:GadgetCore.CoreMod.GadgetCoreMod.GetModDescription">

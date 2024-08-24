@@ -1,6 +1,5 @@
 using HarmonyLib;
 using GadgetCore.API;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection.Emit;
@@ -10,7 +9,7 @@ namespace GadgetCore.Patches
 {
     [HarmonyPatch(typeof(PlayerScript))]
     [HarmonyPatch("Update")]
-    static class Patch_PlayerScript_Update
+    internal static class Patch_PlayerScript_Update
     {
         [HarmonyTranspiler]
         public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)

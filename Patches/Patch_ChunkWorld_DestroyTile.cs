@@ -6,7 +6,7 @@ namespace GadgetCore.Patches
 {
     [HarmonyPatch(typeof(ChunkWorld))]
     [HarmonyPatch("DestroyTile")]
-    static class Patch_ChunkWorld_DestroyTile
+    internal static class Patch_ChunkWorld_DestroyTile
     {
         [HarmonyPrefix]
         public static bool Prefix(ChunkWorld __instance, int[] msg, GameScript ___gameScript)

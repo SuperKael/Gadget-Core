@@ -1,13 +1,12 @@
 using HarmonyLib;
 using GadgetCore.API;
-using System.Reflection;
 using UnityEngine;
 
 namespace GadgetCore.Patches
 {
     [HarmonyPatch(typeof(GameScript))]
     [HarmonyPatch("PlaceOneItemStorage")]
-    static class Patch_GameScript_PlaceOneItemStorage
+    internal static class Patch_GameScript_PlaceOneItemStorage
     {
         [HarmonyPrefix]
         public static bool Prefix(GameScript __instance, int slot, ref Item ___holdingItem, ref Item[] ___storage, ref int ___curStoragePage)

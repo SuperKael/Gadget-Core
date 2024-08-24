@@ -1,6 +1,5 @@
 using HarmonyLib;
 using GadgetCore.API;
-using System.Collections;
 using UnityEngine;
 using System.Collections.Generic;
 using System;
@@ -9,7 +8,7 @@ namespace GadgetCore.Patches
 {
     [HarmonyPatch(typeof(Chunk))]
     [HarmonyPatch("SpawnBiomeSlot")]
-    static class Patch_Chunk_SpawnBiomeSlot
+    internal static class Patch_Chunk_SpawnBiomeSlot
     {
         [HarmonyPrefix]
         public static bool Prefix(Chunk __instance, int a, int i, int mid, ref GameObject[] ___networkStuff, ref int ___temp)

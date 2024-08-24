@@ -5,7 +5,7 @@ namespace GadgetCore.Patches
 {
     [HarmonyPatch(typeof(MusicBox))]
     [HarmonyPatch("Start")]
-    static class Patch_MusicBox_Start
+    internal static class Patch_MusicBox_Start
     {
         [HarmonyPrefix]
         public static void Prefix(MusicBox __instance)

@@ -8,7 +8,7 @@ namespace GadgetCore.Patches
 {
     [HarmonyPatch(typeof(GameScript))]
     [HarmonyPatch("UseSkill")]
-    static class Patch_GameScript_UseSkill
+    internal static class Patch_GameScript_UseSkill
     {
         public static readonly MethodInfo Die = typeof(GameScript).GetMethod("Die", BindingFlags.Public | BindingFlags.Instance);
         public static readonly FieldInfo skilling = typeof(GameScript).GetField("skilling", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -100,14 +100,12 @@ namespace GadgetCore.Patches
         {
             yield return new WaitForSeconds(0.2f);
             skillUsin[slot] = false;
-            yield break;
         }
 
         private static IEnumerator WaitChip(GameScript instance)
         {
             yield return new WaitForSeconds(0.1f);
             skilling.SetValue(instance, false);
-            yield break;
         }
     }
 }

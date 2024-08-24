@@ -7,7 +7,7 @@ namespace GadgetCore.Patches
 {
     [HarmonyPatch(typeof(GameScript))]
     [HarmonyPatch("PrismItem")]
-    static class Patch_GameScript_PrismItem
+    internal static class Patch_GameScript_PrismItem
     {
         [HarmonyPrefix]
         public static bool Prefix(GameScript __instance, int slot, ref Item[] ___inventory, ref Item ___holdingItem, ref bool ___prismAgain, ref int ___slotID)

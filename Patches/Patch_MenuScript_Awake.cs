@@ -5,7 +5,7 @@ namespace GadgetCore.Patches
 {
     [HarmonyPatch(typeof(MenuScript))]
     [HarmonyPatch("Awake")]
-    static class Patch_MenuScript_Awake
+    internal static class Patch_MenuScript_Awake
     {
         [HarmonyPrefix]
         public static void Prefix(MenuScript __instance)

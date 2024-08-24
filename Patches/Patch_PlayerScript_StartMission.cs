@@ -8,7 +8,7 @@ namespace GadgetCore.Patches
 {
     [HarmonyPatch(typeof(PlayerScript))]
     [HarmonyPatch("StartMission")]
-    static class Patch_PlayerScript_StartMission
+    internal static class Patch_PlayerScript_StartMission
     {
         public static readonly MethodInfo PlanetIsTownOnly = typeof(PatchMethods).GetMethod("PlanetIsTownOnly", BindingFlags.Public | BindingFlags.Static);
 
@@ -16,7 +16,7 @@ namespace GadgetCore.Patches
         public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator gen)
         {
             var p = TranspilerHelper.CreateProcessor(instructions, gen);
-            var ilRef = p.FindRefByInsns(new CodeInstruction[] {
+            var ilRef = p.FindRefByInsns(new[] {
                 new CodeInstruction(OpCodes.Ldc_I4_8),
                 new CodeInstruction(OpCodes.Beq),
                 new CodeInstruction(OpCodes.Ldsfld),

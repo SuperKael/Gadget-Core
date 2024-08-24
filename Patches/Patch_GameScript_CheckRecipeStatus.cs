@@ -1,9 +1,6 @@
 using HarmonyLib;
 using GadgetCore.API;
-using System.Reflection;
-using UnityEngine;
 using GadgetCore.Util;
-using System;
 using System.Collections;
 using System.Linq;
 
@@ -11,7 +8,7 @@ namespace GadgetCore.Patches
 {
     [HarmonyPatch(typeof(GameScript))]
     [HarmonyPatch("CheckRecipeStatus")]
-    static class Patch_GameScript_CheckRecipeStatus
+    internal static class Patch_GameScript_CheckRecipeStatus
 	{
         [HarmonyPrefix]
         public static bool Prefix(GameScript __instance, int a, int q, ref int ___craftType)

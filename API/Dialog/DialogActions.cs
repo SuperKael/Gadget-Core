@@ -179,7 +179,7 @@ namespace GadgetCore.API.Dialog
         {
             return () =>
             {
-                if (chain.TriggerCondition == null || chain.TriggerCondition(InstanceTracker.GameScript.GetFieldValue<int>("curB"))) DialogChains.InitiateDialog(chain);
+                if (chain.TriggerCondition == null || chain.TriggerCondition(InstanceTracker.GameScript.GetFieldValue<int>("curB"))) chain.InitiateDialog();
             };
         }
 
@@ -195,15 +195,15 @@ namespace GadgetCore.API.Dialog
                 {
                     case 1:
                         if (choice1 != null && (force || choice1.TriggerCondition == null ||
-                            choice1.TriggerCondition(InstanceTracker.GameScript.GetFieldValue<int>("curB")))) DialogChains.InitiateDialog(choice1);
+                            choice1.TriggerCondition(InstanceTracker.GameScript.GetFieldValue<int>("curB")))) choice1.InitiateDialog();
                         break;
                     case 2:
                         if (choice2 != null && (force || choice2.TriggerCondition == null ||
-                            choice2.TriggerCondition(InstanceTracker.GameScript.GetFieldValue<int>("curB")))) DialogChains.InitiateDialog(choice2);
+                            choice2.TriggerCondition(InstanceTracker.GameScript.GetFieldValue<int>("curB")))) choice2.InitiateDialog();
                         break;
                     case 3:
                         if (choice3 != null && (force || choice3.TriggerCondition == null ||
-                            choice3.TriggerCondition(InstanceTracker.GameScript.GetFieldValue<int>("curB")))) DialogChains.InitiateDialog(choice3);
+                            choice3.TriggerCondition(InstanceTracker.GameScript.GetFieldValue<int>("curB")))) choice3.InitiateDialog();
                         break;
                 }
             };

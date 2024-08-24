@@ -1,6 +1,5 @@
 using UnityEngine;
 using HarmonyLib;
-using System.Reflection;
 using System.Collections;
 using GadgetCore.API;
 
@@ -8,7 +7,7 @@ namespace GadgetCore.Patches
 {
     [HarmonyPatch(typeof(GameScript))]
     [HarmonyPatch("ShiftClickGather")]
-    static class Patch_GameScript_ShiftClickGather
+    internal static class Patch_GameScript_ShiftClickGather
     {
         private static Item itemInSlot;
 

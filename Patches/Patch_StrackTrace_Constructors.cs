@@ -1,16 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Reflection;
-using System.Text;
 using GadgetCore.Loader;
 using HarmonyLib;
 
 namespace GadgetCore.Patches
 {
     [HarmonyPatch]
-    static class StackTracePatch
+    internal static class StackTracePatch
     {
         [HarmonyTargetMethods]
         public static IEnumerable<MethodBase> TargetMethods()

@@ -5,7 +5,7 @@ namespace GadgetCore.Patches
 {
     [HarmonyPatch(typeof(GameScript))]
     [HarmonyPatch("GetAllegianceName")]
-    static class Patch_GameScript_GetAllegianceName
+    internal static class Patch_GameScript_GetAllegianceName
     {
         [HarmonyPrefix]
         public static bool Prefix(int i, ref string __result)

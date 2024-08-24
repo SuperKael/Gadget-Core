@@ -1,12 +1,11 @@
 using HarmonyLib;
 using GadgetCore.API;
-using UnityEngine;
 
 namespace GadgetCore.Patches
 {
     [HarmonyPatch(typeof(GameScript))]
     [HarmonyPatch("SaveStorage")]
-    static class Patch_GameScript_SaveStorage
+    internal static class Patch_GameScript_SaveStorage
     {
         [HarmonyPostfix]
         public static void Postfix(ref Item[] ___storage)

@@ -1,8 +1,4 @@
 using HarmonyLib;
-using GadgetCore.API;
-using UnityEngine;
-using System.Collections.Generic;
-using System.IO;
 using System;
 using System.Reflection;
 
@@ -13,8 +9,8 @@ namespace GadgetCore.Patches
     /// </summary>
     [HarmonyPatch(typeof(Type))]
     [HarmonyPatch("GetMethod")]
-    [HarmonyPatch(new Type[] { typeof(string), typeof(BindingFlags) })]
-    static class Patch_Type_GetMethod
+    [HarmonyPatch(new[] { typeof(string), typeof(BindingFlags) })]
+    internal static class Patch_Type_GetMethod
     {
         private static readonly string RoguelandsAssemblyName = typeof(GameScript).AssemblyQualifiedName;
 

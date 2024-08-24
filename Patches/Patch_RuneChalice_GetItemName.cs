@@ -5,7 +5,7 @@ namespace GadgetCore.Patches
 {
     [HarmonyPatch(typeof(RuneChalice))]
     [HarmonyPatch("GetItemName")]
-    static class Patch_RuneChalice_GetItemName
+    internal static class Patch_RuneChalice_GetItemName
     {
         [HarmonyPrefix]
         public static bool Prefix(GameScript __instance, int id, ref string __result)

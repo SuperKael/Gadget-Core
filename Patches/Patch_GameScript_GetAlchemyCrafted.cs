@@ -7,7 +7,7 @@ namespace GadgetCore.Patches
 {
     [HarmonyPatch(typeof(GameScript))]
     [HarmonyPatch("GetAlchemyCrafted")]
-    static class Patch_GameScript_GetAlchemyCrafted
+    internal static class Patch_GameScript_GetAlchemyCrafted
     {
         [HarmonyPrefix]
         public static bool Prefix(ref Item[] ___craft, ref Item __result)

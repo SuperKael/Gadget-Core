@@ -6,7 +6,7 @@ namespace GadgetCore.Patches
 {
     [HarmonyPatch(typeof(GameScript))]
     [HarmonyPatch("RefreshQuestSlot")]
-    static class Patch_GameScript_RefreshQuestSlot
+    internal static class Patch_GameScript_RefreshQuestSlot
     {
         [HarmonyPostfix]
         public static void Postfix(GameScript __instance, int i, ref Item[] ___inventoryQuest)

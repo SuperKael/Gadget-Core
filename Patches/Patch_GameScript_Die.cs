@@ -5,7 +5,7 @@ namespace GadgetCore.Patches
 {
     [HarmonyPatch(typeof(GameScript))]
     [HarmonyPatch("Die")]
-    static class Patch_GameScript_Die
+    internal static class Patch_GameScript_Die
     {
         internal static bool godMode;
 

@@ -5,7 +5,7 @@ namespace GadgetCore.Patches
 {
     [HarmonyPatch(typeof(GameScript))]
     [HarmonyPatch("HoverCombatChip")]
-    static class Patch_GameScript_HoverCombatChip
+    internal static class Patch_GameScript_HoverCombatChip
     {
         [HarmonyPostfix]
         public static void Postfix(GameScript __instance, int slot, int[] ___combatChips)

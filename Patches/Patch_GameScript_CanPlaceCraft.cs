@@ -1,14 +1,12 @@
 using HarmonyLib;
-using System.Reflection;
 using GadgetCore.API;
-using System.Linq;
 using UnityEngine;
 
 namespace GadgetCore.Patches
 {
     [HarmonyPatch(typeof(GameScript))]
     [HarmonyPatch("CanPlaceCraft")]
-    static class Patch_GameScript_CanPlaceCraft
+    internal static class Patch_GameScript_CanPlaceCraft
     {
         [HarmonyPrefix]
         public static bool Prefix(GameScript __instance, ref Item[] ___craft, ref int ___craftType, int a, ref bool __result)

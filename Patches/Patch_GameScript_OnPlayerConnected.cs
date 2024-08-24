@@ -8,7 +8,7 @@ namespace GadgetCore.Patches
 {
     [HarmonyPatch(typeof(GameScript))]
     [HarmonyPatch("OnPlayerConnected")]
-    static class Patch_GameScript_OnPlayerConnected
+    internal static class Patch_GameScript_OnPlayerConnected
     {
         [HarmonyPrefix]
         public static void Prefix(GameScript __instance, NetworkPlayer pl)

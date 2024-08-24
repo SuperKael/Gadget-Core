@@ -1,14 +1,12 @@
 using HarmonyLib;
 using GadgetCore.API;
 using UnityEngine;
-using System.Collections.Generic;
-using System.IO;
 
 namespace GadgetCore.Patches
 {
     [HarmonyPatch(typeof(ButtonMenu))]
     [HarmonyPatch("CanCraft")]
-    static class Patch_ButtonMenu_CanCraft
+    internal static class Patch_ButtonMenu_CanCraft
     {
         [HarmonyPrefix]
         public static void Prefix(ButtonMenu __instance, int a)

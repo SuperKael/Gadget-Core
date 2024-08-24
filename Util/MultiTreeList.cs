@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
 
 namespace GadgetCore.Util
 {
@@ -132,7 +131,7 @@ namespace GadgetCore.Util
         /// </summary>
         public List<MultiTreeList<T>> GetTopLevelParents()
         {
-            if (Parents.Count == 0) return new List<MultiTreeList<T>>(new MultiTreeList<T>[] { this });
+            if (Parents.Count == 0) return new List<MultiTreeList<T>>(new[] { this });
             return Parents.SelectMany(x => x.GetTopLevelParents()).ToList();
         }
 

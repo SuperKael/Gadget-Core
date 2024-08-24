@@ -7,7 +7,7 @@ namespace GadgetCore.Patches
 {
     [HarmonyPatch(typeof(Menuu))]
     [HarmonyPatch("SelectAugment")]
-    static class Patch_Menuu_SelectAugment
+    internal static class Patch_Menuu_SelectAugment
     {
         [HarmonyPrefix]
         public static bool Prefix(Menuu __instance, ref int ___stuffSelecting, ref IEnumerator __result)

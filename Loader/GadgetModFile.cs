@@ -106,7 +106,6 @@ namespace GadgetCore.Loader
         {
             yield return new WaitUntil(condition);
             Dispose();
-            yield break;
         }
 
         internal static void DisposeAll()

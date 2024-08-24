@@ -6,7 +6,7 @@ namespace GadgetCore.Patches
 {
     [HarmonyPatch(typeof(GameScript))]
     [HarmonyPatch("EnterBuildMode")]
-    static class Patch_GameScript_EnterBuildMode
+    internal static class Patch_GameScript_EnterBuildMode
     {
         [HarmonyPrefix]
         public static void Prefix(GameScript __instance, bool ___inShip)

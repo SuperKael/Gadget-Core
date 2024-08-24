@@ -5,7 +5,7 @@ namespace GadgetCore.Patches
 {
     [HarmonyPatch(typeof(Menuu))]
     [HarmonyPatch("GetAugmentDesc")]
-    static class Patch_Menuu_GetAugmentDesc
+    internal static class Patch_Menuu_GetAugmentDesc
     {
         [HarmonyPrefix]
         public static bool Prefix(int a, ref string __result)

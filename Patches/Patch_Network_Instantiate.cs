@@ -6,7 +6,7 @@ namespace GadgetCore.Patches
 {
     [HarmonyPatch(typeof(Network))]
     [HarmonyPatch("Instantiate")]
-    static class Patch_Network_Instantiate
+    internal static class Patch_Network_Instantiate
     {
         [HarmonyPrefix]
         public static bool Prefix(ref Object prefab, Vector3 position, Quaternion rotation, int group, ref Object __result)

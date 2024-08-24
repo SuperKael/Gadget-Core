@@ -1,7 +1,6 @@
 ﻿using GadgetCore.Util;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 using UnityEngine;
@@ -40,22 +39,22 @@ namespace GadgetCore.API
         internal static GameObject[][] planetButtonIcons;
         internal static TextMesh planetPageText;
 
-        internal static List<Tuple<int, int, int>>[] VanillaWeightedExitPortalIDs = new List<Tuple<int, int, int>>[]
+        internal static List<Tuple<int, int, int>>[] VanillaWeightedExitPortalIDs = new[]
         {
-            new List<Tuple<int, int, int>>(new Tuple<int, int, int>[] { Tuple.Create(0, 50, -1), Tuple.Create(1, 25, -1), Tuple.Create(2, 25, -1) }),
-            new List<Tuple<int, int, int>>(new Tuple<int, int, int>[] { Tuple.Create(1, 50, -1), Tuple.Create(2, 25, -1), Tuple.Create(0, 25, -1) }),
-            new List<Tuple<int, int, int>>(new Tuple<int, int, int>[] { Tuple.Create(2, 50, -1), Tuple.Create(3, 25, -1), Tuple.Create(4, 25, -1) }),
-            new List<Tuple<int, int, int>>(new Tuple<int, int, int>[] { Tuple.Create(3, 30, -1), Tuple.Create(1, 10, -1), Tuple.Create(2, 20, -1), Tuple.Create(4, 40, -1) }),
-            new List<Tuple<int, int, int>>(new Tuple<int, int, int>[] { Tuple.Create(4, 50, -1), Tuple.Create(5, 25, -1), Tuple.Create(6, 25, -1) }),
-            new List<Tuple<int, int, int>>(new Tuple<int, int, int>[] { Tuple.Create(5, 50, -1), Tuple.Create(6, 25, -1), Tuple.Create(7, 25, -1) }),
-            new List<Tuple<int, int, int>>(new Tuple<int, int, int>[] { Tuple.Create(6, 50, -1), Tuple.Create(7, 25, -1), Tuple.Create(5, 25, -1) }),
-            new List<Tuple<int, int, int>>(new Tuple<int, int, int>[] { Tuple.Create(10, 45, -1), Tuple.Create(6, 30, -1), Tuple.Create(9, 25, -1) }),
-            new List<Tuple<int, int, int>>(new Tuple<int, int, int>[] { Tuple.Create(8, 100, -1) }),
-            new List<Tuple<int, int, int>>(new Tuple<int, int, int>[] { Tuple.Create(9, 50, -1), Tuple.Create(7, 25, -1), Tuple.Create(10, 25, -1) }),
-            new List<Tuple<int, int, int>>(new Tuple<int, int, int>[] { Tuple.Create(10, 50, -1), Tuple.Create(9, 25, -1), Tuple.Create(7, 25, -1) }),
-            new List<Tuple<int, int, int>>(new Tuple<int, int, int>[] { Tuple.Create(11, 100, -1) }),
-            new List<Tuple<int, int, int>>(new Tuple<int, int, int>[] { Tuple.Create(12, 100, -1) }),
-            new List<Tuple<int, int, int>>(new Tuple<int, int, int>[] { Tuple.Create(13, 100, -1) })
+            new List<Tuple<int, int, int>>(new[] { Tuple.Create(0, 50, -1), Tuple.Create(1, 25, -1), Tuple.Create(2, 25, -1) }),
+            new List<Tuple<int, int, int>>(new[] { Tuple.Create(1, 50, -1), Tuple.Create(2, 25, -1), Tuple.Create(0, 25, -1) }),
+            new List<Tuple<int, int, int>>(new[] { Tuple.Create(2, 50, -1), Tuple.Create(3, 25, -1), Tuple.Create(4, 25, -1) }),
+            new List<Tuple<int, int, int>>(new[] { Tuple.Create(3, 30, -1), Tuple.Create(1, 10, -1), Tuple.Create(2, 20, -1), Tuple.Create(4, 40, -1) }),
+            new List<Tuple<int, int, int>>(new[] { Tuple.Create(4, 50, -1), Tuple.Create(5, 25, -1), Tuple.Create(6, 25, -1) }),
+            new List<Tuple<int, int, int>>(new[] { Tuple.Create(5, 50, -1), Tuple.Create(6, 25, -1), Tuple.Create(7, 25, -1) }),
+            new List<Tuple<int, int, int>>(new[] { Tuple.Create(6, 50, -1), Tuple.Create(7, 25, -1), Tuple.Create(5, 25, -1) }),
+            new List<Tuple<int, int, int>>(new[] { Tuple.Create(10, 45, -1), Tuple.Create(6, 30, -1), Tuple.Create(9, 25, -1) }),
+            new List<Tuple<int, int, int>>(new[] { Tuple.Create(8, 100, -1) }),
+            new List<Tuple<int, int, int>>(new[] { Tuple.Create(9, 50, -1), Tuple.Create(7, 25, -1), Tuple.Create(10, 25, -1) }),
+            new List<Tuple<int, int, int>>(new[] { Tuple.Create(10, 50, -1), Tuple.Create(9, 25, -1), Tuple.Create(7, 25, -1) }),
+            new List<Tuple<int, int, int>>(new[] { Tuple.Create(11, 100, -1) }),
+            new List<Tuple<int, int, int>>(new[] { Tuple.Create(12, 100, -1) }),
+            new List<Tuple<int, int, int>>(new[] { Tuple.Create(13, 100, -1) })
         };
 
         internal static void UnregisterGadget(int gadgetID)
@@ -72,7 +71,7 @@ namespace GadgetCore.API
         public static void SetVanillaExitPortalWeight(int planetID, int portalID, int weight)
         {
             if (!registeringVanilla && gadgetRegistering < 0) throw new InvalidOperationException("Data registration may only be performed by the Initialize method of a Gadget!");
-            if (planetID < 0 || planetID > VanillaWeightedExitPortalIDs.Length) throw new ArgumentOutOfRangeException("planetID");
+            if (planetID < 0 || planetID > VanillaWeightedExitPortalIDs.Length) throw new ArgumentOutOfRangeException(nameof(planetID));
             int index = VanillaWeightedExitPortalIDs[planetID].IndexOf(x => x.Item3 == Registry.gadgetRegistering);
             if (index != -1)
             {

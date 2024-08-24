@@ -1,12 +1,11 @@
 using HarmonyLib;
-using GadgetCore.API;
 using System.Collections.Generic;
 
 namespace GadgetCore.Patches
 {
     [HarmonyPatch(typeof(GameScript))]
     [HarmonyPatch("GetItemLevel")]
-    static class Patch_GameScript_GetItemLevel
+    internal static class Patch_GameScript_GetItemLevel
     {
         private static Queue<int> spoofLevels = new Queue<int>();
 

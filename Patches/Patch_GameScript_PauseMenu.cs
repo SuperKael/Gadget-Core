@@ -5,7 +5,7 @@ namespace GadgetCore.Patches
 {
     [HarmonyPatch(typeof(GameScript))]
     [HarmonyPatch("PauseMenu")]
-    static class Patch_GameScript_PauseMenu
+    internal static class Patch_GameScript_PauseMenu
     {
         [HarmonyPrefix]
         public static bool Prefix()

@@ -2,8 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using UnityEngine;
 
 namespace GadgetCore
@@ -97,7 +95,7 @@ namespace GadgetCore
         {
             lock (streamWriter)
             {
-                foreach (string line in (text?.ToString() ?? "null").Replace('\r', '\n').Split(new char[] { '\n' }, StringSplitOptions.RemoveEmptyEntries))
+                foreach (string line in (text?.ToString() ?? "null").Replace('\r', '\n').Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries))
                     streamWriter?.WriteLine("[" + DateTime.Now + "]" + (!string.IsNullOrEmpty(LoggerName) ? "[" + LoggerName + "]" : "") + "[Info] " + line);
             }
         }
@@ -110,7 +108,7 @@ namespace GadgetCore
             if (includeConsole) GadgetConsole.Print(text?.ToString() ?? "null", LoggerName, GadgetConsole.MessageSeverity.WARN);
             lock (streamWriter)
             {
-                foreach (string line in (text?.ToString() ?? "null").Replace('\r', '\n').Split(new char[] { '\n' }, StringSplitOptions.RemoveEmptyEntries))
+                foreach (string line in (text?.ToString() ?? "null").Replace('\r', '\n').Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries))
                     streamWriter?.WriteLine("[" + DateTime.Now + "]" + (!string.IsNullOrEmpty(LoggerName) ? "[" + LoggerName + "]" : "") + "[Warning] " + line);
             }
         }
@@ -123,7 +121,7 @@ namespace GadgetCore
             if (includeConsole) GadgetConsole.Print(text?.ToString() ?? "null", LoggerName, GadgetConsole.MessageSeverity.ERROR);
             lock (streamWriter)
             {
-                foreach (string line in (text?.ToString() ?? "null").Replace('\r', '\n').Split(new char[] { '\n' }, StringSplitOptions.RemoveEmptyEntries))
+                foreach (string line in (text?.ToString() ?? "null").Replace('\r', '\n').Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries))
                     streamWriter?.WriteLine("[" + DateTime.Now + "]" + (!string.IsNullOrEmpty(LoggerName) ? "[" + LoggerName + "]" : "") + "[Error] " + line);
             }
         }
@@ -135,7 +133,7 @@ namespace GadgetCore
         {
             lock (streamWriter)
             {
-                foreach (string line in (text?.ToString() ?? "null").Replace('\r', '\n').Split(new char[] { '\n' }, StringSplitOptions.RemoveEmptyEntries))
+                foreach (string line in (text?.ToString() ?? "null").Replace('\r', '\n').Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries))
                     streamWriter?.WriteLine("[" + DateTime.Now + "]" + (!string.IsNullOrEmpty(LoggerName) ? "[" + LoggerName + "]" : "") + line);
             }
         }

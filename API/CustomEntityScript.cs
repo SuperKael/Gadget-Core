@@ -4,7 +4,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
 using UnityEngine;
 
 namespace GadgetCore.API
@@ -298,7 +297,7 @@ namespace GadgetCore.API
         {
             get
             {
-                return m_Subordinates ?? (m_Subordinates = SubordinatesInternal.AsReadOnly());
+                return m_Subordinates ??= SubordinatesInternal.AsReadOnly();
             }
         }
         private ReadOnlyCollection<T> m_Subordinates;
@@ -442,7 +441,6 @@ namespace GadgetCore.API
         {
             yield return new WaitForSeconds(0.1f);
             networkReady = true;
-            yield break;
         }
 
         private IEnumerator TriggerAlternate()
@@ -482,7 +480,7 @@ namespace GadgetCore.API
         /// </summary>
         protected void SetVanillaStyleDrops(int percent30Drop, int percent25Drop, int percent20Drop, int failDrop = 0)
         {
-            vanillaStyleDrops = new int[]
+            vanillaStyleDrops = new[]
             {
                 percent30Drop,
                 percent25Drop,
@@ -509,7 +507,7 @@ namespace GadgetCore.API
         /// </summary>
         protected void AddVanillaR2Animations()
         {
-            animModes.InsertRange(0, new string[]
+            animModes.InsertRange(0, new[]
             {
                 "i",
                 "a",
@@ -518,7 +516,7 @@ namespace GadgetCore.API
                 "a2",
                 "r"
             });
-            resettingModes = new HashSet<int>(resettingModes.Select(x => x + 6).Union(new int[] { 1, 3, 4 }));
+            resettingModes = new HashSet<int>(resettingModes.Select(x => x + 6).Union(new[] { 1, 3, 4 }));
         }
 
         private IEnumerator InternalFixedUpdate()
@@ -823,7 +821,6 @@ namespace GadgetCore.API
             yield return new WaitForSeconds(1.5f);
             Network.RemoveRPCs(GetComponent<NetworkView>().viewID);
             Network.Destroy(gameObject);
-            yield break;
         }
 
         /// <summary>
@@ -846,7 +843,7 @@ namespace GadgetCore.API
             {
                 int num = UnityEngine.Random.Range(0, 100);
                 int num2 = UnityEngine.Random.Range(0, 90);
-                num2 += (int)(PlayerGearModsTracker.GetGearMods(FindObjectsOfType<PlayerScript>().MinBy(x => (x.transform.position - transform.position).sqrMagnitude))[21] * 1.5);
+                num2 += (int)(FindObjectsOfType<PlayerScript>().MinBy(x => (x.transform.position - transform.position).sqrMagnitude).GetGearMods()[21] * 1.5);
                 int num3 = 1;
                 if (num2 > 110)
                 {

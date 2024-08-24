@@ -81,7 +81,7 @@ namespace GadgetCore.API
         {
             List<string> commentList = new List<string>();
             commentList.AddRange(comments);
-            GenerateMetaComments(commentList, defaultValue, vanillaValue, requiresRestart, range: new int?[] { minValue, maxValue });
+            GenerateMetaComments(commentList, defaultValue, vanillaValue, requiresRestart, range: new[] { minValue, maxValue });
             if (!ConfigData.ContainsKey(key)) ConfigData[key] = defaultValue.ToString();
             ConfigData.GetKeyData(key).Comments = commentList;
             return int.Parse(ConfigData[key]);
@@ -94,7 +94,7 @@ namespace GadgetCore.API
         {
             List<string> commentList = new List<string>();
             commentList.AddRange(comments);
-            GenerateMetaComments(commentList, defaultValue, vanillaValue, requiresRestart, range: new long?[] { minValue, maxValue });
+            GenerateMetaComments(commentList, defaultValue, vanillaValue, requiresRestart, range: new[] { minValue, maxValue });
             if (!ConfigData.ContainsKey(key)) ConfigData[key] = defaultValue.ToString();
             ConfigData.GetKeyData(key).Comments = commentList;
             return long.Parse(ConfigData[key]);
@@ -107,7 +107,7 @@ namespace GadgetCore.API
         {
             List<string> commentList = new List<string>();
             commentList.AddRange(comments);
-            GenerateMetaComments(commentList, defaultValue, vanillaValue, requiresRestart, range: new float?[] { minValue, maxValue, decimals });
+            GenerateMetaComments(commentList, defaultValue, vanillaValue, requiresRestart, range: new[] { minValue, maxValue, decimals });
             if (!ConfigData.ContainsKey(key)) ConfigData[key] = defaultValue.ToString();
             ConfigData.GetKeyData(key).Comments = commentList;
             return float.Parse(ConfigData[key]);
@@ -120,7 +120,7 @@ namespace GadgetCore.API
         {
             List<string> commentList = new List<string>();
             commentList.AddRange(comments);
-            GenerateMetaComments(commentList, defaultValue, vanillaValue, requiresRestart, range: new double?[] { minValue, maxValue, decimals });
+            GenerateMetaComments(commentList, defaultValue, vanillaValue, requiresRestart, range: new[] { minValue, maxValue, decimals });
             if (!ConfigData.ContainsKey(key)) ConfigData[key] = defaultValue.ToString();
             ConfigData.GetKeyData(key).Comments = commentList;
             return double.Parse(ConfigData[key]);

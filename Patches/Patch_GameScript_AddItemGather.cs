@@ -7,7 +7,7 @@ namespace GadgetCore.Patches
 {
     [HarmonyPatch(typeof(GameScript))]
     [HarmonyPatch("AddItemGather")]
-    static class Patch_GameScript_AddItemGather
+    internal static class Patch_GameScript_AddItemGather
     {
         public static readonly MethodInfo RefreshSlotGather = typeof(GameScript).GetMethod("RefreshSlotGather", BindingFlags.Public | BindingFlags.Instance);
         public static readonly MethodInfo RefreshGatherStorage = typeof(GameScript).GetMethod("RefreshGatherStorage", BindingFlags.Public | BindingFlags.Instance);

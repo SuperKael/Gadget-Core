@@ -6,15 +6,13 @@ using System.Reflection.Emit;
 using System.Linq;
 using System.Reflection;
 using GadgetCore.Util;
-using System.IO;
 using System.Collections;
-using System;
 
 namespace GadgetCore.Patches
 {
     [HarmonyPatch(typeof(GameScript))]
     [HarmonyPatch("Update")]
-    static class Patch_GameScript_Update
+    internal static class Patch_GameScript_Update
     {
         public static readonly MethodInfo RefreshSlot = typeof(GameScript).GetMethod("RefreshSlot", BindingFlags.Public | BindingFlags.Instance);
 
@@ -43,7 +41,7 @@ namespace GadgetCore.Patches
                         {
                             if (___chunkWorldWall.grid[num6, num7] == 0)
                             {
-                                int[] value = new int[]
+                                int[] value = new[]
                                 {
                                         num4,
                                         num5,
@@ -66,7 +64,7 @@ namespace GadgetCore.Patches
                         {
                             if (___chunkWorld.gridSpecial[num6, num7] == 0 && ___chunkWorld.grid[num6, num7] == 0)
                             {
-                                int[] value3 = new int[]
+                                int[] value3 = new[]
                                 {
                                     num4,
                                     num5,
@@ -95,7 +93,7 @@ namespace GadgetCore.Patches
                                 }
                                 else
                                 {
-                                    int[] value2 = new int[]
+                                    int[] value2 = new[]
                                     {
                                             num4,
                                             num5,

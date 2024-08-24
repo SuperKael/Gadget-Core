@@ -1,15 +1,13 @@
 using HarmonyLib;
 using GadgetCore.API;
-using UnityEngine;
 using System;
 using System.Reflection;
 using System.Collections;
-using System.Linq;
 
 namespace GadgetCore.Patches
 {
     [HarmonyPatch]
-    static class Patch_GameScript_CalculateChests
+    internal static class Patch_GameScript_CalculateChests
     {
         public static Type IteratorType = typeof(GameScript).GetNestedType("<CalculateChests>c__Iterator38", BindingFlags.NonPublic);
         public static FieldInfo This = IteratorType.GetField("$this", BindingFlags.NonPublic | BindingFlags.Instance);

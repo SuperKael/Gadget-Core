@@ -6,7 +6,7 @@ namespace GadgetCore.Patches
 {
     [HarmonyPatch(typeof(GameScript))]
     [HarmonyPatch("RefreshGatherStorage")]
-    static class Patch_GameScript_RefreshGatherStorage
+    internal static class Patch_GameScript_RefreshGatherStorage
     {
         [HarmonyPostfix]
         public static void Postfix(GameScript __instance, ref Item[] ___gatherStorage)

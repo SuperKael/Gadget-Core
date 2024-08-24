@@ -91,7 +91,7 @@ namespace GadgetCore.API
             T entryType = Singleton.GetEntry(id).GetEntryType();
             if (!EqualityComparer<T>.Default.Equals(mask, default))
             {
-                MethodInfo maskAndOp = typeof(T).GetMethod("op_BitwiseAnd", new Type[] { typeof(T), typeof(T) });
+                MethodInfo maskAndOp = typeof(T).GetMethod("op_BitwiseAnd", new[] { typeof(T), typeof(T) });
                 type = (T)maskAndOp.Invoke(null, new object[] { type, mask });
                 entryType = (T)maskAndOp.Invoke(null, new object[] { entryType, mask });
             }

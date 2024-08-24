@@ -1,13 +1,12 @@
 using HarmonyLib;
 using GadgetCore.API;
-using UnityEngine;
 using GadgetCore.Util;
 
 namespace GadgetCore.Patches
 {
     [HarmonyPatch(typeof(GameScript))]
     [HarmonyPatch("GetUltimateCrafted")]
-    static class Patch_GameScript_GetUltimateCrafted
+    internal static class Patch_GameScript_GetUltimateCrafted
     {
         [HarmonyPrefix]
         public static bool Prefix(ref Item[] ___craft, ref Item __result)

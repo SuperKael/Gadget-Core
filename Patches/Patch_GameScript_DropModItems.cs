@@ -6,7 +6,7 @@ namespace GadgetCore.Patches
 {
     [HarmonyPatch(typeof(GameScript))]
     [HarmonyPatch("DropModItems")]
-    static class Patch_GameScript_DropModItems
+    internal static class Patch_GameScript_DropModItems
 	{
         [HarmonyPrefix]
         public static bool Prefix(GameScript __instance, ref Item[] ___modSlot)

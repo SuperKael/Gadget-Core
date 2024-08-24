@@ -8,7 +8,7 @@ namespace GadgetCore.Patches
 {
     [HarmonyPatch(typeof(GameScript))]
     [HarmonyPatch("UseItem")]
-    static class Patch_GameScript_UseItem
+    internal static class Patch_GameScript_UseItem
     {
         public static readonly FieldInfo usingItem = typeof(GameScript).GetField("usingItem", BindingFlags.NonPublic | BindingFlags.Instance);
         public static readonly FieldInfo curBlockSlot = typeof(GameScript).GetField("curBlockSlot", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -44,16 +44,16 @@ namespace GadgetCore.Patches
             int[] convertedIDs;
             if (usingItem)
             {
-                convertedIDs = new int[]
+                convertedIDs = new[]
                 {
-                    GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton, GameScript.equippedIDs[0]),
-                    GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton, GameScript.equippedIDs[1]),
-                    GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton, GameScript.equippedIDs[2]),
-                    GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton, GameScript.equippedIDs[3]),
-                    GadgetNetwork.ConvertIDToHost(null /* RaceRegistry */, GameScript.equippedIDs[4]),
+                    ItemRegistry.Singleton.ConvertIDToHost(GameScript.equippedIDs[0]),
+                    ItemRegistry.Singleton.ConvertIDToHost(GameScript.equippedIDs[1]),
+                    ItemRegistry.Singleton.ConvertIDToHost(GameScript.equippedIDs[2]),
+                    ItemRegistry.Singleton.ConvertIDToHost(GameScript.equippedIDs[3]),
+                    CharacterRaceRegistry.Singleton.ConvertIDToHost(GameScript.equippedIDs[4]),
                     GameScript.equippedIDs[5],
-                    GadgetNetwork.ConvertIDToHost(null /* UniformRegistry */, GameScript.equippedIDs[6]),
-                    GadgetNetwork.ConvertIDToHost(null /* AugmentRegistry */, GameScript.equippedIDs[7])
+                    CharacterUniformRegistry.Singleton.ConvertIDToHost(GameScript.equippedIDs[6]),
+                    CharacterAugmentRegistry.Singleton.ConvertIDToHost(GameScript.equippedIDs[7])
                 };
                 MenuScript.playerAppearance.GetComponent<NetworkView>().RPC("UA", RPCMode.AllBuffered, new object[]
                 {
@@ -99,16 +99,16 @@ namespace GadgetCore.Patches
             }
             else
             {
-                convertedIDs = new int[]
+                convertedIDs = new[]
                 {
-                    GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton, GameScript.equippedIDs[0]),
-                    GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton, GameScript.equippedIDs[1]),
-                    GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton, GameScript.equippedIDs[2]),
-                    GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton, GameScript.equippedIDs[3]),
-                    GadgetNetwork.ConvertIDToHost(null /* RaceRegistry */, GameScript.equippedIDs[4]),
+                    ItemRegistry.Singleton.ConvertIDToHost(GameScript.equippedIDs[0]),
+                    ItemRegistry.Singleton.ConvertIDToHost(GameScript.equippedIDs[1]),
+                    ItemRegistry.Singleton.ConvertIDToHost(GameScript.equippedIDs[2]),
+                    ItemRegistry.Singleton.ConvertIDToHost(GameScript.equippedIDs[3]),
+                    CharacterRaceRegistry.Singleton.ConvertIDToHost(GameScript.equippedIDs[4]),
                     GameScript.equippedIDs[5],
-                    GadgetNetwork.ConvertIDToHost(null /* UniformRegistry */, GameScript.equippedIDs[6]),
-                    GadgetNetwork.ConvertIDToHost(null /* AugmentRegistry */, GameScript.equippedIDs[7])
+                    CharacterUniformRegistry.Singleton.ConvertIDToHost(GameScript.equippedIDs[6]),
+                    CharacterAugmentRegistry.Singleton.ConvertIDToHost(GameScript.equippedIDs[7])
                 };
                 MenuScript.playerAppearance.GetComponent<NetworkView>().RPC("UA", RPCMode.AllBuffered, new object[]
                 {
@@ -123,16 +123,16 @@ namespace GadgetCore.Patches
             }
             yield return new WaitForSeconds(0.1f);
             GameScript.equippedIDs[0] = tempID;
-            convertedIDs = new int[]
+            convertedIDs = new[]
             {
-                GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton, GameScript.equippedIDs[0]),
-                GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton, GameScript.equippedIDs[1]),
-                GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton, GameScript.equippedIDs[2]),
-                GadgetNetwork.ConvertIDToHost(ItemRegistry.Singleton, GameScript.equippedIDs[3]),
-                GadgetNetwork.ConvertIDToHost(null /* RaceRegistry */, GameScript.equippedIDs[4]),
+                ItemRegistry.Singleton.ConvertIDToHost(GameScript.equippedIDs[0]),
+                ItemRegistry.Singleton.ConvertIDToHost(GameScript.equippedIDs[1]),
+                ItemRegistry.Singleton.ConvertIDToHost(GameScript.equippedIDs[2]),
+                ItemRegistry.Singleton.ConvertIDToHost(GameScript.equippedIDs[3]),
+                CharacterRaceRegistry.Singleton.ConvertIDToHost(GameScript.equippedIDs[4]),
                 GameScript.equippedIDs[5],
-                GadgetNetwork.ConvertIDToHost(null /* UniformRegistry */, GameScript.equippedIDs[6]),
-                GadgetNetwork.ConvertIDToHost(null /* AugmentRegistry */, GameScript.equippedIDs[7])
+                CharacterUniformRegistry.Singleton.ConvertIDToHost(GameScript.equippedIDs[6]),
+                CharacterAugmentRegistry.Singleton.ConvertIDToHost(GameScript.equippedIDs[7])
             };
             MenuScript.playerAppearance.GetComponent<NetworkView>().RPC("UA", RPCMode.AllBuffered, new object[]
             {
@@ -140,14 +140,12 @@ namespace GadgetCore.Patches
                 0,
                 GameScript.dead
             });
-            yield break;
         }
 
         private static IEnumerator UsingItem(GameScript instance)
         {
             yield return new WaitForSeconds(0.2f);
             usingItem.SetValue(instance, false);
-            yield break;
         }
     }
 }

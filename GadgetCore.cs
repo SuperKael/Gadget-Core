@@ -3,21 +3,16 @@ using UnityEngine.SceneManagement;
 using System.Reflection;
 using System.Collections.Generic;
 using System;
-using System.Diagnostics;
 using System.Linq;
 using GadgetCore.API;
 using System.IO;
-using JetBrains.Annotations;
 using GadgetCore.Loader;
-using System.Threading;
 using HarmonyLib;
 using IniParser.Model;
 using System.Diagnostics.CodeAnalysis;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
-using GadgetCore.Util;
 using Ionic.Zip;
-using System.Text.RegularExpressions;
 using Debug = UnityEngine.Debug;
 
 namespace GadgetCore
@@ -210,7 +205,7 @@ namespace GadgetCore
                         using StreamReader streamReader = new StreamReader(fileStream);
                         string logData = string.Join("\n",
                             streamReader.ReadToEnd().Replace('\r', '\n')
-                                .Split(new char[] { '\n' }, StringSplitOptions.RemoveEmptyEntries)
+                                .Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries)
                                 .Select(frame => string.IsNullOrEmpty(frame) ? frame : "  " + frame).ToArray());
                         UnityLogger.LogRaw("=====Begin Unity log prior to GadgetCore initialization=====");
                         UnityLogger.LogRaw(logData);
@@ -516,13 +511,13 @@ namespace GadgetCore
                             content = content.Substring(0, content.Length - 1);
                         }
                     }
-                    string[] array = content.Split(new string[]
+                    string[] array = content.Split(new[]
                     {
                         " ; "
                     }, StringSplitOptions.RemoveEmptyEntries);
                     foreach (string text in array)
                     {
-                        string[] array3 = text.Split(new string[]
+                        string[] array3 = text.Split(new[]
                         {
                             " : "
                         }, StringSplitOptions.None);

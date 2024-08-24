@@ -10,7 +10,7 @@ namespace GadgetCore.Patches
 {
     [HarmonyPatch(typeof(WormScript))]
     [HarmonyPatch("DropLocal")]
-    static class Patch_WormScript_DropLocal
+    internal static class Patch_WormScript_DropLocal
     {
         public static readonly MethodInfo SpawnExp = typeof(GadgetCoreAPI).GetMethod("SpawnExp", BindingFlags.Public | BindingFlags.Static);
         public static readonly MethodInfo get_position = typeof(Transform).GetMethod("get_position", BindingFlags.Public | BindingFlags.Instance);
@@ -27,7 +27,7 @@ namespace GadgetCore.Patches
         {
             TranspilerHelper.CILProcessor p = TranspilerHelper.CreateProcessor(instructions, gen);
 
-            TranspilerHelper.CILProcessor.ILRef recordRef = p.FindRefByInsns(new CodeInstruction[] {
+            TranspilerHelper.CILProcessor.ILRef recordRef = p.FindRefByInsns(new[] {
                 new CodeInstruction(OpCodes.Ldsfld, "System.Int32[] record"),
                 new CodeInstruction(OpCodes.Ldsfld, "System.Int32 curBiome"),
                 new CodeInstruction(OpCodes.Ldelema, "System.Int32"),
@@ -44,7 +44,7 @@ namespace GadgetCore.Patches
             p.InjectInsn(recordRef, new CodeInstruction(OpCodes.Ldc_I4_8));
             p.InjectInsn(recordRef, new CodeInstruction(OpCodes.Bge, label));
 
-            TranspilerHelper.CILProcessor.ILRef loopRef = p.FindRefByInsns(new CodeInstruction[] {
+            TranspilerHelper.CILProcessor.ILRef loopRef = p.FindRefByInsns(new[] {
                 new CodeInstruction(OpCodes.Ldarg_0),
                 new CodeInstruction(OpCodes.Ldfld, "System.Int32 exp"),
                 new CodeInstruction(OpCodes.Ldc_I4_0),
@@ -53,12 +53,12 @@ namespace GadgetCore.Patches
             TranspilerHelper.CILProcessor.ILRef branchRef = p.FindRefByInsn(new CodeInstruction(OpCodes.Br, p.GetInsn(loopRef).labels[0]));
             List<Label> labels = p.GetInsn(branchRef).labels;
             p.RemoveInsns(branchRef, loopRef.Index - branchRef.Index);
-            TranspilerHelper.CILProcessor.ILRef newRef = p.InjectInsns(loopRef, new CodeInstruction[] {
+            TranspilerHelper.CILProcessor.ILRef newRef = p.InjectInsns(loopRef, new[] {
                 new CodeInstruction(OpCodes.Ldarg_0),
                 new CodeInstruction(OpCodes.Ldfld, t),
                 new CodeInstruction(OpCodes.Callvirt, get_position)
                 });
-            p.InjectInsns(loopRef.GetRefByOffset(2), new CodeInstruction[] {
+            p.InjectInsns(loopRef.GetRefByOffset(2), new[] {
                 new CodeInstruction(OpCodes.Ldc_R4, 0f),
                 new CodeInstruction(OpCodes.Call, SpawnExp)
                 }, false);

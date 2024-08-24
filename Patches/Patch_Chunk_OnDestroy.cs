@@ -1,15 +1,11 @@
 using HarmonyLib;
-using GadgetCore.API;
-using System.Collections;
 using UnityEngine;
-using System.Collections.Generic;
-using System;
 
 namespace GadgetCore.Patches
 {
     [HarmonyPatch(typeof(Chunk))]
     [HarmonyPatch("OnDestroy")]
-    static class Patch_Chunk_OnDestroy
+    internal static class Patch_Chunk_OnDestroy
     {
         [HarmonyPostfix]
         public static void Postfix(ref GameObject[] ___networkStuff)

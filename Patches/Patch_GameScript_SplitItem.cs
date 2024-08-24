@@ -1,13 +1,12 @@
 using HarmonyLib;
 using GadgetCore.API;
-using System.Reflection;
 using UnityEngine;
 
 namespace GadgetCore.Patches
 {
     [HarmonyPatch(typeof(GameScript))]
     [HarmonyPatch("SplitItem")]
-    static class Patch_GameScript_SplitItem
+    internal static class Patch_GameScript_SplitItem
     {
         [HarmonyPrefix]
         public static bool Prefix(GameScript __instance, int slot, ref Item ___holdingItem, ref Item[] ___inventory)
