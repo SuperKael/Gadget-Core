@@ -23,7 +23,7 @@ namespace GadgetCore.API
         /// <summary>
         /// The version numbers for this version of Gadget Core. You generally shouldn't access this directly, instead use <see cref="GetRawVersion()"/>
         /// </summary>
-        public const string RAW_VERSION = "2.0.7.5";
+        public const string RAW_VERSION = "2.0.7.6";
         /// <summary>
         /// A slightly more informative version. You generally shouldn't access this directly, instead use <see cref="GetFullVersion()"/>
         /// </summary>
@@ -390,6 +390,22 @@ namespace GadgetCore.API
         public static Item EmptyItem()
         {
             return new Item(0, 0, 0, 0, 0, new int[3], new int[3]);
+        }
+
+        /// <summary>
+        /// Creates a new item with the specific parameters. Mirrors the Item constructor, but with every parameter except the ID being optional for convenience.
+        /// </summary>
+        public static Item ConstructItem(ItemInfo item, int q = 1, int exp = 0, int tier = 0, int corrupted = 0, int[] aspect = null, int[] aspectLvl = null)
+        {
+            return new Item(item.ID, q, exp, tier, corrupted, aspect ?? new int[3], aspectLvl ?? new int[3]);
+        }
+
+        /// <summary>
+        /// Creates a new item with the specific parameters. Mirrors the Item constructor, but with every parameter except the ID being optional for convenience.
+        /// </summary>
+        public static Item ConstructItem(int id, int q = 1, int exp = 0, int tier = 0, int corrupted = 0, int[] aspect = null, int[] aspectLvl = null)
+        {
+            return new Item(id, q, exp, tier, corrupted, aspect ?? new int[3], aspectLvl ?? new int[3]);
         }
 
         /// <summary>

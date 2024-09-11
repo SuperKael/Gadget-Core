@@ -10,6 +10,7 @@ using GadgetCore.Loader;
 using HarmonyLib;
 using IniParser.Model;
 using System.Diagnostics.CodeAnalysis;
+using System.IO.IsolatedStorage;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using Ionic.Zip;
@@ -17,7 +18,12 @@ using Debug = UnityEngine.Debug;
 
 namespace GadgetCore
 {
-    internal class GadgetCore : MonoBehaviour
+    /// <summary>
+    /// The 'Core' of GadgetCore - where the magic happens, or more accurately where it begins. Among other things, contains the <see cref="Initialize"/> method,
+    /// which is the entrypoint for all of GadgetCore's functionality. However, this class is not intended for mods to access at all, and is only public
+    /// because it needs to be in order to make that entrypoint accessible.
+    /// </summary>
+    public class GadgetCore : MonoBehaviour
     {
         private static bool Initialized;
         internal static volatile bool Quitting = false;
@@ -114,7 +120,10 @@ namespace GadgetCore
             GadgetConsole.hidThisFrame = false;
         }
 
-        internal static void Initialize()
+        /// <summary>
+        /// The entrypoint for all of GadgetCore. Will do nothing if called again by a mod.
+        /// </summary>
+        public static void Initialize()
         {
             if (Initialized) return;
             Initialized = true;
@@ -227,10 +236,17 @@ namespace GadgetCore
             }
             try
             {
-                GadgetLoader.LoadSymbolsInternal("GadgetCore",
-                    File.ReadAllBytes(Path.Combine(GadgetPaths.ManagedPath, "GadgetCore.dll")),
-                    File.ReadAllBytes(Path.Combine(GadgetPaths.ManagedPath, "GadgetCore.pdb")))
-                    .Wait(10000);
+                try
+                {
+                    GadgetLoader.LoadSymbolsInternal("GadgetCore",
+                            File.ReadAllBytes(Path.Combine(GadgetPaths.ManagedPath, "GadgetCore.dll")),
+                            File.ReadAllBytes(Path.Combine(GadgetPaths.ManagedPath, "GadgetCore.pdb")))
+                        .Wait(10000);
+                }
+                catch (Exception e)
+                {
+                    CoreLogger.LogWarning("Failed to log GadgetCore symbols due to an exception: " + e.Message, false);
+                }
 
                 if (File.Exists(Application.persistentDataPath + "/PlayerPrefs.txt"))
                 {
