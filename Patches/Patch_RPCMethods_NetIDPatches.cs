@@ -7,6 +7,7 @@ namespace GadgetCore.Patches.NetIDPatches
 {
     [HarmonyPatch(typeof(TurretScript))]
     [HarmonyPatch("ShootProjectile")]
+    [HarmonyPriority(Priority.Low)]
     internal static class Patch_TurretScript_ShootProjectile
     {
         public static readonly MethodInfo RPCMethod = typeof(TurretScript).GetMethod("ShootProjectile", BindingFlags.Public | BindingFlags.Instance);
@@ -25,6 +26,7 @@ namespace GadgetCore.Patches.NetIDPatches
 
     [HarmonyPatch(typeof(SpawnerScript))]
     [HarmonyPatch("CreateWorld")]
+    [HarmonyPriority(Priority.Low)]
     internal static class Patch_SpawnerScript_CreateWorld
     {
         public static readonly MethodInfo RPCMethod = typeof(SpawnerScript).GetMethod("CreateWorld", BindingFlags.Public | BindingFlags.Instance);
@@ -47,6 +49,7 @@ namespace GadgetCore.Patches.NetIDPatches
 
     [HarmonyPatch(typeof(SpawnerScript))]
     [HarmonyPatch("CreateTown")]
+    [HarmonyPriority(Priority.Low)]
     internal static class Patch_SpawnerScript_CreateTown
     {
         public static readonly MethodInfo RPCMethod = typeof(SpawnerScript).GetMethod("CreateTown", BindingFlags.Public | BindingFlags.Instance);
@@ -65,6 +68,7 @@ namespace GadgetCore.Patches.NetIDPatches
 
     [HarmonyPatch(typeof(ProjectileMaker))]
     [HarmonyPatch("SpawnProjectile")]
+    [HarmonyPriority(Priority.Low)]
     internal static class Patch_ProjectileMaker_SpawnProjectile
     {
         public static readonly MethodInfo RPCMethod = typeof(ProjectileMaker).GetMethod("SpawnProjectile", BindingFlags.Public | BindingFlags.Instance);
@@ -83,6 +87,7 @@ namespace GadgetCore.Patches.NetIDPatches
 
     [HarmonyPatch(typeof(Projectile))]
     [HarmonyPatch("SetNetworked")]
+    [HarmonyPriority(Priority.Low)]
     internal static class Patch_Projectile_SetNetworked
     {
         public static readonly MethodInfo RPCMethod = typeof(Projectile).GetMethod("SetNetworked", BindingFlags.Public | BindingFlags.Instance);
@@ -101,6 +106,7 @@ namespace GadgetCore.Patches.NetIDPatches
 
     [HarmonyPatch(typeof(PortalScript))]
     [HarmonyPatch("SetName")]
+    [HarmonyPriority(Priority.Low)]
     internal static class Patch_PortalScript_SetName
     {
         public static readonly MethodInfo RPCMethod = typeof(PortalScript).GetMethod("SetName", BindingFlags.Public | BindingFlags.Instance);
@@ -119,6 +125,7 @@ namespace GadgetCore.Patches.NetIDPatches
 
     [HarmonyPatch(typeof(PortalAppearance))]
     [HarmonyPatch("Set")]
+    [HarmonyPriority(Priority.Low)]
     internal static class Patch_PortalAppearance_Set
     {
         public static readonly MethodInfo RPCMethod = typeof(PortalAppearance).GetMethod("Set", BindingFlags.Public | BindingFlags.Instance);
@@ -137,6 +144,7 @@ namespace GadgetCore.Patches.NetIDPatches
 
     [HarmonyPatch(typeof(PlayerScript))]
     [HarmonyPatch("Staff")]
+    [HarmonyPriority(Priority.Low)]
     internal static class Patch_PlayerScript_Staff
     {
         public static readonly MethodInfo RPCMethod = typeof(PlayerScript).GetMethod("Staff", BindingFlags.Public | BindingFlags.Instance);
@@ -155,6 +163,7 @@ namespace GadgetCore.Patches.NetIDPatches
 
     [HarmonyPatch(typeof(PlayerScript))]
     [HarmonyPatch("ShootSpecial")]
+    [HarmonyPriority(Priority.Low)]
     internal static class Patch_PlayerScript_ShootSpecial
     {
         public static readonly MethodInfo RPCMethod = typeof(PlayerScript).GetMethod("ShootSpecial", BindingFlags.Public | BindingFlags.Instance);
@@ -173,6 +182,7 @@ namespace GadgetCore.Patches.NetIDPatches
 
     [HarmonyPatch(typeof(PlayerScript))]
     [HarmonyPatch("ShootProjectile")]
+    [HarmonyPriority(Priority.Low)]
     internal static class Patch_PlayerScript_ShootProjectile
     {
         public static readonly MethodInfo RPCMethod = typeof(PlayerScript).GetMethod("ShootProjectile", BindingFlags.Public | BindingFlags.Instance);
@@ -197,6 +207,7 @@ namespace GadgetCore.Patches.NetIDPatches
 
     [HarmonyPatch(typeof(PlayerScript))]
     [HarmonyPatch("ShootProjectile2")]
+    [HarmonyPriority(Priority.Low)]
     internal static class Patch_PlayerScript_ShootProjectile2
     {
         public static readonly MethodInfo RPCMethod = typeof(PlayerScript).GetMethod("ShootProjectile2", BindingFlags.Public | BindingFlags.Instance);
@@ -211,16 +222,11 @@ namespace GadgetCore.Patches.NetIDPatches
             }
             ItemRegistry.Singleton.ConvertIDToLocal(ref id);
         }
-
-        [HarmonyPostfix]
-        public static void Postfix()
-        {
-
-        }
     }
 
     [HarmonyPatch(typeof(PlayerScript))]
     [HarmonyPatch("NetworkedProjectile")]
+    [HarmonyPriority(Priority.Low)]
     internal static class Patch_PlayerScript_NetworkedProjectile
     {
         public static readonly MethodInfo RPCMethod = typeof(PlayerScript).GetMethod("NetworkedProjectile", BindingFlags.Public | BindingFlags.Instance);
@@ -239,6 +245,7 @@ namespace GadgetCore.Patches.NetIDPatches
 
     [HarmonyPatch(typeof(PlayerAppearance))]
     [HarmonyPatch("UA")]
+    [HarmonyPriority(Priority.Low)]
     internal static class Patch_PlayerAppearance_UA
     {
         public static readonly MethodInfo RPCMethod = typeof(PlayerAppearance).GetMethod("UA", BindingFlags.Public | BindingFlags.Instance);
@@ -263,10 +270,10 @@ namespace GadgetCore.Patches.NetIDPatches
 
     [HarmonyPatch(typeof(KylockeStand))]
     [HarmonyPatch("Set")]
+    [HarmonyPriority(Priority.Low)]
     internal static class Patch_KylockeStand_Set
     {
         public static readonly MethodInfo RPCMethod = typeof(KylockeStand).GetMethod("Set", BindingFlags.Public | BindingFlags.Instance);
-
 
         [HarmonyPrefix]
         public static void Prefix(KylockeStand __instance, ref int[] p)
@@ -282,6 +289,7 @@ namespace GadgetCore.Patches.NetIDPatches
 
     [HarmonyPatch(typeof(ItemStandScript))]
     [HarmonyPatch("Set")]
+    [HarmonyPriority(Priority.Low)]
     internal static class Patch_ItemStandScript_Set
     {
         public static readonly MethodInfo RPCMethod = typeof(ItemStandScript).GetMethod("Set", BindingFlags.Public | BindingFlags.Instance);
@@ -300,6 +308,7 @@ namespace GadgetCore.Patches.NetIDPatches
 
     [HarmonyPatch(typeof(ItemScript))]
     [HarmonyPatch("Chip")]
+    [HarmonyPriority(Priority.Low)]
     internal static class Patch_ItemScript_Chip
     {
         public static readonly MethodInfo RPCMethod = typeof(ItemScript).GetMethod("Chip", BindingFlags.Public | BindingFlags.Instance);
@@ -318,6 +327,7 @@ namespace GadgetCore.Patches.NetIDPatches
 
     [HarmonyPatch(typeof(GameScript))]
     [HarmonyPatch("SpawnItem")]
+    [HarmonyPriority(Priority.Low)]
     internal static class Patch_GameScript_SpawnItem
     {
         public static readonly MethodInfo RPCMethod = typeof(GameScript).GetMethod("SpawnItem", BindingFlags.Public | BindingFlags.Instance);
@@ -339,6 +349,7 @@ namespace GadgetCore.Patches.NetIDPatches
 
     [HarmonyPatch(typeof(GameScript))]
     [HarmonyPatch("ChangePortal")]
+    [HarmonyPriority(Priority.Low)]
     internal static class Patch_GameScript_ChangePortal
     {
         public static readonly MethodInfo RPCMethod = typeof(GameScript).GetMethod("ChangePortal", BindingFlags.Public | BindingFlags.Instance);
@@ -357,6 +368,7 @@ namespace GadgetCore.Patches.NetIDPatches
 
     [HarmonyPatch(typeof(GameScript))]
     [HarmonyPatch("ChangePortal2")]
+    [HarmonyPriority(Priority.Low)]
     internal static class Patch_GameScript_ChangePortal2
     {
         public static readonly MethodInfo RPCMethod = typeof(GameScript).GetMethod("ChangePortal2", BindingFlags.Public | BindingFlags.Instance);
@@ -375,6 +387,7 @@ namespace GadgetCore.Patches.NetIDPatches
 
     [HarmonyPatch(typeof(DroidScript))]
     [HarmonyPatch("ShootProjectile")]
+    [HarmonyPriority(Priority.Low)]
     internal static class Patch_DroidScript_ShootProjectile
     {
         public static readonly MethodInfo RPCMethod = typeof(DroidScript).GetMethod("ShootProjectile", BindingFlags.Public | BindingFlags.Instance);
@@ -393,6 +406,7 @@ namespace GadgetCore.Patches.NetIDPatches
 
     [HarmonyPatch(typeof(DroidManager))]
     [HarmonyPatch("UA")]
+    [HarmonyPriority(Priority.Low)]
     internal static class Patch_DroidManager_UA
     {
         public static readonly MethodInfo RPCMethod = typeof(DroidManager).GetMethod("UA", BindingFlags.Public | BindingFlags.Instance);
@@ -414,6 +428,7 @@ namespace GadgetCore.Patches.NetIDPatches
 
     [HarmonyPatch(typeof(ChunkWorld))]
     [HarmonyPatch("RefreshWall")]
+    [HarmonyPriority(Priority.Low)]
     internal static class Patch_ChunkWorld_RefreshWall
     {
         public static readonly MethodInfo RPCMethod = typeof(ChunkWorld).GetMethod("RefreshWall", BindingFlags.Public | BindingFlags.Instance);
@@ -432,25 +447,28 @@ namespace GadgetCore.Patches.NetIDPatches
 
     [HarmonyPatch(typeof(ChunkWorld))]
     [HarmonyPatch("RefreshShip")]
+    [HarmonyPriority(Priority.Low)]
     internal static class Patch_ChunkWorld_RefreshShip
     {
         public static readonly MethodInfo RPCMethod = typeof(ChunkWorld).GetMethod("RefreshShip", BindingFlags.Public | BindingFlags.Instance);
 
         [HarmonyPrefix]
-        public static void Prefix(ChunkWorld __instance, ref int[] gg, ref int[] ggs)
+        public static bool Prefix(ChunkWorld __instance, ref int[] gg, ref int[] ggs)
         {
             if (!GadgetNetwork.MatrixReady && GadgetNetwork.GetTimeSinceConnect() < GadgetNetwork.MatrixTimeout)
             {
                 __instance.StartCoroutine(GadgetUtils.WaitAndInvoke(RPCMethod, GadgetNetwork.MatrixTimeout - GadgetNetwork.GetTimeSinceConnect(), () => GadgetNetwork.MatrixReady, __instance, gg, ggs));
-                return;
+                return false;
             }
             TileRegistry.Singleton.ConvertIDsToLocal(ref gg);
             TileRegistry.Singleton.ConvertIDsToLocal(ref ggs);
+            return true;
         }
     }
 
     [HarmonyPatch(typeof(Chunk))]
     [HarmonyPatch("SetMaterial")]
+    [HarmonyPriority(Priority.Low)]
     internal static class Patch_Chunk_SetMaterial
     {
         public static readonly MethodInfo RPCMethod = typeof(Chunk).GetMethod("SetMaterial", BindingFlags.Public | BindingFlags.Instance);

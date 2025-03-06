@@ -255,7 +255,13 @@ namespace GadgetCore
         [RPC]
         internal void NetworkInstantiate(string path, Vector3 position, Quaternion rotation, int group, NetworkViewID viewID)
         {
-            InstantiateWithNetworkView(Resources.Load(path), position, rotation, group, viewID);
+            Object objectToInstantiate = Resources.Load(path);
+            if (objectToInstantiate == null)
+            {
+                GadgetCore.CoreLogger.LogWarning($"Tried to instantiate resource {path} with viewID {viewID}, but that resource is invalid!");
+                return;
+            }
+            InstantiateWithNetworkView(objectToInstantiate, position, rotation, group, viewID);
         }
 
         private static GameObject InstantiateWithNetworkView(Object original, Vector3 position, Quaternion rotation, int group, NetworkViewID viewID)
