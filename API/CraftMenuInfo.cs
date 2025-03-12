@@ -1083,7 +1083,7 @@ namespace GadgetCore.API
         {
             return Tuple.Create<SlotValidator, CraftValidator, CraftPerformer>((Item newItem, Item[] items, int slot) =>
             {
-                return recipes.Any(x => x.Slots[slot].Type != AdvancedRecipeComponentType.UNUSED && (x.Slots[slot].Type & AdvancedRecipeComponentType.OUTPUT) == AdvancedRecipeComponentType.INPUT && x.Slots[slot].Fuzzy ? x.Slots[slot].Item.id == newItem.id : GadgetCoreAPI.MatchItems(x.Slots[slot].Item, newItem));
+                return recipes.Any(x => x.Slots[slot].Type != AdvancedRecipeComponentType.UNUSED && (x.Slots[slot].Type & AdvancedRecipeComponentType.OUTPUT) == AdvancedRecipeComponentType.INPUT && x.Slots[slot].Matches(newItem));
             }, (Item[] items) =>
             {
                 return recipes.Any(x =>
@@ -1096,7 +1096,7 @@ namespace GadgetCore.API
                         (x.Slots[i].Type & AdvancedRecipeComponentType.OUTPUT) == AdvancedRecipeComponentType.INPUT ?
 
                         (isSlotEmpty || items[i].q < x.Slots[i].Item.q + Math.Max(x.Slots[i].QuantityVariation, 0) ||
-                        (x.Slots[i].Fuzzy ? x.Slots[i].Item.id != items[i].id : !GadgetCoreAPI.MatchItems(x.Slots[i].Item, items[i]))) : // Input slot
+                        !x.Slots[i].Matches(items[i])) : // Input slot
 
                         !isSlotEmpty && (!GadgetCoreAPI.CanItemsStack(x.Slots[i].Item, items[i]) || // Output slot
                         items[i].q + x.Slots[i].Item.q + x.Slots[i].QuantityVariation > 9999)) return false;
@@ -1116,7 +1116,7 @@ namespace GadgetCore.API
                            (recipe.Slots[i].Type & AdvancedRecipeComponentType.OUTPUT) == AdvancedRecipeComponentType.INPUT ?
 
                            (isSlotEmpty || items[i].q < recipe.Slots[i].Item.q + Math.Max(recipe.Slots[i].QuantityVariation, 0) ||
-                           (recipe.Slots[i].Fuzzy ? recipe.Slots[i].Item.id != items[i].id : !GadgetCoreAPI.MatchItems(recipe.Slots[i].Item, items[i]))) : // Input slot
+                           !recipe.Slots[i].Matches(items[i])) : // Input slot
 
                            !isSlotEmpty && (!GadgetCoreAPI.CanItemsStack(recipe.Slots[i].Item, items[i]) || // Output slot
                            items[i].q + recipe.Slots[i].Item.q + recipe.Slots[i].QuantityVariation > 9999))
@@ -1274,6 +1274,15 @@ namespace GadgetCore.API
                 Type = type;
                 Fuzzy = fuzzy;
                 QuantityVariation = quantityVariation;
+            }
+
+            /// <summary>
+            /// Checks if the given item matches this component's requirement
+            /// Can be overridden for more advanced logic
+            /// </summary>
+            public bool Matches(Item item)
+            {
+                return Fuzzy ? Item.id == item.id : GadgetCoreAPI.MatchItems(item, Item);
             }
         }
 
