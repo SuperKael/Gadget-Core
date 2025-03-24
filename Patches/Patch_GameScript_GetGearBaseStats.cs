@@ -8,7 +8,7 @@ namespace GadgetCore.Patches
     internal static class Patch_GameScript_GetGearBaseStats
     {
         [HarmonyPrefix]
-        public static bool Prefix(GameScript __instance, int id, ref int[] __result)
+        public static bool Prefix(int id, ref int[] __result)
         {
             if (ItemRegistry.Singleton.HasEntry(id))
             {

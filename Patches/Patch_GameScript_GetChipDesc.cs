@@ -21,6 +21,7 @@ namespace GadgetCore.Patches
         [HarmonyPostfix]
         public static void Postfix(GameScript __instance, int id, ref string __result)
         {
+            if (__instance == null) return;
             if (id != 0 && string.IsNullOrEmpty(__result) && (__instance.GetChipName(id) == "Missing Modded Combat Chip!" || __instance.GetChipName(id) == "Invalid Combat Chip!"))
             {
                 if (id >= ChipRegistry.Singleton.GetIDStart())
