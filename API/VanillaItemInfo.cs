@@ -30,7 +30,7 @@ namespace GadgetCore.API
             if ((Type & ItemType.EQUIP_MASK) == (ItemType.WEAPON & ItemType.EQUIP_MASK))
             {
                 SetWeaponInfo(ItemRegistry.GetDefaultWeaponScalingByID(ID), GadgetCoreAPI.GetAttackSound(ID), ItemRegistry.GetDefaultCritChanceBonus(ID), ItemRegistry.GetDefaultCritPowerBonus(ID), ID);
-                OnAttack += (script) => { Attacking = true; IEnumerator ie = script.Attack(); Attacking = false; return ie; };
+                OnAttack += VanillaAttackDelegate;
             }
             else if ((Type & ItemType.USABLE) == ItemType.USABLE)
             {
@@ -58,6 +58,17 @@ namespace GadgetCore.API
             VanillaItemInfo itemInfo = Wrappers.ContainsKey(ID) ? Wrappers[ID] : (Wrappers[ID] = new VanillaItemInfo(ID, true));
             if (register && itemInfo.RegistryName == null) itemInfo.Register(itemInfo.Name, ID, true);
             return itemInfo;
+        }
+
+        /// <summary>
+        /// Delegate for invoking the vanilla Attack method. It does not make much sense to call this yourself, but you can reference it to unsubscribe the delegate
+        /// from the OnAttack event if you wish.
+        /// </summary>
+        public static IEnumerator VanillaAttackDelegate(PlayerScript script)
+        {
+            Attacking = true;
+            yield return script.Attack();
+            Attacking = false;
         }
     }
 }
