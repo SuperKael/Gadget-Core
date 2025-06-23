@@ -387,6 +387,7 @@ namespace GadgetCore
             modMenuDescText.font = ModConfigMenuText.GetComponent<TextMesh>().font;
             modMenuDescText.fontSize = 12;
             modMenuDescText.horizontalOverflow = HorizontalWrapMode.Wrap;
+            modMenuDescText.supportRichText = true;
             modMenuDescText.GetComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
             ModMenuDescPanel.GetComponent<ScrollRect>().content = modMenuDescText.rectTransform;
             ModMenuDescPanel.GetComponent<ScrollRect>().horizontal = false;
