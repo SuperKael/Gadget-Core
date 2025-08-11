@@ -179,17 +179,17 @@ namespace GadgetCore
                                 }
                                 if (blameMod != null)
                                 {
-                                    UnityLogger.LogError($"<Exception from {blameMod.Name}> " + text);
+                                    UnityLogger.LogError($"<Exception from {blameMod.Name}> " + text, GadgetCoreConfig.LogExceptions);
                                 }
                                 else
                                 {
-                                    UnityLogger.LogError("<Exception> " + text);
+                                    UnityLogger.LogError("<Exception> " + text, GadgetCoreConfig.LogExceptions);
                                 }
                                 UnityLogger.LogRaw(string.Join("\n", stackTrace.Split('\n').Where(frame => !string.IsNullOrEmpty(frame)).Select(frame => "[StackTrace]  " + frame).ToArray()));
                             }
                             else
                             {
-                                UnityLogger.LogError("<Exception> " + text);
+                                UnityLogger.LogError("<Exception> " + text, GadgetCoreConfig.LogExceptions);
                             }
                             break;
                     }

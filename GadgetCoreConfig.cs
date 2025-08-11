@@ -25,6 +25,11 @@ namespace GadgetCore
         /// Whether to use the standard hover box for droids, rather than the text-based description.
         /// </summary>
         public static bool BetterDroidHover { get; private set; } = true;
+
+        /// <summary>
+        /// Whether to log exceptions (errors) to the in-game console. If exception logs from vanilla issues like Scheg's Bow and the Experiments in The Cathedral are bothering you, you can disable this.
+        /// </summary>
+        public static bool LogExceptions { get; private set; } = true;
         /// <summary>
         /// The maximum connections allowed when hosting a game. This value is irrelevant if we are the client, not the host.
         /// </summary>
@@ -66,6 +71,7 @@ namespace GadgetCore
 
             MaxBackups = cfg.ReadInt("MaxBackups", 30, 0, false, 0, int.MaxValue, "The maximum number of save backups to keep at any one time. Disables backups if set to 0");
             MaxLogArchives = cfg.ReadInt("MaxLogArchives", 30, 0, false, 0, int.MaxValue, "The maximum number of log archives to keep at any one time. Disables log archiving if set to 0");
+            LogExceptions = cfg.ReadBool("LogExceptions", true, false, false, "Whether to log exceptions (errors) to the in-game console. If exception logs from vanilla issues like Scheg's Bow and the Experiments in The Cathedral are bothering you, you can disable this.");
         }
 
         internal static void Load()
