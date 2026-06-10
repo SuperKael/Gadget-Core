@@ -76,9 +76,19 @@ namespace GadgetCore.Loader
                 if (SymbolLoadTasks.Count > 0)
                 {
                     Logger.Log("Loading mod symbols...");
-                    Task.WaitAll(SymbolLoadTasks.ToArray());
-                    SymbolLoadTasks.Clear();
-                    Logger.Log("Done loading mod symbols.");
+                    try
+                    {
+                        Task.WaitAll(SymbolLoadTasks.ToArray());
+                        Logger.Log("Done loading mod symbols.");
+                    }
+                    catch (Exception e)
+                    {
+                        Logger.LogError("Exception during mod symbol loading: " + e);
+                    }
+                    finally
+                    {
+                        SymbolLoadTasks.Clear();
+                    }
                 }
                 Logger.Log("Loading mods...");
                 foreach (GadgetMod mod in GadgetMods.ListAllMods(true))
@@ -945,6 +955,9 @@ namespace GadgetCore.Loader
 
         internal static Task<MonoSymbolFile> LoadSymbolsInternal(string name, byte[] dllBytes, byte[] pdbBytes)
         {
+            string dllPath = Path.Combine(GadgetPaths.TempPath, Path.ChangeExtension(name, ".dll"));
+            string pdbPath = Path.ChangeExtension(dllPath, ".pdb");
+
             Task<MonoSymbolFile> task = new Task<MonoSymbolFile>(() =>
             {
                 MonoSymbolFile symbolFile;
@@ -960,8 +973,6 @@ namespace GadgetCore.Loader
                     return symbolFile;
                 }
                 foreach (string oldSymbolFile in Directory.GetFiles(GadgetPaths.SymbolsPath, name + "-*.dll.mdb")) File.Delete(oldSymbolFile);
-                string dllPath = Path.Combine(GadgetPaths.TempPath, Path.ChangeExtension(name, ".dll"));
-                string pdbPath = Path.ChangeExtension(dllPath, ".pdb");
                 string mdbPath = Path.ChangeExtension(dllPath, ".dll.mdb");
                 File.WriteAllBytes(dllPath, dllBytes);
                 File.WriteAllBytes(pdbPath, pdbBytes);
@@ -977,8 +988,6 @@ namespace GadgetCore.Loader
                 Process process = Process.Start(psi);
                 if (process == null) return null;
                 process.WaitForExit();
-                File.Delete(dllPath);
-                File.Delete(pdbPath);
                 if (!File.Exists(mdbPath)) return null;
                 File.Move(mdbPath, symbolPath);
                 symbolFile = MonoSymbolFile.ReadSymbolFile(symbolPath);
@@ -987,7 +996,22 @@ namespace GadgetCore.Loader
             });
             // This is bad. However, doing better would take too much work in this tragic environment where System.Threading is broken
             // and fixing it is impossible without breaking most currently-existing mods.
-            new Thread(() => task.RunSynchronously()).Start();
+            new Thread(() =>
+            {
+                try
+                {
+                    task.RunSynchronously();
+                }
+                catch (Exception e)
+                {
+                    Logger.LogError("Error loading debug symbols for: " + name + ": " + e);
+                }
+                finally
+                {
+                    File.Delete(dllPath);
+                    File.Delete(pdbPath);
+                }
+            }).Start();
             return task;
         }
 
